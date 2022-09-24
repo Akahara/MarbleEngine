@@ -2,6 +2,10 @@
 #include "src/abstraction/Renderer.h"
 #include "src/abstraction/Camera.h"
 
+#include "src/vendor/imgui/imgui.h"
+#include "src/vendor/imgui/imgui_impl_glfw.h"
+#include "src/vendor/imgui/imgui_impl_opengl3.h"
+
 #include <thread>
 #include <chrono>
 
@@ -26,6 +30,10 @@ int main()
 
     auto temps = 0.F;
 
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow *>(Window::GetWindowHandle()), true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
 
     //===========================================================//
 
@@ -43,6 +51,11 @@ int main()
         Window::pollUserEvents();
         frames++;
 
+        ImGui_ImplGlfw_NewFrame();
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::ShowDemoWindow();
 
 		Renderer::Renderer::Clear(0.f);
 		Renderer::Renderer::BeginBatch(m_Camera);
@@ -75,8 +88,17 @@ int main()
             lastSec += (long long)1E9;
             frames = 0;
         }
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         Window::sendFrame();
         temps += realDelta;
     }
+
+    ImGui_ImplGlfw_Shutdown();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui::DestroyContext();
+
 	return 0;
 }
