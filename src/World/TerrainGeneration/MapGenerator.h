@@ -17,14 +17,16 @@ private:
 	int octaves;
 	float persistance, lacunarity;
 
+	int seed;
+
 public:
 
-	MapGenerator(int w, int h, int scale, int o, float p, float l) 
-		: mapWidth(w), mapHeight(h), noiseScale(scale), octaves(o), persistance(p), lacunarity(l) {}
+	MapGenerator(int w, int h, int scale, int o, float p, float l, int s)
+		: mapWidth(w), mapHeight(h), noiseScale(scale), octaves(o), persistance(p), lacunarity(l), seed(s) {}
 
 	unsigned int GenerateMap() {
 
-		float* noiseMap = Noise::GenerateNoiseMap(mapWidth, mapHeight, noiseScale, octaves, persistance, lacunarity);
+		float* noiseMap = Noise::GenerateNoiseMap(mapWidth, mapHeight, noiseScale, octaves, persistance, lacunarity, seed);
 		
 		// Texture stuff
 
@@ -32,7 +34,7 @@ public:
 		(glGenTextures(1, &texture));
 		(glBindTexture(GL_TEXTURE_2D, texture));
 
-		(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,  GL_LINEAR));
+		(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 		(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 		(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 		(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));

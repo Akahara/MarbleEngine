@@ -33,7 +33,7 @@ int main()
 
     //===========================================================//
 
-    MapGenerator mapGen(100, 100, 27.6, 4, 0.1f, 2.18f);
+    MapGenerator mapGen(100, 100, 27.6, 4, 0.3f, 3.18f, 235763);
     unsigned int id = mapGen.GenerateMap();
     std::shared_ptr<Renderer::Texture> texture = std::make_shared<Renderer::Texture>(id);
 

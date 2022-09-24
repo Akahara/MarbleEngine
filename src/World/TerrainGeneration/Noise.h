@@ -10,7 +10,8 @@
 namespace Noise
 {
 
-	 float* GenerateNoiseMap(int mapWidth, int mapHeight, float scale, int octaves, float persistance, float lacunarity);
+	 float* GenerateNoiseMap(int mapWidth, int mapHeight, float scale
+							, int octaves, float persistance, float lacunarity, int s );
 
 
 };
