@@ -34,9 +34,12 @@ void destroyWindow();
 unsigned int getWinWidth();
 unsigned int getWinHeight();
 void setAspectRatio(int w, int h);
+void setSize(unsigned int w, unsigned int h);
+void setPosition(int x, int y);
 void renameWindow(const char *title);
 void setFullScreen(bool fullScreen);
 void capFramerate();
+void captureMouse();
 
 void registerInputHandler(Inputs::InputHandler *handler);
 void unregisterInputHandler(Inputs::InputHandler *handler);

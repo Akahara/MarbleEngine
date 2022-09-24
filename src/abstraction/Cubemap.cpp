@@ -19,8 +19,7 @@ Cubemap::Cubemap(const std::string &front, const std::string &back, const std::s
   glGenTextures(1, &m_id);
   glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
 
-  //std::array<const std::string *, 6> files{ &front, &back, &left, &right, &top, &bottom };
-  std::array<const std::string *, 6> files{ &right, &left, &top, &bottom, &front, &back};
+  std::array<const std::string *, 6> files{ &front, &back, &top, &bottom, &right, &left};
 
   int width, height, nrChannels;
   for (unsigned int i = 0; i < 6; i++) {
@@ -131,16 +130,9 @@ void main()
 
 void DrawCubemap(const Cubemap &cubemap, const Camera &camera)
 {
-  static float tt = 0;
-  tt += .01f;
-  glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.45f, /*(float)input.getWidth() / input.getHeight()*/ 16.f/9.f, 0.1f, 100.f);
-  //glm::mat4 view = glm::lookAt(glm::vec3(glm::cos(tt), 0, glm::sin(tt)) * 3.f + glm::vec3(0, 4, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-  //projection = glm::rotate(projection, 3.14f / 4.f, glm::vec3(1, 0, 0));
-  glm::mat4 view = glm::rotate(glm::mat4(1), tt, glm::vec3(0, 1, 0));
-
   cmRenderData.shader->Bind();
   cmRenderData.vao->Bind();
-  cmRenderData.shader->SetUniformMat4f("u_VP", /* camera.getViewProjectionMatrix() */ projection * view);
+  cmRenderData.shader->SetUniformMat4f("u_VP", camera.getViewProjectionMatrix());
   keepAliveResources.ibo->Bind();
   cubemap.Bind();
 

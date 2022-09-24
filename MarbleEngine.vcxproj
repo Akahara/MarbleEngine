@@ -156,9 +156,11 @@
     <ClCompile Include="src\abstraction\Cubemap.cpp" />
     <ClCompile Include="src\abstraction\FrameBufferObject.cpp" />
     <ClCompile Include="src\abstraction\IndexBufferObject.cpp" />
+    <ClCompile Include="src\abstraction\Inputs.cpp" />
     <ClCompile Include="src\abstraction\Renderer.cpp" />
     <ClCompile Include="src\abstraction\Shader.cpp" />
     <ClCompile Include="src\abstraction\stb_image.cpp" />
+    <ClCompile Include="src\abstraction\TempRenderer.cpp" />
     <ClCompile Include="src\abstraction\Texture.cpp" />
     <ClCompile Include="src\abstraction\TextureAtlas.cpp" />
     <ClCompile Include="src\abstraction\VertexArray.cpp" />
@@ -168,9 +170,9 @@
     <ClCompile Include="src\vendor\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_draw.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_impl_glfw_gl3.cpp" />
+    <ClCompile Include="src\World\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Input.h" />
     <ClInclude Include="Libraries\include\glad\glad.h" />
     <ClInclude Include="Libraries\include\GLFW\glfw3.h" />
     <ClInclude Include="Libraries\include\GLFW\glfw3native.h" />
@@ -181,15 +183,18 @@
     <ClInclude Include="src\abstraction\Cubemap.h" />
     <ClInclude Include="src\abstraction\FrameBufferObject.h" />
     <ClInclude Include="src\abstraction\IndexBufferObject.h" />
+    <ClInclude Include="src\abstraction\Inputs.h" />
     <ClInclude Include="src\abstraction\Renderer.h" />
     <ClInclude Include="src\abstraction\Shader.h" />
     <ClInclude Include="src\abstraction\stb_image.h" />
+    <ClInclude Include="src\abstraction\TempRenderer.h" />
     <ClInclude Include="src\abstraction\Texture.h" />
     <ClInclude Include="src\abstraction\TextureAtlas.h" />
     <ClInclude Include="src\abstraction\VertexArray.h" />
     <ClInclude Include="src\abstraction\VertexBufferLayout.h" />
     <ClInclude Include="src\abstraction\VertexBufferObject.h" />
     <ClInclude Include="src\abstraction\Window.h" />
+    <ClInclude Include="src\Utils\Mathf.h" />
     <ClInclude Include="src\vendor\imgui\imconfig.h" />
     <ClInclude Include="src\vendor\imgui\imgui.h" />
     <ClInclude Include="src\vendor\imgui\imgui_impl_glfw_gl3.h" />
@@ -197,6 +202,7 @@
     <ClInclude Include="src\vendor\imgui\stb_rect_pack.h" />
     <ClInclude Include="src\vendor\imgui\stb_textedit.h" />
     <ClInclude Include="src\vendor\imgui\stb_truetype.h" />
+    <ClInclude Include="src\World\Player.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />

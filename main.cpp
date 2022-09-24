@@ -2,6 +2,11 @@
 #include "src/abstraction/Renderer.h"
 #include "src/abstraction/Camera.h"
 #include "src/abstraction/Cubemap.h"
+#include "src/abstraction/Inputs.h"
+
+#include "src/abstraction/TempRenderer.h"
+
+#include "src/world/Player.h"
 
 #include <thread>
 #include <chrono>
@@ -19,7 +24,9 @@ int main()
 
     unsigned int frames = 0;
     Window::setVisible(true);
+    Window::setPosition(400, 100);
     Window::capFramerate();
+    Inputs::ObserveInputs();
 
     auto firstTime = nanoTime();
     auto lastSec = firstTime;
@@ -31,12 +38,14 @@ int main()
 
 	Renderer::Renderer::Init();
     Renderer::CubemapRenderer::Init();
+    TempRenderer::Init();
 
     Renderer::Cubemap skybox{
-      "res/skybox/skybox_front.bmp", "res/skybox/skybox_back.bmp",
-      "res/skybox/skybox_left.bmp",  "res/skybox/skybox_right.bmp",
-      "res/skybox/skybox_top.bmp",   "res/skybox/skybox_bottom.bmp" };
+      "res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
+      "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
+      "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" };
 
+    Player player{};
 
     while (!Window::shouldClose()) {
         auto nextTime = nanoTime();
@@ -45,27 +54,27 @@ int main()
 
         float realDelta = delta / 1E9f;
         Window::pollUserEvents();
+        Inputs::UpdateInputs();
+        player.Step(realDelta);
         frames++;
 
 
 		Renderer::Renderer::Clear(0.f);
-		Renderer::Renderer::BeginBatch(m_Camera);
-        
+		//Renderer::Renderer::BeginBatch(m_Camera);
 
-		for (float y = -1.0f; y < 1.0f; y += 0.025f) {
-			for (float x = -1.0f; x < 1.0f; x += 0.025f) {
-                
-				glm::vec4 color = { (x + 1.0f) / 2.0f * (sin(temps * 2) + 1),
-									(x + y) / 2.0f * (cos(temps * 7) + 1),
-									(y + 1.0f) / 2.0f * (sin(temps * 2) + 1),
-									1.0f };
-                
-				Renderer::Renderer::DrawQuad({ x,y, 0.0f }, { 0.02f, 0.02f }, color);
-			}
-		}
+		//for (float y = -1.0f; y < 1.0f; y += 0.025f) {
+		//	for (float x = -1.0f; x < 1.0f; x += 0.025f) {
+		//		glm::vec4 color = { (x + 1.0f) / 2.0f * (sin(temps * 2) + 1),
+		//							(x + y) / 2.0f * (cos(temps * 7) + 1),
+		//							(y + 1.0f) / 2.0f * (sin(temps * 2) + 1),
+		//							1.0f };
+		//		Renderer::Renderer::DrawQuad({ x,y, 0.0f }, { 0.02f, 0.02f }, color);
+		//	}
+		//}
 
-		Renderer::Renderer::EndBatch();
-		Renderer::Renderer::Flush();
+		//Renderer::Renderer::EndBatch();
+		//Renderer::Renderer::Flush();
+
         if (lastSec + 1E9 < nextTime) {
             char title[50];
             sprintf_s(title, 50, "Some game, %dfps", frames);
@@ -74,7 +83,10 @@ int main()
             frames = 0;
         }
 
-        Renderer::CubemapRenderer::DrawCubemap(skybox, m_Camera);
+        Renderer::CubemapRenderer::DrawCubemap(skybox, player.GetCamera());
+        TempRenderer::RenderCube({ 1, 0, 0 }, glm::vec3{ 1.f, .05f, .05f }, { 0.f, 0.f, 1.f }, player.GetCamera().getViewProjectionMatrix()); // +x blue
+        TempRenderer::RenderCube({ 0, 1, 0 }, glm::vec3{ .05f, 1.f, .05f }, { 1.f, 0.f, 0.f }, player.GetCamera().getViewProjectionMatrix()); // +y red
+        TempRenderer::RenderCube({ 0, 0, 1 }, glm::vec3{ .05f, .05f, 1.f }, { 0.f, 1.f, 0.f }, player.GetCamera().getViewProjectionMatrix()); // +z green
 
         Window::sendFrame();
         temps += realDelta;

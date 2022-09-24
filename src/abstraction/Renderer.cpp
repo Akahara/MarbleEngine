@@ -96,7 +96,7 @@ namespace Renderer {
 
 	void Renderer::Clear(const float& r) {
 		glClearColor(r, 0.13f, 0.17f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void Renderer::Draw(const VertexArray& va, const IndexBufferObject& ibo, const Shader& shader) {
