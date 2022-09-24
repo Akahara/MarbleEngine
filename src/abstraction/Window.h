@@ -31,6 +31,9 @@ void sendFrame();
 void pollUserEvents();
 void destroyWindow();
 
+// Unsafe, returns a GLFWwindow*
+void *GetWindowHandle();
+
 unsigned int getWinWidth();
 unsigned int getWinHeight();
 void setAspectRatio(int w, int h);

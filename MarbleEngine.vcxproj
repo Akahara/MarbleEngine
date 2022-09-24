@@ -152,7 +152,6 @@
   <ItemGroup>
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="src\World\TerrainGeneration\MapGenerator.cpp" />
     <ClCompile Include="src\abstraction\Camera.cpp" />
     <ClCompile Include="src\abstraction\FrameBufferObject.cpp" />
     <ClCompile Include="src\abstraction\IndexBufferObject.cpp" />
@@ -167,21 +166,21 @@
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_draw.cpp" />
-    <ClCompile Include="src\vendor\imgui\imgui_impl_glfw_gl3.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_tables.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\World\TerrainGeneration\HeightMap.cpp" />
     <ClCompile Include="src\World\TerrainGeneration\MeshGenerator.cpp" />
     <ClCompile Include="src\World\TerrainGeneration\Noise.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\programming\Engine2D\Engine2D\src\vendor\stb_image\stb_image_write.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Libraries\include\glad\glad.h" />
     <ClInclude Include="Libraries\include\GLFW\glfw3.h" />
     <ClInclude Include="Libraries\include\GLFW\glfw3native.h" />
     <ClInclude Include="Libraries\include\KHR\khrplatform.h" />
     <ClInclude Include="Libraries\include\stb\stb_image.h" />
-    <ClInclude Include="src\abstraction\stb_image_write.h" />
-    <ClInclude Include="src\World\TerrainGeneration\MapGenerator.h" />
     <ClInclude Include="src\abstraction\BufferObject.h" />
     <ClInclude Include="src\abstraction\Camera.h" />
     <ClInclude Include="src\abstraction\FrameBufferObject.h" />
@@ -197,15 +196,16 @@
     <ClInclude Include="src\abstraction\Window.h" />
     <ClInclude Include="src\vendor\imgui\imconfig.h" />
     <ClInclude Include="src\vendor\imgui\imgui.h" />
-    <ClInclude Include="src\vendor\imgui\imgui_impl_glfw_gl3.h" />
+    <ClInclude Include="src\vendor\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="src\vendor\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\vendor\imgui\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="src\vendor\imgui\imgui_internal.h" />
-    <ClInclude Include="src\vendor\imgui\stb_rect_pack.h" />
-    <ClInclude Include="src\vendor\imgui\stb_textedit.h" />
-    <ClInclude Include="src\vendor\imgui\stb_truetype.h" />
+    <ClInclude Include="src\vendor\imgui\imstb_rectpack.h" />
+    <ClInclude Include="src\vendor\imgui\imstb_textedit.h" />
+    <ClInclude Include="src\vendor\imgui\imstb_truetype.h" />
     <ClInclude Include="src\World\TerrainGeneration\HeightMap.h" />
     <ClInclude Include="src\World\TerrainGeneration\MeshGenerator.h" />
     <ClInclude Include="src\World\TerrainGeneration\Noise.h" />
-    <ClInclude Include="src\World\TerrainGeneration\PerlinNoise.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />

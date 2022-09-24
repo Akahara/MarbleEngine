@@ -19,6 +19,8 @@ private:
 
 	int seed;
 
+	unsigned int m_renderTexture;
+
 public:
 
 	MapGenerator(int w, int h, int scale, int o, float p, float l, int s)
@@ -30,9 +32,8 @@ public:
 		
 		// Texture stuff
 
-		unsigned int texture;
-		(glGenTextures(1, &texture));
-		(glBindTexture(GL_TEXTURE_2D, texture));
+		(glGenTextures(1, &m_renderTexture));
+		(glBindTexture(GL_TEXTURE_2D, m_renderTexture));
 
 		(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 		(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -47,7 +48,36 @@ public:
 		//testwriteTextureToFile(texture, "res.png");
 		std::cout << "End of generation" << std::endl;
 		delete[] noiseMap;
-		return texture;
+		return m_renderTexture;
+	}
+
+	unsigned int Regenerate(int w, int h, int scale, int o, float p, float l, int s) {
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDeleteTextures(1, &m_renderTexture);
+
+		float* noiseMap = Noise::GenerateNoiseMap(w,h,scale,o,p,l,s);
+
+		// Texture stuff
+
+		(glGenTextures(1, &m_renderTexture));
+		(glBindTexture(GL_TEXTURE_2D, m_renderTexture));
+
+		(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+		(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+		(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+		(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+
+		if (noiseMap)
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mapWidth, mapHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, noiseMap);
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
+		std::cout << "End of generation" << std::endl;
+		delete[] noiseMap;
+		return m_renderTexture;
+
+
 	}
 
 
