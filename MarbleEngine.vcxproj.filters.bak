@@ -60,10 +60,10 @@
     <ClCompile Include="src\abstraction\Camera.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\abstraction\Window.cpp">
+    <ClCompile Include="src\abstraction\stb_image.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\abstraction\stb_image.cpp">
+    <ClCompile Include="src\World\TerrainGeneration\Noise.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="src\World\TerrainGeneration\HeightMap.cpp">
@@ -72,7 +72,10 @@
     <ClCompile Include="src\World\TerrainGeneration\MeshGenerator.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\World\TerrainGeneration\Noise.cpp">
+    <ClCompile Include="src\DisplayCentral\window.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="src\abstraction\Window.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -149,10 +152,10 @@
     <ClInclude Include="Input.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="src\abstraction\Window.h">
+    <ClInclude Include="src\abstraction\stb_image.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="src\abstraction\stb_image.h">
+    <ClInclude Include="src\World\TerrainGeneration\Noise.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="src\World\TerrainGeneration\HeightMap.h">
@@ -161,7 +164,10 @@
     <ClInclude Include="src\World\TerrainGeneration\MeshGenerator.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="src\World\TerrainGeneration\Noise.h">
+    <ClInclude Include="src\DisplayCentral\window.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="src\abstraction\Window.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
