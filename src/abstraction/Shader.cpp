@@ -35,7 +35,7 @@ namespace Renderer {
 
 	//================== SHADER CLASS =============//
 
-	Shader::Shader(std::string& str_vertexShader, std::string& str_fragmentShader) {
+	Shader::Shader(const std::string& str_vertexShader, const std::string& str_fragmentShader) {
 
 		const char* vertexSource = str_vertexShader.c_str();
 		const char* fragmentSource = str_fragmentShader.c_str();

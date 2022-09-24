@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include<glad/glad.h>
+#include <glad/glad.h>
 
 #include "Texture.h"
 #include "TextureAtlas.h"
@@ -40,6 +40,8 @@ namespace Renderer {
 
 #define ASSERT(x) if (!(x)) __debugbreak();
 
+// not needed ! Window#openglMessageCallback will be called anyway on error
+// TODO remove GLClearError GLLogCall Renderer#openglMessageCallback
 #define GLCall(x) GLClearError();\
 	x;\
 	ASSERT(GLLogCall(#x, __FILE__, __LINE__))

@@ -153,6 +153,7 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\abstraction\Camera.cpp" />
+    <ClCompile Include="src\abstraction\Cubemap.cpp" />
     <ClCompile Include="src\abstraction\FrameBufferObject.cpp" />
     <ClCompile Include="src\abstraction\IndexBufferObject.cpp" />
     <ClCompile Include="src\abstraction\Renderer.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="Libraries\include\stb\stb_image.h" />
     <ClInclude Include="src\abstraction\BufferObject.h" />
     <ClInclude Include="src\abstraction\Camera.h" />
+    <ClInclude Include="src\abstraction\Cubemap.h" />
     <ClInclude Include="src\abstraction\FrameBufferObject.h" />
     <ClInclude Include="src\abstraction\IndexBufferObject.h" />
     <ClInclude Include="src\abstraction\Renderer.h" />

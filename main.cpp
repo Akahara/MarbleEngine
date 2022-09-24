@@ -1,6 +1,7 @@
 #include "src/abstraction/Window.h"
 #include "src/abstraction/Renderer.h"
 #include "src/abstraction/Camera.h"
+#include "src/abstraction/Cubemap.h"
 
 #include <thread>
 #include <chrono>
@@ -16,22 +17,25 @@ int main()
 {
 	Window::createWindow(813, 546, "test");
 
-    unsigned int  frames = 0;
+    unsigned int frames = 0;
     Window::setVisible(true);
     Window::capFramerate();
 
     auto firstTime = nanoTime();
-
     auto lastSec = firstTime;
-
     auto temps = 0.F;
-
 
     //===========================================================//
 
 	Renderer::Camera m_Camera(-1.0f, 1.0f, -1.0f, 1.0f);
 
 	Renderer::Renderer::Init();
+    Renderer::CubemapRenderer::Init();
+
+    Renderer::Cubemap skybox{
+      "res/skybox/skybox_front.bmp", "res/skybox/skybox_back.bmp",
+      "res/skybox/skybox_left.bmp",  "res/skybox/skybox_right.bmp",
+      "res/skybox/skybox_top.bmp",   "res/skybox/skybox_bottom.bmp" };
 
 
     while (!Window::shouldClose()) {
@@ -57,15 +61,9 @@ int main()
 									1.0f };
                 
 				Renderer::Renderer::DrawQuad({ x,y, 0.0f }, { 0.02f, 0.02f }, color);
-
 			}
-
-
 		}
 
-        std::cout << temps << std::endl;
-
-        
 		Renderer::Renderer::EndBatch();
 		Renderer::Renderer::Flush();
         if (lastSec + 1E9 < nextTime) {
@@ -75,8 +73,12 @@ int main()
             lastSec += (long long)1E9;
             frames = 0;
         }
+
+        Renderer::CubemapRenderer::DrawCubemap(skybox, m_Camera);
+
         Window::sendFrame();
         temps += realDelta;
     }
+
 	return 0;
 }

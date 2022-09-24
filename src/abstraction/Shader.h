@@ -20,7 +20,7 @@ private:
 public:
 
 	Shader() {}
-	Shader(std::string& str_vertexShader, std::string& str_fragmentShader);
+	Shader(const std::string& str_vertexShader, const std::string& str_fragmentShader);
 
 	void Bind()const;
 	void Unbind()const;

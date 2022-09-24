@@ -112,6 +112,7 @@ void createWindow(unsigned int width, unsigned int height, const char *title)
   glDebugMessageCallback(openglMessageCallback, 0);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_CULL_FACE);
   glViewport(0, 0, width, height);
   glClearColor(0.f, 0.f, .5f, 1.f);
 }
