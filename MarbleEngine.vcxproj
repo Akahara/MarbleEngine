@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\World\TerrainGeneration\MapGenerator.cpp" />
     <ClCompile Include="src\abstraction\Camera.cpp" />
     <ClCompile Include="src\abstraction\FrameBufferObject.cpp" />
     <ClCompile Include="src\abstraction\IndexBufferObject.cpp" />
@@ -172,12 +173,15 @@
     <ClCompile Include="src\World\TerrainGeneration\Noise.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\programming\Engine2D\Engine2D\src\vendor\stb_image\stb_image_write.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Libraries\include\glad\glad.h" />
     <ClInclude Include="Libraries\include\GLFW\glfw3.h" />
     <ClInclude Include="Libraries\include\GLFW\glfw3native.h" />
     <ClInclude Include="Libraries\include\KHR\khrplatform.h" />
     <ClInclude Include="Libraries\include\stb\stb_image.h" />
+    <ClInclude Include="src\abstraction\stb_image_write.h" />
+    <ClInclude Include="src\World\TerrainGeneration\MapGenerator.h" />
     <ClInclude Include="src\abstraction\BufferObject.h" />
     <ClInclude Include="src\abstraction\Camera.h" />
     <ClInclude Include="src\abstraction\FrameBufferObject.h" />
@@ -201,6 +205,7 @@
     <ClInclude Include="src\World\TerrainGeneration\HeightMap.h" />
     <ClInclude Include="src\World\TerrainGeneration\MeshGenerator.h" />
     <ClInclude Include="src\World\TerrainGeneration\Noise.h" />
+    <ClInclude Include="src\World\TerrainGeneration\PerlinNoise.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />

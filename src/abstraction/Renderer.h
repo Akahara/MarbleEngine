@@ -50,3 +50,4 @@ bool GLLogCall(const char* function, const char* file, int line);
 const char* GLTranslateError(GLenum error);
 void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
 	GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
+

@@ -1,9 +1,5 @@
 #include "Texture.h"
-#include "Renderer.h"
-#include "stb_image.h"
 
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
 
 namespace Renderer {
 

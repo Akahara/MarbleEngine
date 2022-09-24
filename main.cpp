@@ -1,6 +1,10 @@
 #include "src/abstraction/Window.h"
 #include "src/abstraction/Renderer.h"
 #include "src/abstraction/Camera.h"
+#include "src/World/TerrainGeneration/MapGenerator.h"
+
+#include "src/vendor/imgui/imgui.h"
+#include "src/vendor/imgui/imgui_impl_glfw_gl3.h"
 
 #include <thread>
 #include <chrono>
@@ -29,12 +33,22 @@ int main()
 
     //===========================================================//
 
-	Renderer::Camera m_Camera(-1.0f, 1.0f, -1.0f, 1.0f);
+    MapGenerator mapGen(100, 100, 27.6, 4, 0.1f, 2.18f);
+    unsigned int id = mapGen.GenerateMap();
+    std::shared_ptr<Renderer::Texture> texture = std::make_shared<Renderer::Texture>(id);
 
+
+
+
+
+	Renderer::Camera m_Camera(-1.0f, 1.0f, -1.0f, 1.0f);
 	Renderer::Renderer::Init();
 
+    //------------------------------------//
 
     while (!Window::shouldClose()) {
+
+
         auto nextTime = nanoTime();
         auto delta = nextTime - firstTime;
         firstTime = nextTime;
@@ -42,32 +56,21 @@ int main()
         float realDelta = delta / 1E9f;
         Window::pollUserEvents();
         frames++;
-
+                    
+        ///////////////////////// BATCH
+        
 
 		Renderer::Renderer::Clear(0.f);
 		Renderer::Renderer::BeginBatch(m_Camera);
         
 
-		for (float y = -1.0f; y < 1.0f; y += 0.025f) {
-			for (float x = -1.0f; x < 1.0f; x += 0.025f) {
+        Renderer::Renderer::DrawQuad({ -1.f,-1.f, 0.0f }, { 2.f, 2.f }, texture);
                 
-				glm::vec4 color = { (x + 1.0f) / 2.0f * (sin(temps * 2) + 1),
-									(x + y) / 2.0f * (cos(temps * 7) + 1),
-									(y + 1.0f) / 2.0f * (sin(temps * 2) + 1),
-									1.0f };
-                
-				Renderer::Renderer::DrawQuad({ x,y, 0.0f }, { 0.02f, 0.02f }, color);
-
-			}
-
-
-		}
-
-        std::cout << temps << std::endl;
-
-        
 		Renderer::Renderer::EndBatch();
 		Renderer::Renderer::Flush();
+        
+        /////////////////////////////////
+
         if (lastSec + 1E9 < nextTime) {
             char title[50];
             sprintf_s(title, 50, "Some game, %dfps", frames);
@@ -75,8 +78,11 @@ int main()
             lastSec += (long long)1E9;
             frames = 0;
         }
+
         Window::sendFrame();
         temps += realDelta;
+
+
     }
 	return 0;
 }

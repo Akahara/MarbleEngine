@@ -19,7 +19,7 @@ private:
 
 public:
 
-	Shader() {}
+	Shader() : m_ShaderID(0) {}
 	Shader(std::string& str_vertexShader, std::string& str_fragmentShader);
 
 	void Bind()const;

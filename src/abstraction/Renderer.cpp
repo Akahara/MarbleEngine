@@ -149,6 +149,8 @@ namespace Renderer {
 			{
 				int index = int(v_TexIndex);
 				color = texture(u_Textures[index], v_TexCoord) * v_Color;
+				float sample = (color.x+color.y+color.z)/3;
+				color = vec4(sample, sample, sample, 1);
 				
 			};
 		)glsl";
