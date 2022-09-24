@@ -60,7 +60,7 @@
     <ClCompile Include="src\abstraction\Camera.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\DisplayCentral\window.cpp">
+    <ClCompile Include="src\abstraction\Window.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="src\abstraction\stb_image.cpp">
@@ -140,7 +140,7 @@
     <ClInclude Include="Input.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="src\DisplayCentral\window.h">
+    <ClInclude Include="src\abstraction\Window.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="src\abstraction\stb_image.h">

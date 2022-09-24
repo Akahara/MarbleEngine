@@ -1,11 +1,9 @@
-#include "src/DisplayCentral/window.h"
-
+#include "src/abstraction/Window.h"
 #include "src/abstraction/Renderer.h"
 #include "src/abstraction/Camera.h"
 
-
 #include <thread>
-#include<chrono>
+#include <chrono>
 
 inline long long nanoTime()
 {
@@ -16,11 +14,11 @@ inline long long nanoTime()
 
 int main()
 {
-	window::createWindow(813, 546, "test");
+	Window::createWindow(813, 546, "test");
 
     unsigned int  frames = 0;
-    window::setVisible(true);
-    window::capFramerate();
+    Window::setVisible(true);
+    Window::capFramerate();
 
     auto firstTime = nanoTime();
 
@@ -36,13 +34,13 @@ int main()
 	Renderer::Renderer::Init();
 
 
-    while (!window::shouldClose()) {
+    while (!Window::shouldClose()) {
         auto nextTime = nanoTime();
         auto delta = nextTime - firstTime;
         firstTime = nextTime;
 
         float realDelta = delta / 1E9f;
-        window::pollUserEvents();
+        Window::pollUserEvents();
         frames++;
 
 
@@ -73,11 +71,11 @@ int main()
         if (lastSec + 1E9 < nextTime) {
             char title[50];
             sprintf_s(title, 50, "Some game, %dfps", frames);
-            window::renameWindow(title);
+            Window::renameWindow(title);
             lastSec += (long long)1E9;
             frames = 0;
         }
-        window::sendFrame();
+        Window::sendFrame();
         temps += realDelta;
     }
 	return 0;

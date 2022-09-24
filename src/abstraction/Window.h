@@ -1,17 +1,17 @@
 #pragma once
 
-namespace window {
+namespace Window {
 
-namespace inputs {
+namespace Inputs {
 
 typedef int action_t;
 typedef int button_t;
 
 constexpr action_t ACTION_RELEASE = 0;
-constexpr action_t ACTION_PRESS = 1;
-constexpr action_t ACTION_REPEAT = 2;
-constexpr button_t BUTTON_LEFT = 0;
-constexpr button_t BUTTON_RIGHT = 1;
+constexpr action_t ACTION_PRESS   = 1;
+constexpr action_t ACTION_REPEAT  = 2;
+constexpr button_t BUTTON_LEFT    = 0;
+constexpr button_t BUTTON_RIGHT   = 1;
 
 class InputHandler {
 public:
@@ -25,19 +25,20 @@ public:
 }
 
 void createWindow(unsigned int width, unsigned int height, const char *title);
-void *getWindow();
+void setVisible(bool visible = true);
+bool shouldClose();
+void sendFrame();
+void pollUserEvents();
+void destroyWindow();
+
 unsigned int getWinWidth();
 unsigned int getWinHeight();
-void setVisible(bool visible);
 void setAspectRatio(int w, int h);
-void sendFrame();
-bool shouldClose();
-void pollUserEvents();
 void renameWindow(const char *title);
 void setFullScreen(bool fullScreen);
 void capFramerate();
-void destroyWindow();
-void registerInputHandler(inputs::InputHandler *handler);
-void unregisterInputHandler(inputs::InputHandler *handler);
+
+void registerInputHandler(Inputs::InputHandler *handler);
+void unregisterInputHandler(Inputs::InputHandler *handler);
 
 };
