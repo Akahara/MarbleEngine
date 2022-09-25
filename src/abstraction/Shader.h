@@ -1,47 +1,43 @@
 #pragma once
 
-#include<glad/glad.h>
+#include <glad/glad.h>
 #include <string>
 #include <unordered_map>
+#include <string_view>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Renderer {
 
-std::string get_file_contents(const char* filename);
-
 class Shader
 {
 private:
-
 	unsigned int m_ShaderID;
-	std::unordered_map<std::string, int> m_UniformLocationCache;
+	std::unordered_map<std::string_view, int> m_UniformLocationCache;
 
 public:
-
-	Shader() {}
+	Shader() : m_ShaderID(0) {}
 	Shader(const std::string& str_vertexShader, const std::string& str_fragmentShader);
+	Shader(Shader &&moved) noexcept;
+	Shader &operator=(Shader &&moved) noexcept;
+	Shader &operator=(const Shader &) = delete;
+	Shader(const Shader &) = delete;
 
-	void Bind()const;
-	void Unbind()const;
+	void Bind() const;
+	void Unbind() const;
 	void Delete();
 
-	void IsProgram() const;
+	void SetUniform1i(std::string_view name, int value);
+	void SetUniform1f(std::string_view name, float value);
+	void SetUniform3f(std::string_view name, float v1, float v2, float v3);
+	void SetUniform4f(std::string_view name, float v1, float v2, float v3, float v4);
+	void SetUniformMat4f(std::string_view name, const glm::mat4 &matrix);
+	void SetUniform1iv(std::string_view name, unsigned int count, const GLint* data);
 
-	void  SetUniform1i(const std::string& name, int value);
-	void  SetUniform1f(const std::string& name, float value);
-	void  SetUniform4f(const std::string& name, float v1, float v2, float v3, float v4);
-	void  SetUniform3f(const std::string& name, float v1, float v2, float v3);
-	void  SetUniformMat4f(const std::string& name, const glm::mat4& matrix);
-	void  SetUniform1iv(const std::string& name, unsigned int count, const GLint* data);
-
+	// Unsafe
 	inline unsigned int getId() { return m_ShaderID; }
-
 private:
-	int GetUniformLocation(const std::string& name);
-
-
-
+	int GetUniformLocation(std::string_view name);
 };
 
 }

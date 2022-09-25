@@ -10,9 +10,9 @@ class FrameBufferObject :  public BufferObject
 		FrameBufferObject();
 		~FrameBufferObject();
 
-		void Bind()const;
-		void Unbind()const;
-		void Delete();
+		void Bind() const override;
+		void Unbind() const override;
+		void Delete() override;
 
 		unsigned int GetTextureColorBuffer() const { return m_TextureColorBuffer; }
 

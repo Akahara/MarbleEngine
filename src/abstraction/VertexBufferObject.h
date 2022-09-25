@@ -11,6 +11,8 @@ namespace Renderer {
         VertexBufferObject(const void* vertices, unsigned int size);
         VertexBufferObject(unsigned int size);
         ~VertexBufferObject();
+        VertexBufferObject(VertexBufferObject &&moved) noexcept;
+        VertexBufferObject &operator=(VertexBufferObject &&moved) noexcept;
 
         void Bind() const override;
         void Unbind() const override;
