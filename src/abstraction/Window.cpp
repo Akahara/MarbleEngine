@@ -50,13 +50,14 @@ void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
   case GL_DEBUG_SEVERITY_HIGH:            severityName = "HIGH";            break;
   default:                                severityName = "?";               break;
   }
-  
+  /*
   std::cerr
     << "GL CALLBACK: " << sourceName << "\n"
     << " type     = " << typeName << "\n"
     << " severity = " << severityName << "\n"
     << " message  = " << message
     << std::endl;
+  */
   // add a breakpoint at the end of the function to catch opengl errors
 }
 
