@@ -82,9 +82,9 @@ int main()
         */
                     
 
-        if (ImGui::SliderInt("Width", &w, 0, 300) || ImGui::SliderInt("Height", &h, 0, 300) ||
-            ImGui::SliderFloat("Scale", &scale, 0, 50) || ImGui::SliderInt("Number of octaves", &o, 0, 5) ||
-            ImGui::SliderFloat("persistence", &p, 0, 1) || ImGui::SliderFloat("lacunarity", &l, 0, 10) ||
+        if (ImGui::SliderInt("Width", &w, 0, 300) + ImGui::SliderInt("Height", &h, 0, 300) +
+            ImGui::SliderFloat("Scale", &scale, 0, 50) + ImGui::SliderInt("Number of octaves", &o, 0, 5) +
+            ImGui::SliderFloat("persistence", &p, 0, 1) + ImGui::SliderFloat("lacunarity", &l, 0, 10) +
             ImGui::SliderInt("seed", &seed, 0, 30000) ) {
 
             unsigned int nid;
@@ -103,7 +103,7 @@ int main()
 
             if (noiseMap)
             {
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 100, 100, 0, GL_RGBA, GL_UNSIGNED_BYTE, noiseMap);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_FLOAT, noiseMap);
                 glBindTexture(GL_TEXTURE_2D, 0);
             }
             std::cout << "End of generation" << std::endl;

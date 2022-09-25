@@ -42,7 +42,7 @@ public:
 
 		if (noiseMap)
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mapWidth, mapHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, noiseMap);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mapWidth, mapHeight, 0, GL_RED, GL_FLOAT, noiseMap);
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 		//testwriteTextureToFile(texture, "res.png");
@@ -70,7 +70,7 @@ public:
 
 		if (noiseMap)
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mapWidth, mapHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, noiseMap);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mapWidth, mapHeight, 0, GL_RED, GL_FLOAT, noiseMap);
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 		std::cout << "End of generation" << std::endl;

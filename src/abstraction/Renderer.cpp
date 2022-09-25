@@ -149,9 +149,10 @@ namespace Renderer {
 			{
 				int index = int(v_TexIndex);
 				color = texture(u_Textures[index], v_TexCoord) * v_Color;
-				float sample = (color.x+color.y+color.z)/3;
-				color = vec4(sample, sample, sample, 1);
-				
+				//float sample = (color.x+color.y+color.z)/3;
+				//color = vec4(sample, sample, sample, 1);
+				color.rgb = vec3(color.r); // the perlin noise texture contains a red channel only !
+				color.a = 1;
 			};
 		)glsl";
 		
