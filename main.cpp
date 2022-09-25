@@ -32,6 +32,8 @@ int main()
     auto lastSec = firstTime;
     auto temps = 0.F;
 
+    bool lines = true;
+
     //===========================================================//
 
 	Renderer::Camera m_Camera(-1.0f, 1.0f, -1.0f, 1.0f);
@@ -84,9 +86,8 @@ int main()
         }
 
         Renderer::CubemapRenderer::DrawCubemap(skybox, player.GetCamera());
-        TempRenderer::RenderCube({ 1, 0, 0 }, glm::vec3{ 1.f, .05f, .05f }, { 0.f, 0.f, 1.f }, player.GetCamera().getViewProjectionMatrix()); // +x blue
-        TempRenderer::RenderCube({ 0, 1, 0 }, glm::vec3{ .05f, 1.f, .05f }, { 1.f, 0.f, 0.f }, player.GetCamera().getViewProjectionMatrix()); // +y red
-        TempRenderer::RenderCube({ 0, 0, 1 }, glm::vec3{ .05f, .05f, 1.f }, { 0.f, 1.f, 0.f }, player.GetCamera().getViewProjectionMatrix()); // +z green
+        TempRenderer::RenderCube({ 1, 0, 0 }, glm::vec3{ 1.f, .00f, .05f }, { 0.f, 0.f, 1.f }, player.GetCamera().getViewProjectionMatrix()); // +x blue
+        TempRenderer::RenderPlane({ 0, 0.5, 0 }, glm::vec3{ 0.3f, 0.3F , 0.3F }, { (sin(temps)+1)*2, 0.f, 1.f}, 1, player.GetCamera().getViewProjectionMatrix(), lines);
 
         Window::sendFrame();
         temps += realDelta;

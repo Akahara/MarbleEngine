@@ -4,16 +4,23 @@
 #include "VertexArray.h"
 #include "IndexBufferObject.h"
 
+#include <memory>
+
 using namespace Renderer;
 
 namespace TempRenderer {
 
-static struct {
+    static std::unique_ptr<VertexBufferObject> vbo;
+    static  std::unique_ptr<IndexBufferObject> ibo;
+    static  std::unique_ptr<VertexArray> vao;
+
+
+static struct renderData {
   Shader *shader;
   VertexArray *vao;
 } cmRenderData;
 
-static struct {
+static struct KAR {
   VertexBufferObject *vbo;
   IndexBufferObject *ibo;
 } keepAliveResources;
@@ -74,6 +81,11 @@ void main()
   cmRenderData.vao = new VertexArray;
   cmRenderData.vao->addBuffer(*keepAliveResources.vbo, layout);
   cmRenderData.vao->Unbind();
+
+
+
+
+
 }
 
 void RenderCube(glm::vec3 position, glm::vec3 size, glm::vec3 color, const glm::mat4 &VP)
@@ -89,6 +101,58 @@ void RenderCube(glm::vec3 position, glm::vec3 size, glm::vec3 color, const glm::
   keepAliveResources.ibo->Bind();
 
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+}
+
+
+void RenderPlane(const glm::vec3& position, const glm::vec3& size, const glm::vec3& color, float rotation, const glm::mat4& VP, bool drawLines) {
+
+    float verticesPlane[] = {
+      -1, -1, 0,
+      +1, -1, 0,
+      +1, +1, 0,
+      -1, +1, 0
+
+    };
+
+    unsigned int indicesPlane[] = {
+      3,2,0,
+      2,1,0,
+
+    };
+
+
+    vbo = std::make_unique<VertexBufferObject>(verticesPlane, sizeof(verticesPlane));
+    ibo = std::make_unique <IndexBufferObject>(indicesPlane, sizeof(indicesPlane) / sizeof(indicesPlane[0]));
+
+    VertexBufferLayout layout;
+    layout.push<float>(3);
+    vao = std::make_unique<VertexArray>();
+    vao->addBuffer(*vbo, layout);
+    vao->Unbind();
+
+    glm::mat4 M(1.f);
+    M = glm::translate(M, position);
+    M = glm::scale(M, size);
+    M = glm::rotate(M, rotation, glm::vec3{ 1,0,0 });
+
+    cmRenderData.shader->Bind();
+    vao->Bind();
+
+    cmRenderData.shader->SetUniformMat4f("u_VP", VP);
+    cmRenderData.shader->SetUniformMat4f("u_M", M);
+    cmRenderData.shader->SetUniform4f("u_color", color.r, color.g, color.b, 1.f);
+    ibo->Bind();
+
+    if (drawLines) {
+
+        glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, nullptr);
+
+    }
+    else {
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    }
+
+
 }
 
 }
