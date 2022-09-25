@@ -58,22 +58,7 @@ int main()
         player.Step(realDelta);
         frames++;
 
-
 		Renderer::Renderer::Clear(0.f);
-		//Renderer::Renderer::BeginBatch(m_Camera);
-
-		//for (float y = -1.0f; y < 1.0f; y += 0.025f) {
-		//	for (float x = -1.0f; x < 1.0f; x += 0.025f) {
-		//		glm::vec4 color = { (x + 1.0f) / 2.0f * (sin(temps * 2) + 1),
-		//							(x + y) / 2.0f * (cos(temps * 7) + 1),
-		//							(y + 1.0f) / 2.0f * (sin(temps * 2) + 1),
-		//							1.0f };
-		//		Renderer::Renderer::DrawQuad({ x,y, 0.0f }, { 0.02f, 0.02f }, color);
-		//	}
-		//}
-
-		//Renderer::Renderer::EndBatch();
-		//Renderer::Renderer::Flush();
 
         if (lastSec + 1E9 < nextTime) {
             char title[50];
@@ -83,10 +68,11 @@ int main()
             frames = 0;
         }
 
-        Renderer::CubemapRenderer::DrawCubemap(skybox, player.GetCamera());
-        TempRenderer::RenderCube({ 1, 0, 0 }, glm::vec3{ 1.f, .05f, .05f }, { 0.f, 0.f, 1.f }, player.GetCamera().getViewProjectionMatrix()); // +x blue
-        TempRenderer::RenderCube({ 0, 1, 0 }, glm::vec3{ .05f, 1.f, .05f }, { 1.f, 0.f, 0.f }, player.GetCamera().getViewProjectionMatrix()); // +y red
-        TempRenderer::RenderCube({ 0, 0, 1 }, glm::vec3{ .05f, .05f, 1.f }, { 0.f, 1.f, 0.f }, player.GetCamera().getViewProjectionMatrix()); // +z green
+        Renderer::CubemapRenderer::DrawCubemap(skybox, player.GetCamera(), player.GetPosition());
+        TempRenderer::RenderCube({ 1, 0, 0 }, glm::vec3{ 2.f, .05f, .05f }, { 0.f, 0.f, 1.f }, player.GetCamera().getViewProjectionMatrix()); // +x blue
+        TempRenderer::RenderCube({ 0, 1, 0 }, glm::vec3{ .05f, 2.f, .05f }, { 1.f, 0.f, 0.f }, player.GetCamera().getViewProjectionMatrix()); // +y red
+        TempRenderer::RenderCube({ 0, 0, 1 }, glm::vec3{ .05f, .05f, 2.f }, { 0.f, 1.f, 0.f }, player.GetCamera().getViewProjectionMatrix()); // +z green
+        TempRenderer::RenderCube({ 0, 0, 0 }, glm::vec3{ 1.f,  1.f,  1.f }, { .9f, .9f, .9f }, player.GetCamera().getViewProjectionMatrix()); // unit cube
 
         Window::sendFrame();
         temps += realDelta;

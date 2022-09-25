@@ -77,11 +77,12 @@ layout(location = 0) in vec3 i_position;
 out vec3 v_texCoords;
 
 uniform mat4 u_VP;
+uniform vec3 u_displacement;
 
 void main()
 {
   v_texCoords = i_position;
-  gl_Position = u_VP * vec4(i_position, +1.0);
+  gl_Position = u_VP * vec4(i_position + u_displacement, +1.0);
 }
 )glsl", R"glsl(
 #version 330 core
@@ -99,14 +100,14 @@ void main()
 )glsl" };
 
   float vertices[] = {
-    -1, -1, -1,
-    +1, -1, -1,
-    +1, +1, -1,
-    -1, +1, -1,
-    -1, -1, +1,
-    +1, -1, +1,
-    +1, +1, +1,
-    -1, +1, +1,
+    -.5f, -.5f, -.5f,
+    +.5f, -.5f, -.5f,
+    +.5f, +.5f, -.5f,
+    -.5f, +.5f, -.5f,
+    -.5f, -.5f, +.5f,
+    +.5f, -.5f, +.5f,
+    +.5f, +.5f, +.5f,
+    -.5f, +.5f, +.5f,
   };
 
   unsigned int indices[] = {
@@ -128,15 +129,18 @@ void main()
   cmRenderData.vao->Unbind();
 }
 
-void DrawCubemap(const Cubemap &cubemap, const Camera &camera)
+void DrawCubemap(const Cubemap &cubemap, const Camera &camera, const glm::vec3 &offset)
 {
   cmRenderData.shader->Bind();
   cmRenderData.vao->Bind();
   cmRenderData.shader->SetUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+  cmRenderData.shader->SetUniform3f("u_displacement", offset.x, offset.y, offset.z);
   keepAliveResources.ibo->Bind();
   cubemap.Bind();
 
+  glDepthMask(false); // do not write to depth buffer
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+  glDepthMask(true);
 }
 
 void Shutdown()

@@ -13,6 +13,7 @@ public:
   const Renderer::Camera &GetCamera() const { return m_camera; }
   glm::vec3 GetForward() const;
   glm::vec3 GetRight() const;
+  glm::vec3 GetPosition() const { return m_position; }
 
 private:
   void UpdateCamera();

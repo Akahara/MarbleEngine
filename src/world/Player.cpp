@@ -13,9 +13,14 @@ Player::Player()
   m_camera(),
   m_yaw(0),
   m_pitch(0),
-  m_position(.5f, .5f, .5f)
+  m_position(0, 0, 0)
 {
   m_camera.SetPerspectiveProjection(Mathf::PI/3.f, 16.f/9.f);
+  // default position
+  m_yaw = .8f;
+  m_pitch = .5f;
+  m_position = { 3, 3, 3 };
+
   UpdateCamera();
 }
 
@@ -35,11 +40,15 @@ void Player::Step(float delta)
   if (Inputs::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
     motion -= UP;
 
+  float speed = 1;
+  if (Inputs::IsKeyPressed(GLFW_KEY_TAB))
+    speed *= 5.f;
+
   glm::vec2 rotationMotion = Inputs::GetMouseDelta() / Inputs::GetInputRange() * Mathf::PI;
 
   m_yaw -= rotationMotion.x;
-  m_pitch = std::max(-Mathf::PI / 2.f, std::min(+Mathf::PI / 2.f, m_pitch - rotationMotion.y));
-  m_position += motion * delta;
+  m_pitch = std::max(-Mathf::PI * .499f, std::min(+Mathf::PI * .499f, m_pitch - rotationMotion.y));
+  m_position += motion * delta * speed;
 
   if (Inputs::IsKeyPressed('Q')) {
     m_yaw = 0;

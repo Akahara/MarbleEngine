@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <glm/glm.hpp>
+
 #include "Camera.h"
 
 namespace Renderer {
@@ -27,7 +29,7 @@ private:
 namespace CubemapRenderer {
 
 void Init();
-void DrawCubemap(const Cubemap &cubemap, const Camera &camera);
+void DrawCubemap(const Cubemap &cubemap, const Camera &camera, const glm::vec3 &offset = { 0,0,0 });
 void Shutdown();
 
 }
