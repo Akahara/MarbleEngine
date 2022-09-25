@@ -94,8 +94,7 @@ static RendererData s_RendererData;
 
 namespace Renderer {
 
-	void Renderer::Clear(const float& r) {
-		glClearColor(r, 0.13f, 0.17f, 1.0f);
+	void Renderer::Clear() {
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 

@@ -163,6 +163,7 @@
     <ClCompile Include="src\abstraction\VertexArray.cpp" />
     <ClCompile Include="src\abstraction\VertexBufferObject.cpp" />
     <ClCompile Include="src\abstraction\Window.cpp" />
+    <ClCompile Include="src\Sandbox\Scene.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_draw.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="src\abstraction\VertexBufferLayout.h" />
     <ClInclude Include="src\abstraction\VertexBufferObject.h" />
     <ClInclude Include="src\abstraction\Window.h" />
+    <ClInclude Include="src\Sandbox\Scene.h" />
     <ClInclude Include="src\vendor\imgui\imconfig.h" />
     <ClInclude Include="src\vendor\imgui\imgui.h" />
     <ClInclude Include="src\vendor\imgui\imgui_impl_glfw.h" />
