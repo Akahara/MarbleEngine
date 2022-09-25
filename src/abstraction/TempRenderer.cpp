@@ -168,9 +168,11 @@ void RenderPlane(const glm::vec3& position, const glm::vec3& size, const glm::ve
     ibo->Unbind();
 
 }
-void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, const glm::vec3& color, const glm::mat4& VP, bool drawLines) {
+void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, const glm::vec3& color, const glm::mat4& VP, bool drawLines) 
 
+{
 
+    std::cout << "\ngrid ==================== \n";
     unsigned int nbOfQuads = glm::pow(quadsPerSide, 2);
 
     // Create vertices              // nb of verticies              // size of a vertex
@@ -179,35 +181,42 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, con
     // Calculate the step for each vertex
     float step = quadSize / quadsPerSide;
 
-    /* We loop to quadsPerSide * 3 because we have a step of 3 */
-    for (int y = 0; y < (quadsPerSide+2) * 3; y+=3) {
-        
-        for (int x = 0; x < (quadsPerSide+2) * 3; x+=3) {
-
-            int index = (y * quadsPerSide + x);
-
-            //std::cout << index << std::endl;
-
-            // Set the vertex positions
-            verticesGrid[index]     = position.x + (x / 3) * step;              // x
-            verticesGrid[index + 1] = position.y + (y / 3) * step;              // y
-            verticesGrid[index + 2] = 0.f;                                      // z
+    int x = 0;
+    int y = 0;
+    int test = 0;
+    for (int i = 0; i < glm::pow(quadsPerSide + 1, 2) * 3; i += 3) {
 
 
+        verticesGrid[i] = position.x + x * step;                  // x
+        verticesGrid[i + 1] = position.y + y * step;              // y
+        verticesGrid[i + 2] = 0.f;
+
+
+        x++;
+        test++;
+        if (x == nbOfQuads + 1) {
+            y++; 
+            x = 0;
         }
-
-
-    
     }
 
-    /*
-    for (int i = 0; i < glm::pow(quadsPerSide + 1, 2) * 3; i++) {
+    float verticesPlane[] = {
+      -1, -1, 0,
+      +1, -1, 0,
+      -1, +1, 0
+      +1, +1, 0,
+
+    };
+
+
+    for (int i = 0; i < glm::pow(quadsPerSide + 1, 2) * 3; i++)
+    {
         
         if (i % 3 == 0) std::cout << std::endl;
         std::cout << verticesGrid[i] << " ";
 
     }
-    */
+    
 
     // Calculate the indices
 
@@ -231,8 +240,8 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, con
     Because we fill the vertex array from bottom to top, left to right, we can deduce that :
 
     indice(x2) = indice(x1 + 1);
-    indice(x4) = indice(x1 + quadsPerSide + 1);
-    indice(x3) = indice(x1 + (quadsPerSide + 1) + 1);
+    indice(x3) = indice(x1 + quadsPerSide + 1);
+    indice(x4) = indice(x1 + (quadsPerSide + 1) + 1);
 
     And we fill the indices array as so (for a single quad) :
 
@@ -241,29 +250,41 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, con
         x3, x2, x1
     }
 
-     4,3,1,
-      2,1,0,
+    std::cout << "number of quads : " << nbOfQuads << std::endl;
 
     */
 
-
     for (int i = 0; i < nbOfQuads * 6; i += 6) {
 
-        indicesGrid[i]      = i + quadsPerSide + 1;
-        indicesGrid[i+1]    = i + quadsPerSide + 2;
+        /*
+        indicesGrid[i]      = i + quadsPerSide + 2;
+        indicesGrid[i+1]    = i + quadsPerSide + 1;
         indicesGrid[i+2]    = i ;
-        indicesGrid[i+3]    = i ;
-        indicesGrid[i+4]    = i + quadsPerSide + 2;
-        indicesGrid[i+5]    = i+1;
+        indicesGrid[i+3]    = i + quadsPerSide + 2;
+        indicesGrid[i+4]    = i+1;
+        indicesGrid[i+5]    = i;
+        */
+        indicesGrid[i] = i;
+        indicesGrid[i + 1] = i + 1;
+        indicesGrid[i + 2] = i + quadsPerSide + 1;
+        indicesGrid[i + 3] = i + quadsPerSide + 1;
+        indicesGrid[i + 4] = i + quadsPerSide + 2;
+        indicesGrid[i + 5] = i;
+    }
+
+    for (int i = 0; i < nbOfQuads * 6; i++) {
+
+        if (i % 6 == 0) {
+            std::cout << std::endl;
+        }
+        std::cout << indicesGrid[i] << " ";
 
     }
 
-
-
     // render
 
-    vbo2 = std::make_unique<VertexBufferObject>(verticesGrid, sizeof(verticesGrid));
-    ibo2 = std::make_unique <IndexBufferObject>(indicesGrid, sizeof(indicesGrid) / sizeof(indicesGrid[0]));
+    vbo2 = std::make_unique<VertexBufferObject>(verticesPlane, sizeof(verticesPlane));
+    ibo2 = std::make_unique <IndexBufferObject>(indicesGrid, nbOfQuads * 6);
 
     VertexBufferLayout layout;
     layout.push<float>(3);
