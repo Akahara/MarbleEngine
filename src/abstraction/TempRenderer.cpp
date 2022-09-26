@@ -41,23 +41,20 @@ layout(location = 0) in vec3 i_position;
 uniform mat4 u_VP;
 uniform mat4 u_M;
 
-out vec3 o_pos;
 
 void main()
 {
-  o_pos = i_position;
   gl_Position = u_VP * u_M * vec4(i_position, +1.0);
 }
 )glsl", R"glsl(
 #version 330 core
 
 out vec4 color;
-in vec3 o_pos;
 uniform vec4 u_color;
 
 void main()
 {    
-color = vec4(o_pos.x, o_pos.y, o_pos.z, 1.0F);
+color = u_color;
 }
 )glsl" };
 
@@ -124,12 +121,6 @@ void RenderPlane(const glm::vec3& position, const glm::vec3& size, const glm::ve
 
     };
 
-    /*
-    0 0.5 0,
-    0 0.8 0,
-    0 1.1 0,
-    0.3 1.1 0
-*/
 
     unsigned int indicesPlane[] = {
       3,2,0,
@@ -175,7 +166,6 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, con
 
 {
 
-    std::cout << "\ngrid ==================== \n";
     unsigned int nbOfQuads = glm::pow(quadsPerSide, 2);
     unsigned int nbOfVertices = glm::pow(quadsPerSide + 1, 2);
 
@@ -187,7 +177,6 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, con
 
     int x = 0;
     int y = 0;
-    int test = 0;
     for (int i = 0; i < nbOfVertices * 3; i += 3) {
 
 
@@ -197,38 +186,10 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, con
 
 
         x++;
-        test++;
-        if (x == nbOfQuads + 1) {
+        if (x == quadsPerSide + 1) {
             y++; 
             x = 0;
         }
-    }
-    /*
-    
-    -1 -1 0
-1 -1 0
--1 1 0
-1 1 0
-    
-    */
-    verticesGrid[6] = 1;
-    verticesGrid[9] = -1;
-
-    float verticesPlane[] = {
-      -1, -1, 0,
-      +1, -1, 0,
-      +1, +1, 0,
-      -1, +1, 0
-
-    };
-
-
-    for (int i = 0; i < nbOfVertices * 3 ; i++)
-    {
-        
-        if (i % 3 == 0) std::cout << std::endl;
-        std::cout << verticesGrid[i] << " ";
-
     }
     
 
@@ -272,41 +233,33 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, con
 
 
     */
-
+    /*
     std::cout << "\nnumber of quads : " << nbOfQuads << std::endl;
     std::cout << "number of vertices : " << nbOfVertices << std::endl;
+    */
     int index = 0;
+    int i = 0;
     for (int y = 0; y < quadsPerSide; y ++) {
         for (int x = 0; x < quadsPerSide; x++) {
 
-            int i = y * quadsPerSide + x;
+            i = y * (quadsPerSide+1) + x;
             indicesGrid[index] = i;
             indicesGrid[index + 1] = i + 1;
             indicesGrid[index + 2] = i + quadsPerSide + 1;
             indicesGrid[index + 3] = i + quadsPerSide + 2;
             indicesGrid[index + 4] = i + quadsPerSide + 1;
-            indicesGrid[index + 5] = i;
+            indicesGrid[index + 5] = i+1;
             index += 6;
 
         }
 
-    }
-
-    for (int i = 0; i < nbOfQuads * 6; i++) {
-
-        if (i % 6 == 0) {
-            std::cout << std::endl;
-        }
-        std::cout << indicesGrid[i] << " ";
-
+    
     }
 
     // render
 
-    std::cout << "\n sizes : " << sizeof(verticesGrid) << std::endl;
-    std::cout << sizeof(verticesPlane) << std::endl;
 
-    vbo2 = std::make_unique<VertexBufferObject>(verticesGrid, sizeof(float) * glm::pow(quadsPerSide + 1, 2) * 3);
+    vbo2 = std::make_unique<VertexBufferObject>(verticesGrid, sizeof(float) * nbOfVertices * 3);
     ibo2 = std::make_unique <IndexBufferObject>(indicesGrid, nbOfQuads * 6);
 
     VertexBufferLayout layout;

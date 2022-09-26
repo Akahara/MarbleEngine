@@ -62,20 +62,7 @@ int main()
 
 
 		Renderer::Renderer::Clear(0.f);
-		//Renderer::Renderer::BeginBatch(m_Camera);
 
-		//for (float y = -1.0f; y < 1.0f; y += 0.025f) {
-		//	for (float x = -1.0f; x < 1.0f; x += 0.025f) {
-		//		glm::vec4 color = { (x + 1.0f) / 2.0f * (sin(temps * 2) + 1),
-		//							(x + y) / 2.0f * (cos(temps * 7) + 1),
-		//							(y + 1.0f) / 2.0f * (sin(temps * 2) + 1),
-		//							1.0f };
-		//		Renderer::Renderer::DrawQuad({ x,y, 0.0f }, { 0.02f, 0.02f }, color);
-		//	}
-		//}
-
-		//Renderer::Renderer::EndBatch();
-		//Renderer::Renderer::Flush();
 
         if (lastSec + 1E9 < nextTime) {
             char title[50];
@@ -85,10 +72,7 @@ int main()
             frames = 0;
         }
 
-        //Renderer::CubemapRenderer::DrawCubemap(skybox, player.GetCamera());
-        //TempRenderer::RenderCube({ 1, 0, 0 }, glm::vec3{ 1.f, .00f, .05f }, { 0.f, 0.f, 1.f }, player.GetCamera().getViewProjectionMatrix()); // +x blue
-        //TempRenderer::RenderPlane({ 0, 0.5, 0 }, glm::vec3{ 0.3f, 0.3F , 0.3F }, { (sin(temps)+1)*2, 0.f, 1.f}, 1, player.GetCamera().getViewProjectionMatrix());
-        TempRenderer::RenderGrid({ -1, -1, 0 }, 2.f, 2, { 1.f, 0.f, 0.f }, player.GetCamera().getViewProjectionMatrix(), false);
+        TempRenderer::RenderGrid({ -1, -1, 0 }, 2.f, 3, { 1.f, 1.f, 1.f }, player.GetCamera().getViewProjectionMatrix(), true);
 
         Window::sendFrame();
         temps += realDelta;
