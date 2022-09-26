@@ -5,6 +5,13 @@
 #include "src/abstraction/Inputs.h"
 
 #include "src/abstraction/TempRenderer.h"
+#include "src/world/TerrainGeneration/MapGenerator.h"
+
+
+#include "src/vendor/imgui/imgui.h"
+#include "src/vendor/imgui/imgui_impl_glfw.h"
+#include "src/vendor/imgui/imgui_impl_opengl3.h"
+
 
 #include "src/world/Player.h"
 
@@ -34,6 +41,13 @@ int main()
 
     bool lines = true;
 
+
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(Window::GetWindowHandle()), true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
+
+
     //===========================================================//
 
     MapGenerator mapGen(100, 100, 27.6, 4, 0.3f, 3.18f, 235763);
@@ -49,9 +63,10 @@ int main()
 
 
 	Renderer::Camera m_Camera(-1.0f, 1.0f, -1.0f, 1.0f);
+    bool a = false;
 
 
-	Renderer::Renderer::Init();
+    Renderer::Renderer::Init();
     Renderer::CubemapRenderer::Init();
     TempRenderer::Init();
 
@@ -64,7 +79,7 @@ int main()
 
     while (!Window::shouldClose()) {
 
-
+        Renderer::Renderer::Clear(1.f);
         auto nextTime = nanoTime();
         auto delta = nextTime - firstTime;
         firstTime = nextTime;
@@ -78,18 +93,42 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
-        /*
-        ImGui::SliderInt("Width", &w, 0, 300);
-        ImGui::SliderInt("Height",&h , 0, 300); 
-        ImGui::SliderFloat("Scale",&scale, 0, 50);
-        ImGui::SliderInt("Number of octaves",&o, 0, 5);
-        ImGui::SliderFloat("persistence",&p, 0, 1);
-        ImGui::SliderFloat("lacunarity",&l, 0, 10);
-        ImGui::SliderInt("seed",&seed, 0, 30000);
-        */
+        
+        if (ImGui::SliderInt("Width", &w, 0, 300) + ImGui::SliderInt("Height", &h, 0, 300) +
+            ImGui::SliderFloat("Scale", &scale, 0, 50) + ImGui::SliderInt("Number of octaves", &o, 0, 5) +
+            ImGui::SliderFloat("persistence", &p, 0, 1) + ImGui::SliderFloat("lacunarity", &l, 0, 10) +
+            ImGui::SliderInt("seed", &seed, 0, 30000)) {
+
+            unsigned int nid;
+
+            float* noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
+
+            // Texture stuff
+
+            (glGenTextures(1, &nid));
+            (glBindTexture(GL_TEXTURE_2D, nid));
+
+            (glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+            (glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+            (glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+            (glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+
+            if (noiseMap)
+            {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_FLOAT, noiseMap);
+                glBindTexture(GL_TEXTURE_2D, 0);
+            }
+            std::cout << "End of generation" << std::endl;
+            delete[] noiseMap;
+
+            newTexture = std::make_shared<Renderer::Texture>(nid);
+            a = true;
+
+
+        }
                     
 
-		Renderer::Renderer::Clear(0.f);
+
 
 
         if (lastSec + 1E9 < nextTime) {
@@ -100,13 +139,20 @@ int main()
             frames = 0;
         }
 
-        TempRenderer::RenderGrid({ -1, -1, 0 }, 2.f, 1000, { 1.f, 1.f, 1.f }, player.GetCamera().getViewProjectionMatrix(), false);
+        TempRenderer::RenderGrid({ -1, -1, 0 }, 2.f, 8, { 1.f, 1.f, 1.f }, player.GetCamera().getViewProjectionMatrix(), false);
 
-        Window::sendFrame();
         temps += realDelta;
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        Window::sendFrame();
 
 
     }
+
+    ImGui_ImplGlfw_Shutdown();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui::DestroyContext();
 
 	return 0;
 }

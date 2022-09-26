@@ -88,8 +88,11 @@ void createWindow(unsigned int width, unsigned int height, const char *title)
       handler->triggerClick(button, action, mods);
   });
   glfwSetCursorPosCallback(window, [](GLFWwindow *window, double cursorX, double cursorY) {
-    for (InputHandler *handler : inputHandlers)
+      for (InputHandler* handler : inputHandlers) {
+
+          std::cout << "x : " << cursorX << " | y : " << cursorY << std::endl;
       handler->triggerCursorMove(static_cast<int>(cursorX), winHeight - static_cast<int>(cursorY));
+      }
   });
   glfwSetScrollCallback(window, [](GLFWwindow *window, double scrollX, double scrollY) {
     for (InputHandler *handler : inputHandlers)
@@ -201,9 +204,18 @@ void capFramerate()
   glfwSwapInterval(1);
 }
 
-void captureMouse()
+void captureMouse(bool enabled)
 {
-  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    if (enabled) {
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    }
+    else {
+
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+    }
 }
 
 void registerInputHandler(InputHandler *handler)

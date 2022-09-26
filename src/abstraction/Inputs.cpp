@@ -6,6 +6,7 @@
 
 #include "Window.h"
 
+static bool escaped = false;
 namespace WI = Window::Inputs;
 
 namespace Inputs {
@@ -25,6 +26,13 @@ public:
     
     if (key == GLFW_KEY_ESCAPE)
       exit(0);
+
+    if (key == GLFW_KEY_E && action != WI::ACTION_RELEASE) {
+
+        escaped = !escaped;
+        Window::captureMouse(escaped);
+
+    }
   }
 
   void triggerCursorMove(int x, int y) override

@@ -169,8 +169,15 @@
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_draw.cpp" />
-    <ClCompile Include="src\vendor\imgui\imgui_impl_glfw_gl3.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_tables.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\World\Player.cpp" />
+    <ClCompile Include="src\world\TerrainGeneration\HeightMap.cpp" />
+    <ClCompile Include="src\world\TerrainGeneration\MapGenerator.cpp" />
+    <ClCompile Include="src\world\TerrainGeneration\MeshGenerator.cpp" />
+    <ClCompile Include="src\world\TerrainGeneration\Noise.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h" />
@@ -197,12 +204,22 @@
     <ClInclude Include="src\Utils\Mathf.h" />
     <ClInclude Include="src\vendor\imgui\imconfig.h" />
     <ClInclude Include="src\vendor\imgui\imgui.h" />
-    <ClInclude Include="src\vendor\imgui\imgui_impl_glfw_gl3.h" />
+    <ClInclude Include="src\vendor\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="src\vendor\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\vendor\imgui\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="src\vendor\imgui\imgui_internal.h" />
+    <ClInclude Include="src\vendor\imgui\imstb_rectpack.h" />
+    <ClInclude Include="src\vendor\imgui\imstb_textedit.h" />
+    <ClInclude Include="src\vendor\imgui\imstb_truetype.h" />
     <ClInclude Include="src\vendor\imgui\stb_rect_pack.h" />
     <ClInclude Include="src\vendor\imgui\stb_textedit.h" />
     <ClInclude Include="src\vendor\imgui\stb_truetype.h" />
     <ClInclude Include="src\World\Player.h" />
+    <ClInclude Include="src\world\TerrainGeneration\HeightMap.h" />
+    <ClInclude Include="src\world\TerrainGeneration\MapGenerator.h" />
+    <ClInclude Include="src\world\TerrainGeneration\MeshGenerator.h" />
+    <ClInclude Include="src\world\TerrainGeneration\Noise.h" />
+    <ClInclude Include="src\world\TerrainGeneration\PerlinNoise.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />

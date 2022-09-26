@@ -30,6 +30,14 @@ static struct KAR {
   IndexBufferObject *ibo;
 } keepAliveResources;
 
+static struct VertexTemp {
+
+    glm::vec3 position;
+    glm::vec2 uv;
+
+};
+
+
 void Init()
 {
   cmRenderData.shader = new Shader{
@@ -37,24 +45,31 @@ void Init()
 #version 330 core
 
 layout(location = 0) in vec3 i_position;
+layout(location = 1) in vec2 i_uv;
 
+
+out vec2 o_uv;
 uniform mat4 u_VP;
 uniform mat4 u_M;
 
 
 void main()
 {
+   o_uv = i_uv;
   gl_Position = u_VP * u_M * vec4(i_position, +1.0);
 }
 )glsl", R"glsl(
 #version 330 core
 
 out vec4 color;
+in vec2 o_uv;
 uniform vec4 u_color;
+uniform sampler2D u_Texture2D;
 
 void main()
-{    
-color = u_color;
+{
+
+color = u_color * 0 + texture( u_Texture2D, o_uv);
 }
 )glsl" };
 
@@ -170,23 +185,24 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, con
     unsigned int nbOfVertices = glm::pow(quadsPerSide + 1, 2);
 
     // Create vertices              // nb of verticies              // size of a vertex
-    float* verticesGrid = new float[glm::pow(quadsPerSide+2, 2)      * 3];
+    VertexTemp* verticesGrid = new VertexTemp[nbOfVertices];
 
     // Calculate the step for each vertex
     float step = quadSize / quadsPerSide;
 
     int x = 0;
     int y = 0;
-    for (int i = 0; i < nbOfVertices * 3; i += 3) {
+    for (int v = 0; v < nbOfVertices ; v ++) {
 
+        
 
-        verticesGrid[i] = position.x + x * step;                  // x
-        verticesGrid[i + 1] = position.y + y * step;              // y
-        verticesGrid[i + 2] = 0.f;
+        verticesGrid[v].position = { position.x + x * step, 0.0f, position.y + y * step };                  // x
+        verticesGrid[v].uv = { (float)x/(quadsPerSide*quadSize),(float)y / (quadsPerSide * quadSize) };                  // x
+
 
 
         x++;
-        if (x == quadsPerSide + 1) {
+        if (x == quadsPerSide+1) {
             y++; 
             x = 0;
         }
@@ -247,11 +263,12 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, con
     // render
 
 
-    vbo2 = std::make_unique<VertexBufferObject>(verticesGrid, sizeof(float) * nbOfVertices * 3);
+    vbo2 = std::make_unique<VertexBufferObject>(verticesGrid, sizeof(VertexTemp) * nbOfVertices);
     ibo2 = std::make_unique <IndexBufferObject>(indicesGrid, nbOfQuads * 6);
 
     VertexBufferLayout layout;
     layout.push<float>(3);
+    layout.push<float>(2);
     vao2 = std::make_unique<VertexArray>();
     vao2->addBuffer(*vbo2, layout);
     vao2->Unbind();
@@ -263,7 +280,10 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, con
     cmRenderData.shader->Bind();
     vao2->Bind();
 
+    
+
     cmRenderData.shader->SetUniformMat4f("u_VP", VP);
+    cmRenderData.shader->SetUniform1i("u_Texture2D", 0);
     cmRenderData.shader->SetUniformMat4f("u_M", M);
     cmRenderData.shader->SetUniform4f("u_color", color.r, color.g, color.b, 1.f);
     ibo2->Bind();

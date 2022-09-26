@@ -42,7 +42,7 @@ void setPosition(int x, int y);
 void renameWindow(const char *title);
 void setFullScreen(bool fullScreen);
 void capFramerate();
-void captureMouse();
+void captureMouse(bool enable=true);
 
 void registerInputHandler(Inputs::InputHandler *handler);
 void unregisterInputHandler(Inputs::InputHandler *handler);
