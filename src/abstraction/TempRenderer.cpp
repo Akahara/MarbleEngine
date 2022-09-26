@@ -20,6 +20,7 @@ namespace TempRenderer {
     static  std::unique_ptr<VertexArray> vao2;
 
 
+
 static struct renderData {
   Shader *shader;
   VertexArray *vao;
@@ -177,7 +178,7 @@ void RenderPlane(const glm::vec3& position, const glm::vec3& size, const glm::ve
     ibo->Unbind();
 
 }
-void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, const glm::vec3& color, const glm::mat4& VP, bool drawLines) 
+void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, const glm::vec3& color, const glm::mat4& VP, unsigned int textureId ,bool drawLines) 
 
 {
 
@@ -280,7 +281,8 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, con
     cmRenderData.shader->Bind();
     vao2->Bind();
 
-    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureId);
 
     cmRenderData.shader->SetUniformMat4f("u_VP", VP);
     cmRenderData.shader->SetUniform1i("u_Texture2D", 0);

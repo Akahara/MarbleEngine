@@ -139,7 +139,7 @@ int main()
             frames = 0;
         }
 
-        TempRenderer::RenderGrid({ -1, -1, 0 }, 2.f, 8, { 1.f, 1.f, 1.f }, player.GetCamera().getViewProjectionMatrix(), false);
+        TempRenderer::RenderGrid({ -1, -1, 0 }, 2.f, 8, { 1.f, 1.f, 1.f }, player.GetCamera().getViewProjectionMatrix(), id, false);
 
         temps += realDelta;
 
