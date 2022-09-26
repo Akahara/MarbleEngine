@@ -9,8 +9,12 @@
 #include "src/abstraction/Window.h"
 #include "src/abstraction/Renderer.h"
 #include "src/abstraction/Camera.h"
+#include "src/abstraction/Cubemap.h"
+#include "src/abstraction/Inputs.h"
 #include "src/Sandbox/Scene.h"
+#include "src/abstraction/TempRenderer.h"
 
+#include "src/world/Player.h"
 
 inline long long nanoTime()
 {
@@ -53,7 +57,9 @@ int main()
 	Window::createWindow(813, 546, "test");
 
     Window::setVisible(true);
+    Window::setPosition(400, 100);
     Window::capFramerate();
+    Inputs::ObserveInputs();
 
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
@@ -67,6 +73,17 @@ int main()
 
     //===========================================================//
 
+	Renderer::Renderer::Init();
+    Renderer::CubemapRenderer::Init();
+    TempRenderer::Init();
+
+    Renderer::Cubemap skybox{
+      "res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
+      "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
+      "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" };
+
+    Player player{};
+
     unsigned int frames = 0;
     auto firstTime = nanoTime();
     auto lastSec = firstTime;
@@ -78,13 +95,20 @@ int main()
 
         float realDelta = delta / 1E9f;
         Window::pollUserEvents();
+        Inputs::UpdateInputs();
+        player.Step(realDelta);
         frames++;
+
 
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::ShowDemoWindow();
+        Renderer::CubemapRenderer::DrawCubemap(skybox, player.GetCamera(), player.GetPosition());
+        TempRenderer::RenderCube({ 1, 0, 0 }, glm::vec3{ 2.f, .05f, .05f }, { 0.f, 0.f, 1.f }, player.GetCamera().getViewProjectionMatrix()); // +x blue
+        TempRenderer::RenderCube({ 0, 1, 0 }, glm::vec3{ .05f, 2.f, .05f }, { 1.f, 0.f, 0.f }, player.GetCamera().getViewProjectionMatrix()); // +y red
+        TempRenderer::RenderCube({ 0, 0, 1 }, glm::vec3{ .05f, .05f, 2.f }, { 0.f, 1.f, 0.f }, player.GetCamera().getViewProjectionMatrix()); // +z green
+        TempRenderer::RenderCube({ 0, 0, 0 }, glm::vec3{ 1.f,  1.f,  1.f }, { .9f, .9f, .9f }, player.GetCamera().getViewProjectionMatrix()); // unit cube
 
         SceneManager::Step(realDelta);
         SceneManager::OnRender();
@@ -97,10 +121,6 @@ int main()
             lastSec += (long long)1E9;
             frames = 0;
         }
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
         Window::sendFrame();
     }
 
@@ -110,5 +130,5 @@ int main()
     ImGui_ImplOpenGL3_Shutdown();
     ImGui::DestroyContext();
 
-	return 0;
+    return 0;
 }

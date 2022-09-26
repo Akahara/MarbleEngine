@@ -11,16 +11,17 @@ namespace Renderer {
     private:
         unsigned int m_Count;
     public :
-
-        IndexBufferObject() {}
+        IndexBufferObject() : m_Count(0) {}
         IndexBufferObject(unsigned int* indices, unsigned int count);
-        ~IndexBufferObject();
+        ~IndexBufferObject() noexcept;
+        IndexBufferObject(IndexBufferObject &&moved) noexcept;
+        IndexBufferObject& operator=(IndexBufferObject &&moved) noexcept;
 
         void Bind() const override;
         void Unbind() const override;
-        void Delete() override ;
+        void Delete() override;
 
-        const unsigned int getCount() const { return m_Count; }
+        unsigned int getCount() const { return m_Count; }
 
     };
 }

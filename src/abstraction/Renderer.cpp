@@ -11,43 +11,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void GLClearError()
-{
-	while (glGetError() != GL_NO_ERROR);
-}
-
-bool GLLogCall(const char* function, const char* file, int line) {
-
-	while (GLenum error = glGetError()) {
-		std::cout << "[OpenGL Error] (" << GLTranslateError(error) << "): " << function << " " << file << " " << "line" << std::endl;
-		return false;
-	}
-	return true;
-}
-
-const char* GLTranslateError(GLenum error) {
-
-	switch (error) {
-
-		case GL_INVALID_ENUM: return "GL_INVALID_ENUM";
-		case GL_INVALID_VALUE: return "GL_INVALID_VALUE";
-		case GL_INVALID_OPERATION: return "GL_INVALID_OPERATION";
-		case GL_OUT_OF_MEMORY: return "GL_OUT_OF_MEMORY";
-		case GL_NO_ERROR: return "";
-	}
-
-}
-
-void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
-	GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
-{
-	std::cerr
-		<< " type     = 0x" << std::hex << type << "\n"
-		<< " severity = 0x" << std::hex << severity << "\n"
-		<< " message  = " << message
-		<< std::dec << std::endl;
-}
-
 //============================================================================================//
 
 using namespace Renderer;
@@ -95,7 +58,7 @@ static RendererData s_RendererData;
 namespace Renderer {
 
 	void Renderer::Clear() {
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	}
 
 	void Renderer::Draw(const VertexArray& va, const IndexBufferObject& ibo, const Shader& shader) {
@@ -286,7 +249,7 @@ namespace Renderer {
 		
 		s_RendererData.QuadVA->Bind();
 		s_RendererData.QuadIBO->Bind();
-		GLCall(glDrawElements(GL_TRIANGLES, s_RendererData.IndexCount, GL_UNSIGNED_INT, nullptr));
+		glDrawElements(GL_TRIANGLES, s_RendererData.IndexCount, GL_UNSIGNED_INT, nullptr);
 
 		s_RendererData.IndexCount = 0;
 		s_RendererData.TextureSlotIndex = 1;
