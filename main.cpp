@@ -20,7 +20,7 @@ inline long long nanoTime()
 
 int main()
 {
-	Window::createWindow(813, 546, "test");
+	Window::createWindow(1000, 1000, "test");
 
     unsigned int frames = 0;
     Window::setVisible(true);
@@ -72,7 +72,7 @@ int main()
             frames = 0;
         }
 
-        TempRenderer::RenderGrid({ -1, -1, 0 }, 2.f, 3, { 1.f, 1.f, 1.f }, player.GetCamera().getViewProjectionMatrix(), true);
+        TempRenderer::RenderGrid({ -1, -1, 0 }, 2.f, 1000, { 1.f, 1.f, 1.f }, player.GetCamera().getViewProjectionMatrix(), false);
 
         Window::sendFrame();
         temps += realDelta;

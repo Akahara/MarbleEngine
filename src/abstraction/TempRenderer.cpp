@@ -224,18 +224,6 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, con
         x4, x3, x1,
         x3, x2, x1
     }
-
-    {
-     x1 X2 X4 
-     X4 X3 X1
-
-    }
-
-
-    */
-    /*
-    std::cout << "\nnumber of quads : " << nbOfQuads << std::endl;
-    std::cout << "number of vertices : " << nbOfVertices << std::endl;
     */
     int index = 0;
     int i = 0;
@@ -289,6 +277,8 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, con
         glDrawElements(GL_TRIANGLES, nbOfQuads * 6, GL_UNSIGNED_INT, nullptr);
     }
 
+    delete[] verticesGrid;
+    delete[] indicesGrid;
     ibo2->Unbind();
 
 
