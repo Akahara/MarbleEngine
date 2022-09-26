@@ -59,7 +59,7 @@ int main()
     float scale=27.6;
     int o=4;
     float p=0.3, l=3.18;
-    int seed= 235763;
+    int seed= 5;
 
 
 	Renderer::Camera m_Camera(-1.0f, 1.0f, -1.0f, 1.0f);
@@ -97,7 +97,7 @@ int main()
         if (ImGui::SliderInt("Width", &w, 0, 300) + ImGui::SliderInt("Height", &h, 0, 300) +
             ImGui::SliderFloat("Scale", &scale, 0, 50) + ImGui::SliderInt("Number of octaves", &o, 0, 5) +
             ImGui::SliderFloat("persistence", &p, 0, 1) + ImGui::SliderFloat("lacunarity", &l, 0, 10) +
-            ImGui::SliderInt("seed", &seed, 0, 30000)) {
+            ImGui::SliderInt("seed", &seed, 0, 5)) {
 
             unsigned int nid;
 
@@ -122,6 +122,7 @@ int main()
             delete[] noiseMap;
 
             newTexture = std::make_shared<Renderer::Texture>(nid);
+            id = nid;
             a = true;
 
 
@@ -139,7 +140,7 @@ int main()
             frames = 0;
         }
 
-        TempRenderer::RenderGrid({ -1, -1, 0 }, 2.f, 8, { 1.f, 1.f, 1.f }, player.GetCamera().getViewProjectionMatrix(), id, false);
+        TempRenderer::RenderGrid({ -1, -1, 0 }, 2.f, 8, { 1.f, 1.f, 1.f }, player.GetCamera().getViewProjectionMatrix(), id , false);
 
         temps += realDelta;
 

@@ -7,6 +7,11 @@
 #include "Window.h"
 
 static bool escaped = false;
+static bool escapedPositionHandled = false;
+static bool alreadyWritten = false;
+static glm::vec2 tempCursorPos;
+
+
 namespace WI = Window::Inputs;
 
 namespace Inputs {
@@ -29,15 +34,42 @@ public:
 
     if (key == GLFW_KEY_E && action != WI::ACTION_RELEASE) {
 
+        
+        if (!escaped) {
+
+            alreadyWritten = false;
+            escapedPositionHandled = false;
+
+
+        }
+
         escaped = !escaped;
-        Window::captureMouse(escaped);
+        Window::captureMouse(!escaped);
 
     }
   }
 
   void triggerCursorMove(int x, int y) override
-  {
-    s_cursorPosition = { x, y };
+ {
+
+      if (escapedPositionHandled == false && escaped && !alreadyWritten == true) {
+
+          tempCursorPos = { x, y };
+          alreadyWritten = true;
+
+       }
+
+      else if (!escaped && escapedPositionHandled == false) {
+
+          s_cursorPosition = tempCursorPos;
+          escapedPositionHandled = true;
+
+      }
+
+      else if (!escaped && escapedPositionHandled) {
+        s_cursorPosition = { x, y };
+
+      }
   }
 };
 
