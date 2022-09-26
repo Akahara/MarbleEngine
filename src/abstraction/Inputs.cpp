@@ -36,7 +36,7 @@ public:
 void ObserveInputs()
 {
   Window::registerInputHandler(new InputsObserver);
-  Window::captureMouse();
+  //Window::captureMouse();
 }
 
 void UpdateInputs()

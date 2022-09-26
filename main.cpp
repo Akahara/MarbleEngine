@@ -52,6 +52,37 @@ public:
   void OnImGuiRender() override {}
 };
 
+class Test3DScene : public Scene {
+private:
+  Renderer::Cubemap m_skybox;
+  Player            m_player;
+public:
+  Test3DScene()
+    : m_skybox{
+      "res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
+      "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
+      "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" }
+  {
+  }
+
+  void Step(float delta) override
+  {
+    m_player.Step(delta);
+  }
+
+  void OnRender() override
+  {
+    Renderer::Renderer::Clear();
+    Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
+    TempRenderer::RenderCube({ 1, 0, 0 }, glm::vec3{ 2.f, .05f, .05f }, { 0.f, 0.f, 1.f }, m_player.GetCamera().getViewProjectionMatrix()); // +x blue
+    TempRenderer::RenderCube({ 0, 1, 0 }, glm::vec3{ .05f, 2.f, .05f }, { 1.f, 0.f, 0.f }, m_player.GetCamera().getViewProjectionMatrix()); // +y red
+    TempRenderer::RenderCube({ 0, 0, 1 }, glm::vec3{ .05f, .05f, 2.f }, { 0.f, 1.f, 0.f }, m_player.GetCamera().getViewProjectionMatrix()); // +z green
+    TempRenderer::RenderCube({ 0, 0, 0 }, glm::vec3{ 1.f,  1.f,  1.f }, { .9f, .9f, .9f }, m_player.GetCamera().getViewProjectionMatrix()); // unit cube
+  }
+
+  void OnImGuiRender() override {}
+};
+
 int main()
 {
 	Window::createWindow(813, 546, "test");
@@ -67,22 +98,15 @@ int main()
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
 	Renderer::Renderer::Init();
+    Renderer::CubemapRenderer::Init();
+    TempRenderer::Init();
     SceneManager::Init();
 
     SceneManager::RegisterScene<TestScene>("Test");
+    SceneManager::RegisterScene<Test3DScene>("Test3D");
+    SceneManager::SwitchToScene(2);
 
     //===========================================================//
-
-	Renderer::Renderer::Init();
-    Renderer::CubemapRenderer::Init();
-    TempRenderer::Init();
-
-    Renderer::Cubemap skybox{
-      "res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
-      "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
-      "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" };
-
-    Player player{};
 
     unsigned int frames = 0;
     auto firstTime = nanoTime();
@@ -91,28 +115,24 @@ int main()
     while (!Window::shouldClose()) {
         auto nextTime = nanoTime();
         auto delta = nextTime - firstTime;
+        float realDelta = delta / 1E9f;
         firstTime = nextTime;
 
-        float realDelta = delta / 1E9f;
         Window::pollUserEvents();
         Inputs::UpdateInputs();
-        player.Step(realDelta);
         frames++;
-
 
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
 
-        Renderer::CubemapRenderer::DrawCubemap(skybox, player.GetCamera(), player.GetPosition());
-        TempRenderer::RenderCube({ 1, 0, 0 }, glm::vec3{ 2.f, .05f, .05f }, { 0.f, 0.f, 1.f }, player.GetCamera().getViewProjectionMatrix()); // +x blue
-        TempRenderer::RenderCube({ 0, 1, 0 }, glm::vec3{ .05f, 2.f, .05f }, { 1.f, 0.f, 0.f }, player.GetCamera().getViewProjectionMatrix()); // +y red
-        TempRenderer::RenderCube({ 0, 0, 1 }, glm::vec3{ .05f, .05f, 2.f }, { 0.f, 1.f, 0.f }, player.GetCamera().getViewProjectionMatrix()); // +z green
-        TempRenderer::RenderCube({ 0, 0, 0 }, glm::vec3{ 1.f,  1.f,  1.f }, { .9f, .9f, .9f }, player.GetCamera().getViewProjectionMatrix()); // unit cube
-
         SceneManager::Step(realDelta);
         SceneManager::OnRender();
         SceneManager::OnImGuiRender();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        Window::sendFrame();
 
         if (lastSec + 1E9 < nextTime) {
             char title[50];
@@ -121,7 +141,6 @@ int main()
             lastSec += (long long)1E9;
             frames = 0;
         }
-        Window::sendFrame();
     }
 
     SceneManager::Shutdown();
