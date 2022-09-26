@@ -36,7 +36,20 @@ int main()
 
     //===========================================================//
 
+    MapGenerator mapGen(100, 100, 27.6, 4, 0.3f, 3.18f, 235763);
+    unsigned int id = mapGen.GenerateMap();
+    std::shared_ptr<Renderer::Texture> texture = std::make_shared<Renderer::Texture>(id);
+    std::shared_ptr<Renderer::Texture> newTexture;
+
+    int w=100, h=100;
+    float scale=27.6;
+    int o=4;
+    float p=0.3, l=3.18;
+    int seed= 235763;
+
+
 	Renderer::Camera m_Camera(-1.0f, 1.0f, -1.0f, 1.0f);
+
 
 	Renderer::Renderer::Init();
     Renderer::CubemapRenderer::Init();
@@ -50,6 +63,8 @@ int main()
     Player player{};
 
     while (!Window::shouldClose()) {
+
+
         auto nextTime = nanoTime();
         auto delta = nextTime - firstTime;
         firstTime = nextTime;
@@ -60,6 +75,19 @@ int main()
         player.Step(realDelta);
         frames++;
 
+        ImGui_ImplGlfw_NewFrame();
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui::NewFrame();
+        /*
+        ImGui::SliderInt("Width", &w, 0, 300);
+        ImGui::SliderInt("Height",&h , 0, 300); 
+        ImGui::SliderFloat("Scale",&scale, 0, 50);
+        ImGui::SliderInt("Number of octaves",&o, 0, 5);
+        ImGui::SliderFloat("persistence",&p, 0, 1);
+        ImGui::SliderFloat("lacunarity",&l, 0, 10);
+        ImGui::SliderInt("seed",&seed, 0, 30000);
+        */
+                    
 
 		Renderer::Renderer::Clear(0.f);
 
@@ -76,6 +104,8 @@ int main()
 
         Window::sendFrame();
         temps += realDelta;
+
+
     }
 
 	return 0;

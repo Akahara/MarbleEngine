@@ -1,4 +1,4 @@
-#include "window.h"
+#include "Window.h"
 
 #include <iostream>
 #include <vector>
@@ -157,6 +157,11 @@ unsigned int getWinWidth()
 unsigned int getWinHeight()
 {
   return winHeight;
+}
+
+void *GetWindowHandle()
+{
+  return window;
 }
 
 void setAspectRatio(int w, int h)

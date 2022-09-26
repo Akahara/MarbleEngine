@@ -12,7 +12,7 @@ namespace Renderer {
         unsigned int m_Count;
     public :
 
-        IndexBufferObject() {}
+        IndexBufferObject() : m_Count(0) {}
         IndexBufferObject(unsigned int* indices, unsigned int count);
         ~IndexBufferObject();
 
