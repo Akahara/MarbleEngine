@@ -119,7 +119,7 @@ void createWindow(unsigned int width, unsigned int height, const char *title)
   //glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
   glViewport(0, 0, width, height);
-  glClearColor(0.f, 0.f, .5f, 1.f);
+  glClearColor(.3f, 0.53f, 0.67f, 1.0f);
 }
 
 void setVisible(bool visible)

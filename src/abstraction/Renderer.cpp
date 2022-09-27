@@ -157,55 +157,6 @@ namespace Renderer {
 		)glsl";
 		
 
-		/*
-
-			std::string fs = R"glsl(
-			#version 330 core
-
-			float lensSize = 0.4f; // 0.4
-			vec2 resolution = vec2(800.0f, 800.0f);
-
-			layout(location = 0) out vec4 outColor;
-
-			in vec2 v_TexCoord;
-			in float v_TexIndex;
-			in vec4 v_Color;
-
-			
-
-
-			uniform sampler2D u_Textures[8];
-			vec4 Vertex_UV;
-			const float PI = 3.1415926535;
-
-			void main(){
-					int index = int(v_TexIndex);
-					float aperture = 178.0;
-					float apertureHalf = 0.5 * aperture * (PI / 180.0);
-					float maxFactor = sin(apertureHalf);
-
-					vec2 uv;
-				  vec2 xy = 2.0 * v_TexCoord.xy - 1.0;
-				  float d = length(xy);
-				  if (d < (2.0-maxFactor))
-				  {
-					d = length(xy * maxFactor);
-					float z = sqrt(1.0 - d * d);
-					float r = atan(d, z) / PI;
-					float phi = atan(xy.y, xy.x);
-    
-					uv.x = r * cos(phi) + 0.5;
-					uv.y = r * sin(phi) + 0.5;
-				  }
-				  else
-				  {
-					uv = v_TexCoord.xy;
-				  }
-				  vec4 c = texture2D(u_Textures[index], uv) * v_Color;
-				  outColor = c;
-			};
-		)glsl";*/
-
 		s_RendererData.QuadShader = std::make_shared<Shader>(vs, fs);
 		s_RendererData.QuadShader->Bind();
 

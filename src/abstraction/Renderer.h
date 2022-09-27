@@ -22,7 +22,7 @@ namespace Renderer {
 
 	public:
 
-		static void Clear(const float& r);
+		static void Clear();
 		static void Draw(const VertexArray& va, const IndexBufferObject& ibo, const Shader& shader);
 
 		static void Init();
