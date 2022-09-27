@@ -120,6 +120,14 @@ int main()
 
     Renderer::Renderer::Init();
     Renderer::CubemapRenderer::Init();
+
+
+    Renderer::Cubemap skybox = {
+      "res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
+      "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
+      "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" 
+    };
+    
     TempRenderer::Init();
 
     Player player{};
@@ -127,7 +135,7 @@ int main()
 
     while (!Window::shouldClose()) {
 
-        Renderer::Renderer::Clear(0.f);
+        Renderer::Renderer::Clear();
         auto nextTime = nanoTime();
         auto delta = nextTime - firstTime;
         firstTime = nextTime;
@@ -141,6 +149,7 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
+        Renderer::CubemapRenderer::DrawCubemap(skybox, player.GetCamera(), player.getPosition());
         
         if (ImGui::SliderInt("Width", &w, quadsPerSide, 2000) + ImGui::SliderInt("Height", &h, quadsPerSide, 2000) +
             ImGui::SliderFloat("Scale", &scale, 0, 50) + ImGui::SliderInt("Number of octaves", &o, 0, 10) +
@@ -178,13 +187,6 @@ int main()
 
 
 
-        if (lastSec + 1E9 < nextTime) {
-            char title[50];
-            sprintf_s(title, 50, "Some game, %dfps", frames);
-            Window::renameWindow(title);
-            lastSec += (long long)1E9;
-            frames = 0;
-        }
 
         if (noiseMap) {
 
@@ -192,6 +194,16 @@ int main()
             
         }
 
+
+
+
+        if (lastSec + 1E9 < nextTime) {
+            char title[50];
+            sprintf_s(title, 50, "Some game, %dfps", frames);
+            Window::renameWindow(title);
+            lastSec += (long long)1E9;
+            frames = 0;
+        }
         temps += realDelta;
 
         ImGui::Render();

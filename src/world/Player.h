@@ -21,6 +21,8 @@ public:
 
   }
 
+  glm::vec3 getPosition() { return m_position; }
+
 private:
   void UpdateCamera();
 private:
