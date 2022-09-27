@@ -1,4 +1,3 @@
-
 #include <thread>
 #include <chrono>
 
@@ -9,38 +8,14 @@
 #include "src/abstraction/Window.h"
 #include "src/abstraction/Renderer.h"
 #include "src/abstraction/Camera.h"
-
+#include "src/abstraction/Cubemap.h"
+#include "src/abstraction/Inputs.h"
+#include "src/abstraction/Cubemap.h"
+#include "src/abstraction/Inputs.h"
+#include "src/abstraction/TempRenderer.h"
+#include "src/world/Player.h"
+#include "src/world/TerrainGeneration/MapGenerator.h"
 #include "src/Sandbox/Scene.h"
-
-#include "src/abstraction/Cubemap.h"
-#include "src/abstraction/Inputs.h"
-#include "src/abstraction/Cubemap.h"
-#include "src/abstraction/Inputs.h"
-#include "src/abstraction/TempRenderer.h"
-#include "src/world/TerrainGeneration/MapGenerator.h"
-
-
-#include "src/vendor/imgui/imgui.h"
-#include "src/vendor/imgui/imgui_impl_glfw.h"
-#include "src/vendor/imgui/imgui_impl_opengl3.h"
-
-
-#include "src/world/Player.h"
-
-#include <thread>
-#include "src/abstraction/TempRenderer.h"
-#include "src/world/TerrainGeneration/MapGenerator.h"
-
-
-#include "src/vendor/imgui/imgui.h"
-#include "src/vendor/imgui/imgui_impl_glfw.h"
-#include "src/vendor/imgui/imgui_impl_opengl3.h"
-
-
-#include "src/world/Player.h"
-
-#include <thread>
-#include <chrono>
 
 inline long long nanoTime()
 {
