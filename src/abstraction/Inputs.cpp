@@ -6,16 +6,11 @@
 
 #include "Window.h"
 
-static bool escaped = false;
-static bool escapedPositionHandled = false;
-static bool alreadyWritten = false;
-static glm::vec2 tempCursorPos;
-
-
 namespace WI = Window::Inputs;
 
 namespace Inputs {
 
+static int s_cursorLockFrames = 0;
 static std::set<int> s_pressedKeys;
 static glm::vec2 s_previousCursorPosition;
 static glm::vec2 s_cursorPosition;
@@ -32,56 +27,29 @@ public:
     if (key == GLFW_KEY_ESCAPE)
       exit(0);
 
-    if (key == GLFW_KEY_E && action != WI::ACTION_RELEASE) {
-
-        
-        if (!escaped) {
-
-            alreadyWritten = false;
-            escapedPositionHandled = false;
-
-
-        }
-
-        escaped = !escaped;
-        Window::captureMouse(!escaped);
-
+    if (key == GLFW_KEY_E && action == WI::ACTION_PRESS) {
+      s_cursorLockFrames = s_cursorLockFrames >= 0 ? -1 : 0;
+      Window::captureMouse(s_cursorLockFrames >= 0);
     }
   }
 
   void triggerCursorMove(int x, int y) override
- {
-
-      if (escapedPositionHandled == false && escaped && !alreadyWritten == true) {
-
-          tempCursorPos = { x, y };
-          alreadyWritten = true;
-
-       }
-
-      else if (!escaped && escapedPositionHandled == false) {
-
-          s_cursorPosition = tempCursorPos;
-          escapedPositionHandled = true;
-
-      }
-
-      else if (!escaped && escapedPositionHandled) {
-        s_cursorPosition = { x, y };
-
-      }
+  {
+    s_cursorPosition = { x, y };
   }
+
 };
 
 void ObserveInputs()
 {
   Window::registerInputHandler(new InputsObserver);
-  //Window::captureMouse();
+  Window::captureMouse();
 }
 
 void UpdateInputs()
 {
-  s_cursorPositionDelta = s_cursorPosition - s_previousCursorPosition;
+  s_cursorPositionDelta = s_cursorLockFrames > 1 ? s_cursorPosition - s_previousCursorPosition : glm::vec2{};
+  if (s_cursorLockFrames >= 0) s_cursorLockFrames++;
   s_previousCursorPosition = s_cursorPosition;
 }
 

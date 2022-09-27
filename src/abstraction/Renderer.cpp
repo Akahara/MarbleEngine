@@ -66,8 +66,6 @@ namespace Renderer {
 		shader.Bind();
 		va.Bind();
 		ibo.Bind();
-		std::cout << ibo.getCount() << std::endl;
-
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(ibo.getCount()), GL_UNSIGNED_INT, nullptr);
 	}
 

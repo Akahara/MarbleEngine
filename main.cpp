@@ -116,7 +116,7 @@ public:
 
   void OnRender() override
   {
-    Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.getPosition());
+    Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
     if (noiseMap) {
       TempRenderer::RenderGrid({ -1, -1, 0 }, 30.f, quadsPerSide, { 1.f, 1.f, 1.f }, m_player.GetCamera().getViewProjectionMatrix(), id, noiseMap, false);
     }

@@ -40,7 +40,7 @@ void Player::Step(float delta)
   if (Inputs::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
     motion -= UP;
 
-  float speed = 1;
+  float speed = 5.f;
   if (Inputs::IsKeyPressed(GLFW_KEY_TAB))
     speed *= 5.f;
 

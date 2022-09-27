@@ -6,13 +6,11 @@
 #include "../../abstraction/Texture.h"
 
 
-
 class MapGenerator
 {
 private:
 	int mapWidth, mapHeight;
 	float noiseScale;
-
 
 	int octaves;
 	float persistance, lacunarity;
@@ -50,10 +48,6 @@ public:
 		delete[] noiseMap;
 		return m_renderTexture;
 	}
-
-
-
-
 
 };
 
