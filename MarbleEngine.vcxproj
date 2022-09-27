@@ -157,6 +157,7 @@
     <ClCompile Include="src\abstraction\FrameBufferObject.cpp" />
     <ClCompile Include="src\abstraction\IndexBufferObject.cpp" />
     <ClCompile Include="src\abstraction\Inputs.cpp" />
+    <ClCompile Include="src\abstraction\Mesh.cpp" />
     <ClCompile Include="src\abstraction\Renderer.cpp" />
     <ClCompile Include="src\abstraction\Shader.cpp" />
     <ClCompile Include="src\abstraction\stb_image.cpp" />
@@ -166,6 +167,7 @@
     <ClCompile Include="src\abstraction\VertexArray.cpp" />
     <ClCompile Include="src\abstraction\VertexBufferObject.cpp" />
     <ClCompile Include="src\abstraction\Window.cpp" />
+    <ClCompile Include="src\Sandbox\Scene.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_draw.cpp" />
@@ -191,9 +193,11 @@
     <ClInclude Include="src\abstraction\FrameBufferObject.h" />
     <ClInclude Include="src\abstraction\IndexBufferObject.h" />
     <ClInclude Include="src\abstraction\Inputs.h" />
+    <ClInclude Include="src\abstraction\Mesh.h" />
     <ClInclude Include="src\abstraction\Renderer.h" />
     <ClInclude Include="src\abstraction\Shader.h" />
     <ClInclude Include="src\abstraction\stb_image.h" />
+    <ClInclude Include="src\abstraction\stb_image_write.h" />
     <ClInclude Include="src\abstraction\TempRenderer.h" />
     <ClInclude Include="src\abstraction\Texture.h" />
     <ClInclude Include="src\abstraction\TextureAtlas.h" />
@@ -201,6 +205,7 @@
     <ClInclude Include="src\abstraction\VertexBufferLayout.h" />
     <ClInclude Include="src\abstraction\VertexBufferObject.h" />
     <ClInclude Include="src\abstraction\Window.h" />
+    <ClInclude Include="src\Sandbox\Scene.h" />
     <ClInclude Include="src\Utils\Mathf.h" />
     <ClInclude Include="src\vendor\imgui\imconfig.h" />
     <ClInclude Include="src\vendor\imgui\imgui.h" />

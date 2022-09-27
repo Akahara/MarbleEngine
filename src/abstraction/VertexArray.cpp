@@ -3,37 +3,44 @@
 
 namespace Renderer {
 
-
-
 VertexArray::VertexArray() {
-
-	GLCall(glGenVertexArrays(1, &m_RendererID));
-	GLCall(glBindVertexArray(m_RendererID));
-
+	glGenVertexArrays(1, &m_RendererID);
+	glBindVertexArray(m_RendererID);
 }
 
 VertexArray::~VertexArray() {
+  Delete();
+}
 
-	GLCall(glDeleteVertexArrays(1, &m_RendererID));
+VertexArray::VertexArray(VertexArray &&moved) noexcept {
+  m_RendererID = moved.m_RendererID;
+  moved.m_RendererID = 0;
+}
 
-
+VertexArray &VertexArray::operator=(VertexArray &&moved) noexcept
+{
+  Delete();
+  new (this) VertexArray(std::move(moved));
+  return *this;
 }
 
 void VertexArray::Bind() const {
-	GLCall(glBindVertexArray(m_RendererID));
+  glBindVertexArray(m_RendererID);
 }
 
 void VertexArray::Unbind() const {
-	GLCall(glBindVertexArray(0));
+  glBindVertexArray(0);
+}
 
+void VertexArray::Delete()
+{
+  glDeleteVertexArrays(1, &m_RendererID);
+  m_RendererID = 0;
 }
 
 void VertexArray::addBuffer(const VertexBufferObject& vb, const VertexBufferLayout& layout) {
-
-
 	Bind();
 	vb.Bind();
-
 
 	const auto& elements = layout.getElements();
 	unsigned int offset = 0;
@@ -41,19 +48,15 @@ void VertexArray::addBuffer(const VertexBufferObject& vb, const VertexBufferLayo
 	for (unsigned int i = 0; i < elements.size(); i++) {
 
 		const auto& element = elements[i];
-		GLCall(glEnableVertexAttribArray(i));
-		GLCall(glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.getStride() , (const void*)offset));
+		glEnableVertexAttribArray(i);
+		glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.getStride(), *(const void**)&offset);
 
 		offset += element.count * VertexBufferElement::GetSizeOfType(element.type);
-
-
-		}
 	}
+}
 
 void VertexArray::SendToGPU(GLsizeiptr size, const void* data) {
-
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+}
 
-
-	}
 }

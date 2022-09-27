@@ -57,25 +57,25 @@ namespace Renderer {
 		char infoLog[2048];
 		GLsizei infoLen;
 		glGetProgramInfoLog(m_ShaderID, sizeof(infoLog), &infoLen, infoLog);
-		if (infoLen != 0)
+		if(infoLen != 0)
 			std::cout << infoLog << std::endl;
 
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
 	}
 
-	Shader::Shader(Shader&& moved) noexcept
+	Shader::Shader(Shader &&moved) noexcept
 	{
-		m_ShaderID = moved.m_ShaderID;
-		m_UniformLocationCache = std::move(moved.m_UniformLocationCache);
-		moved.m_ShaderID = 0;
+	  m_ShaderID = moved.m_ShaderID;
+	  m_UniformLocationCache = std::move(moved.m_UniformLocationCache);
+	  moved.m_ShaderID = 0;
 	}
 
-	Shader& Shader::operator=(Shader&& moved) noexcept
+	Shader &Shader::operator=(Shader &&moved) noexcept
 	{
-		Delete();
-		new (this) Shader(std::move(moved));
-		return *this;
+	  Delete();
+	  new (this) Shader(std::move(moved));
+	  return *this;
 	}
 
 	void Shader::Bind() const {
@@ -100,7 +100,7 @@ namespace Renderer {
 
 	void Shader::SetUniform3f(std::string_view name, float v1, float v2, float v3)
 	{
-		glUniform3f(GetUniformLocation(name), v1, v2, v3);
+	  glUniform3f(GetUniformLocation(name), v1, v2, v3);
 	}
 
 	void Shader::SetUniform4f(std::string_view name, float v1, float v2, float v3, float v4) {
@@ -113,7 +113,7 @@ namespace Renderer {
 
 
 	void Shader::SetUniform1iv(std::string_view name, unsigned int count, const GLint* data) {
-		glUniform1iv(GetUniformLocation(name), count, data);
+		 glUniform1iv(GetUniformLocation(name), count, data  ) ;
 	}
 
 	int Shader::GetUniformLocation(std::string_view name) {

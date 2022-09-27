@@ -38,11 +38,11 @@ namespace Noise {
 				for (int o = 0; o < octaves; o++) {
 
 
-					double sampleX = x / scale * frequency;
-					double sampleY = y / scale * frequency;
+					float sampleX = x / scale * frequency;
+					float sampleY = y / scale * frequency;
 
 					double pValue = perlin.noise2D_01(sampleX, sampleY) * 2 - 1; 
-					noiseHeight += pValue * amplitude;
+					noiseHeight += (float)pValue * amplitude;
 
 					amplitude *= persistance; // persistance is [0;1]
 					frequency *= lacunarity;

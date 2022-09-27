@@ -23,8 +23,8 @@ private:
 
 public:
 
-	MapGenerator(int w, int h, int scale, int o, float p, float l, int s)
-		: mapWidth(w), mapHeight(h), noiseScale(scale), octaves(o), persistance(p), lacunarity(l), seed(s) {}
+	MapGenerator(int w, int h, float scale, int o, float p, float l, int s)
+		: mapWidth(w), mapHeight(h), noiseScale(scale), octaves(o), persistance(p), lacunarity(l), seed(s), m_renderTexture(0) { }
 
 	unsigned int GenerateTextureMap() {
 

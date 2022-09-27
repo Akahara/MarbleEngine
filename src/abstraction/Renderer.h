@@ -6,7 +6,6 @@
 #include "Texture.h"
 #include "TextureAtlas.h"
 
-
 #include "Shader.h"
 #include "IndexBufferObject.h"
 #include "VertexArray.h"
@@ -22,7 +21,7 @@ namespace Renderer {
 
 	public:
 
-		static void Clear(const float& r=0.0f);
+		static void Clear();
 		static void Draw(const VertexArray& va, const IndexBufferObject& ibo, const Shader& shader);
 
 		static void Init();
@@ -39,17 +38,3 @@ namespace Renderer {
 }
 
 #define ASSERT(x) if (!(x)) __debugbreak();
-
-// not needed ! Window#openglMessageCallback will be called anyway on error
-// TODO remove GLClearError GLLogCall Renderer#openglMessageCallback
-#define GLCall(x) GLClearError();\
-	x;\
-	ASSERT(GLLogCall(#x, __FILE__, __LINE__))
-
-
-void GLClearError();
-bool GLLogCall(const char* function, const char* file, int line);
-const char* GLTranslateError(GLenum error);
-void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
-	GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
-

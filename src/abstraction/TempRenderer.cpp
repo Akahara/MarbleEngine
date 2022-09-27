@@ -13,39 +13,36 @@ using namespace Renderer;
 
 namespace TempRenderer {
 
+static std::unique_ptr<VertexBufferObject> vbo;
+static std::unique_ptr<IndexBufferObject> ibo;
+static std::unique_ptr<VertexArray> vao;
 
-    static  std::unique_ptr<VertexBufferObject> vbo;
-    static  std::unique_ptr<IndexBufferObject> ibo;
-    static  std::unique_ptr<VertexArray> vao;
+static std::unique_ptr<VertexBufferObject> vbo2;
+static std::unique_ptr<IndexBufferObject> ibo2;
+static std::unique_ptr<VertexArray> vao2;
 
-    static std::unique_ptr<VertexBufferObject> vbo2;
-    static  std::unique_ptr<IndexBufferObject> ibo2;
-    static  std::unique_ptr<VertexArray> vao2;
+static struct CmRenderData {
+  Shader shader;
+  VertexArray vao;
+} *cmRenderData;
 
-
-
-static struct renderData {
-  Shader *shader;
-  VertexArray *vao;
-} cmRenderData;
-
-static struct KAR {
-  VertexBufferObject *vbo;
-  IndexBufferObject *ibo;
-} keepAliveResources;
+static struct KeepAliveResources {
+  VertexBufferObject vbo;
+  IndexBufferObject ibo;
+} *keepAliveResources;
 
 static struct VertexTemp {
-
-    glm::vec3 position;
-    glm::vec2 uv;
-
+  glm::vec3 position;
+  glm::vec2 uv;
 };
 
 
 void Init()
 {
+  keepAliveResources = new KeepAliveResources;
+  cmRenderData = new CmRenderData;
 
-  cmRenderData.shader = new Shader{
+  cmRenderData->shader = Shader{
  R"glsl(
 #version 330 core
 
@@ -116,19 +113,13 @@ color -= (texture(u_Texture2D, o_uv+vec2(.002, 0)) - texture(u_Texture2D, o_uv))
     4, 0, 5, 5, 0, 1
   };
 
-  keepAliveResources.vbo = new VertexBufferObject(vertices, sizeof(vertices));
-  keepAliveResources.ibo = new IndexBufferObject(indices, sizeof(indices) / sizeof(indices[0]));
+  keepAliveResources->vbo = VertexBufferObject(vertices, sizeof(vertices));
+  keepAliveResources->ibo = IndexBufferObject(indices, sizeof(indices) / sizeof(indices[0]));
 
   VertexBufferLayout layout;
   layout.push<float>(3);
-  cmRenderData.vao = new VertexArray;
-  cmRenderData.vao->addBuffer(*keepAliveResources.vbo, layout);
-  cmRenderData.vao->Unbind();
-
-
-
-
-
+  cmRenderData->vao.addBuffer(keepAliveResources->vbo, layout);
+  cmRenderData->vao.Unbind();
 }
 
 void RenderCube(glm::vec3 position, glm::vec3 size, glm::vec3 color, const glm::mat4 &VP)
@@ -136,12 +127,12 @@ void RenderCube(glm::vec3 position, glm::vec3 size, glm::vec3 color, const glm::
   glm::mat4 M(1.f);
   M = glm::translate(M, position);
   M = glm::scale(M, size);
-  cmRenderData.shader->Bind();
-  cmRenderData.vao->Bind();
-  cmRenderData.shader->SetUniformMat4f("u_VP", VP);
-  cmRenderData.shader->SetUniformMat4f("u_M", M);
-  cmRenderData.shader->SetUniform4f("u_color", color.r, color.g, color.b, 1.f);
-  keepAliveResources.ibo->Bind();
+  cmRenderData->shader.Bind();
+  cmRenderData->vao.Bind();
+  cmRenderData->shader.SetUniformMat4f("u_VP", VP);
+  cmRenderData->shader.SetUniformMat4f("u_M", M);
+  cmRenderData->shader.SetUniform4f("u_color", color.r, color.g, color.b, 1.f);
+  keepAliveResources->ibo.Bind();
 
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 }
@@ -168,7 +159,7 @@ void RenderPlane(const glm::vec3& position, const glm::vec3& size, const glm::ve
 
     
     vbo = std::make_unique<VertexBufferObject>(verticesPlane, sizeof(verticesPlane));
-    ibo = std::make_unique <IndexBufferObject>(indicesPlane, sizeof(indicesPlane) / sizeof(indicesPlane[0]));
+    ibo = std::make_unique<IndexBufferObject>(indicesPlane, sizeof(indicesPlane) / sizeof(indicesPlane[0]));
 
     VertexBufferLayout layout;
     layout.push<float>(3);
@@ -181,12 +172,12 @@ void RenderPlane(const glm::vec3& position, const glm::vec3& size, const glm::ve
     M = glm::scale(M, size);
     M = glm::rotate(M, rotation, glm::vec3{ 1,0,0 });
 
-    cmRenderData.shader->Bind();
+    cmRenderData->shader.Bind();
     vao->Bind();
 
-    cmRenderData.shader->SetUniformMat4f("u_VP", VP);
-    cmRenderData.shader->SetUniformMat4f("u_M", M);
-    cmRenderData.shader->SetUniform4f("u_color", color.r, color.g, color.b, 1.f);
+    cmRenderData->shader.SetUniformMat4f("u_VP", VP);
+    cmRenderData->shader.SetUniformMat4f("u_M", M);
+    cmRenderData->shader.SetUniform4f("u_color", color.r, color.g, color.b, 1.f);
     ibo->Bind();
 
     if (drawLines) {
@@ -205,8 +196,8 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide,
 
 {
 
-    unsigned int nbOfQuads = glm::pow(quadsPerSide, 2);
-    unsigned int nbOfVertices = glm::pow(quadsPerSide + 1, 2);
+    unsigned int nbOfQuads = quadsPerSide * quadsPerSide;
+    unsigned int nbOfVertices = (quadsPerSide + 1) * (quadsPerSide + 1);
 
     // Create vertices              // nb of verticies              // size of a vertex
     VertexTemp* verticesGrid = new VertexTemp[nbOfVertices];
@@ -217,14 +208,10 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide,
 
     int x = 0;
     int y = 0;
-    for (int v = 0; v < nbOfVertices ; v ++) {
 
-        
-
+    for (unsigned int v = 0; v < nbOfVertices ; v ++) {
         verticesGrid[v].position = { position.x + x * step, (noiseMap[y*quadsPerSide+1 + x]), position.y + y * step};                                  // x
         verticesGrid[v].uv = { (float)x/(quadsPerSide*quadSize),(float)y / (quadsPerSide * quadSize) };                 // x
-
-
 
         x++;
         if (x == quadsPerSide+1) {
@@ -232,7 +219,6 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide,
             x = 0;
         }
     }
-    
 
     // Calculate the indices
 
@@ -302,16 +288,14 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide,
     M = glm::translate(M, position);
     M = glm::scale(M, { quadSize,quadSize,quadSize });
 
-    cmRenderData.shader->Bind();
-    vao2->Bind();
-
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureId);
-
-    cmRenderData.shader->SetUniformMat4f("u_VP", VP);
-    cmRenderData.shader->SetUniform1i("u_Texture2D", 0);
-    cmRenderData.shader->SetUniformMat4f("u_M", M);
-    cmRenderData.shader->SetUniform4f("u_color", color.r, color.g, color.b, 1.f);
+    vao2->Bind();
+    cmRenderData->shader.Bind();
+    cmRenderData->shader.SetUniformMat4f("u_VP", VP);
+    cmRenderData->shader.SetUniform1i("u_Texture2D", 0);
+    cmRenderData->shader.SetUniformMat4f("u_M", M);
+    cmRenderData->shader.SetUniform4f("u_color", color.r, color.g, color.b, 1.f);
     ibo2->Bind();
 
     if (drawLines) {

@@ -43,42 +43,30 @@ namespace Renderer {
 		VertexBufferLayout() : m_Stride(0) {}
 
 		template<typename T>
-		void push(unsigned int count) {
-			
-		//	static_assert(false);
-
-		}
+		void push(unsigned int count);
 
 		template<>
 		void push<float>(unsigned int count) {
-
 			m_Elements.push_back({ GL_FLOAT, count, GL_FALSE });
 			m_Stride += VertexBufferElement::GetSizeOfType(GL_FLOAT) * count; // 4 bytes
-
 		}
 
 		template<>
 		void push<glm::vec2>(unsigned int count) {
-
 			m_Elements.push_back({ GL_FLOAT, count, GL_FALSE });
 			m_Stride += 2 * sizeof(GL_FLOAT) * count; // 4 bytes
-
 		}
 
 		template<>
 		void push<glm::vec3>(unsigned int count) {
-
 			m_Elements.push_back({ GL_FLOAT, count, GL_FALSE });
 			m_Stride += 3 * sizeof(GL_FLOAT) * count; // 4 bytes
-
 		}
 
 		template<>
 		void push<glm::vec4>(unsigned int count) {
-
 			m_Elements.push_back({ GL_FLOAT, count, GL_FALSE });
 			m_Stride += 4 * sizeof(GL_FLOAT) * count; // 4 bytes
-
 		}
 
 		template<>
@@ -93,10 +81,8 @@ namespace Renderer {
 			m_Stride += VertexBufferElement::GetSizeOfType(GL_UNSIGNED_BYTE) * count;
 		}
 
-
 		inline const std::vector<VertexBufferElement>& getElements() const { return m_Elements; }
 		inline unsigned int getStride() const { return m_Stride; }
-
 	};
 
 }

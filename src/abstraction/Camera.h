@@ -2,12 +2,9 @@
 
 #include <iostream>
 
-#define GLFW_INCLUDE_NONE
-#include<glad/glad.h>
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
-#define GLM_FORCE_CTOR_INIT 
 
 namespace Renderer {
 

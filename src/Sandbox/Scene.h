@@ -28,4 +28,6 @@ void RegisterScene(const std::string &name, SceneProvider provider);
 template<class T>
 void RegisterScene(const std::string &name) { RegisterScene(name, []() { return new T; }); }
 
+void SwitchToScene(size_t index);
+
 }
