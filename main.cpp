@@ -50,6 +50,7 @@ int main()
 
     //===========================================================//
 
+    int quadsPerSide = 128;
     int w=200, h=200;
     float scale=27.6;
     int o=4;
@@ -69,6 +70,7 @@ int main()
     TempRenderer::Init();
 
     Player player{};
+    player.setPostion( { 0.f, 30.f, 0 });
 
     while (!Window::shouldClose()) {
 
@@ -87,9 +89,9 @@ int main()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
         
-        if (ImGui::SliderInt("Width", &w, 0, 300) + ImGui::SliderInt("Height", &h, 0, 300) +
-            ImGui::SliderFloat("Scale", &scale, 0, 50) + ImGui::SliderInt("Number of octaves", &o, 0, 5) +
-            ImGui::SliderFloat("persistence", &p, 0, 1) + ImGui::SliderFloat("lacunarity", &l, 0, 10) +
+        if (ImGui::SliderInt("Width", &w, quadsPerSide, 2000) + ImGui::SliderInt("Height", &h, quadsPerSide, 2000) +
+            ImGui::SliderFloat("Scale", &scale, 0, 50) + ImGui::SliderInt("Number of octaves", &o, 0, 10) +
+            ImGui::SliderFloat("persistence", &p, 0, 1) + ImGui::SliderFloat("lacunarity", &l, 0, 50) +
             ImGui::SliderInt("seed", &seed, 0, 5)) {
 
             delete[] noiseMap;
@@ -133,7 +135,7 @@ int main()
 
         if (noiseMap) {
 
-            TempRenderer::RenderGrid({ -1, -1, 0 }, 30.f, 128, { 1.f, 1.f, 1.f }, player.GetCamera().getViewProjectionMatrix(), id, noiseMap, false);
+            TempRenderer::RenderGrid({ -1, -1, 0 }, 30.f, quadsPerSide, { 1.f, 1.f, 1.f }, player.GetCamera().getViewProjectionMatrix(), id, noiseMap, false);
             
         }
 
