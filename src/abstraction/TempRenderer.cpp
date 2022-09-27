@@ -4,6 +4,8 @@
 #include "VertexArray.h"
 #include "IndexBufferObject.h"
 
+#include "../world/TerrainGeneration/MapGenerator.h"
+
 #include <memory>
 #include <iostream>
 
@@ -11,7 +13,8 @@ using namespace Renderer;
 
 namespace TempRenderer {
 
-    static std::unique_ptr<VertexBufferObject> vbo;
+
+    static  std::unique_ptr<VertexBufferObject> vbo;
     static  std::unique_ptr<IndexBufferObject> ibo;
     static  std::unique_ptr<VertexArray> vao;
 
@@ -41,6 +44,7 @@ static struct VertexTemp {
 
 void Init()
 {
+
   cmRenderData.shader = new Shader{
  R"glsl(
 #version 330 core
@@ -178,7 +182,8 @@ void RenderPlane(const glm::vec3& position, const glm::vec3& size, const glm::ve
     ibo->Unbind();
 
 }
-void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, const glm::vec3& color, const glm::mat4& VP, unsigned int textureId ,bool drawLines) 
+void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, 
+    const glm::vec3& color, const glm::mat4& VP, unsigned int textureId, float* noiseMap ,bool drawLines) 
 
 {
 
@@ -197,8 +202,8 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, con
 
         
 
-        verticesGrid[v].position = { position.x + x * step, 0.0f, position.y + y * step };                  // x
-        verticesGrid[v].uv = { (float)x/(quadsPerSide*quadSize),(float)y / (quadsPerSide * quadSize) };                  // x
+        verticesGrid[v].position = { position.x + x * step, noiseMap[y*quadsPerSide+1 + x], position.y + y * step};                                  // x
+        verticesGrid[v].uv = { (float)x/(quadsPerSide*quadSize),(float)y / (quadsPerSide * quadSize) };                 // x
 
 
 

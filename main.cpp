@@ -50,36 +50,29 @@ int main()
 
     //===========================================================//
 
-    MapGenerator mapGen(100, 100, 27.6, 4, 0.3f, 3.18f, 235763);
-    unsigned int id = mapGen.GenerateMap();
-    std::shared_ptr<Renderer::Texture> texture = std::make_shared<Renderer::Texture>(id);
-    std::shared_ptr<Renderer::Texture> newTexture;
-
-    int w=100, h=100;
+    int w=200, h=200;
     float scale=27.6;
     int o=4;
     float p=0.3, l=3.18;
     int seed= 5;
 
+    MapGenerator mapGen(w, h, scale, o, p, l, seed);
+    unsigned int id = mapGen.GenerateTextureMap();
+    float* noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
+
 
 	Renderer::Camera m_Camera(-1.0f, 1.0f, -1.0f, 1.0f);
-    bool a = false;
 
 
     Renderer::Renderer::Init();
     Renderer::CubemapRenderer::Init();
     TempRenderer::Init();
 
-    Renderer::Cubemap skybox{
-      "res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
-      "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
-      "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" };
-
     Player player{};
 
     while (!Window::shouldClose()) {
 
-        Renderer::Renderer::Clear(1.f);
+        Renderer::Renderer::Clear(0.f);
         auto nextTime = nanoTime();
         auto delta = nextTime - firstTime;
         firstTime = nextTime;
@@ -99,9 +92,10 @@ int main()
             ImGui::SliderFloat("persistence", &p, 0, 1) + ImGui::SliderFloat("lacunarity", &l, 0, 10) +
             ImGui::SliderInt("seed", &seed, 0, 5)) {
 
+            delete[] noiseMap;
             unsigned int nid;
 
-            float* noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
+            noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
 
             // Texture stuff
 
@@ -118,12 +112,9 @@ int main()
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, w, h, 0, GL_RED, GL_FLOAT, noiseMap);
                 glBindTexture(GL_TEXTURE_2D, 0);
             }
-            std::cout << "End of generation" << std::endl;
-            delete[] noiseMap;
+            
 
-            newTexture = std::make_shared<Renderer::Texture>(nid);
             id = nid;
-            a = true;
 
 
         }
@@ -140,7 +131,11 @@ int main()
             frames = 0;
         }
 
-        TempRenderer::RenderGrid({ -1, -1, 0 }, 2.f, 8, { 1.f, 1.f, 1.f }, player.GetCamera().getViewProjectionMatrix(), id , false);
+        if (noiseMap) {
+
+            TempRenderer::RenderGrid({ -1, -1, 0 }, 30.f, 128, { 1.f, 1.f, 1.f }, player.GetCamera().getViewProjectionMatrix(), id, noiseMap, false);
+            
+        }
 
         temps += realDelta;
 
