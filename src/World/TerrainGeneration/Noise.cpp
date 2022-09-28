@@ -9,9 +9,7 @@ float InverseLerp(float xx, float yy, float value)
 namespace Noise {
 
 	float* GenerateNoiseMap(int mapWidth, int mapHeight, float scale, int octaves, float persistance, float lacunarity, int s) {
-
-
-
+		
 		float* noiseMap = new float[mapWidth * mapHeight];
 
 		const siv::PerlinNoise::seed_type seed = s;

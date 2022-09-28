@@ -87,7 +87,7 @@ class TestTerrainScene : public Scene {
 private:
   Renderer::Cubemap m_skybox;
   Player            m_player;
-  int quadsPerSide = 128;
+  int quadsPerSide = 199;  // - TODO - NOT FIXED - quadPerSide must be w-1 and w=h
   int w = 200, h = 200;
   float scale = 27.6f;
   int o = 4;
@@ -156,7 +156,7 @@ public:
 
 int main()
 {
-	Window::createWindow(1000, 1000, "test");
+	Window::createWindow(16*70, 9*70, "test");
 
     Window::setVisible(true);
     Window::setPosition(400, 100);
@@ -176,7 +176,7 @@ int main()
     SceneManager::RegisterScene<TestScene>("Test");
     SceneManager::RegisterScene<Test3DScene>("Test3D");
     SceneManager::RegisterScene<TestTerrainScene>("Terrain");
-    SceneManager::SwitchToScene(2);
+    SceneManager::SwitchToScene(3);
 
     //===========================================================//
 

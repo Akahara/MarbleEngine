@@ -50,14 +50,14 @@ void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
   case GL_DEBUG_SEVERITY_HIGH:            severityName = "HIGH";            break;
   default:                                severityName = "?";               break;
   }
-  /*
+  
   std::cerr
     << "GL CALLBACK: " << sourceName << "\n"
     << " type     = " << typeName << "\n"
     << " severity = " << severityName << "\n"
     << " message  = " << message
     << std::endl;
-  */
+  
   // add a breakpoint at the end of the function to catch opengl errors
 }
 
@@ -113,8 +113,9 @@ void createWindow(unsigned int width, unsigned int height, const char *title)
   glDebugMessageCallback(openglMessageCallback, 0);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  //glEnable(GL_CULL_FACE);
+  glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
+  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // TODO 
   glViewport(0, 0, width, height);
   glClearColor(.3f, 0.53f, 0.67f, 1.0f);
 }

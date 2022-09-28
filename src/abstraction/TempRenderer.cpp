@@ -90,6 +90,8 @@ color.rgb = vec3(0.86,0.86,0.86);
     }
 color.a = 1.0F;
 color -= (texture(u_Texture2D, o_uv+vec2(.002, 0)) - texture(u_Texture2D, o_uv)) *6;
+
+//color = texture(u_Texture2D, o_uv);
 }
 )glsl" };
 
@@ -192,14 +194,13 @@ void RenderPlane(const glm::vec3& position, const glm::vec3& size, const glm::ve
 
 }
 void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, 
-    const glm::vec3& color, const glm::mat4& VP, unsigned int textureId, float* noiseMap ,bool drawLines) 
+    const glm::vec3& color, const glm::mat4& VP, unsigned int textureId, float* noiseMap, bool drawLines) 
 
 {
 
     unsigned int nbOfQuads = quadsPerSide * quadsPerSide;
     unsigned int nbOfVertices = (quadsPerSide + 1) * (quadsPerSide + 1);
 
-    // Create vertices              // nb of verticies              // size of a vertex
     VertexTemp* verticesGrid = new VertexTemp[nbOfVertices];
 
 
@@ -208,10 +209,25 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide,
 
     int x = 0;
     int y = 0;
+    
+    // if (true) {
+    //float *noiseMap = new float[mapWidth * mapHeight];
+    //for (size_t i = 0; i < mapWidth * mapHeight; i++)
+    //  noiseMap[i] = 0.f;
+    //for (size_t i = 0; i < mapWidth; i++) {
+    //  noiseMap[i] = 1.f;
+    //  noiseMap[mapWidth*mapHeight-1-i] = 1.f;
+    //}
+    //for (size_t i = 0; i < mapHeight; i++) {
+    //  noiseMap[i * mapWidth] = 1.f;
+    //  noiseMap[mapWidth * mapHeight - 1 - i * mapWidth] = 1.f;
+    //}
+    //return noiseMap;
+ // }
 
     for (unsigned int v = 0; v < nbOfVertices ; v ++) {
-        verticesGrid[v].position = { position.x + x * step, (noiseMap[y*quadsPerSide+1 + x]), position.y + y * step};                                  // x
-        verticesGrid[v].uv = { (float)x/(quadsPerSide*quadSize),(float)y / (quadsPerSide * quadSize) };                 // x
+        verticesGrid[v].position = { position.x + x * step, (noiseMap[y * (quadsPerSide + 1) + x]), position.y + y * step };
+        verticesGrid[v].uv = { (float)x / quadsPerSide, (float)y / quadsPerSide };
 
         x++;
         if (x == quadsPerSide+1) {
@@ -255,20 +271,19 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide,
     int index = 0;
     int i = 0;
     for (int y = 0; y < quadsPerSide; y ++) {
-        for (int x = 0; x < quadsPerSide; x++) {
-
-            i = y * (quadsPerSide+1) + x;
-            indicesGrid[index] = i;
-            indicesGrid[index + 1] = i + 1;
-            indicesGrid[index + 2] = i + quadsPerSide + 1;
-            indicesGrid[index + 3] = i + quadsPerSide + 2;
-            indicesGrid[index + 4] = i + quadsPerSide + 1;
-            indicesGrid[index + 5] = i+1;
-            index += 6;
-
-        }
-
-    
+      for (int x = 0; x < quadsPerSide; x++) {
+        int a1 = y * (quadsPerSide + 1) + x;
+        int a2 = y * (quadsPerSide + 1) + x + 1;
+        int a3 = (y+1) * (quadsPerSide + 1) + x;
+        int a4 = (y+1) * (quadsPerSide + 1) + x + 1;
+        indicesGrid[index] = a1;
+        indicesGrid[index + 1] = a3;
+        indicesGrid[index + 2] = a2;
+        indicesGrid[index + 3] = a2;
+        indicesGrid[index + 4] = a3;
+        indicesGrid[index + 5] = a4;
+        index += 6;
+      }
     }
 
     // render

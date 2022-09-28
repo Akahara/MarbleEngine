@@ -40,9 +40,9 @@ void Player::Step(float delta)
   if (Inputs::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
     motion -= UP;
 
-  float speed = 5.f;
+  float speed = 25.f;
   if (Inputs::IsKeyPressed(GLFW_KEY_TAB))
-    speed *= 5.f;
+    speed *= 15.f;
 
   glm::vec2 rotationMotion = Inputs::GetMouseDelta() / Inputs::GetInputRange() * Mathf::PI;
 
