@@ -17,7 +17,6 @@ public:
 
   void setPostion(const glm::vec3& position) { m_position = position; }
 
-private:
   void UpdateCamera();
 private:
   glm::vec3 m_position;

@@ -74,7 +74,6 @@ uniform sampler2D u_Texture2D;
 void main()
 {
 
-
 if (o_height < 0.3) { color.rgb = vec3(0.05,0.11,0.58); }
 else if (o_height < 0.4) {color.rgb = vec3(0.17,0.5,0.78);}
 else if (o_height < 0.45) {color.rgb = vec3(0.75,0.68,0.28);}
@@ -82,28 +81,23 @@ else if (o_height < 0.55) {color.rgb = vec3(0.1,0.4,0.04);}
 else if (o_height < 0.6) {color.rgb = vec3(0.07,0.22,0.03);}
 else if (o_height < 0.7) {color.rgb = vec3(0.3,0.21,0.1);}
 else if (o_height < 0.9) {color.rgb = vec3(0.13,0.05,0.0);}
-else {
-color.rgb = vec3(0.86,0.86,0.86);
-
-
-
-    }
-color.a = 1.0F;
+else { color.rgb = vec3(0.86,0.86,0.86); }
 color -= (texture(u_Texture2D, o_uv+vec2(.002, 0)) - texture(u_Texture2D, o_uv)) *6;
+color.a = 1.0F;
 
 //color = texture(u_Texture2D, o_uv);
 }
 )glsl" };
 
   float vertices[] = {
-    -1, -1, -1,
-    +1, -1, -1,
-    +1, +1, -1,
-    -1, +1, -1,
-    -1, -1, +1,
-    +1, -1, +1,
-    +1, +1, +1,
-    -1, +1, +1,
+    -.5f, -.5f, -.5f,
+    +.5f, -.5f, -.5f,
+    +.5f, +.5f, -.5f,
+    -.5f, +.5f, -.5f,
+    -.5f, -.5f, +.5f,
+    +.5f, -.5f, +.5f,
+    +.5f, +.5f, +.5f,
+    -.5f, +.5f, +.5f,
   };
 
   unsigned int indices[] = {
@@ -193,8 +187,9 @@ void RenderPlane(const glm::vec3& position, const glm::vec3& size, const glm::ve
     ibo->Unbind();
 
 }
+
 void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, 
-    const glm::vec3& color, const glm::mat4& VP, unsigned int textureId, float* noiseMap, bool drawLines) 
+    const glm::vec3& color, const glm::mat4& VP, unsigned int textureId, const float* noiseMap, bool drawLines) 
 
 {
 
@@ -210,23 +205,8 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide,
     int x = 0;
     int y = 0;
     
-    // if (true) {
-    //float *noiseMap = new float[mapWidth * mapHeight];
-    //for (size_t i = 0; i < mapWidth * mapHeight; i++)
-    //  noiseMap[i] = 0.f;
-    //for (size_t i = 0; i < mapWidth; i++) {
-    //  noiseMap[i] = 1.f;
-    //  noiseMap[mapWidth*mapHeight-1-i] = 1.f;
-    //}
-    //for (size_t i = 0; i < mapHeight; i++) {
-    //  noiseMap[i * mapWidth] = 1.f;
-    //  noiseMap[mapWidth * mapHeight - 1 - i * mapWidth] = 1.f;
-    //}
-    //return noiseMap;
- // }
-
     for (unsigned int v = 0; v < nbOfVertices ; v ++) {
-        verticesGrid[v].position = { position.x + x * step, (noiseMap[y * (quadsPerSide + 1) + x]), position.y + y * step };
+        verticesGrid[v].position = { x * step, (noiseMap[y * (quadsPerSide + 1) + x]), y * step };
         verticesGrid[v].uv = { (float)x / quadsPerSide, (float)y / quadsPerSide };
 
         x++;
@@ -241,33 +221,6 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide,
     // We have 6 indices per quad and count^2 quads
     unsigned int* indicesGrid = new unsigned int[nbOfQuads * 6];
 
-
-
-    /*
-    
-             x3 _________________ x4
-                |               |
-                |               |
-                |               |
-                |               |
-                |               |
-                |_______________|
-             x1                   x2
-
-
-    Because we fill the vertex array from bottom to top, left to right, we can deduce that :
-
-    indice(x2) = indice(x1 + 1);
-    indice(x3) = indice(x1 + quadsPerSide + 1);
-    indice(x4) = indice(x1 + (quadsPerSide + 1) + 1);
-
-    And we fill the indices array as so (for a single quad) :
-
-    { 
-        x4, x3, x1,
-        x3, x2, x1
-    }
-    */
     int index = 0;
     int i = 0;
     for (int y = 0; y < quadsPerSide; y ++) {
@@ -287,8 +240,6 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide,
     }
 
     // render
-
-
     vbo2 = std::make_unique<VertexBufferObject>(verticesGrid, sizeof(VertexTemp) * nbOfVertices);
     ibo2 = std::make_unique <IndexBufferObject>(indicesGrid, nbOfQuads * 6);
 
@@ -301,7 +252,7 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide,
 
     glm::mat4 M(1.f);
     M = glm::translate(M, position);
-    M = glm::scale(M, { quadSize,quadSize,quadSize });
+    //M = glm::scale(M, { quadSize,quadSize,quadSize });
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureId);

@@ -13,8 +13,8 @@
 #include "src/abstraction/TempRenderer.h"
 #include "src/world/Player.h"
 #include "src/world/TerrainGeneration/MapGenerator.h"
+#include "src/World/TerrainGeneration/HeightMap.h"
 #include "src/Sandbox/Scene.h"
-#include "src/abstraction/TempRenderer.h"
 
 inline long long nanoTime()
 {
@@ -87,14 +87,14 @@ class TestTerrainScene : public Scene {
 private:
   Renderer::Cubemap m_skybox;
   Player            m_player;
-  int quadsPerSide = 199;  // - TODO - NOT FIXED - quadPerSide must be w-1 and w=h
+  HeightMap         m_heightmap;
+  bool              m_playerIsFlying = true;
   int w = 200, h = 200;
   float scale = 27.6f;
   int o = 4;
   float p = 0.3f, l = 3.18f;
   int seed = 5;
   unsigned int id;
-  float *noiseMap;
 public:
   TestTerrainScene()
     : m_skybox{
@@ -102,37 +102,49 @@ public:
       "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
       "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" }
   {
+    float *noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
+    for (size_t i = 0; i < w * h; i++) // TODO remove and add an amplitude slider to GenerateNoiseMap
+      noiseMap[i] *= 15.f;             // TODO also color the terrain differently based on that amplitude
+    MapGenerator mapGen(w, h, scale, o, p, l, seed); // not sure of how the generator intervenes
     m_player.setPostion({ 0.f, 30.f, 0 });
-
-    MapGenerator mapGen(w, h, scale, o, p, l, seed);
-    id = mapGen.GenerateTextureMap();
-    noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
+    m_heightmap.setHeights(w, h, noiseMap);
+    id = mapGen.GenerateTextureMap(w, h, noiseMap);
   }
 
   void Step(float delta) override
   {
     m_player.Step(delta);
+    if (!m_playerIsFlying) {
+      glm::vec3 pos = m_player.GetPosition();
+      pos.y = m_heightmap.getHeightLerp(pos.x, pos.z) + 1.f;
+      m_player.setPostion(pos);
+      m_player.UpdateCamera();
+    }
   }
 
   void OnRender() override
   {
     Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
-    if (noiseMap) {
-      TempRenderer::RenderGrid({ -1, -1, 0 }, 30.f, quadsPerSide, { 1.f, 1.f, 1.f }, m_player.GetCamera().getViewProjectionMatrix(), id, noiseMap, false);
-    }
+    // TODO FIX - currently RenderGrid takes a "quadsPerSide" parameter which should realy be "gridWidth" *and* "gridHeight"
+    // and the scale parameter should be computed based on the grid size
+    // and the mesh should be generated based on the heightmap
+    float scale = w;
+    int quadsPerSide = w - 1;
+    TempRenderer::RenderCube({}, { 1.f, 1.f, 1.f }, { 1.f, 0.f, 1.f }, m_player.GetCamera().getViewProjectionMatrix());
+    TempRenderer::RenderGrid({ 0, 0, 0 }, scale, quadsPerSide, { 1.f, 1.f, 1.f }, m_player.GetCamera().getViewProjectionMatrix(), id, m_heightmap.getBackingArray(), false);
   }
 
   void OnImGuiRender() override
   {
-    if (ImGui::SliderInt("Width", &w, quadsPerSide, 2000) + ImGui::SliderInt("Height", &h, quadsPerSide, 2000) +
+    if (ImGui::SliderInt("Width", &w, 10, 2000) + ImGui::SliderInt("Height", &h, 10, 2000) +
         ImGui::SliderFloat("Scale", &scale, 0, 50) + ImGui::SliderInt("Number of octaves", &o, 0, 10) +
         ImGui::SliderFloat("persistence", &p, 0, 1) + ImGui::SliderFloat("lacunarity", &l, 0, 50) +
         ImGui::SliderInt("seed", &seed, 0, 5)) {
 
-      delete[] noiseMap;
       unsigned int nid;
 
-      noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
+      float *noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
+      m_heightmap.setHeights(w, h, noiseMap);
 
       // Texture stuff
 
@@ -151,6 +163,8 @@ public:
 
       id = nid;
     }
+
+    ImGui::Checkbox("Fly", &m_playerIsFlying);
   }
 };
 
