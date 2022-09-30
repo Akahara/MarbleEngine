@@ -4,7 +4,7 @@
 #include "VertexArray.h"
 #include "IndexBufferObject.h"
 
-#include "../world/TerrainGeneration/MapGenerator.h"
+#include "Mesh.h"
 
 #include <memory>
 #include <iostream>
@@ -132,6 +132,17 @@ void RenderCube(glm::vec3 position, glm::vec3 size, glm::vec3 color, const glm::
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 }
 
+void RenderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm::mat4 &VP)
+{
+  glm::mat4 M(1.f);
+  M = glm::translate(M, position);
+  M = glm::scale(M, size);
+  cmRenderData->shader.Bind();
+  cmRenderData->shader.SetUniformMat4f("u_M", M);
+  cmRenderData->shader.SetUniformMat4f("u_VP", VP);
+  mesh.Draw();
+}
+
 
 void RenderPlane(const glm::vec3& position, const glm::vec3& size, const glm::vec3& color, float rotation, const glm::mat4& VP, bool drawLines) {
 
@@ -182,98 +193,5 @@ void RenderPlane(const glm::vec3& position, const glm::vec3& size, const glm::ve
 
     vao->Unbind();
 }
-
-void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, 
-    const glm::vec3& color, const glm::mat4& VP, unsigned int textureId, const float* noiseMap, bool drawLines) 
-
-{
-
-    unsigned int nbOfQuads = quadsPerSide * quadsPerSide;
-    unsigned int nbOfVertices = (quadsPerSide + 1) * (quadsPerSide + 1);
-
-    VertexTemp* verticesGrid = new VertexTemp[nbOfVertices];
-
-
-    // Calculate the step for each vertex
-    float step = quadSize / quadsPerSide;
-
-    int x = 0;
-    int y = 0;
-    
-    for (unsigned int v = 0; v < nbOfVertices ; v ++) {
-        verticesGrid[v].position = { x * step, (noiseMap[y * (quadsPerSide + 1) + x]), y * step };
-        verticesGrid[v].uv = { (float)x / quadsPerSide, (float)y / quadsPerSide };
-
-        x++;
-        if (x == quadsPerSide+1) {
-            y++; 
-            x = 0;
-        }
-    }
-
-    // Calculate the indices
-
-    // We have 6 indices per quad and count^2 quads
-    unsigned int* indicesGrid = new unsigned int[nbOfQuads * 6];
-
-    int index = 0;
-    int i = 0;
-    for (int y = 0; y < quadsPerSide; y ++) {
-      for (int x = 0; x < quadsPerSide; x++) {
-        int a1 = y * (quadsPerSide + 1) + x;
-        int a2 = y * (quadsPerSide + 1) + x + 1;
-        int a3 = (y+1) * (quadsPerSide + 1) + x;
-        int a4 = (y+1) * (quadsPerSide + 1) + x + 1;
-        indicesGrid[index] = a1;
-        indicesGrid[index + 1] = a3;
-        indicesGrid[index + 2] = a2;
-        indicesGrid[index + 3] = a2;
-        indicesGrid[index + 4] = a3;
-        indicesGrid[index + 5] = a4;
-        index += 6;
-      }
-    }
-
-    // render
-    vbo2 = std::make_unique<VertexBufferObject>(verticesGrid, sizeof(VertexTemp) * nbOfVertices);
-    ibo2 = std::make_unique <IndexBufferObject>(indicesGrid, nbOfQuads * 6);
-
-    VertexBufferLayout layout;
-    layout.push<float>(3);
-    layout.push<float>(2);
-    vao2 = std::make_unique<VertexArray>();
-    vao2->addBuffer(*vbo2, layout, *ibo2);
-    vao2->Unbind();
-
-    glm::mat4 M(1.f);
-    M = glm::translate(M, position);
-    //M = glm::scale(M, { quadSize,quadSize,quadSize });
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureId);
-    vao2->Bind();
-    cmRenderData->shader.Bind();
-    cmRenderData->shader.SetUniformMat4f("u_VP", VP);
-    cmRenderData->shader.SetUniform1i("u_Texture2D", 0);
-    cmRenderData->shader.SetUniformMat4f("u_M", M);
-    cmRenderData->shader.SetUniform4f("u_color", color.r, color.g, color.b, 1.f);
-    ibo2->Bind();
-
-    if (drawLines) {
-
-        glDrawElements(GL_LINES, nbOfQuads * 6, GL_UNSIGNED_INT, nullptr);
-
-    }
-    else {
-        glDrawElements(GL_TRIANGLES, nbOfQuads * 6, GL_UNSIGNED_INT, nullptr);
-    }
-
-    delete[] verticesGrid;
-    delete[] indicesGrid;
-    ibo2->Unbind();
-
-
-}   
-
 
 }

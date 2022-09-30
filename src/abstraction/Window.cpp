@@ -115,7 +115,6 @@ void createWindow(unsigned int width, unsigned int height, const char *title)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
-  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // TODO 
   glViewport(0, 0, width, height);
   glClearColor(.3f, 0.53f, 0.67f, 1.0f);
 }
@@ -182,7 +181,6 @@ void setFullScreen(bool fullScreen)
     const GLFWvidmode *mode = glfwGetVideoMode(monitor);
     glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
   } else {
-    // TODO test the fullscreen->window transition
     glfwSetWindowMonitor(window, nullptr, 0, 0, winWidth, winHeight, GLFW_DONT_CARE);
   }
 }

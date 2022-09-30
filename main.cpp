@@ -9,6 +9,7 @@
 #include "src/abstraction/Inputs.h"
 #include "src/Sandbox/Scene.h"
 #include "src/World/Sky.h"
+#include "src/Utils/Debug.h"
 #include "src/Sandbox/Scenes/Test2D.h"
 #include "src/Sandbox/Scenes/Test3D.h"
 #include "src/Sandbox/Scenes/TestSky.h"
@@ -71,6 +72,7 @@ int main()
         SceneManager::Step(realDelta);
         SceneManager::OnRender();
         SceneManager::OnImGuiRender();
+        DebugWindow::OnImGuiRender();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
