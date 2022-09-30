@@ -32,6 +32,7 @@
     <ClCompile Include="src\abstraction\Mesh.cpp" />
     <ClCompile Include="src\Sandbox\Scene.cpp" />
     <ClCompile Include="src\World\Sky.cpp" />
+    <ClCompile Include="src\World\TerrainGeneration\MapUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h" />
@@ -82,6 +83,8 @@
     <ClInclude Include="src\Sandbox\Scenes\Test3D.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestTerrain.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestSky.h" />
+    <ClInclude Include="src\World\TerrainGeneration\MapUtilities.h" />
+    <ClInclude Include="src\Utils\Debug.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />

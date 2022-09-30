@@ -24,7 +24,7 @@ public:
 	MapGenerator(int w, int h, float scale, int o, float p, float l, int s)
 		: mapWidth(w), mapHeight(h), noiseScale(scale), octaves(o), persistance(p), lacunarity(l), seed(s), m_renderTexture(0) { }
 
-	unsigned int GenerateTextureMap(size_t width, size_t height, float *heights) {
+	unsigned int GenerateTextureMap(size_t width, size_t height, float *heights) { // TODO remove, this was migrated to MapUtilities::genTextureFromHeightmap
 
 		// Texture stuff
 

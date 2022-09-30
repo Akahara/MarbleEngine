@@ -31,7 +31,7 @@ static struct KeepAliveResources {
   IndexBufferObject ibo;
 } *keepAliveResources;
 
-static struct VertexTemp {
+struct VertexTemp { // TODO use Renderer::Vertex instead of this struct
   glm::vec3 position;
   glm::vec2 uv;
 };

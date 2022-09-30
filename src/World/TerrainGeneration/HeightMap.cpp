@@ -15,7 +15,7 @@ HeightMap::~HeightMap()
   delete m_heightValues;
 }
 
-void HeightMap::setHeights(size_t width, size_t height, float *heights)
+void HeightMap::setHeights(unsigned int width, unsigned int height, float *heights)
 {
   delete m_heightValues;
   m_width = width;

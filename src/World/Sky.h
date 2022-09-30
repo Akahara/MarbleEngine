@@ -2,6 +2,8 @@
 
 #include "../abstraction/Cubemap.h"
 #include "../abstraction/Texture.h"
+#include "../abstraction/Mesh.h"
+#include "Player.h"
 
 namespace World {
 
@@ -13,7 +15,15 @@ public:
   Sky();
 
   void Step(float delta);
-  void Render(const Renderer::Camera &camera, glm::vec3 playerPosition) const;
+  void Render(const Player &player) const;
 };
+
+}
+
+namespace Renderer::SkyRenderer {
+
+void Init();
+void DrawSkyClouds(const Texture &cloudsTexture, const Player &player);
+//void Shutdown();
 
 }

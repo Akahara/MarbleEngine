@@ -8,50 +8,35 @@
 #include "stb_image.h"
 #include "stb_image_write.h"
 
-
-#define ASSERT(x) if (!(x)) __debugbreak();
-
-#define GLCall(x) GLClearError();\
-	x;\
-	ASSERT(GLLogCall(#x, __FILE__, __LINE__))
-
-
-void GLClearError();
-bool GLLogCall(const char* function, const char* file, int line);
-const char* GLTranslateError(GLenum error);
-void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
-	GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
-
 namespace Renderer {
 
+class Texture {
+private:
+  unsigned int   m_RendererID;
+  int m_Width, m_Height;
+public:
+  Texture();
+  explicit Texture(const std::string &path);
+  ~Texture();
+  Texture(Texture &&moved) noexcept;
+  Texture &operator=(Texture &&moved) noexcept;
+  Texture &operator=(const Texture &) = delete;
+  Texture(const Texture &) = delete;
 
-	class Texture
-	{
+  void Bind(unsigned int slot = 0) const;
+  void Unbind() const;
+  void Delete();
 
-	private:
-		unsigned int   m_RendererID;
-		std::string    m_FilePath;
-		int m_Width, m_Height, m_BPP;
-	public:
-	    Texture();
-		Texture(const std::string& path);
-		~Texture();
-		Texture(Texture &&moved) noexcept;
-		Texture &operator=(Texture &&moved) noexcept;
-		Texture& operator=(const Texture&) = delete;
-		Texture(const Texture&) = delete;
+  void ChangeColor(uint32_t color);
 
-		void Bind(unsigned int slot = 0) const;
-		void Unbind() const;
-		void Delete();
+  inline int GetWidth() const { return m_Width; }
+  inline int GetHeight() const { return m_Height; }
+  inline unsigned int getId() const { return m_RendererID; } // unsafe
 
-		void ChangeColor(uint32_t color);
+  static Texture createTextureFromData(const float *data, int width, int height, int floatPerPixel = 4);
+private:
+  Texture(unsigned int rendererId, int width, int height);
+};
 
-		inline int GetWidth() const { return m_Width; }
-		inline int GetHeight() const { return m_Height; }
-		inline unsigned int getId() const { return m_RendererID; }
-	};	
 }
-
-
 

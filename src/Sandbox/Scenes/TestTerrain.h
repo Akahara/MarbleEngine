@@ -28,7 +28,7 @@ public:
       "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" }
   {
     float *noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
-    for (size_t i = 0; i < w * h; i++) // TODO remove and add an amplitude slider to GenerateNoiseMap
+    for (int i = 0; i < w * h; i++) // TODO remove and add an amplitude slider to GenerateNoiseMap
       noiseMap[i] *= 15.f;             // TODO also color the terrain differently based on that amplitude
     MapGenerator mapGen(w, h, scale, o, p, l, seed); // not sure of how the generator intervenes
     m_player.setPostion({ 0.f, 30.f, 0 });
@@ -53,7 +53,7 @@ public:
     // TODO FIX - currently RenderGrid takes a "quadsPerSide" parameter which should realy be "gridWidth" *and* "gridHeight"
     // and the scale parameter should be computed based on the grid size
     // and the mesh should be generated based on the heightmap
-    float scale = w;
+    float scale = 1.f*w;
     int quadsPerSide = w - 1;
     TempRenderer::RenderCube({}, { 1.f, 1.f, 1.f }, { 1.f, 0.f, 1.f }, m_player.GetCamera().getViewProjectionMatrix());
     TempRenderer::RenderGrid({ 0, 0, 0 }, scale, quadsPerSide, { 1.f, 1.f, 1.f }, m_player.GetCamera().getViewProjectionMatrix(), id, m_heightmap.getBackingArray(), false);
