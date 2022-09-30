@@ -114,7 +114,7 @@ color.a = 1.0F;
 
   VertexBufferLayout layout;
   layout.push<float>(3);
-  cmRenderData->vao.addBuffer(keepAliveResources->vbo, layout);
+  cmRenderData->vao.addBuffer(keepAliveResources->vbo, layout, keepAliveResources->ibo);
   cmRenderData->vao.Unbind();
 }
 
@@ -123,12 +123,11 @@ void RenderCube(glm::vec3 position, glm::vec3 size, glm::vec3 color, const glm::
   glm::mat4 M(1.f);
   M = glm::translate(M, position);
   M = glm::scale(M, size);
-  cmRenderData->shader.Bind();
   cmRenderData->vao.Bind();
+  cmRenderData->shader.Bind();
   cmRenderData->shader.SetUniformMat4f("u_VP", VP);
   cmRenderData->shader.SetUniformMat4f("u_M", M);
   cmRenderData->shader.SetUniform4f("u_color", color.r, color.g, color.b, 1.f);
-  keepAliveResources->ibo.Bind();
 
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 }
@@ -160,7 +159,7 @@ void RenderPlane(const glm::vec3& position, const glm::vec3& size, const glm::ve
     VertexBufferLayout layout;
     layout.push<float>(3);
     vao = std::make_unique<VertexArray>();
-    vao->addBuffer(*vbo, layout);
+    vao->addBuffer(*vbo, layout, *ibo);
     vao->Unbind();
 
     glm::mat4 M(1.f);
@@ -174,18 +173,14 @@ void RenderPlane(const glm::vec3& position, const glm::vec3& size, const glm::ve
     cmRenderData->shader.SetUniformMat4f("u_VP", VP);
     cmRenderData->shader.SetUniformMat4f("u_M", M);
     cmRenderData->shader.SetUniform4f("u_color", color.r, color.g, color.b, 1.f);
-    ibo->Bind();
 
     if (drawLines) {
-
         glDrawElements(GL_LINES, 6, GL_UNSIGNED_INT, nullptr);
-
-    }
-    else {
+    } else {
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     }
-    ibo->Unbind();
 
+    vao->Unbind();
 }
 
 void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide, 
@@ -247,7 +242,7 @@ void RenderGrid(const glm::vec3& position, float quadSize, int quadsPerSide,
     layout.push<float>(3);
     layout.push<float>(2);
     vao2 = std::make_unique<VertexArray>();
-    vao2->addBuffer(*vbo2, layout);
+    vao2->addBuffer(*vbo2, layout, *ibo2);
     vao2->Unbind();
 
     glm::mat4 M(1.f);

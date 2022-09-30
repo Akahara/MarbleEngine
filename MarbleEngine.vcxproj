@@ -180,6 +180,7 @@
     <ClCompile Include="src\world\TerrainGeneration\MapGenerator.cpp" />
     <ClCompile Include="src\world\TerrainGeneration\MeshGenerator.cpp" />
     <ClCompile Include="src\world\TerrainGeneration\Noise.cpp" />
+    <ClCompile Include="src\World\Sky.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h" />
@@ -206,6 +207,10 @@
     <ClInclude Include="src\abstraction\VertexBufferObject.h" />
     <ClInclude Include="src\abstraction\Window.h" />
     <ClInclude Include="src\Sandbox\Scene.h" />
+    <ClInclude Include="src\Sandbox\Scenes\Test2D.h" />
+    <ClInclude Include="src\Sandbox\Scenes\Test3D.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestSky.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestTerrain.h" />
     <ClInclude Include="src\Utils\Mathf.h" />
     <ClInclude Include="src\vendor\imgui\imconfig.h" />
     <ClInclude Include="src\vendor\imgui\imgui.h" />
@@ -225,6 +230,7 @@
     <ClInclude Include="src\world\TerrainGeneration\MeshGenerator.h" />
     <ClInclude Include="src\world\TerrainGeneration\Noise.h" />
     <ClInclude Include="src\world\TerrainGeneration\PerlinNoise.hpp" />
+    <ClInclude Include="src\World\Sky.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />

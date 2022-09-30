@@ -38,9 +38,10 @@ void VertexArray::Delete()
   m_RendererID = 0;
 }
 
-void VertexArray::addBuffer(const VertexBufferObject& vb, const VertexBufferLayout& layout) {
+void VertexArray::addBuffer(const VertexBufferObject& vb, const VertexBufferLayout& layout, const IndexBufferObject &ib) {
 	Bind();
 	vb.Bind();
+	ib.Bind();
 
 	const auto& elements = layout.getElements();
 	unsigned int offset = 0;

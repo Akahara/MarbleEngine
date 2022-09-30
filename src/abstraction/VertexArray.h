@@ -2,6 +2,7 @@
 
 #include "VertexBufferObject.h"
 #include "VertexBufferLayout.h"
+#include "IndexBufferObject.h"
 
 namespace Renderer {
 
@@ -23,7 +24,7 @@ namespace Renderer {
 		void Unbind() const;
 		void Delete();
 
-		void addBuffer(const VertexBufferObject& vb, const VertexBufferLayout& layout);
+		void addBuffer(const VertexBufferObject& vb, const VertexBufferLayout& layout, const IndexBufferObject &ib);
 		void SendToGPU(GLsizeiptr size, const void* data);
 	};
 

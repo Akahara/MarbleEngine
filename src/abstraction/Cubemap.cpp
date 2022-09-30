@@ -122,17 +122,16 @@ void main()
   VertexBufferLayout layout;
   layout.push<float>(3);
   cmRenderData.vao = new VertexArray;
-  cmRenderData.vao->addBuffer(*keepAliveResources.vbo, layout);
+  cmRenderData.vao->addBuffer(*keepAliveResources.vbo, layout, *keepAliveResources.ibo);
   cmRenderData.vao->Unbind();
 }
 
 void DrawCubemap(const Cubemap &cubemap, const Camera &camera, const glm::vec3 &offset)
 {
-  cmRenderData.shader->Bind();
   cmRenderData.vao->Bind();
+  cmRenderData.shader->Bind();
   cmRenderData.shader->SetUniformMat4f("u_VP", camera.getViewProjectionMatrix());
   cmRenderData.shader->SetUniform3f("u_displacement", offset.x, offset.y, offset.z);
-  keepAliveResources.ibo->Bind();
   cubemap.Bind();
 
   glDepthMask(false); // do not write to depth buffer

@@ -31,6 +31,7 @@
     <ClCompile Include="src\world\TerrainGeneration\Noise.cpp" />
     <ClCompile Include="src\abstraction\Mesh.cpp" />
     <ClCompile Include="src\Sandbox\Scene.cpp" />
+    <ClCompile Include="src\World\Sky.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h" />
@@ -76,6 +77,11 @@
     <ClInclude Include="src\world\TerrainGeneration\PerlinNoise.hpp" />
     <ClInclude Include="src\abstraction\Mesh.h" />
     <ClInclude Include="src\abstraction\stb_image_write.h" />
+    <ClInclude Include="src\World\Sky.h" />
+    <ClInclude Include="src\Sandbox\Scenes\Test2D.h" />
+    <ClInclude Include="src\Sandbox\Scenes\Test3D.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestTerrain.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestSky.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />

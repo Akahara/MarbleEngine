@@ -150,9 +150,9 @@ namespace Renderer {
 		layout.push<float>(2);		// TexCoords
 		layout.push<float>(1);		// TexID
 
-		s_RendererData.QuadVA->addBuffer(*s_RendererData.QuadVBO, layout);
 		s_RendererData.QuadIBO = std::make_shared<IndexBufferObject>(indices, MaxIndicesCount);
-		
+		s_RendererData.QuadVA->addBuffer(*s_RendererData.QuadVBO, layout, *s_RendererData.QuadIBO);
+		s_RendererData.QuadVA->Unbind();
 
 		s_RendererData.WhiteTexture = std::make_shared<Texture>("whitePixel.png");
 		s_RendererData.TextureSlots[0] = s_RendererData.WhiteTexture;
@@ -201,7 +201,6 @@ namespace Renderer {
 		}
 		
 		s_RendererData.QuadVA->Bind();
-		s_RendererData.QuadIBO->Bind();
 		glDrawElements(GL_TRIANGLES, s_RendererData.IndexCount, GL_UNSIGNED_INT, nullptr);
 
 		s_RendererData.IndexCount = 0;

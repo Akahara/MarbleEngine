@@ -1,10 +1,12 @@
 #include "IndexBufferObject.h"
-#include "Renderer.h"
 
+#include <memory>
+
+#include <glad/glad.h>
 
 namespace Renderer {
 
-IndexBufferObject::IndexBufferObject(unsigned int* indices, size_t count)
+IndexBufferObject::IndexBufferObject(const unsigned int* indices, size_t count)
   : m_Count(count)
 {
   glGenBuffers(1, &m_RenderID);

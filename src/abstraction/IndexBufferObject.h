@@ -1,8 +1,6 @@
 #pragma once
 
 #include "BufferObject.h"
-#define GLFW_INCLUDE_NONE
-#include<glad/glad.h>
 
 namespace Renderer {
 
@@ -10,9 +8,9 @@ namespace Renderer {
     {
     private:
         size_t m_Count;
-    public :
+    public:
         IndexBufferObject() : m_Count(0) {}
-        IndexBufferObject(unsigned int* indices, size_t count);
+        IndexBufferObject(const unsigned int* indices, size_t count);
         ~IndexBufferObject() noexcept;
         IndexBufferObject(IndexBufferObject &&moved) noexcept;
         IndexBufferObject& operator=(IndexBufferObject &&moved) noexcept;

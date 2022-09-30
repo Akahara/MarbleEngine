@@ -3,6 +3,8 @@
 #include <string>
 #include <functional>
 
+#include "../vendor/imgui/imgui.h"
+
 class Scene {
 public:
   virtual ~Scene() = default;
