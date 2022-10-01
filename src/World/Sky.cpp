@@ -1,6 +1,7 @@
 #include "Sky.h"
 
 #include <glm/glm.hpp>
+#include "../vendor/imgui/imgui.h"
 
 #include "../abstraction/Shader.h"
 #include "../abstraction/VertexBufferObject.h"
@@ -9,6 +10,7 @@
 #include "../abstraction/Cubemap.h"
 #include "../World/Player.h"
 #include "../Utils/Mathf.h"
+#include "../abstraction/UnifiedRenderer.h"
 #include "TerrainGeneration/MapUtilities.h"
 #include "TerrainGeneration/Noise.h"
 
@@ -62,7 +64,7 @@ static Renderer::Mesh createPlaneMesh()
 void Init()
 {
   keepAliveResources = new KeepAliveResources;
-  keepAliveResources->planeMesh = createPlaneMesh();
+  keepAliveResources->planeMesh = Renderer::CreatePlaneMesh();
 
   keepAliveResources->cloudsShader = Shader(R"glsl(
 #version 330 core
@@ -107,16 +109,20 @@ void main()
 
 void DrawSkyClouds(const Texture &cloudsTexture, const Player &player)
 {
+  glDepthMask(false); // do not write to depth buffer
   glm::mat4 M(1.f);
-  M = glm::translate(M, player.GetPosition() + glm::vec3{ 0, 1.f, 0 });
-  M = glm::scale(M, { 15.f, 1.f, 15.f });
-  //M = glm::rotate(M, Mathf::PI, { 1, 0, 0 }); // flip vertically to face down
+  // beware! if vertices go too far outside the clip range after the vertex shader
+  // transformation, some may flicker, making triangles break and the whole plane
+  // falling appart
+  M = glm::translate(M, player.GetPosition() + glm::vec3{ 0, .3f, 0 });
+  M = glm::scale(M, { 5.f, 1.f, 5.f });
   keepAliveResources->cloudsShader.Bind();
   keepAliveResources->cloudsShader.SetUniformMat4f("u_M", M);
   keepAliveResources->cloudsShader.SetUniformMat4f("u_VP", player.GetCamera().getViewProjectionMatrix());
   cloudsTexture.Bind();
-  glDepthMask(false); // do not write to depth buffer
   keepAliveResources->planeMesh.Draw();
+  //cloudsTexture.Bind();
+  //Renderer::RenderMesh(player.GetPosition() + glm::vec3{ 0, .3f, 0 }, { 5.f, 1.f, 5.f }, keepAliveResources->planeMesh, player.GetCamera().getViewProjectionMatrix());
   glDepthMask(true);
 }
 

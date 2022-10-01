@@ -3,7 +3,7 @@
 #include "../Scene.h"
 #include "../../abstraction/Renderer.h"
 #include "../../abstraction/Cubemap.h"
-#include "../../abstraction/TempRenderer.h"
+#include "../../abstraction/UnifiedRenderer.h"
 #include "../../abstraction/Mesh.h"
 #include "../../World/Player.h"
 #include "../../World/TerrainGeneration/HeightMap.h"
@@ -60,8 +60,8 @@ public:
   void OnRender() override
   {
     Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
-    TempRenderer::RenderCube({}, { 1.f, 1.f, 1.f }, { 1.f, 0.f, 1.f }, m_player.GetCamera().getViewProjectionMatrix());
-    TempRenderer::RenderMesh({}, { 1.f, 1.f, 1.f }, m_terrainMesh, m_player.GetCamera().getViewProjectionMatrix());
+    m_terrainTexture.Bind();
+    Renderer::RenderMesh({}, { 1.f, 1.f, 1.f }, m_terrainMesh, m_player.GetCamera().getViewProjectionMatrix());
   }
 
   void OnImGuiRender() override

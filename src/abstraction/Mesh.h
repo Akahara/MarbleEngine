@@ -19,7 +19,7 @@ private:
   Renderer::VertexBufferObject m_VBO;
   Renderer::IndexBufferObject  m_IBO;
   Renderer::VertexArray        m_VAO;
-  size_t                       m_verticesCount;
+  unsigned int                 m_verticesCount;
 public:
   Mesh();
   Mesh(const std::vector<Vertex> &verticices, const std::vector<unsigned int> &indicies);

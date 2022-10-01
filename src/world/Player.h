@@ -14,6 +14,7 @@ public:
   glm::vec3 GetForward() const;
   glm::vec3 GetRight() const;
   glm::vec3 GetPosition() const { return m_position; }
+  glm::vec2 GetRotation() const { return { m_yaw, m_pitch }; }
 
   void setPostion(const glm::vec3& position) { m_position = position; }
 

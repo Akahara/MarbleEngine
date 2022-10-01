@@ -1,7 +1,6 @@
 #pragma once
 
 #include "VertexBufferObject.h"
-#include "VertexBufferLayout.h"
 #include "IndexBufferObject.h"
 
 namespace Renderer {

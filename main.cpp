@@ -38,7 +38,7 @@ int main()
 	Renderer::Renderer::Init();
     Renderer::CubemapRenderer::Init();
     Renderer::SkyRenderer::Init();
-    TempRenderer::Init();
+    Renderer::Init();
     SceneManager::Init();
 
     SceneManager::RegisterScene<TestScene>("Test");

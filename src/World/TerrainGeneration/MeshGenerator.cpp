@@ -18,8 +18,8 @@ Mesh generateMesh(const HeightMap &heightmap, glm::vec3 meshSize)
     }
   }
 
-  for (int x = 0; x < heightmap.getMapWidth()-1; x++) {
-    for (int y = 0; y < heightmap.getMapHeight()-1; y++) {
+  for (int x = 0; x < (int)heightmap.getMapWidth() - 1; x++) {
+    for (int y = 0; y < (int)heightmap.getMapHeight()-1; y++) {
       unsigned int a1 = y * heightmap.getMapWidth() + x;
       unsigned int a2 = y * heightmap.getMapWidth() + x + 1;
       unsigned int a3 = (y + 1) * heightmap.getMapWidth() + x;

@@ -161,9 +161,9 @@
     <ClCompile Include="src\abstraction\Renderer.cpp" />
     <ClCompile Include="src\abstraction\Shader.cpp" />
     <ClCompile Include="src\abstraction\stb_image.cpp" />
-    <ClCompile Include="src\abstraction\TempRenderer.cpp" />
     <ClCompile Include="src\abstraction\Texture.cpp" />
     <ClCompile Include="src\abstraction\TextureAtlas.cpp" />
+    <ClCompile Include="src\abstraction\UnifiedRenderer.cpp" />
     <ClCompile Include="src\abstraction\VertexArray.cpp" />
     <ClCompile Include="src\abstraction\VertexBufferObject.cpp" />
     <ClCompile Include="src\abstraction\Window.cpp" />
@@ -200,11 +200,10 @@
     <ClInclude Include="src\abstraction\Shader.h" />
     <ClInclude Include="src\abstraction\stb_image.h" />
     <ClInclude Include="src\abstraction\stb_image_write.h" />
-    <ClInclude Include="src\abstraction\TempRenderer.h" />
     <ClInclude Include="src\abstraction\Texture.h" />
     <ClInclude Include="src\abstraction\TextureAtlas.h" />
+    <ClInclude Include="src\abstraction\UnifiedRenderer.h" />
     <ClInclude Include="src\abstraction\VertexArray.h" />
-    <ClInclude Include="src\abstraction\VertexBufferLayout.h" />
     <ClInclude Include="src\abstraction\VertexBufferObject.h" />
     <ClInclude Include="src\abstraction\Window.h" />
     <ClInclude Include="src\Sandbox\Scene.h" />
@@ -237,6 +236,8 @@
   <ItemGroup>
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
+    <None Include="res\shaders\standard.vs" />
+    <None Include="res\shaders\standard_mesh.fs" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
