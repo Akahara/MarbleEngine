@@ -51,6 +51,7 @@ void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
   default:                                severityName = "?";               break;
   }
   
+  // TODO filter out unimportant messages
   std::cerr
     << "GL CALLBACK: " << sourceName << "\n"
     << " type     = " << typeName << "\n"
@@ -58,7 +59,9 @@ void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
     << " message  = " << message
     << std::endl;
   
-  // add a breakpoint at the end of the function to catch opengl errors
+  if (type != GL_DEBUG_TYPE_PERFORMANCE) {
+    __debugbreak();
+  }
 }
 
 void createWindow(unsigned int width, unsigned int height, const char *title)

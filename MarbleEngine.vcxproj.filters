@@ -39,7 +39,6 @@
     <ClInclude Include="Libraries\include\GLFW\glfw3.h" />
     <ClInclude Include="Libraries\include\GLFW\glfw3native.h" />
     <ClInclude Include="Libraries\include\KHR\khrplatform.h" />
-    <ClInclude Include="Libraries\include\stb\stb_image.h" />
     <ClInclude Include="src\abstraction\BufferObject.h" />
     <ClInclude Include="src\abstraction\Camera.h" />
     <ClInclude Include="src\abstraction\Cubemap.h" />
@@ -48,7 +47,7 @@
     <ClInclude Include="src\abstraction\Inputs.h" />
     <ClInclude Include="src\abstraction\Renderer.h" />
     <ClInclude Include="src\abstraction\Shader.h" />
-    <ClInclude Include="src\abstraction\stb_image.h" />
+    <ClInclude Include="Libraries\include\stb\stb_image.h" />
     <ClInclude Include="src\abstraction\Texture.h" />
     <ClInclude Include="src\abstraction\TextureAtlas.h" />
     <ClInclude Include="src\abstraction\VertexArray.h" />
@@ -74,7 +73,7 @@
     <ClInclude Include="src\world\TerrainGeneration\Noise.h" />
     <ClInclude Include="src\world\TerrainGeneration\PerlinNoise.hpp" />
     <ClInclude Include="src\abstraction\Mesh.h" />
-    <ClInclude Include="src\abstraction\stb_image_write.h" />
+    <ClInclude Include="Libraries\include\stb\stb_image_write.h" />
     <ClInclude Include="src\World\Sky.h" />
     <ClInclude Include="src\Sandbox\Scenes\Test2D.h" />
     <ClInclude Include="src\Sandbox\Scenes\Test3D.h" />
@@ -83,6 +82,7 @@
     <ClInclude Include="src\World\TerrainGeneration\MapUtilities.h" />
     <ClInclude Include="src\Utils\Debug.h" />
     <ClInclude Include="src\abstraction\UnifiedRenderer.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestFB.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
@@ -92,5 +92,7 @@
     <None Include=".gitignore" />
     <None Include="res\shaders\standard.vs" />
     <None Include="res\shaders\standard_mesh.fs" />
+    <None Include="res\shaders\blit.vs" />
+    <None Include="res\shaders\blit.fs" />
   </ItemGroup>
 </Project>

@@ -2,74 +2,83 @@
 
 #include "Renderer.h"
 
-#define SCR_WIDTH 800
-#define SCR_HEIGHT 800
-
 namespace Renderer {
 
+FrameBufferObject::FrameBufferObject()
+  : m_depthBufferID(0)
+{
+  glGenFramebuffers(1, &m_RenderID);
+}
 
-    FrameBufferObject::FrameBufferObject()
-    {
-        glGenFramebuffers(1, &m_RenderID);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_RenderID);
+FrameBufferObject::~FrameBufferObject()
+{
+  Delete();
+}
 
-        /* Texture */
-        glGenTextures(1, &m_TextureColorBuffer);
-        glBindTexture(GL_TEXTURE_2D, m_TextureColorBuffer);
+FrameBufferObject &FrameBufferObject::operator=(FrameBufferObject &&moved) noexcept
+{
+  Delete();
+  new (this)FrameBufferObject(std::move(moved));
+  return *this;
+}
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+FrameBufferObject::FrameBufferObject(FrameBufferObject &&moved) noexcept
+{
+  m_RenderID = moved.m_RenderID;
+  m_depthBufferID = moved.m_depthBufferID;
+  moved.m_RenderID = 0;
+  moved.m_depthBufferID = 0;
+}
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+void FrameBufferObject::Bind() const
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, m_RenderID);
+}
 
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_TextureColorBuffer, 0);
+void FrameBufferObject::Unbind() const
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
+void FrameBufferObject::Delete()
+{
+  glDeleteFramebuffers(1, &m_RenderID);
+  glDeleteTextures(1, &m_depthBufferID);
+  //glDeleteRenderbuffers(1, &m_depthBufferID);
+  m_RenderID = 0;
+  m_depthBufferID = 0;
+}
 
-        /* Renderbuffer */
-        
-        glGenRenderbuffers(1, &m_RenderBuffer);
-        glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBuffer);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RenderBuffer);
-                          
+void FrameBufferObject::SetTargetTexture(Texture &texture)
+{
+  Bind();
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.getId(), 0);
+  AssertIsValid();
+  Unbind();
+}
 
-        /* Binding */
+void FrameBufferObject::SetDepthTexture(Texture &texture)
+{
+  Bind();
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture.getId(), 0);
+  AssertIsValid();
+  Unbind();
+}
 
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
-            std::cout << "Framebuffer ok, id : " << m_RenderID << std::endl;
-            std::cout << "textureColorbuffer id : " << m_TextureColorBuffer << std::endl;
-        }
+void FrameBufferObject::AssertIsValid() const
+{
+  Bind();
+  assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+}
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+void FrameBufferObject::SetViewport(unsigned int width, unsigned int height)
+{
+  glViewport(0, 0, width, height);
+}
 
+void FrameBufferObject::SetViewport(const Texture &texture)
+{
+  glViewport(0, 0, texture.GetWidth(), texture.GetHeight());
+}
 
-
-
-
-    }
-
-    FrameBufferObject::~FrameBufferObject() {
-        Delete();
-    }
-
-    void FrameBufferObject::Bind() const {
-        glBindFramebuffer(GL_FRAMEBUFFER, m_RenderID);
-        glEnable(GL_DEPTH_TEST);
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
-
-    void FrameBufferObject::Unbind() const {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glDisable(GL_DEPTH_TEST);
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-    }
-
-    void FrameBufferObject::Delete() {
-
-        glDeleteFramebuffers(1, &m_RenderID);
-
-    }
 }

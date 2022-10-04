@@ -5,7 +5,7 @@
 #include "../../abstraction/Renderer.h"
 #include "../../abstraction/Camera.h"
 
-class TestScene : public Scene {
+class Test2DScene : public Scene {
 private:
   Renderer::Camera m_Camera{ -1.0f, 1.0f, -1.0f, 1.0f };
   float            m_time = 0;

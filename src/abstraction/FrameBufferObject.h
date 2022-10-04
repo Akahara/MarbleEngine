@@ -1,27 +1,32 @@
 #pragma once
+
 #include "BufferObject.h"
+#include "Texture.h"
 
 namespace Renderer {
 
-class FrameBufferObject :  public BufferObject
-	{
-	public : 
-		
-		FrameBufferObject();
-		~FrameBufferObject();
+class FrameBufferObject : public BufferObject {
+private:
+  unsigned int m_depthBufferID;
+public:
+  FrameBufferObject();
+  ~FrameBufferObject();
+  FrameBufferObject(const FrameBufferObject &) = delete;
+  FrameBufferObject &operator=(const FrameBufferObject &) = delete;
+  FrameBufferObject &operator=(FrameBufferObject &&moved) noexcept;
+  FrameBufferObject(FrameBufferObject &&moved) noexcept;
 
-		void Bind() const override;
-		void Unbind() const override;
-		void Delete() override;
+  void Bind() const override;
+  void Unbind() const override;
+  void Delete() override;
 
-		unsigned int GetTextureColorBuffer() const { return m_TextureColorBuffer; }
+  void SetTargetTexture(Texture &texture);
+  void SetDepthTexture(Texture &texture);
 
-	private : 
+  void AssertIsValid() const;
 
-		unsigned int m_TextureColorBuffer;
-		unsigned int m_RenderBuffer;
-
-	};
+  static void SetViewport(unsigned int width, unsigned int height);
+  static void SetViewport(const Texture &texture);
+};
 
 }
-

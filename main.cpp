@@ -14,6 +14,7 @@
 #include "src/Sandbox/Scenes/Test3D.h"
 #include "src/Sandbox/Scenes/TestSky.h"
 #include "src/Sandbox/Scenes/TestTerrain.h"
+#include "src/Sandbox/Scenes/TestFB.h"
 
 inline long long nanoTime()
 {
@@ -41,11 +42,12 @@ int main()
     Renderer::Init();
     SceneManager::Init();
 
-    SceneManager::RegisterScene<TestScene>("Test");
+    SceneManager::RegisterScene<Test2DScene>("Test");
     SceneManager::RegisterScene<Test3DScene>("Test3D");
     SceneManager::RegisterScene<TestTerrainScene>("Terrain");
     SceneManager::RegisterScene<TestSkyScene>("Sky");
-    SceneManager::SwitchToScene(4);
+    SceneManager::RegisterScene<TestFBScene>("Framebuffer");
+    SceneManager::SwitchToScene(5);
 
     //===========================================================//
 
@@ -55,7 +57,6 @@ int main()
 
     while (!Window::shouldClose()) {
 
-        Renderer::Renderer::Clear();
         auto nextTime = nanoTime();
         auto delta = nextTime - firstTime;
         float realDelta = delta / 1E9f;

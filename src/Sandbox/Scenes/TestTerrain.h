@@ -59,6 +59,7 @@ public:
 
   void OnRender() override
   {
+    Renderer::Renderer::Clear();
     Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
     m_terrainTexture.Bind();
     Renderer::RenderMesh({}, { 1.f, 1.f, 1.f }, m_terrainMesh, m_player.GetCamera().getViewProjectionMatrix());

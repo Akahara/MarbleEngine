@@ -1,22 +1,19 @@
 #pragma once
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <iostream>
 #include <string>
-
-#include "stb_image.h"
-#include "stb_image_write.h"
+#include <filesystem>
 
 namespace Renderer {
 
 class Texture {
 private:
-  unsigned int   m_RendererID;
-  int m_Width, m_Height;
+  unsigned int m_RendererID;
+  int          m_Width, m_Height;
 public:
   Texture();
   explicit Texture(const std::string &path);
+  Texture(unsigned int width, unsigned int height);
   ~Texture();
   Texture(Texture &&moved) noexcept;
   Texture &operator=(Texture &&moved) noexcept;
@@ -34,6 +31,9 @@ public:
   inline unsigned int getId() const { return m_RendererID; } // unsafe
 
   static Texture createTextureFromData(const float *data, int width, int height, int floatPerPixel = 4);
+  static Texture createDepthTexture(int width, int height);
+
+  static void WriteToFile(const Texture &texture, const std::filesystem::path &path, bool isDepthTexture = false);
 private:
   Texture(unsigned int rendererId, int width, int height);
 };
