@@ -10,8 +10,9 @@ Toute la partie documentation reste à faire, les cases cochées le sont seuleme
 
 **Partie abstraction OpenGL** (à documenter mieux ailleurs):
 - [x] VBO/IBO/Shaders
-- [ ] Mesh
-- [ ] FBO
+- [x] Mesh
+- [x] FBO
+- [ ] On-the-fly shader recompilation
 
 **Terrain**:
 - [x] Generation de Heightmap
@@ -36,7 +37,7 @@ Toute la partie documentation reste à faire, les cases cochées le sont seuleme
 - [ ] ? Ambient occlusion
 - [ ] HDR (=grande plage de couleurs)
 - [ ] Bloom (=surbrillance)
-- [ ] Vignette
+- [x] Vignette
 - [ ] Brouillard de distance (!= brouillard ambiant)
 - [ ] Dirt mask
 

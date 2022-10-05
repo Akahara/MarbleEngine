@@ -98,6 +98,11 @@ namespace Renderer {
 		glUniform1f(GetUniformLocation(name), value);
 	}
 
+	void Shader::SetUniform2f(std::string_view name, float v1, float v2)
+	{
+	  glUniform2f(GetUniformLocation(name), v1, v2);
+	}
+
 	void Shader::SetUniform3f(std::string_view name, float v1, float v2, float v3)
 	{
 	  glUniform3f(GetUniformLocation(name), v1, v2, v3);

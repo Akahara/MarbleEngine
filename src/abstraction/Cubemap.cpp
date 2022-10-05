@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "stb_image.h"
+#include <stb/stb_image.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 

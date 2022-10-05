@@ -10,11 +10,11 @@
 #include "TestTerrain.h"
 
 class BlitData {
-private:
+public:
   Renderer::IndexBufferObject  keepAliveIBO;
   Renderer::VertexBufferObject keepAliveVBO;
 
-  Renderer::Shader             shader;
+  Renderer::Shader             shader; // TODO access the blit shader in another way (currently the field is public)
   Renderer::VertexArray        vao;
 public:
   BlitData()
@@ -31,6 +31,7 @@ public:
     renderTexture.Bind();
 
     shader.Bind();
+    shader.SetUniform2f("u_screenSize", Window::getWinWidth(), Window::getWinHeight());
     vao.Bind();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     renderTexture.Unbind();
@@ -82,5 +83,24 @@ public:
   void OnImGuiRender() override 
   {
     m_backingScene->OnImGuiRender();
+
+    if (ImGui::Begin("VFX")) {
+      if (ImGui::CollapsingHeader("Vignette")) {
+        static float vignetteMin = 1.2f;
+        static float vignetteMax = .045f;
+        static float vignetteStrength = .2f;
+        static bool vignetteEnable = true;
+        if (ImGui::Checkbox("vignette", &vignetteEnable) +
+            ImGui::SliderFloat("min", &vignetteMin, 0.f, 2.f) +
+            ImGui::SliderFloat("max", &vignetteMax, 0.f, 2.f) +
+            ImGui::SliderFloat("strength", &vignetteStrength, -1.f, 1.f)) {
+          m_blitData.shader.Bind();
+          m_blitData.shader.SetUniform1f("u_vignetteMin", vignetteMin);
+          m_blitData.shader.SetUniform1f("u_vignetteMax", vignetteMax);
+          m_blitData.shader.SetUniform1f("u_vignetteStrength", vignetteStrength * vignetteEnable);
+        }
+      }
+    }
+    ImGui::End();
   }
 };
