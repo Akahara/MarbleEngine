@@ -38,6 +38,10 @@ public:
     Renderer::RenderMesh({ 0, 1, 0 }, { 1.f, 0.f, 0.f }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix()); // +y red
     Renderer::RenderMesh({ 0, 0, 1 }, { 0.f, 1.f, 0.f }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix()); // +z green
     Renderer::RenderMesh({ 0, 0, 0 }, { .9f, .9f, .9f }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix()); // unit cube
+    Renderer::RenderMesh({ -5, 3, 12 }, { .9f, .9f, .9f }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix()); // unit cube
+    Renderer::RenderMesh({ 5, 0, 0 }, { .9f, .9f, .9f }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix()); // unit cube
+    Renderer::RenderMesh({ 3.f, 80.f, 5.f }, { 10.f, 10.f, 10.f }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix());
+
   }
 
   void OnImGuiRender() override {}

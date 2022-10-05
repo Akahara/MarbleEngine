@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 
+
 namespace Renderer {
 
 static struct KeepAliveResources {
@@ -84,6 +85,8 @@ void RenderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm:
   s_keepAliveResources->standardMeshShader.Bind();
   s_keepAliveResources->standardMeshShader.SetUniformMat4f("u_M", M);
   s_keepAliveResources->standardMeshShader.SetUniformMat4f("u_VP", VP);
+  //std::cout << strenght << std::endl;
+  s_keepAliveResources->standardMeshShader.SetUniform1f("u_Strenght", strenght);
   mesh.Draw();
 }
 

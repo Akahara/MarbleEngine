@@ -45,7 +45,7 @@ int main()
     SceneManager::RegisterScene<Test3DScene>("Test3D");
     SceneManager::RegisterScene<TestTerrainScene>("Terrain");
     SceneManager::RegisterScene<TestSkyScene>("Sky");
-    SceneManager::SwitchToScene(4);
+    SceneManager::SwitchToScene(3);
 
     //===========================================================//
 
