@@ -73,9 +73,6 @@ public:
       RegenerateTerrain();
     }
 
-    ImGui::SliderFloat("Strength", &strenght, 0, 1);
-
-    std::cout << strenght << std::endl;
     ImGui::Checkbox("Fly", &m_playerIsFlying);
   }
 };

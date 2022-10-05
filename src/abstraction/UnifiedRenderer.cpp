@@ -4,6 +4,8 @@
 #include <sstream>
 #include <iostream>
 
+static float lol = 0.001;
+static float step = 0.002;
 
 namespace Renderer {
 
@@ -85,8 +87,9 @@ void RenderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm:
   s_keepAliveResources->standardMeshShader.Bind();
   s_keepAliveResources->standardMeshShader.SetUniformMat4f("u_M", M);
   s_keepAliveResources->standardMeshShader.SetUniformMat4f("u_VP", VP);
-  //std::cout << strenght << std::endl;
-  s_keepAliveResources->standardMeshShader.SetUniform1f("u_Strenght", strenght);
+  if (lol > 1 || lol < 0) step = -step;
+  lol += step;
+  s_keepAliveResources->standardMeshShader.SetUniform1f("u_Strenght", lol);
   mesh.Draw();
 }
 

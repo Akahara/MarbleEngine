@@ -6,7 +6,7 @@ in vec2 o_uv;
 in vec3 o_normal;
 
 
-vec3 sun_dir = normalize(vec3(20,50,3));
+vec3 sun_dir = normalize(vec3(45,10,3));
 uniform float u_Strenght;
 
 uniform sampler2D u_Texture2D;

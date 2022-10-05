@@ -6,7 +6,6 @@
 #include "Mesh.h"
 
 
-static float strenght = 0.3;
 
 namespace Renderer {
 
