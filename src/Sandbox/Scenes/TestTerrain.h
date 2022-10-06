@@ -26,8 +26,12 @@ private:
   int o = 4;
   float p = 0.3f, l = 3.18f;
   int seed = 5;
+  float strength = 0.3f;
 
   Renderer::Mesh m_cubeMesh;
+
+  Renderer::Texture m_rockTexture = Renderer::Texture( "res/textures/rock.jpg" );
+  Renderer::Texture m_grassTexture = Renderer::Texture( "res/textures/grass.jpg" );
 
   struct Sun {
 
@@ -42,12 +46,19 @@ public:
       "res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
       "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
       "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" }
+      
   {
     m_player.setPostion({ 0.f, 30.f, 0 });
     m_player.UpdateCamera();
     RegenerateTerrain();
+    //m_terrainMesh.AddTexture(m_grassTexture);
     m_cubeMesh = Renderer::CreateCubeMesh();
     m_Sun.position = { 100,100,100 };
+    m_grassTexture.Bind(2U);
+    m_rockTexture.Bind(1U);
+    Renderer::getShader().Bind();
+    GLint samplers[8] = { 0,1,2,3,4,5,6,7 };
+    Renderer::getShader().SetUniform1iv("u_Textures2D", 8, samplers);
   }
 
   void RegenerateTerrain()
@@ -88,6 +99,11 @@ public:
     }
 
     ImGui::SliderFloat3("Sun position", &m_Sun.position[0], -100, 100);
+    
+    if (ImGui::SliderFloat("Strength", &strength, 0, 1)) {
+        Renderer::getShader().SetUniform1f("u_Strenght", strength);
+    }
+    
     ImGui::Checkbox("Fly", &m_playerIsFlying);
   }
 };

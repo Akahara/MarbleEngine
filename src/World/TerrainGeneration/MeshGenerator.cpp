@@ -16,6 +16,8 @@ Mesh generateMesh(const HeightMap &heightmap, glm::vec3 meshSize)
       Vertex &vertex = vertices.emplace_back();
       vertex.position = { x * meshSize.x / heightmap.getMapWidth(), heightmap.getHeight(x, y) * meshSize.y, y * meshSize.z / heightmap.getMapHeight() };
       vertex.uv = { (float)x / heightmap.getMapWidth(), (float)y / heightmap.getMapHeight() };
+      vertex.textureIndex = 2;
+      if (heightmap.getHeight(x, y) > 0.5) vertex.textureIndex = 1;
 
       glm::vec3 A, B;
           

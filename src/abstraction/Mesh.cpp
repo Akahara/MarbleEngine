@@ -12,6 +12,7 @@ static const VertexBufferLayout &getVertexBufferLayout()
     l.push<float>(3); // position
     l.push<float>(2); // uv
     l.push<float>(3); // normal
+    l.push<float>(1); // textureIndex
     return l;
   }();
   return layout;
