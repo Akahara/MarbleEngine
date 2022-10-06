@@ -18,8 +18,7 @@ Mesh generateMesh(const HeightMap &heightmap, glm::vec3 meshSize)
       vertex.uv = { (float)x / heightmap.getMapWidth(), (float)y / heightmap.getMapHeight() };
 
       glm::vec3 A, B;
-
-      if (x % 2 == 0) {
+          
           // point en bas à gauche d'un quad
           // on veut donc calculer les vecteur A et B qui correspondent à p2-p1 et p3-p1
 
@@ -31,31 +30,16 @@ Mesh generateMesh(const HeightMap &heightmap, glm::vec3 meshSize)
 
 
           /*
-          	Set Normal.x to (multiply U.y by V.z) minus (multiply U.z by V.y)
-	        Set Normal.y to (multiply U.z by V.x) minus (multiply U.x by V.z)
-	        Set Normal.z to (multiply U.x by V.y) minus (multiply U.y by V.x)
+            Set Normal.x to (multiply U.y by V.z) minus (multiply U.z by V.y)
+            Set Normal.y to (multiply U.z by V.x) minus (multiply U.x by V.z)
+            Set Normal.z to (multiply U.x by V.y) minus (multiply U.y by V.x)
 
-          
+
           1*/
 
-          A = {0 , heightmap.getHeight(x + 1, y) - heightmap.getHeight(x, y) , meshSize.z / heightmap.getMapHeight() };
-          B = { meshSize.x / heightmap.getMapWidth() , heightmap.getHeight(x + 1, y+1) - heightmap.getHeight(x, y), 0  };
-      }
-      else {
-          // p1 = bas a droite, p2 = haut gauche, p3 = haut droite
-
-          // avec p2 = {p1.x - xstep, heightmap(x-1, y+1), p1.y + ystep }
-          // avec p3 = {p1.x , heightmap(x, y+1), p1.y + ystep }
-
-          A = {  -meshSize.x / heightmap.getMapWidth() , heightmap.getHeight(x - 1, y +1) - heightmap.getHeight(x, y), meshSize.z / heightmap.getMapHeight() };
-          B = { 0 , heightmap.getHeight(x, y + 1) - heightmap.getHeight(x, y), meshSize.z / heightmap.getMapHeight() };
-
-
-          //std::cout << vertex.normal.x << " " << vertex.normal.y << " "<<vertex.normal.z << std::endl;
-
-
-      }
-
+          A = { 0 , heightmap.getHeight(x + 1, y) - heightmap.getHeight(x, y) , meshSize.z };
+          B = { meshSize.x  , heightmap.getHeight(x + 1, y + 1) - heightmap.getHeight(x, y), 0 };
+      
 
       glm::vec3 N = { (A.y * B.z) - (A.z * B.y),
                         (A.z * B.x) - (A.x * B.z),

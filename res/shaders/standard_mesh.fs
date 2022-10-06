@@ -19,7 +19,10 @@ vec3 sun_dir = normalize(u_SunPos);
 void main()
 {
     color = texture(u_Texture2D, o_uv);
-    color.rgb = color.rgb / 2;
-    color.rgb -= dot(o_normal, -sun_dir) * u_Strenght;
+    // .2 + dot(normal, sun) * .8
+    float ambiantLight = 0.2 + dot(o_normal, sun_dir) * 0.8;
+
+    // ambiantColor + lerp(0, sun, dot(sunDir, normal))
+     color.rgb = vec3(0.09,0.09,0.09) * 0.2 + vec3(1, 1, 0.0) * dot(o_normal, sun_dir) * u_Strenght ;
 
 }
