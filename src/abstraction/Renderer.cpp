@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <glad/glad.h>
+
 #include "VertexArray.h"
 #include "IndexBufferObject.h"
 #include "VertexBufferObject.h"

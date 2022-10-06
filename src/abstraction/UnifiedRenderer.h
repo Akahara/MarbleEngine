@@ -12,6 +12,7 @@ namespace fs = std::filesystem;
 Shader LoadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath);
 Mesh CreateCubeMesh();
 Mesh CreatePlaneMesh();
+Mesh LoadMeshFromFile(const fs::path &objPath);
 
 void Init();
 void Shutdown();

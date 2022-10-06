@@ -22,7 +22,7 @@ private:
   unsigned int                 m_verticesCount;
 public:
   Mesh();
-  Mesh(const std::vector<Vertex> &verticices, const std::vector<unsigned int> &indicies);
+  Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indicies);
   ~Mesh();
   Mesh(Mesh &&moved) noexcept;
   Mesh &operator=(Mesh &&moved) noexcept;

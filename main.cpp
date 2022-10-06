@@ -15,6 +15,7 @@
 #include "src/Sandbox/Scenes/TestSky.h"
 #include "src/Sandbox/Scenes/TestTerrain.h"
 #include "src/Sandbox/Scenes/TestFB.h"
+#include "src/Sandbox/Scenes/TestShadows.h"
 
 inline long long nanoTime()
 {
@@ -47,7 +48,8 @@ int main()
     SceneManager::RegisterScene<TestTerrainScene>("Terrain");
     SceneManager::RegisterScene<TestSkyScene>("Sky");
     SceneManager::RegisterScene<TestFBScene>("Framebuffer");
-    SceneManager::SwitchToScene(5);
+    SceneManager::RegisterScene<TestShadowsScene>("Shadows");
+    SceneManager::SwitchToScene(6);
 
     //===========================================================//
 

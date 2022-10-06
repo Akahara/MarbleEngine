@@ -31,7 +31,7 @@ public:
     renderTexture.Bind();
 
     shader.Bind();
-    shader.SetUniform2f("u_screenSize", Window::getWinWidth(), Window::getWinHeight());
+    shader.SetUniform2f("u_screenSize", (float)Window::getWinWidth(), (float)Window::getWinHeight());
     vao.Bind();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     renderTexture.Unbind();

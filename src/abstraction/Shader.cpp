@@ -1,20 +1,18 @@
 #pragma once
 
-
-#include "Shader.h"
-#include "Renderer.h"
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 
 #define GLFW_INCLUDE_NONE
-#include<glad/glad.h>
-#include<string>
-#include<fstream>
-#include<sstream>
-#include<iostream>
-#include<cerrno>
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Shader.h"
+#include "Renderer.h"
 
 namespace Renderer {
 
