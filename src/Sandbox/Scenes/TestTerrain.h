@@ -22,10 +22,20 @@ private:
   bool              m_playerIsFlying = true;
   int w = 200, h = 200;
   float scale = 27.6f;
-  float terrainHeight = 15.f;
+  float terrainHeight = 60.f;
   int o = 4;
   float p = 0.3f, l = 3.18f;
   int seed = 5;
+
+  Renderer::Mesh m_cubeMesh;
+
+  struct Sun {
+
+      glm::vec3 position;
+
+  } m_Sun;
+
+
 public:
   TestTerrainScene()
     : m_skybox{
@@ -36,6 +46,8 @@ public:
     m_player.setPostion({ 0.f, 30.f, 0 });
     m_player.UpdateCamera();
     RegenerateTerrain();
+    m_cubeMesh = Renderer::CreateCubeMesh();
+    m_Sun.position = { 100,100,100 };
   }
 
   void RegenerateTerrain()
@@ -59,9 +71,11 @@ public:
 
   void OnRender() override
   {
-    Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
+      Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
+      Renderer::RenderMesh(m_Sun.position, { 5,5,5 }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix());
     m_terrainTexture.Bind();
     Renderer::RenderMesh({}, { 1.f, 1.f, 1.f }, m_terrainMesh, m_player.GetCamera().getViewProjectionMatrix());
+    Renderer::getShader().SetUniform3f("u_SunPos", m_Sun.position.x, m_Sun.position.y, m_Sun.position.z);
   }
 
   void OnImGuiRender() override
@@ -73,6 +87,7 @@ public:
       RegenerateTerrain();
     }
 
+    ImGui::SliderFloat3("Sun position", &m_Sun.position[0], -100, 100);
     ImGui::Checkbox("Fly", &m_playerIsFlying);
   }
 };

@@ -17,6 +17,7 @@ Mesh generateMesh(const HeightMap &heightmap, glm::vec3 meshSize)
       vertex.position = { x * meshSize.x / heightmap.getMapWidth(), heightmap.getHeight(x, y) * meshSize.y, y * meshSize.z / heightmap.getMapHeight() };
       vertex.uv = { (float)x / heightmap.getMapWidth(), (float)y / heightmap.getMapHeight() };
 
+      glm::vec3 A, B;
 
       if (x % 2 == 0) {
           // point en bas à gauche d'un quad
@@ -37,15 +38,8 @@ Mesh generateMesh(const HeightMap &heightmap, glm::vec3 meshSize)
           
           1*/
 
-          glm::vec3 A = {0 , heightmap.getHeight(x + 1, y) - heightmap.getHeight(x, y) , meshSize.z / heightmap.getMapHeight() };
-          glm::vec3 B = { meshSize.x / heightmap.getMapWidth() , heightmap.getHeight(x + 1, y+1) - heightmap.getHeight(x, y), 0  };
-
-
-          glm::vec3 N = {   (A.y * B.z) - (A.z * B.y),
-                            (A.z * B.x) - (A.x * B.z),
-                            (A.x * B.y) - (A.y * B.x) };
-
-          vertex.normal = N;
+          A = {0 , heightmap.getHeight(x + 1, y) - heightmap.getHeight(x, y) , meshSize.z / heightmap.getMapHeight() };
+          B = { meshSize.x / heightmap.getMapWidth() , heightmap.getHeight(x + 1, y+1) - heightmap.getHeight(x, y), 0  };
       }
       else {
           // p1 = bas a droite, p2 = haut gauche, p3 = haut droite
@@ -53,20 +47,21 @@ Mesh generateMesh(const HeightMap &heightmap, glm::vec3 meshSize)
           // avec p2 = {p1.x - xstep, heightmap(x-1, y+1), p1.y + ystep }
           // avec p3 = {p1.x , heightmap(x, y+1), p1.y + ystep }
 
-          glm::vec3 A = {  -meshSize.x / heightmap.getMapWidth() , heightmap.getHeight(x - 1, y +1) - heightmap.getHeight(x, y), meshSize.z / heightmap.getMapHeight() };
-          glm::vec3 B = { 0 , heightmap.getHeight(x, y + 1) - heightmap.getHeight(x, y), meshSize.z / heightmap.getMapHeight() };
+          A = {  -meshSize.x / heightmap.getMapWidth() , heightmap.getHeight(x - 1, y +1) - heightmap.getHeight(x, y), meshSize.z / heightmap.getMapHeight() };
+          B = { 0 , heightmap.getHeight(x, y + 1) - heightmap.getHeight(x, y), meshSize.z / heightmap.getMapHeight() };
 
-
-          glm::vec3 N = { (A.y * B.z) - (A.z * B.y),
-                            (A.z * B.x) - (A.x * B.z),
-                            (A.x * B.y) - (A.y * B.x) };
-
-          vertex.normal = N;
 
           //std::cout << vertex.normal.x << " " << vertex.normal.y << " "<<vertex.normal.z << std::endl;
 
 
       }
+
+
+      glm::vec3 N = { (A.y * B.z) - (A.z * B.y),
+                        (A.z * B.x) - (A.x * B.z),
+                        (A.x * B.y) - (A.y * B.x) };
+
+      vertex.normal = N;
 
     }
   }

@@ -4,14 +4,11 @@
 #include <sstream>
 #include <iostream>
 
-static float lol = 0.001;
-static float step = 0.002;
-
 namespace Renderer {
 
 static struct KeepAliveResources {
   Shader standardMeshShader;
-} *s_keepAliveResources;
+} *s_keepAliveResources = nullptr;
 
 
 Shader LoadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath)
@@ -87,10 +84,10 @@ void RenderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm:
   s_keepAliveResources->standardMeshShader.Bind();
   s_keepAliveResources->standardMeshShader.SetUniformMat4f("u_M", M);
   s_keepAliveResources->standardMeshShader.SetUniformMat4f("u_VP", VP);
-  if (lol > 1 || lol < 0) step = -step;
-  lol += step;
-  s_keepAliveResources->standardMeshShader.SetUniform1f("u_Strenght", lol);
+  s_keepAliveResources->standardMeshShader.SetUniform1f("u_Strenght", 0.3);
   mesh.Draw();
 }
+
+Shader& getShader() { if (s_keepAliveResources) return s_keepAliveResources->standardMeshShader; }
 
 }

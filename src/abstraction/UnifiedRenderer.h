@@ -20,4 +20,6 @@ void Shutdown();
 
 void RenderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm::mat4 &VP);
 
+Shader& getShader();
+
 }
