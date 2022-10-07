@@ -26,7 +26,7 @@ private:
   int o = 4;
   float p = 0.3f, l = 3.18f;
   int seed = 5;
-  float strength = 0.03f;
+  float strength = 1.f;
 
   float realTime = 0;
 
@@ -35,7 +35,7 @@ private:
   Renderer::Mesh m_waterMesh;
 
   Renderer::Texture m_rockTexture = Renderer::Texture( "res/textures/rock.jpg" );
-  Renderer::Texture m_grassTexture = Renderer::Texture( "res/textures/grass2.jpg" );
+  Renderer::Texture m_grassTexture = Renderer::Texture( "res/textures/grass5.jpg" );
 
   struct Sun {
 
@@ -92,9 +92,10 @@ public:
     m_Sun.position.z = 250 * sin(10 * delta);
       */
 
-      Renderer::getShader().Bind();
       //std::cout << (sin(realTime) + 1) / 2 << std::endl;
+      Renderer::getShader().Bind();
       Renderer::getShader().SetUniform1f("delta", (sin(realTime)+1)/2);
+      Renderer::getShader().Unbind();
     if (!m_playerIsFlying) {
       glm::vec3 pos = m_player.GetPosition();
       pos.y = m_heightmap.getHeightLerp(pos.x, pos.z) + 1.f;
@@ -107,9 +108,11 @@ public:
   {
       //std::cout << "render step" << std::endl;
     Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
+    Renderer::RenderMesh({}, { 10.f, 5.f, 10.f }, m_terrainMesh, m_player.GetCamera().getViewProjectionMatrix());
     Renderer::RenderMesh(m_Sun.position, { 5,5,5 }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix());
-    m_terrainTexture.Bind();
-    Renderer::RenderMesh({}, { 10.f, 1.f, 10.f }, m_terrainMesh, m_player.GetCamera().getViewProjectionMatrix());
+
+
+    Renderer::getShader().Bind();
     Renderer::getShader().SetUniform3f("u_SunPos", m_Sun.position.x, m_Sun.position.y, m_Sun.position.z);
 
     
@@ -129,7 +132,7 @@ public:
     ImGui::SliderFloat3("Sun position", &m_Sun.position[0], -200, 200);
     ImGui::SliderFloat3("Water level", &m_Water.position[0], -200, 200);
     
-    if (ImGui::SliderFloat("Strength", &strength, 0, 0.5)) {
+    if (ImGui::SliderFloat("Strength", &strength, 0, 2)) {
         Renderer::getShader().SetUniform1f("u_Strenght", strength);
     }
     
