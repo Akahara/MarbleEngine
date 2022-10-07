@@ -238,6 +238,9 @@
     <None Include=".gitignore" />
     <None Include="res\shaders\blit.fs" />
     <None Include="res\shaders\blit.vs" />
+    <None Include="res\shaders\shadows.fs" />
+    <None Include="res\shaders\shadows.vs" />
+    <None Include="res\shaders\shadows_testblitdepth.fs" />
     <None Include="res\shaders\standard.vs" />
     <None Include="res\shaders\standard_mesh.fs" />
   </ItemGroup>

@@ -94,5 +94,8 @@
     <None Include="res\shaders\standard_mesh.fs" />
     <None Include="res\shaders\blit.vs" />
     <None Include="res\shaders\blit.fs" />
+    <None Include="res\shaders\shadows.fs" />
+    <None Include="res\shaders\shadows.vs" />
+    <None Include="res\shaders\shadows_testblitdepth.fs" />
   </ItemGroup>
 </Project>

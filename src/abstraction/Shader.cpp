@@ -116,7 +116,7 @@ namespace Renderer {
 
 
 	void Shader::SetUniform1iv(std::string_view name, unsigned int count, const GLint* data) {
-		 glUniform1iv(GetUniformLocation(name), count, data  ) ;
+		 glUniform1iv(GetUniformLocation(name), count, data);
 	}
 
 	int Shader::GetUniformLocation(std::string_view name) {

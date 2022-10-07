@@ -7,6 +7,8 @@
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
+#include "Window.h"
+
 namespace Renderer {
 
 static struct KeepAliveResources {
@@ -140,6 +142,11 @@ Mesh LoadMeshFromFile(const fs::path &objPath)
   return Mesh(vertices, indices);
 }
 
+void Clear()
+{
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 void Init()
 {
   s_keepAliveResources = new KeepAliveResources;
@@ -160,6 +167,33 @@ void RenderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm:
   s_keepAliveResources->standardMeshShader.SetUniformMat4f("u_M", M);
   s_keepAliveResources->standardMeshShader.SetUniformMat4f("u_VP", VP);
   mesh.Draw();
+}
+
+BlitPass::BlitPass()
+  : BlitPass("res/shaders/blit.fs")
+{
+}
+
+BlitPass::BlitPass(const fs::path &fragmentShaderPath)
+{
+  m_shader = LoadShaderFromFiles("res/shaders/blit.vs", fragmentShaderPath);
+  m_keepAliveIBO = IndexBufferObject({ 0, 2, 1, 3, 2, 0 });
+  m_vao.addBuffer(m_keepAliveVBO, VertexBufferLayout{}, m_keepAliveIBO);
+}
+
+void BlitPass::DoBlit(const Texture &renderTexture)
+{
+  glDisable(GL_DEPTH_TEST);
+  Renderer::Clear();
+  renderTexture.Bind();
+
+  m_shader.Bind();
+  m_shader.SetUniform2f("u_screenSize", (float)Window::getWinWidth(), (float)Window::getWinHeight()); // TODO remove, this uniform is only necessary because the vignette vfx is in the blit shader, which it shouldn't, it should be in a res/shaders/testfb_blit.fs shader
+  m_vao.Bind();
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+  renderTexture.Unbind();
+  m_vao.Unbind();
+  glEnable(GL_DEPTH_TEST);
 }
 
 }
