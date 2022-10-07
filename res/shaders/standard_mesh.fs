@@ -24,5 +24,4 @@ void main()
     // .2 + dot(normal, sun) * .8
     float ambiantLight = 0.2 + dot(o_normal, sun_dir) * 0.8;
     // ambiantColor + lerp(0, sun, dot(sunDir, normal))
-     //color.rgb = vec3(0.09,0.09,0.09) * 0.2 + vec3(1, 1, 0.0) * dot(o_normal, sun_dir) * u_Strenght * distance(u_SunPos, o_pos)*distance(u_SunPos, o_pos);
-}
+    color.rgb += vec3(0.09,0.09,0.09) * 0.2 + vec3(.2f, .2f, 0.f) * dot(o_normal, sun_dir) * u_Strenght /distance(u_SunPos, o_pos);}
