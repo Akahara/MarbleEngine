@@ -32,7 +32,7 @@ Mesh generateMesh(const HeightMap &heightmap, glm::vec3 meshSize)
 
 
           /*
-            Set Normal.x to (multiply U.y by V.z) minus (multiply U.z by V.y)
+            Ensemble Normal.x vers (multiplier U.y à coté de V.z) moins (multiply U.z by V.y)
             Set Normal.y to (multiply U.z by V.x) minus (multiply U.x by V.z)
             Set Normal.z to (multiply U.x by V.y) minus (multiply U.y by V.x)
 

@@ -53,14 +53,14 @@ Mesh CreateCubeMesh()
 Mesh CreatePlaneMesh()
 {
   std::vector<Renderer::Vertex> vertices{
-    // position             uv            normal (up)
-    { { +.5f, 0.f, +.5f }, { 0.f, 0.f }, { 0, 1.f, 0 } },
-    { { -.5f, 0.f, +.5f }, { 1.f, 0.f }, { 0, 1.f, 0 } },
-    { { -.5f, 0.f, -.5f }, { 1.f, 1.f }, { 0, 1.f, 0 } },
-    { { +.5f, 0.f, -.5f }, { 0.f, 1.f }, { 0, 1.f, 0 } },
+    // position             uv            normal (up)   textId
+    { { +.5f, 0.f, +.5f }, { 0.f, 0.f }, { 0, 1.f, 0 }, {0} },
+    { { -.5f, 0.f, +.5f }, { 1.f, 0.f }, { 0, 1.f, 0 }, {0} },
+    { { -.5f, 0.f, -.5f }, { 1.f, 1.f }, { 0, 1.f, 0 }, {0} },
+    { { +.5f, 0.f, -.5f }, { 0.f, 1.f }, { 0, 1.f, 0 }, {0} },
   };
   std::vector<unsigned int> indices{
-    0, 1, 2, 2, 3, 0
+    3, 2, 0, 1,0,2
   };
   return Mesh(vertices, indices);
 }
@@ -84,7 +84,6 @@ void RenderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm:
   s_keepAliveResources->standardMeshShader.Bind();
   s_keepAliveResources->standardMeshShader.SetUniformMat4f("u_M", M);
   s_keepAliveResources->standardMeshShader.SetUniformMat4f("u_VP", VP);
-  //s_keepAliveResources->standardMeshShader.SetUniform1f("u_Strenght", 0.3);
   mesh.Draw();
 }
 

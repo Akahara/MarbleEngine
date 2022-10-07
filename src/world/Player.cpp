@@ -51,6 +51,7 @@ void Player::Step(float delta)
   m_position += motion * delta * speed;
 
   if (Inputs::IsKeyPressed('Q')) {
+    std::cout << "Q KEY" << std::endl;
     m_yaw = 0;
     m_pitch = 0;
     m_position = { 0, 0, 0 };
@@ -73,6 +74,7 @@ glm::vec3 Player::GetRight() const
 
 void Player::UpdateCamera()
 {
+  //std::cout << "update camera" << std::endl;
   glm::mat4 view(1.f);
   view = glm::rotate(view, m_pitch, { 1, 0, 0 });
   view = glm::rotate(view, -m_yaw, UP);

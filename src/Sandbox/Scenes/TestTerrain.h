@@ -20,24 +20,34 @@ private:
   Renderer::Texture m_terrainTexture;
   Renderer::Mesh    m_terrainMesh;
   bool              m_playerIsFlying = true;
-  int w = 200, h = 200;
+  int w = 100, h = 100;
   float scale = 27.6f;
   float terrainHeight = 60.f;
   int o = 4;
   float p = 0.3f, l = 3.18f;
   int seed = 5;
-  float strength = 0.3f;
+  float strength = 0.03f;
+
+  float realTime = 0;
+
 
   Renderer::Mesh m_cubeMesh;
+  Renderer::Mesh m_waterMesh;
 
   Renderer::Texture m_rockTexture = Renderer::Texture( "res/textures/rock.jpg" );
-  Renderer::Texture m_grassTexture = Renderer::Texture( "res/textures/grass.jpg" );
+  Renderer::Texture m_grassTexture = Renderer::Texture( "res/textures/grass2.jpg" );
 
   struct Sun {
 
       glm::vec3 position;
 
   } m_Sun;
+
+  struct Water {
+
+      glm::vec3 position;
+
+  } m_Water;
 
 
 public:
@@ -52,13 +62,16 @@ public:
     m_player.UpdateCamera();
     RegenerateTerrain();
     //m_terrainMesh.AddTexture(m_grassTexture);
+    m_waterMesh = Renderer::CreatePlaneMesh();
     m_cubeMesh = Renderer::CreateCubeMesh();
     m_Sun.position = { 100,100,100 };
+    m_Water.position = { 50,24,50};
     m_grassTexture.Bind(2U);
     m_rockTexture.Bind(1U);
     Renderer::getShader().Bind();
     GLint samplers[8] = { 0,1,2,3,4,5,6,7 };
     Renderer::getShader().SetUniform1iv("u_Textures2D", 8, samplers);
+    Renderer::getShader().SetUniform1f("u_Strenght", strength);
   }
 
   void RegenerateTerrain()
@@ -71,7 +84,17 @@ public:
 
   void Step(float delta) override
   {
-    m_player.Step(delta);
+      realTime += delta;
+      //std::cout << "terrain step" << std::endl;
+      m_player.Step(delta);
+      /*
+    m_Sun.position.x = 250 * cos(10 * delta);
+    m_Sun.position.z = 250 * sin(10 * delta);
+      */
+
+      Renderer::getShader().Bind();
+      //std::cout << (sin(realTime) + 1) / 2 << std::endl;
+      Renderer::getShader().SetUniform1f("delta", (sin(realTime)+1)/2);
     if (!m_playerIsFlying) {
       glm::vec3 pos = m_player.GetPosition();
       pos.y = m_heightmap.getHeightLerp(pos.x, pos.z) + 1.f;
@@ -82,15 +105,20 @@ public:
 
   void OnRender() override
   {
-      Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
-      Renderer::RenderMesh(m_Sun.position, { 5,5,5 }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix());
+      //std::cout << "render step" << std::endl;
+    Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
+    Renderer::RenderMesh(m_Sun.position, { 5,5,5 }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix());
     m_terrainTexture.Bind();
-    Renderer::RenderMesh({}, { 1.f, 1.f, 1.f }, m_terrainMesh, m_player.GetCamera().getViewProjectionMatrix());
+    Renderer::RenderMesh({}, { 10.f, 1.f, 10.f }, m_terrainMesh, m_player.GetCamera().getViewProjectionMatrix());
     Renderer::getShader().SetUniform3f("u_SunPos", m_Sun.position.x, m_Sun.position.y, m_Sun.position.z);
+
+    
+    Renderer::RenderMesh(m_Water.position, { 100, 0, 100 }, m_waterMesh, m_player.GetCamera().getViewProjectionMatrix());
   }
 
   void OnImGuiRender() override
   {
+    //std::cout << "imgui step" << std::endl;
     if (ImGui::SliderInt("Width", &w, 10, 2000) + ImGui::SliderInt("Height", &h, 10, 2000) +
         ImGui::SliderFloat("Scale", &scale, 0, 50) + ImGui::SliderInt("Number of octaves", &o, 0, 10) +
         ImGui::SliderFloat("persistence", &p, 0, 1) + ImGui::SliderFloat("lacunarity", &l, 0, 50) +
@@ -98,9 +126,10 @@ public:
       RegenerateTerrain();
     }
 
-    ImGui::SliderFloat3("Sun position", &m_Sun.position[0], -100, 100);
+    ImGui::SliderFloat3("Sun position", &m_Sun.position[0], -200, 200);
+    ImGui::SliderFloat3("Water level", &m_Water.position[0], -200, 200);
     
-    if (ImGui::SliderFloat("Strength", &strength, 0, 1)) {
+    if (ImGui::SliderFloat("Strength", &strength, 0, 0.5)) {
         Renderer::getShader().SetUniform1f("u_Strenght", strength);
     }
     

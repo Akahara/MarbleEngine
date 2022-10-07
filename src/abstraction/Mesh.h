@@ -13,7 +13,7 @@ struct Vertex {
   glm::vec3 position;
   glm::vec2 uv;
   glm::vec3 normal;
-  float textureIndex;
+  float textureIndex=0;
 };
 
 class Mesh {

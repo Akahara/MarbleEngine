@@ -16,7 +16,7 @@ uniform mat4 u_M;
 void main()
 {
   o_texId = i_texId;
-  o_pos = i_position;
+  o_pos = (u_M * vec4(i_position,1)).xyz;
   o_uv = i_uv;
   o_normal = i_normal;
   gl_Position = u_VP * u_M * vec4(i_position, +1.0);
