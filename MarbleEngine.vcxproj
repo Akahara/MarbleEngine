@@ -150,7 +150,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="glad.c" />
+    <ClCompile Include="src\vendor\glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\abstraction\Camera.cpp" />
     <ClCompile Include="src\abstraction\Cubemap.cpp" />

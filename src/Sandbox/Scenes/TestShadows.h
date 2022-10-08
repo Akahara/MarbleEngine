@@ -5,6 +5,7 @@
 #include "../../abstraction/Cubemap.h"
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../World/Player.h"
+#include "../../Utils/Debug.h"
 
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -26,6 +27,7 @@ private:
   Renderer::Texture m_depthTexture;
   Renderer::BlitPass m_depthTestBlitPass;
   bool              m_dbgDrawDepthBuffer = false;
+  Renderer::Mesh    m_planeMesh;
 public:
   TestShadowsScene()
     : m_skybox{
@@ -39,11 +41,18 @@ public:
     UpdateSunCamera();
     m_depthTexture = Renderer::Texture::createDepthTexture(600 * 16 / 9, 600);
     m_depthFBO.SetDepthTexture(m_depthTexture);
+
+    m_planeMesh = Renderer::CreatePlaneMesh();
   }
 
   void Step(float delta) override
   {
     m_player.Step(delta);
+    static float time = 0;
+    time += delta;
+    m_sunDir = glm::vec3{ glm::cos(time), -1, glm::sin(time) };
+    m_sunPos = -m_sunDir * 10.f;
+    UpdateSunCamera();
   }
 
   void RenderStrangeMesh(const Renderer::Camera &camera)
@@ -54,10 +63,20 @@ public:
     m_mesh1.Draw();
   }
 
-  void RenderScene(const Renderer::Camera &camera)
+  void RenderScene(const Renderer::Camera &camera, bool depthPass)
   {
     m_depthTexture.Bind();
     RenderStrangeMesh(camera);
+
+    //if (!depthPass) {
+    //  m_shader.Bind();
+    //  glm::mat4 M{1.f};
+    //  M = glm::translate(M, { 0, -2, 0 });
+    //  M = glm::scale(M, { 25, 1, 25 });
+    //  m_shader.SetUniformMat4f("u_M", M);
+    //  m_shader.SetUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+    //  m_planeMesh.Draw();
+    //}
   }
 
   void UpdateSunCamera()
@@ -72,11 +91,13 @@ public:
 
     glm::vec3 R = glm::normalize(glm::cross(m_sunDir, m_sunUp)) / m_sunCamSize.x;
     glm::vec3 L = glm::normalize(glm::cross(m_sunDir, R)) / m_sunCamSize.y;
-    glm::vec2 Ps{ glm::dot(L, m_sunPos), glm::dot(R, m_sunPos) };
+    glm::vec3 F = glm::normalize(m_sunDir);
+    glm::vec3 Ps{ glm::dot(L, m_sunPos), glm::dot(R, m_sunPos), glm::dot(F, m_sunPos)};
     m_shader.Bind();
     m_shader.SetUniform3f("u_L", L);
     m_shader.SetUniform3f("u_R", R);
-    m_shader.SetUniform2f("u_Ps", Ps);
+    m_shader.SetUniform3f("u_F", F);
+    m_shader.SetUniform3f("u_Ps", Ps);
   }
 
   void DbgDrawDepthTexture()
@@ -91,7 +112,7 @@ public:
     Renderer::Clear();
     //Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    RenderScene(m_sunCamera);
+    RenderScene(m_sunCamera, true);
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     m_depthFBO.Unbind();
     m_depthFBO.SetViewport(Window::getWinWidth(), Window::getWinHeight());
@@ -100,7 +121,7 @@ public:
     if (m_dbgDrawDepthBuffer) {
       DbgDrawDepthTexture();
     } else {
-      RenderScene(m_player.GetCamera());
+      RenderScene(m_player.GetCamera(), false);
     }
   }
 
@@ -117,6 +138,9 @@ public:
       }
 
       ImGui::Checkbox("draw depth", &m_dbgDrawDepthBuffer);
+
+      static TestUniform u{ m_shader, "u_test" };
+      u.RenderImGui();
     }
 
     ImGui::End();
