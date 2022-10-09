@@ -8,61 +8,29 @@
 
 namespace Renderer {
 
-	class Camera
-	{
-	public:
+class Camera {
+private:
+  glm::mat4 m_View, m_Projection, m_ViewProjectionMatrix;
+public:
+  Camera(float left, float right, float bottom, float top);
+  Camera(float fovy, float aspect);
+  Camera();
 
-		Camera(float left, float right, float bottom, float top)
-			: m_View(1.0f)
-		{
-		    SetOrthoProjection(left, right, bottom, top);
-		}
+  void SetOrthoProjection(float left, float right, float bottom, float top, float zNear=.1f, float zFar=1000.f);
+  void SetPerspectiveProjection(float fovy, float aspect, float zNear = .1f, float zFar = 1000.f);
+  void SetProjection(const glm::mat4 &value);
+  void SetView(const glm::mat4 &value);
 
-		Camera(float fovy, float aspect)
-		  : m_View(1.0f)
-		{
-		  SetPerspectiveProjection(fovy, aspect);
-		}
+  inline void RecalculateViewProjectionMatrix()
+  {
+	m_ViewProjectionMatrix = m_Projection * m_View;
+  }
 
-		Camera()
-		  :
-		  m_View(1.0f),
-		  m_Projection(1.0f),
-		  m_ViewProjectionMatrix(1.0f)
-		{
-		}
+  const glm::mat4 &getViewProjectionMatrix() const { return m_ViewProjectionMatrix; }
+  const glm::mat4 &getProjectionMatrix() const { return m_Projection; }
+  const glm::mat4 &getViewMatrix() const { return m_View; }
 
-		void SetOrthoProjection(float left, float right, float bottom, float top)
-		{
-		  SetProjection(glm::ortho(left, right, bottom, top, -1.0f, 1.0f));
-		}
-
-		void SetPerspectiveProjection(float fovy, float aspect)
-		{
-		  SetProjection(glm::perspective(fovy, aspect, .1f, 1000.f));
-		}
-
-		void SetProjection(const glm::mat4& value) {
-			m_Projection = value;
-			RecalculateViewProjectionMatrix();
-		}
-
-		void SetView(const glm::mat4& value) {
-			m_View = value;
-			RecalculateViewProjectionMatrix();
-		}
-
-		inline void RecalculateViewProjectionMatrix() {
-			m_ViewProjectionMatrix = m_Projection * m_View;
-		}
-
-		const glm::mat4& getViewProjectionMatrix () const { return m_ViewProjectionMatrix;  }
-		const glm::mat4& getProjectionMatrix () const { return m_Projection;  }
-		const glm::mat4& getViewMatrix () const { return m_View;  }
-
-	private:
-		glm::mat4 m_View, m_Projection, m_ViewProjectionMatrix;
-	};
+};
 }
 
 

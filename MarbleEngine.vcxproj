@@ -150,7 +150,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="glad.c" />
+    <ClCompile Include="src\vendor\glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\abstraction\Camera.cpp" />
     <ClCompile Include="src\abstraction\Cubemap.cpp" />
@@ -209,6 +209,7 @@
     <ClInclude Include="src\Sandbox\Scenes\Test3D.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestFB.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestShaders.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestShadows.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestSky.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestTerrain.h" />
     <ClInclude Include="src\Utils\Debug.h" />
@@ -238,6 +239,9 @@
     <None Include=".gitignore" />
     <None Include="res\shaders\blit.fs" />
     <None Include="res\shaders\blit.vs" />
+    <None Include="res\shaders\shadows.fs" />
+    <None Include="res\shaders\shadows.vs" />
+    <None Include="res\shaders\shadows_testblitdepth.fs" />
     <None Include="res\shaders\standard.vs" />
     <None Include="res\shaders\standard_mesh.fs" />
     <None Include="res\shaders\test_scene.fs" />

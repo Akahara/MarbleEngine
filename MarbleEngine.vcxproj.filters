@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="glad.c" />
+    <ClCompile Include="src\vendor\glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\abstraction\Camera.cpp" />
     <ClCompile Include="src\abstraction\Cubemap.cpp" />
@@ -83,6 +83,7 @@
     <ClInclude Include="src\abstraction\UnifiedRenderer.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestFB.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestShaders.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestShadows.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
@@ -96,5 +97,8 @@
     <None Include="res\shaders\blit.fs" />
     <None Include="res\shaders\test_scene.vs" />
     <None Include="res\shaders\test_scene.fs" />
+    <None Include="res\shaders\shadows.fs" />
+    <None Include="res\shaders\shadows.vs" />
+    <None Include="res\shaders\shadows_testblitdepth.fs" />
   </ItemGroup>
 </Project>

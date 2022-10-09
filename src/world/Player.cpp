@@ -53,7 +53,7 @@ void Player::Step(float delta)
   if (Inputs::IsKeyPressed('Q')) {
     m_yaw = 0;
     m_pitch = 0;
-    m_position = { 0, 0, 0 };
+    m_position = { 10, 10, 10 };
     UpdateCamera();
   }
 
