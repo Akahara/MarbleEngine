@@ -44,6 +44,21 @@ private:
 };
 
 
+class TestUniform {
+private:
+  Shader     *m_shader;
+  float       m_value;
+  std::string m_name;
+  float       m_speed;
+public:
+  TestUniform(Shader *shader, const char *name, float defaultValue = 0.f, float speed = .1f)
+	: m_shader(shader), m_name(name), m_value(defaultValue), m_speed(speed)
+  {
+  }
+
+  void RenderImGui();
+};
+
 class ShaderManager {
 private:
   struct ManagedShader {
@@ -52,13 +67,15 @@ private:
 	const char *fragmentPath;
   };
   std::vector<ManagedShader> m_managedShaders;
-  bool                       m_needUpdate;
+  std::vector<TestUniform>   m_testUniforms;
 public:
   void AddShader(Shader *shader, const char *vertexPath, const char *fragmentPath, bool loadNow=true);
 
-  bool PromptReload();
+  bool PromptReloadAndUI();
 
   void ReloadShaders();
+private:
+  void CollectTestUniforms(Shader *shader);
 };
 
 }

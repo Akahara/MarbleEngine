@@ -12,9 +12,9 @@
 
 class TestShadersScene : public Scene {
 private:
-  Player           m_player;
-  Renderer::Mesh   m_planeMesh;
-  Renderer::Shader m_shader;
+  Player                  m_player;
+  Renderer::Mesh          m_planeMesh;
+  Renderer::Shader        m_shader;
   Renderer::ShaderManager m_shaderManager;
 public:
   TestShadersScene()
@@ -47,7 +47,7 @@ public:
   void OnImGuiRender() override
   {
     if (ImGui::Begin("Scene")) {
-      m_shaderManager.PromptReload();
+      m_shaderManager.PromptReloadAndUI();
     }
     ImGui::End();
   }

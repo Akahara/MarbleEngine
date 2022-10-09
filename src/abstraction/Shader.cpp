@@ -137,26 +137,62 @@ namespace Renderer {
 		return location;
 	}
 
+
+
 	void ShaderManager::AddShader(Shader *shader, const char *vertexPath, const char *fragmentPath, bool loadNow)
 	{
 	  m_managedShaders.emplace_back(shader, vertexPath, fragmentPath);
 	  if(loadNow)
 	  	*shader = LoadShaderFromFiles(vertexPath, fragmentPath);
+	  CollectTestUniforms(shader);
 	}
 
-	bool ShaderManager::PromptReload()
+	bool ShaderManager::PromptReloadAndUI()
 	{
-	  if (ImGui::Button("Reload shaders")) {
+	  if (!ImGui::CollapsingHeader("Shaders"))
+		return false;
+	  bool needsUpdate = ImGui::Button("Reload shaders");
+	  if (needsUpdate)
 		ReloadShaders();
-		return true;
-	  }
-	  return false;
+	  for (TestUniform &uniform : m_testUniforms)
+		uniform.RenderImGui();
+	  return needsUpdate;
 	}
 
 	void ShaderManager::ReloadShaders()
 	{
-	  for(ManagedShader &m : m_managedShaders)
+	  m_testUniforms.clear();
+
+	  for (ManagedShader &m : m_managedShaders) {
 		*m.shader = LoadShaderFromFiles(m.vertexPath, m.fragmentPath);
+		CollectTestUniforms(m.shader);
+	  }
+	}
+
+	void ShaderManager::CollectTestUniforms(Shader *shader)
+	{
+	  // scan for "t_*" uniforms
+	  constexpr size_t bufSize = 32;
+	  char uniformName[bufSize];
+	  int uniformNameLength;
+	  int uniformSize; // size of an uniform array (1 if non-array type)
+	  GLenum uniformType;
+	  int uniformsCount;
+	  glGetProgramiv(shader->getId(), GL_ACTIVE_UNIFORMS, &uniformsCount);
+	  for (int i = 0; i < uniformsCount; i++) {
+		glGetActiveUniform(shader->getId(), (GLuint)i, bufSize, &uniformNameLength, &uniformSize, &uniformType, uniformName);
+		if (strstr(uniformName, "t_") == uniformName && uniformSize == 1 && uniformType == GL_FLOAT) {
+		  m_testUniforms.emplace_back(shader, uniformName);
+		}
+	  }
+	}
+
+	void TestUniform::RenderImGui()
+	{
+	  if (ImGui::DragFloat(m_name.c_str(), &m_value, m_speed)) {
+		m_shader->Bind();
+		m_shader->SetUniform1f(m_name, m_value);
+	  }
 	}
 
 };

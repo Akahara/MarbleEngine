@@ -20,11 +20,3 @@ void OnImGuiRender()
 }
 
 }
-
-void TestUniform::RenderImGui()
-{
-  if (ImGui::DragFloat(m_name, &m_value, m_speed)) {
-    m_shader->Bind();
-    m_shader->SetUniform1f(m_name, m_value);
-  }
-}
