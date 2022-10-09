@@ -33,7 +33,7 @@ public:
       "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
       "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" }
   {
-    m_player.setPostion({ 0.f, 30.f, 0 });
+    m_player.SetPostion({ 0.f, 30.f, 0 });
     m_player.UpdateCamera();
     RegenerateTerrain();
   }
@@ -52,7 +52,7 @@ public:
     if (!m_playerIsFlying) {
       glm::vec3 pos = m_player.GetPosition();
       pos.y = m_heightmap.getHeightLerp(pos.x, pos.z) + 1.f;
-      m_player.setPostion(pos);
+      m_player.SetPostion(pos);
       m_player.UpdateCamera();
     }
   }

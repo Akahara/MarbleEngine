@@ -7,6 +7,7 @@
 
 #include "src/abstraction/Window.h"
 #include "src/abstraction/Inputs.h"
+#include "src/abstraction/Shader.h"
 #include "src/Sandbox/Scene.h"
 #include "src/World/Sky.h"
 #include "src/Utils/Debug.h"
@@ -15,6 +16,7 @@
 #include "src/Sandbox/Scenes/TestSky.h"
 #include "src/Sandbox/Scenes/TestTerrain.h"
 #include "src/Sandbox/Scenes/TestFB.h"
+#include "src/Sandbox/Scenes/TestShaders.h"
 
 inline long long nanoTime()
 {
@@ -47,7 +49,8 @@ int main()
     SceneManager::RegisterScene<TestTerrainScene>("Terrain");
     SceneManager::RegisterScene<TestSkyScene>("Sky");
     SceneManager::RegisterScene<TestFBScene>("Framebuffer");
-    SceneManager::SwitchToScene(5);
+    SceneManager::RegisterScene<TestShadersScene>("Shaders");
+    SceneManager::SwitchToScene(6);
 
     //===========================================================//
 
@@ -74,6 +77,8 @@ int main()
         SceneManager::OnRender();
         SceneManager::OnImGuiRender();
         DebugWindow::OnImGuiRender();
+
+        Renderer::Shader::Unbind(); // unbind shaders before ImGui's new frame, so it won't try to restore a shader that has been deleted
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

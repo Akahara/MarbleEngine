@@ -12,7 +12,7 @@ Toute la partie documentation reste à faire, les cases cochées le sont seuleme
 - [x] VBO/IBO/Shaders
 - [x] Mesh
 - [x] FBO
-- [ ] On-the-fly shader recompilation
+- [x] On-the-fly shader recompilation
 
 **Terrain**:
 - [x] Generation de Heightmap

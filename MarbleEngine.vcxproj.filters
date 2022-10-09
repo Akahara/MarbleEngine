@@ -47,7 +47,6 @@
     <ClInclude Include="src\abstraction\Inputs.h" />
     <ClInclude Include="src\abstraction\Renderer.h" />
     <ClInclude Include="src\abstraction\Shader.h" />
-    <ClInclude Include="Libraries\include\stb\stb_image.h" />
     <ClInclude Include="src\abstraction\Texture.h" />
     <ClInclude Include="src\abstraction\TextureAtlas.h" />
     <ClInclude Include="src\abstraction\VertexArray.h" />
@@ -83,6 +82,7 @@
     <ClInclude Include="src\Utils\Debug.h" />
     <ClInclude Include="src\abstraction\UnifiedRenderer.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestFB.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestShaders.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
@@ -94,5 +94,7 @@
     <None Include="res\shaders\standard_mesh.fs" />
     <None Include="res\shaders\blit.vs" />
     <None Include="res\shaders\blit.fs" />
+    <None Include="res\shaders\test_scene.vs" />
+    <None Include="res\shaders\test_scene.fs" />
   </ItemGroup>
 </Project>

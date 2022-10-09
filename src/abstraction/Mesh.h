@@ -16,10 +16,10 @@ struct Vertex {
 
 class Mesh {
 private:
-  Renderer::VertexBufferObject m_VBO;
-  Renderer::IndexBufferObject  m_IBO;
-  Renderer::VertexArray        m_VAO;
-  unsigned int                 m_verticesCount;
+  VertexBufferObject m_VBO;
+  IndexBufferObject  m_IBO;
+  VertexArray        m_VAO;
+  unsigned int       m_verticesCount;
 public:
   Mesh();
   Mesh(const std::vector<Vertex> &verticices, const std::vector<unsigned int> &indicies);

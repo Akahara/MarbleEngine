@@ -16,7 +16,9 @@ public:
   glm::vec3 GetPosition() const { return m_position; }
   glm::vec2 GetRotation() const { return { m_yaw, m_pitch }; }
 
-  void setPostion(const glm::vec3& position) { m_position = position; }
+  // After moving the player #UpdateCamera() should be called
+  void SetPostion(const glm::vec3 &position) { m_position = position; }
+  void SetRotation(float yaw, float pitch) { m_yaw = yaw; m_pitch = pitch; }
 
   void UpdateCamera();
 private:

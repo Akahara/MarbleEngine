@@ -1,19 +1,21 @@
 #pragma once
 
-
-#include "Shader.h"
-#include "Renderer.h"
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <cerrno>
 
 #define GLFW_INCLUDE_NONE
-#include<glad/glad.h>
-#include<string>
-#include<fstream>
-#include<sstream>
-#include<iostream>
-#include<cerrno>
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "../vendor/imgui/imgui.h"
+
+#include "Shader.h"
+#include "Renderer.h"
+#include "UnifiedRenderer.h"
 
 
 namespace Renderer {
@@ -82,7 +84,7 @@ namespace Renderer {
 		glUseProgram(m_ShaderID);
 	}
 
-	void Shader::Unbind() const {
+	void Shader::Unbind() {
 		glUseProgram(0);
 	}
 
@@ -131,6 +133,28 @@ namespace Renderer {
 		m_UniformLocationCache[name] = location;
 
 		return location;
+	}
+
+	void ShaderManager::AddShader(Shader *shader, const char *vertexPath, const char *fragmentPath, bool loadNow)
+	{
+	  m_managedShaders.emplace_back(shader, vertexPath, fragmentPath);
+	  if(loadNow)
+	  	*shader = LoadShaderFromFiles(vertexPath, fragmentPath);
+	}
+
+	bool ShaderManager::PromptReload()
+	{
+	  if (ImGui::Button("Reload shaders")) {
+		ReloadShaders();
+		return true;
+	  }
+	  return false;
+	}
+
+	void ShaderManager::ReloadShaders()
+	{
+	  for(ManagedShader &m : m_managedShaders)
+		*m.shader = LoadShaderFromFiles(m.vertexPath, m.fragmentPath);
 	}
 
 };

@@ -208,6 +208,7 @@
     <ClInclude Include="src\Sandbox\Scenes\Test2D.h" />
     <ClInclude Include="src\Sandbox\Scenes\Test3D.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestFB.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestShaders.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestSky.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestTerrain.h" />
     <ClInclude Include="src\Utils\Debug.h" />
@@ -239,6 +240,8 @@
     <None Include="res\shaders\blit.vs" />
     <None Include="res\shaders\standard.vs" />
     <None Include="res\shaders\standard_mesh.fs" />
+    <None Include="res\shaders\test_scene.fs" />
+    <None Include="res\shaders\test_scene.vs" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
