@@ -18,8 +18,6 @@ Mesh generateMesh(const HeightMap &heightmap, glm::vec3 meshSize)
       vertex.position = { x * meshSize.x / heightmap.getMapWidth(), heightmap.getHeight(x, y) * meshSize.y, y * meshSize.z / heightmap.getMapHeight() };
       vertex.uv = { (float)x / heightmap.getMapWidth(), (float)y / heightmap.getMapHeight() };
       vertex.uv *= 10;
-      vertex.textureIndex = 2;
-      if (heightmap.getHeight(x, y) > 0.5) vertex.textureIndex = 1;
 
       glm::vec3 A, B;
           
@@ -43,14 +41,14 @@ Mesh generateMesh(const HeightMap &heightmap, glm::vec3 meshSize)
 
           A = { 0 , heightmap.getHeight(x + 1, y) - heightmap.getHeight(x, y) , 1.f / meshSize.z };
           B = { 1.f/meshSize.x  , heightmap.getHeight(x + 1, y + 1) - heightmap.getHeight(x, y), 0 };
-      
-
           glm::vec3 N = glm::cross(A, B);
 
       vertex.normal = glm::normalize(N);
 
       //std::cout << vertex.normal << std::endl;
-
+      vertex.textureIndex = 2;
+      float angle = glm::dot(vertex.normal, { 0,1,0 });
+      if ( angle < 0.2 && angle > -0.15) vertex.textureIndex = 1;
     }
   }
 

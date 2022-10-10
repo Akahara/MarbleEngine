@@ -26,7 +26,7 @@ private:
   int o = 4;
   float p = 0.3f, l = 3.18f;
   int seed = 5;
-  float strength = 1.f;
+  float strength = 1.25f;
 
   float realTime = 0;
 
@@ -58,7 +58,7 @@ public:
       "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" }
       
   {
-    m_player.setPostion({ 0.f, 30.f, 0 });
+    m_player.setPostion({ 100.f, 500.f, 0 });
     m_player.UpdateCamera();
     RegenerateTerrain();
     //m_terrainMesh.AddTexture(m_grassTexture);

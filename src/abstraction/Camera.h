@@ -39,7 +39,7 @@ namespace Renderer {
 
 		void SetPerspectiveProjection(float fovy, float aspect)
 		{
-		  SetProjection(glm::perspective(fovy, aspect, .1f, 1000.f));
+		  SetProjection(glm::perspective(fovy, aspect, .1f, 2000.f));
 		}
 
 		void SetProjection(const glm::mat4& value) {

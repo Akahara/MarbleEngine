@@ -60,6 +60,7 @@ void Mesh::Draw() const
 {
   m_VAO.Bind();
   glDrawElements(GL_TRIANGLES, m_verticesCount, GL_UNSIGNED_INT, nullptr);
+  std::cout << glGetError() << std::endl;
   m_VAO.Unbind();
 }
 
