@@ -144,7 +144,7 @@ namespace Renderer {
 	  m_managedShaders.emplace_back(shader, vertexPath, fragmentPath);
 	  if(loadNow)
 	  	*shader = LoadShaderFromFiles(vertexPath, fragmentPath);
-	  CollectTestUniforms(shader);
+	  CollectTestUniforms(shader, {});
 	}
 
 	bool ShaderManager::PromptReloadAndUI()
@@ -161,15 +161,30 @@ namespace Renderer {
 
 	void ShaderManager::ReloadShaders()
 	{
-	  m_testUniforms.clear();
+	  std::vector<TestUniform> oldUniforms = std::move(m_testUniforms); // clear uniforms
 
 	  for (ManagedShader &m : m_managedShaders) {
 		*m.shader = LoadShaderFromFiles(m.vertexPath, m.fragmentPath);
-		CollectTestUniforms(m.shader);
+		CollectTestUniforms(m.shader, oldUniforms);
 	  }
 	}
 
-	void ShaderManager::CollectTestUniforms(Shader *shader)
+	static void RestorePreviousValue(TestUniform &uniform, const std::vector<TestUniform> &previousUniforms)
+	{
+	  for (const TestUniform &u : previousUniforms) {
+		if (u.GetName() == uniform.GetName()) {
+		  switch (uniform.GetSize()) {
+		  case 1: uniform.SetValue<1>(u.GetValue()); break;
+		  case 2: uniform.SetValue<2>(u.GetValue()); break;
+		  case 3: uniform.SetValue<3>(u.GetValue()); break;
+		  case 4: uniform.SetValue<4>(u.GetValue()); break;
+		  }
+		  break;
+		}
+	  }
+	}
+
+	void ShaderManager::CollectTestUniforms(Shader *shader, const std::vector<TestUniform> &previousUniforms)
 	{
 	  // scan for "t_*" uniforms
 	  constexpr size_t bufSize = 32;
@@ -181,17 +196,34 @@ namespace Renderer {
 	  glGetProgramiv(shader->getId(), GL_ACTIVE_UNIFORMS, &uniformsCount);
 	  for (int i = 0; i < uniformsCount; i++) {
 		glGetActiveUniform(shader->getId(), (GLuint)i, bufSize, &uniformNameLength, &uniformSize, &uniformType, uniformName);
-		if (strstr(uniformName, "t_") == uniformName && uniformSize == 1 && uniformType == GL_FLOAT) {
-		  m_testUniforms.emplace_back(shader, uniformName);
+		if (strstr(uniformName, "t_") == uniformName && uniformSize == 1) {
+		  switch (uniformType) {
+		  case GL_FLOAT:      RestorePreviousValue(m_testUniforms.emplace_back(shader, uniformName, 1), previousUniforms); break;
+		  case GL_FLOAT_VEC2: RestorePreviousValue(m_testUniforms.emplace_back(shader, uniformName, 2), previousUniforms); break;
+		  case GL_FLOAT_VEC3: RestorePreviousValue(m_testUniforms.emplace_back(shader, uniformName, 3), previousUniforms); break;
+		  case GL_FLOAT_VEC4: RestorePreviousValue(m_testUniforms.emplace_back(shader, uniformName, 4), previousUniforms); break;
+		  }
 		}
 	  }
 	}
 
 	void TestUniform::RenderImGui()
 	{
-	  if (ImGui::DragFloat(m_name.c_str(), &m_value, m_speed)) {
-		m_shader->Bind();
-		m_shader->SetUniform1f(m_name, m_value);
+	  switch (m_size) {
+	  case 1: if (ImGui::DragFloat (m_name.c_str(), m_value, m_speed)) SendUniformValue(); break;
+	  case 2: if (ImGui::DragFloat2(m_name.c_str(), m_value, m_speed)) SendUniformValue(); break;
+	  case 3: if (ImGui::DragFloat3(m_name.c_str(), m_value, m_speed)) SendUniformValue(); break;
+	  case 4: if (ImGui::DragFloat4(m_name.c_str(), m_value, m_speed)) SendUniformValue(); break;
+	  }
+	}
+
+	void TestUniform::SendUniformValue()
+	{
+	  switch (m_size) {
+	  case 1: m_shader->Bind(); m_shader->SetUniform1f(m_name, m_value[0]); break;
+	  case 2: m_shader->Bind(); m_shader->SetUniform2f(m_name, m_value[0], m_value[1]); break;
+	  case 3: m_shader->Bind(); m_shader->SetUniform3f(m_name, m_value[0], m_value[1], m_value[2]); break;
+	  case 4: m_shader->Bind(); m_shader->SetUniform4f(m_name, m_value[0], m_value[1], m_value[2], m_value[3]); break;
 	  }
 	}
 

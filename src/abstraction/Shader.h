@@ -47,16 +47,33 @@ private:
 class TestUniform {
 private:
   Shader     *m_shader;
-  float       m_value;
   std::string m_name;
+  float       m_value[4];
+  int         m_size;
   float       m_speed;
 public:
-  TestUniform(Shader *shader, const char *name, float defaultValue = 0.f, float speed = .1f)
-	: m_shader(shader), m_name(name), m_value(defaultValue), m_speed(speed)
+  TestUniform(Shader *shader, const char *name, unsigned int size, float speed = .1f)
+	: m_shader(shader), m_name(name), m_value(), m_size(size), m_speed(speed)
   {
+	assert(1 <= size && size <= 4);
+  }
+
+  const float *GetValue() const { return &m_value[0]; }
+  const std::string &GetName() const { return m_name; }
+  int GetSize() const { return m_size; }
+
+  template<int N>
+  void SetValue(const float *value) {
+	assert(m_size == N);
+	for (int i = 0; i < N; i++)
+	  m_value[i] = value[i];
+	SendUniformValue();
   }
 
   void RenderImGui();
+
+private:
+  void SendUniformValue();
 };
 
 class ShaderManager {
@@ -75,7 +92,7 @@ public:
 
   void ReloadShaders();
 private:
-  void CollectTestUniforms(Shader *shader);
+  void CollectTestUniforms(Shader *shader, const std::vector<TestUniform> &previousUniforms);
 };
 
 }
