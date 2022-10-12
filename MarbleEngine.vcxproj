@@ -212,6 +212,7 @@
     <ClInclude Include="src\Sandbox\Scenes\TestShadows.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestSky.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestTerrain.h" />
+    <ClInclude Include="src\Utils\AABB.h" />
     <ClInclude Include="src\Utils\Debug.h" />
     <ClInclude Include="src\Utils\Mathf.h" />
     <ClInclude Include="src\vendor\imgui\imconfig.h" />
@@ -243,6 +244,8 @@
     <None Include="res\shaders\shadows.vs" />
     <None Include="res\shaders\shadows_testblitdepth.fs" />
     <None Include="res\shaders\standard.vs" />
+    <None Include="res\shaders\standard_color.fs" />
+    <None Include="res\shaders\standard_line.vs" />
     <None Include="res\shaders\standard_mesh.fs" />
     <None Include="res\shaders\test_scene.fs" />
     <None Include="res\shaders\test_scene.vs" />

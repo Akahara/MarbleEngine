@@ -12,7 +12,13 @@
 namespace Renderer {
 
 static struct KeepAliveResources {
-  Shader standardMeshShader;
+  Shader             standardMeshShader;
+  Shader             standardLineShader;
+  Shader             debugCubeShader;
+  Mesh               debugCubeMesh;
+  VertexArray        lineVAO;
+  IndexBufferObject  lineIBO;
+  VertexBufferObject emptyVBO; // used by the line vao
 } *s_keepAliveResources;
 
 
@@ -149,8 +155,19 @@ void Clear()
 
 void Init()
 {
+  VertexBufferLayout emptyLayout;
   s_keepAliveResources = new KeepAliveResources;
+
   s_keepAliveResources->standardMeshShader = LoadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_mesh.fs");
+  s_keepAliveResources->standardLineShader = LoadShaderFromFiles("res/shaders/standard_line.vs", "res/shaders/standard_color.fs");
+  
+  s_keepAliveResources->lineIBO = IndexBufferObject({ 0, 1 });
+  s_keepAliveResources->lineVAO.addBuffer(s_keepAliveResources->emptyVBO, emptyLayout, s_keepAliveResources->lineIBO);
+
+  s_keepAliveResources->debugCubeMesh = CreateCubeMesh();
+  s_keepAliveResources->debugCubeShader = LoadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_color.fs");
+
+  VertexArray::Unbind();
 }
 
 void Shutdown()
@@ -167,6 +184,29 @@ void RenderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm:
   s_keepAliveResources->standardMeshShader.SetUniformMat4f("u_M", M);
   s_keepAliveResources->standardMeshShader.SetUniformMat4f("u_VP", VP);
   mesh.Draw();
+}
+
+void RenderDebugLine(const glm::mat4 &VP, glm::vec3 from, glm::vec3 to, const glm::vec4 &color)
+{
+  s_keepAliveResources->lineVAO.Bind();
+  s_keepAliveResources->standardLineShader.Bind();
+  s_keepAliveResources->standardLineShader.SetUniform3f("u_from", from);
+  s_keepAliveResources->standardLineShader.SetUniform3f("u_to", to);
+  s_keepAliveResources->standardLineShader.SetUniform4f("u_color", color);
+  s_keepAliveResources->standardLineShader.SetUniformMat4f("u_VP", VP);
+  glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, nullptr);
+}
+
+void RenderDebugCube(const glm::mat4 &VP, glm::vec3 position, glm::vec3 size, const glm::vec4 &color)
+{
+  glm::mat4 M(1.f);
+  M = glm::translate(M, position);
+  M = glm::scale(M, size);
+  s_keepAliveResources->debugCubeShader.Bind();
+  s_keepAliveResources->debugCubeShader.SetUniform4f("u_color", color);
+  s_keepAliveResources->debugCubeShader.SetUniformMat4f("u_M", M);
+  s_keepAliveResources->debugCubeShader.SetUniformMat4f("u_VP", VP);
+  s_keepAliveResources->debugCubeMesh.Draw();
 }
 
 BlitPass::BlitPass()

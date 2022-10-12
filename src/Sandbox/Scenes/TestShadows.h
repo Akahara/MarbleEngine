@@ -3,12 +3,20 @@
 #include "../Scene.h"
 #include "../../abstraction/Renderer.h"
 #include "../../abstraction/Cubemap.h"
+#include "../../abstraction/Window.h"
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../World/Player.h"
 #include "../../Utils/Debug.h"
 
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
+
+class Shadows {
+private:
+  Renderer::Camera m_camera;
+public:
+
+};
 
 class TestShadowsScene : public Scene {
 private:
@@ -30,7 +38,7 @@ private:
   Renderer::BlitPass m_depthTestBlitPass;
   bool               m_dbgDrawDepthBuffer = false;
 
-  bool               m_animateSun = true;
+  bool               m_animateSun = false;
 public:
   TestShadowsScene()
     : m_skybox{
@@ -71,6 +79,32 @@ public:
     m_shader.SetUniformMat4f("u_M", glm::mat4(1));
     m_shader.SetUniformMat4f("u_VP", camera.getViewProjectionMatrix());
     m_mesh1.Draw();
+
+    if (!depthPass) {
+      glm::vec3 L = glm::normalize(glm::cross(m_sunDir, m_sunUp));
+      glm::vec3 R = glm::normalize(glm::cross(m_sunDir, L));
+      glm::vec3 F = glm::normalize(m_sunDir);
+      Renderer::RenderDebugLine(camera.getViewProjectionMatrix(), m_sunPos, m_sunPos + F * m_sunFar, { 1.f, 0.f, .0f, 1.f }); // dir
+      Renderer::RenderDebugLine(camera.getViewProjectionMatrix(), m_sunPos, m_sunPos + m_sunUp, { 1.f, 1.f, .3f, 1.f }); // up
+      glm::vec3 p1 = m_sunPos + L * m_sunCamSize.x + R * m_sunCamSize.y;
+      glm::vec3 p2 = m_sunPos + L * m_sunCamSize.x - R * m_sunCamSize.y;
+      glm::vec3 p3 = m_sunPos - L * m_sunCamSize.x - R * m_sunCamSize.y;
+      glm::vec3 p4 = m_sunPos - L * m_sunCamSize.x + R * m_sunCamSize.y;
+      Renderer::RenderDebugLine(camera.getViewProjectionMatrix(), m_sunPos, m_sunPos + L, { .5f, 1.f, .5f, 1.f });
+      Renderer::RenderDebugLine(camera.getViewProjectionMatrix(), m_sunPos, m_sunPos + R, { 1.f, .5f, .5f, 1.f });
+      Renderer::RenderDebugLine(camera.getViewProjectionMatrix(), p1, p1 + F * m_sunFar, { .5f, .5f, .5f, 1.f });
+      Renderer::RenderDebugLine(camera.getViewProjectionMatrix(), p2, p2 + F * m_sunFar, { .5f, .5f, .5f, 1.f });
+      Renderer::RenderDebugLine(camera.getViewProjectionMatrix(), p3, p3 + F * m_sunFar, { .5f, .5f, .5f, 1.f });
+      Renderer::RenderDebugLine(camera.getViewProjectionMatrix(), p4, p4 + F * m_sunFar, { .5f, .5f, .5f, 1.f });
+      for (float z = m_sunNear; z < m_sunFar; z += 5) {
+        Renderer::RenderDebugLine(camera.getViewProjectionMatrix(), p1 + z * F, p2 + z * F, { .5f, .5f, .5f, 1.f });
+        Renderer::RenderDebugLine(camera.getViewProjectionMatrix(), p2 + z * F, p3 + z * F, { .5f, .5f, .5f, 1.f });
+        Renderer::RenderDebugLine(camera.getViewProjectionMatrix(), p3 + z * F, p4 + z * F, { .5f, .5f, .5f, 1.f });
+        Renderer::RenderDebugLine(camera.getViewProjectionMatrix(), p4 + z * F, p1 + z * F, { .5f, .5f, .5f, 1.f });
+      }
+      Renderer::RenderDebugCube(camera.getViewProjectionMatrix(), m_sunPos, { .1f, .1f, .1f });
+    }
+
   }
 
   void UpdateSunCamera()

@@ -84,6 +84,7 @@
     <ClInclude Include="src\Sandbox\Scenes\TestFB.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestShaders.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestShadows.h" />
+    <ClInclude Include="src\Utils\AABB.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
@@ -100,5 +101,7 @@
     <None Include="res\shaders\shadows.fs" />
     <None Include="res\shaders\shadows.vs" />
     <None Include="res\shaders\shadows_testblitdepth.fs" />
+    <None Include="res\shaders\standard_line.vs" />
+    <None Include="res\shaders\standard_color.fs" />
   </ItemGroup>
 </Project>

@@ -7687,8 +7687,8 @@ static void ShowExampleAppCustomRendering(bool* p_open)
             ImGui::InvisibleButton("canvas", canvas_sz, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
             const bool is_hovered = ImGui::IsItemHovered(); // Hovered
             const bool is_active = ImGui::IsItemActive();   // Held
-            const ImVec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y); // Lock scrolled origin
-            const ImVec2 mouse_pos_in_canvas(io.MousePos.x - origin.x, io.MousePos.y - origin.y);
+            const ImVec2 m_origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y); // Lock scrolled origin
+            const ImVec2 mouse_pos_in_canvas(io.MousePos.x - m_origin.x, io.MousePos.y - m_origin.y);
 
             // Add first and second point
             if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
@@ -7738,7 +7738,7 @@ static void ShowExampleAppCustomRendering(bool* p_open)
                     draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
             }
             for (int n = 0; n < points.Size; n += 2)
-                draw_list->AddLine(ImVec2(origin.x + points[n].x, origin.y + points[n].y), ImVec2(origin.x + points[n + 1].x, origin.y + points[n + 1].y), IM_COL32(255, 255, 0, 255), 2.0f);
+                draw_list->AddLine(ImVec2(m_origin.x + points[n].x, m_origin.y + points[n].y), ImVec2(m_origin.x + points[n + 1].x, m_origin.y + points[n + 1].y), IM_COL32(255, 255, 0, 255), 2.0f);
             draw_list->PopClipRect();
 
             ImGui::EndTabItem();

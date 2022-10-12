@@ -19,7 +19,7 @@ public:
   VertexArray(VertexArray &&moved) noexcept;
 
   void Bind() const;
-  void Unbind() const;
+  static void Unbind();
   void Delete();
 
   void addBuffer(const VertexBufferObject &vb, const VertexBufferLayout &layout, const IndexBufferObject &ib);
