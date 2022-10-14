@@ -12,7 +12,6 @@ static const VertexBufferLayout &getVertexBufferLayout()
     l.push<float>(3); // position
     l.push<float>(2); // uv
     l.push<float>(3); // normal
-    l.push<float>(1); // textureIndex
     return l;
   }();
   return layout;
@@ -60,7 +59,6 @@ void Mesh::Draw() const
 {
   m_VAO.Bind();
   glDrawElements(GL_TRIANGLES, m_verticesCount, GL_UNSIGNED_INT, nullptr);
-  std::cout << glGetError() << std::endl;
   m_VAO.Unbind();
 }
 

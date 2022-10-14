@@ -1,13 +1,25 @@
+#define GL_ENABLE_EXPERIMENTAL
 #include "MeshGenerator.h"
-#include "../../Utils/Mathf.h"
-#include <glm/geometric.hpp>
-#include <iostream>
+
+
 
 using namespace Renderer;
 
 namespace TerrainMeshGenerator {
 
-Mesh generateMesh(const HeightMap &heightmap, glm::vec3 meshSize)
+  
+
+Chunk generateChunk(const HeightMapView& heightmap) {
+
+
+    Chunk chunk;
+    chunk.mesh = generateMesh(heightmap);
+    return chunk;
+
+}
+
+// TODO : concreteMap
+Mesh generateMesh(const HeightMap &heightmap )
 {
   std::vector<Vertex> vertices;
   std::vector<unsigned int> indices;
@@ -15,40 +27,16 @@ Mesh generateMesh(const HeightMap &heightmap, glm::vec3 meshSize)
   for (int y = 0; y < (int)heightmap.getMapHeight(); y++) {
     for (int x = 0; x < (int)heightmap.getMapWidth(); x++) {
       Vertex &vertex = vertices.emplace_back();
-      vertex.position = { x * meshSize.x / heightmap.getMapWidth(), heightmap.getHeight(x, y) * meshSize.y, y * meshSize.z / heightmap.getMapHeight() };
+      vertex.position = { x , heightmap.getHeight(x, y) * 100, y };
       vertex.uv = { (float)x / heightmap.getMapWidth(), (float)y / heightmap.getMapHeight() };
       vertex.uv *= 10;
 
-      glm::vec3 A, B;
-          
-          // point en bas à gauche d'un quad
-          // on veut donc calculer les vecteur A et B qui correspondent à p2-p1 et p3-p1
-
-          // avec p2 = {p1.x, heightmap(x, y+1), p1.y + ystep }
-          // avec p3 = {p1.x + xstep, heightmap(x+1, y), p1.y }
-
-          // on fait ensuite A = p2-p1 = {0, heightmap(x, y+1) - heightmap(x,y), ystep}
-          // on fait ensuite B = p3-p1 = {xstep, heightmap(x+1, y) - heightmap(x,y), 0}
-
-
-          /*
-            Ensemble Normal.x vers (multiplier U.y à coté de V.z) moins (multiply U.z by V.y)
-            Set Normal.y to (multiply U.z by V.x) minus (multiply U.x by V.z)
-            Set Normal.z to (multiply U.x by V.y) minus (multiply U.y by V.x)
-
-
-          1*/
-
-          A = { 0 , heightmap.getHeight(x + 1, y) - heightmap.getHeight(x, y) , 1.f / meshSize.z };
-          B = { 1.f/meshSize.x  , heightmap.getHeight(x + 1, y + 1) - heightmap.getHeight(x, y), 0 };
-          glm::vec3 N = glm::cross(A, B);
+      glm::vec3 A, B;      
+      A = { 0 , heightmap.getHeight(x + 1, y) - heightmap.getHeight(x, y) , 1.f / heightmap.getMapHeight()};
+      B = { 1.f/ heightmap.getMapWidth()  , heightmap.getHeight(x + 1, y + 1) - heightmap.getHeight(x, y), 0};
+      glm::vec3 N = glm::cross(A, B);
 
       vertex.normal = glm::normalize(N);
-
-      //std::cout << vertex.normal << std::endl;
-      vertex.textureIndex = 2;
-      float angle = glm::dot(vertex.normal, { 0,1,0 });
-      if ( angle < 0.2 && angle > -0.15) vertex.textureIndex = 1;
     }
   }
 
@@ -71,5 +59,71 @@ Mesh generateMesh(const HeightMap &heightmap, glm::vec3 meshSize)
   return mesh;
 }
 
+// TODO ; enelver ca
+Mesh generateMesh(const HeightMapView& heightmap )
+{
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+
+    for (int y = 0; y < (int)heightmap.getMapHeight(); y++) {
+        for (int x = 0; x < (int)heightmap.getMapWidth(); x++) {
+            Vertex& vertex = vertices.emplace_back();
+            vertex.position = { x , heightmap.getHeight(x, y) * 0, y };
+            vertex.uv = { (float)x / (heightmap.getMapWidth()*8), (float)y / heightmap.getMapHeight()/8 };
+            vertex.uv *= 10;
+
+
+            glm::vec3 A, B;
+            A = { 0 , heightmap.getHeight(x + 1, y) - heightmap.getHeight(x, y) , 1.f / heightmap.getMapHeight() };
+            B = { 1.f / heightmap.getMapWidth()  , heightmap.getHeight(x + 1, y + 1) - heightmap.getHeight(x, y), 0 };
+            glm::vec3 N = glm::cross(A, B);
+
+            vertex.normal = glm::normalize(N);
+        }
+    }
+
+    for (int x = 0; x < (int)heightmap.getMapWidth() - 1; x++) {
+        for (int y = 0; y < (int)heightmap.getMapHeight() - 1; y++) {
+            unsigned int a1 = y * heightmap.getMapWidth() + x;
+            unsigned int a2 = y * heightmap.getMapWidth() + x + 1;
+            unsigned int a3 = (y + 1) * heightmap.getMapWidth() + x;
+            unsigned int a4 = (y + 1) * heightmap.getMapWidth() + x + 1;
+            indices.push_back(a1);
+            indices.push_back(a3);
+            indices.push_back(a2);
+            indices.push_back(a2);
+            indices.push_back(a3);
+            indices.push_back(a4);
+        }
+    }
+
+    Mesh mesh{ vertices, indices };
+    return mesh;
+}
+
+
+Terrain generateTerrain(float* noiseMap, float w, float h, unsigned int chunkSize) {
+
+    Terrain terrain;
+    terrain.heightMap.setHeights(w, h, noiseMap);
+    
+    terrain.chunkSize = chunkSize;
+
+    int numberOfChunksSide = std::min(terrain.heightMap.getMapWidth() / terrain.chunkSize, terrain.heightMap.getMapHeight() / terrain.chunkSize);
+    int numberOfChunks = numberOfChunksSide * numberOfChunksSide;
+
+    for (unsigned int i = 0; i < numberOfChunks; i++) { // todo calculer le nombre de chunks
+
+        glm::vec2 chunk_position = { i % numberOfChunksSide , i / numberOfChunksSide  };
+
+        HeightMapView hmv = HeightMapView(terrain.heightMap, chunk_position, glm::vec2(chunkSize));
+        Chunk chunk = generateChunk(hmv);
+        terrain.chunksPosition.insert({ chunk_position, std::move(chunk) }); // todo calculer la position
+    }
+
+
+
+    return terrain;
+}
 
 }

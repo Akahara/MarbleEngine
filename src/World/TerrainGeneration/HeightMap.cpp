@@ -12,12 +12,12 @@ HeightMap::HeightMap()
 
 HeightMap::~HeightMap()
 {
-  delete m_heightValues;
+  delete[] m_heightValues;
 }
 
 void HeightMap::setHeights(unsigned int width, unsigned int height, float *heights)
 {
-  delete m_heightValues;
+  delete[] m_heightValues;
   m_width = width;
   m_height = height;
   m_heightValues = heights;

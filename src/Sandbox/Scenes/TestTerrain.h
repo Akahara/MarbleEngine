@@ -33,9 +33,12 @@ private:
 
   Renderer::Mesh m_cubeMesh;
   Renderer::Mesh m_waterMesh;
+  Renderer::Mesh m_testMesh;
 
   Renderer::Texture m_rockTexture = Renderer::Texture( "res/textures/rock.jpg" );
   Renderer::Texture m_grassTexture = Renderer::Texture( "res/textures/grass5.jpg" );
+
+  TerrainMeshGenerator::Terrain terrain;
 
   struct Sun {
 
@@ -72,13 +75,17 @@ public:
     GLint samplers[8] = { 0,1,2,3,4,5,6,7 };
     Renderer::getShader().SetUniform1iv("u_Textures2D", 8, samplers);
     Renderer::getShader().SetUniform1f("u_Strenght", strength);
+    m_testMesh = Renderer::LoadMeshFromFile("res/meshes/cow.obj");
+    float* noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
+    terrain = TerrainMeshGenerator::generateTerrain(noiseMap, w, h, 8);
+
   }
 
   void RegenerateTerrain()
   {
     float *noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
     m_heightmap.setHeights(w, h, noiseMap);
-    m_terrainMesh = TerrainMeshGenerator::generateMesh(m_heightmap, { w, terrainHeight, h });
+    terrain = TerrainMeshGenerator::generateTerrain(noiseMap, w, h, 8);
     m_terrainTexture = MapUtilities::genTextureFromHeightmap(m_heightmap);
   }
 
@@ -94,7 +101,6 @@ public:
 
       //std::cout << (sin(realTime) + 1) / 2 << std::endl;
       Renderer::getShader().Bind();
-      Renderer::getShader().SetUniform1f("delta", (sin(realTime)+1)/2);
       Renderer::getShader().Unbind();
     if (!m_playerIsFlying) {
       glm::vec3 pos = m_player.GetPosition();
@@ -108,15 +114,27 @@ public:
   {
       //std::cout << "render step" << std::endl;
     Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
-    Renderer::RenderMesh({}, { 10.f, 5.f, 10.f }, m_terrainMesh, m_player.GetCamera().getViewProjectionMatrix());
+    //Renderer::RenderMesh({}, { 10.f, 5.f, 10.f }, m_terrainMesh, m_player.GetCamera().getViewProjectionMatrix());
+    static float t = 0.f;
+    t += 0.03f;
+    int i  = 0;
+    for (const auto& [position, chunk] : terrain.chunksPosition) {
+        i++;
+        glm::uvec2 a = glm::uvec2{ position.x, position.y };
+        //std::cout << a.x << " " << a.y << std::endl;
+        if ((a.x + a.y) %2 == 0)
+            Renderer::RenderMesh(glm::vec3{ position.x , 0, position.y } * 16.F, glm::vec3(2), chunk.mesh, m_player.GetCamera().getViewProjectionMatrix());
+    }
     Renderer::RenderMesh(m_Sun.position, { 5,5,5 }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix());
+    Renderer::RenderMesh(m_Sun.position, { 100,100,100 }, m_testMesh, m_player.GetCamera().getViewProjectionMatrix());
 
 
     Renderer::getShader().Bind();
     Renderer::getShader().SetUniform3f("u_SunPos", m_Sun.position.x, m_Sun.position.y, m_Sun.position.z);
+    Renderer::getShader().Unbind();
 
-    
-    Renderer::RenderMesh(m_Water.position, { 100, 0, 100 }, m_waterMesh, m_player.GetCamera().getViewProjectionMatrix());
+
+
   }
 
   void OnImGuiRender() override

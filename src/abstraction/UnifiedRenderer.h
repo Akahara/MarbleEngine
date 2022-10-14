@@ -15,6 +15,8 @@ Shader LoadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentP
 Mesh CreateCubeMesh();
 Mesh CreatePlaneMesh();
 
+Mesh LoadMeshFromFile(const fs::path& objPath);
+
 void Init();
 void Shutdown();
 
