@@ -26,7 +26,8 @@ public:
   void AssertIsValid() const;
 
   static void SetViewport(unsigned int width, unsigned int height);
-  static void SetViewport(const Texture &texture);
+  static void SetViewportToTexture(const Texture &texture);
+  static void SetViewportToWindow();
 };
 
 }

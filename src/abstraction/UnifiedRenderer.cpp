@@ -209,6 +209,14 @@ void RenderDebugCube(const glm::mat4 &VP, glm::vec3 position, glm::vec3 size, co
   s_keepAliveResources->debugCubeMesh.Draw();
 }
 
+void RenderDebugAxis(const glm::mat4 &VP)
+{
+  RenderDebugLine(VP, { 0, 0, 0 }, { 10, 0, 0 }, { 1.f, 0.f, 0.f, 1.f }); // x red
+  RenderDebugLine(VP, { 0, 0, 0 }, { 0, 10, 0 }, { 0.f, 1.f, 0.f, 1.f }); // y green
+  RenderDebugLine(VP, { 0, 0, 0 }, { 0, 0, 10 }, { 0.f, 0.f, 1.f, 1.f }); // z blue
+}
+
+
 BlitPass::BlitPass()
   : BlitPass("res/shaders/blit.fs")
 {

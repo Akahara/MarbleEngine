@@ -7,9 +7,14 @@
 
 class Test2DScene : public Scene {
 private:
-  Renderer::Camera m_Camera{ -1.0f, 1.0f, -1.0f, 1.0f };
+  Renderer::Camera m_Camera;
   float            m_time = 0;
 public:
+  Test2DScene()
+  {
+    m_Camera.setProjection(Renderer::OrthographicProjection{ -1.0f, 1.0f, -1.0f, 1.0f });
+  }
+
   void Step(float delta) override
   {
     m_time += delta;

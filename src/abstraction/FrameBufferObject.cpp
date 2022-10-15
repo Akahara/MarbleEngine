@@ -3,6 +3,8 @@
 #include <glad/glad.h>
 #include <assert.h>
 
+#include "Window.h"
+
 namespace Renderer {
 
 FrameBufferObject::FrameBufferObject()
@@ -45,7 +47,6 @@ void FrameBufferObject::Delete()
 {
   glDeleteFramebuffers(1, &m_RenderID);
   glDeleteTextures(1, &m_depthBufferID);
-  //glDeleteRenderbuffers(1, &m_depthBufferID);
   m_RenderID = 0;
   m_depthBufferID = 0;
 }
@@ -77,9 +78,14 @@ void FrameBufferObject::SetViewport(unsigned int width, unsigned int height)
   glViewport(0, 0, width, height);
 }
 
-void FrameBufferObject::SetViewport(const Texture &texture)
+void FrameBufferObject::SetViewportToTexture(const Texture &texture)
 {
   glViewport(0, 0, texture.GetWidth(), texture.GetHeight());
+}
+
+void FrameBufferObject::SetViewportToWindow()
+{
+  glViewport(0, 0, Window::getWinWidth(), Window::getWinHeight());
 }
 
 }
