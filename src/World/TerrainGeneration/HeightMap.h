@@ -1,5 +1,5 @@
 #pragma once
-
+#include <memory>
 #include "../../Utils/Mathf.h"
 
 
@@ -13,8 +13,14 @@ private:
 public:
 
 
-  HeightMap();
-  ~HeightMap();
+	HeightMap() : 
+		m_heightValues(nullptr),
+		m_width(0),
+	  m_height(0) {
+	}
+	~HeightMap() {
+
+  }
 
   HeightMap(HeightMap&& moved) {
 

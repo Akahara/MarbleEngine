@@ -20,15 +20,16 @@ private:
   Renderer::Texture m_terrainTexture;
   Renderer::Mesh    m_terrainMesh;
   bool              m_playerIsFlying = true;
-  int w = 100, h = 100;
+  int w = 200, h = 200;
   float scale = 27.6f;
-  float terrainHeight = 60.f;
+  float terrainHeight = 120.f;
   int o = 4;
   float p = 0.3f, l = 3.18f;
   int seed = 5;
   float strength = 1.25f;
 
   float realTime = 0;
+  float* noiseMap;
 
 
   Renderer::Mesh m_cubeMesh;
@@ -75,31 +76,25 @@ public:
     GLint samplers[8] = { 0,1,2,3,4,5,6,7 };
     Renderer::getShader().SetUniform1iv("u_Textures2D", 8, samplers);
     Renderer::getShader().SetUniform1f("u_Strenght", strength);
-    m_testMesh = Renderer::LoadMeshFromFile("res/meshes/cow.obj");
-    float* noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
+    m_testMesh = Renderer::LoadMeshFromFile("res/meshes/house.obj");
+    noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
     terrain = TerrainMeshGenerator::generateTerrain(noiseMap, w, h, 8);
 
   }
 
   void RegenerateTerrain()
   {
-    float *noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
+    free(noiseMap);
+    noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
     m_heightmap.setHeights(w, h, noiseMap);
     terrain = TerrainMeshGenerator::generateTerrain(noiseMap, w, h, 8);
-    m_terrainTexture = MapUtilities::genTextureFromHeightmap(m_heightmap);
+    //m_terrainTexture = MapUtilities::genTextureFromHeightmap(m_heightmap);
   }
 
   void Step(float delta) override
   {
       realTime += delta;
-      //std::cout << "terrain step" << std::endl;
       m_player.Step(delta);
-      /*
-    m_Sun.position.x = 250 * cos(10 * delta);
-    m_Sun.position.z = 250 * sin(10 * delta);
-      */
-
-      //std::cout << (sin(realTime) + 1) / 2 << std::endl;
       Renderer::getShader().Bind();
       Renderer::getShader().Unbind();
     if (!m_playerIsFlying) {
@@ -112,23 +107,15 @@ public:
 
   void OnRender() override
   {
-      //std::cout << "render step" << std::endl;
     Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
-    //Renderer::RenderMesh({}, { 10.f, 5.f, 10.f }, m_terrainMesh, m_player.GetCamera().getViewProjectionMatrix());
-    static float t = 0.f;
-    t += 0.03f;
+
+    // TODO : fix chunkSize
     int i  = 0;
     for (const auto& [position, chunk] : terrain.chunksPosition) {
-        i++;
-        glm::uvec2 a = glm::uvec2{ position.x, position.y };
-        //std::cout << a.x << " " << a.y << std::endl;
-        if ((a.x + a.y) %2 == 0)
-            Renderer::RenderMesh(glm::vec3{ position.x , 0, position.y } * 16.F, glm::vec3(2), chunk.mesh, m_player.GetCamera().getViewProjectionMatrix());
+           Renderer::RenderMesh(glm::vec3{ position.x , 300.f, position.y}, glm::vec3(1), chunk.mesh, m_player.GetCamera().getViewProjectionMatrix());
     }
     Renderer::RenderMesh(m_Sun.position, { 5,5,5 }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix());
-    Renderer::RenderMesh(m_Sun.position, { 100,100,100 }, m_testMesh, m_player.GetCamera().getViewProjectionMatrix());
-
-
+    //Renderer::RenderMesh(m_Sun.position, { 100,100,100 }, m_testMesh, m_player.GetCamera().getViewProjectionMatrix());
     Renderer::getShader().Bind();
     Renderer::getShader().SetUniform3f("u_SunPos", m_Sun.position.x, m_Sun.position.y, m_Sun.position.z);
     Renderer::getShader().Unbind();

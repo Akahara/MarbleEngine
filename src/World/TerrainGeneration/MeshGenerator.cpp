@@ -68,7 +68,7 @@ Mesh generateMesh(const HeightMapView& heightmap )
     for (int y = 0; y < (int)heightmap.getMapHeight(); y++) {
         for (int x = 0; x < (int)heightmap.getMapWidth(); x++) {
             Vertex& vertex = vertices.emplace_back();
-            vertex.position = { x , heightmap.getHeight(x, y) * 0, y };
+            vertex.position = { x , heightmap.getHeight(x, y) * 64.f, y };
             vertex.uv = { (float)x / (heightmap.getMapWidth()*8), (float)y / heightmap.getMapHeight()/8 };
             vertex.uv *= 10;
 
@@ -79,6 +79,10 @@ Mesh generateMesh(const HeightMapView& heightmap )
             glm::vec3 N = glm::cross(A, B);
 
             vertex.normal = glm::normalize(N);
+
+            vertex.texId = 1;
+            if (glm::dot(vertex.normal, glm::vec3{ 0.f,1.f,0.f }) > 0.9) vertex.texId = 2;
+
         }
     }
 

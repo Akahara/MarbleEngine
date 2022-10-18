@@ -9,7 +9,7 @@ class Scene {
 public:
   virtual ~Scene() = default;
 
-  virtual void Step(float delta) = 0;
+  virtual void Step(float delta) = 0; // OnUpdate
   virtual void OnRender() = 0;
   virtual void OnImGuiRender() = 0;
 };

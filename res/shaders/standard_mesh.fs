@@ -5,7 +5,7 @@ out vec4 color;
 in vec2 o_uv;
 in vec3 o_normal;
 in vec3 o_pos;
-
+in float o_texId;
 
 uniform vec3 u_SunPos;
 uniform float u_Strenght;
@@ -19,7 +19,7 @@ vec3 sun_dir = normalize(u_SunPos);
 
 void main()
 {
-    u_TexID = 1;
-    color = texture(u_Textures2D[u_TexID], o_uv);
+    int index = int(o_texId);
+    color = texture(u_Textures2D[index], o_uv);
     color.rgb += vec3(0.09,0.09,0.09) * 0.2 + vec3(.2f, .2f, 0.f) * dot(normalize(o_normal), normalize(u_SunPos)) * u_Strenght;
 }
