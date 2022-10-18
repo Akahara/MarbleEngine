@@ -111,6 +111,7 @@ public:
 
     // TODO : fix chunkSize
     int i  = 0;
+    m_terrainTexture.Bind();
     for (const auto& [position, chunk] : terrain.chunksPosition) {
            Renderer::RenderMesh(glm::vec3{ position.x , 300.f, position.y}, glm::vec3(1), chunk.mesh, m_player.GetCamera().getViewProjectionMatrix());
     }

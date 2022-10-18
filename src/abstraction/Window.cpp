@@ -59,7 +59,7 @@ void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
     << " message  = " << message
     << std::endl;
   if (type != GL_DEBUG_TYPE_PERFORMANCE) {
-//      __debugbreak();
+      __debugbreak();
   }
   
   // add a breakpoint at the end of the function to catch opengl errors
