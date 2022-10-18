@@ -1,7 +1,8 @@
 #include "Mesh.h"
 
-#include <glad/glad.h>
 #include <iostream>
+
+#include <glad/glad.h>
 
 namespace Renderer {
 
@@ -30,7 +31,7 @@ Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> 
   : m_VBO(vertices.data(), sizeof(Vertex) * vertices.size()),
   m_IBO(indices.data(), indices.size()),
   m_VAO(),
-  m_verticesCount(indices.size())
+  m_verticesCount((unsigned int)indices.size())
 {
   m_VAO.addBuffer(m_VBO, getVertexBufferLayout(), m_IBO);
   m_VAO.Unbind();

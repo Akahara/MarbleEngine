@@ -7,6 +7,7 @@
 
 #include "src/abstraction/Window.h"
 #include "src/abstraction/Inputs.h"
+#include "src/abstraction/Shader.h"
 #include "src/Sandbox/Scene.h"
 #include "src/World/Sky.h"
 #include "src/Utils/Debug.h"
@@ -14,6 +15,9 @@
 #include "src/Sandbox/Scenes/Test3D.h"
 #include "src/Sandbox/Scenes/TestSky.h"
 #include "src/Sandbox/Scenes/TestTerrain.h"
+#include "src/Sandbox/Scenes/TestFB.h"
+#include "src/Sandbox/Scenes/TestShaders.h"
+#include "src/Sandbox/Scenes/TestShadows.h"
 
 inline long long nanoTime()
 {
@@ -41,11 +45,14 @@ int main()
     Renderer::Init();
     SceneManager::Init();
 
-    SceneManager::RegisterScene<TestScene>("Test");
+    SceneManager::RegisterScene<Test2DScene>("Test");
     SceneManager::RegisterScene<Test3DScene>("Test3D");
     SceneManager::RegisterScene<TestTerrainScene>("Terrain");
     SceneManager::RegisterScene<TestSkyScene>("Sky");
-    SceneManager::SwitchToScene(3);
+    SceneManager::RegisterScene<TestFBScene>("Framebuffer");
+    SceneManager::RegisterScene<TestShadersScene>("Shaders");
+    SceneManager::RegisterScene<TestShadowsScene>("Shadows");
+    SceneManager::SwitchToScene(7);
 
     //===========================================================//
 
@@ -55,7 +62,6 @@ int main()
 
     while (!Window::shouldClose()) {
 
-        Renderer::Renderer::Clear();
         auto nextTime = nanoTime();
         auto delta = nextTime - firstTime;
         float realDelta = delta / 1E9f;
@@ -73,6 +79,8 @@ int main()
         SceneManager::OnRender();
         SceneManager::OnImGuiRender();
         DebugWindow::OnImGuiRender();
+
+        Renderer::Shader::Unbind(); // unbind shaders before ImGui's new frame, so it won't try to restore a shader that has been deleted
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

@@ -60,7 +60,6 @@ public:
       "res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
       "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
       "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" }
-      
   {
     m_player.setPostion({ 100.f, 500.f, 0 });
     m_player.UpdateCamera();
@@ -100,13 +99,14 @@ public:
     if (!m_playerIsFlying) {
       glm::vec3 pos = m_player.GetPosition();
       pos.y = m_heightmap.getHeightLerp(pos.x, pos.z) + 1.f;
-      m_player.setPostion(pos);
+      m_player.SetPostion(pos);
       m_player.UpdateCamera();
     }
   }
 
   void OnRender() override
   {
+    Renderer::Renderer::Clear();
     Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
 
     // TODO : fix chunkSize
@@ -127,7 +127,6 @@ public:
 
   void OnImGuiRender() override
   {
-    //std::cout << "imgui step" << std::endl;
     if (ImGui::SliderInt("Width", &w, 10, 2000) + ImGui::SliderInt("Height", &h, 10, 2000) +
         ImGui::SliderFloat("Scale", &scale, 0, 50) + ImGui::SliderInt("Number of octaves", &o, 0, 10) +
         ImGui::SliderFloat("persistence", &p, 0, 1) + ImGui::SliderFloat("lacunarity", &l, 0, 50) +

@@ -150,7 +150,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="glad.c" />
+    <ClCompile Include="src\vendor\glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\abstraction\Camera.cpp" />
     <ClCompile Include="src\abstraction\Cubemap.cpp" />
@@ -188,7 +188,6 @@
     <ClInclude Include="Libraries\include\GLFW\glfw3.h" />
     <ClInclude Include="Libraries\include\GLFW\glfw3native.h" />
     <ClInclude Include="Libraries\include\KHR\khrplatform.h" />
-    <ClInclude Include="Libraries\include\stb\stb_image.h" />
     <ClInclude Include="src\abstraction\BufferObject.h" />
     <ClInclude Include="src\abstraction\Camera.h" />
     <ClInclude Include="src\abstraction\Cubemap.h" />
@@ -198,8 +197,7 @@
     <ClInclude Include="src\abstraction\Mesh.h" />
     <ClInclude Include="src\abstraction\Renderer.h" />
     <ClInclude Include="src\abstraction\Shader.h" />
-    <ClInclude Include="src\abstraction\stb_image.h" />
-    <ClInclude Include="src\abstraction\stb_image_write.h" />
+    <ClInclude Include="Libraries\include\stb\stb_image_write.h" />
     <ClInclude Include="src\abstraction\Texture.h" />
     <ClInclude Include="src\abstraction\TextureAtlas.h" />
     <ClInclude Include="src\abstraction\UnifiedRenderer.h" />
@@ -209,8 +207,12 @@
     <ClInclude Include="src\Sandbox\Scene.h" />
     <ClInclude Include="src\Sandbox\Scenes\Test2D.h" />
     <ClInclude Include="src\Sandbox\Scenes\Test3D.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestFB.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestShaders.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestShadows.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestSky.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestTerrain.h" />
+    <ClInclude Include="src\Utils\AABB.h" />
     <ClInclude Include="src\Utils\Debug.h" />
     <ClInclude Include="src\Utils\Mathf.h" />
     <ClInclude Include="src\vendor\imgui\imconfig.h" />
@@ -236,8 +238,17 @@
   <ItemGroup>
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
+    <None Include="res\shaders\blit.fs" />
+    <None Include="res\shaders\blit.vs" />
+    <None Include="res\shaders\shadows.fs" />
+    <None Include="res\shaders\shadows.vs" />
+    <None Include="res\shaders\shadows_testblitdepth.fs" />
     <None Include="res\shaders\standard.vs" />
+    <None Include="res\shaders\standard_color.fs" />
+    <None Include="res\shaders\standard_line.vs" />
     <None Include="res\shaders\standard_mesh.fs" />
+    <None Include="res\shaders\test_scene.fs" />
+    <None Include="res\shaders\test_scene.vs" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />

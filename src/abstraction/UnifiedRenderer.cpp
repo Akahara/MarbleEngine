@@ -5,10 +5,21 @@
 #include <sstream>
 #include <iostream>
 
+#include <glm/glm.hpp>
+#include <glm/ext/matrix_transform.hpp>
+
+#include "Window.h"
+
 namespace Renderer {
 
 static struct KeepAliveResources {
-  Shader standardMeshShader;
+  Shader             standardMeshShader;
+  Shader             standardLineShader;
+  Shader             debugCubeShader;
+  Mesh               debugCubeMesh;
+  VertexArray        lineVAO;
+  IndexBufferObject  lineIBO;
+  VertexBufferObject emptyVBO; // used by the line vao
 } *s_keepAliveResources = nullptr;
 
 
@@ -54,11 +65,11 @@ Mesh CreateCubeMesh()
 Mesh CreatePlaneMesh()
 {
   std::vector<Renderer::Vertex> vertices{
-    // position             uv            normal (up)   textId
-    { { +.5f, 0.f, +.5f }, { 0.f, 0.f }, { 0, 1.f, 0 }},
-    { { -.5f, 0.f, +.5f }, { 1.f, 0.f }, { 0, 1.f, 0 }},
-    { { -.5f, 0.f, -.5f }, { 1.f, 1.f }, { 0, 1.f, 0 }},
-    { { +.5f, 0.f, -.5f }, { 0.f, 1.f }, { 0, 1.f, 0 }},
+    // position             uv            normal (up)
+    { { -.5f, 0.f, -.5f }, { 1.f, 1.f }, { 0, 1.f, 0 } },
+    { { -.5f, 0.f, +.5f }, { 1.f, 0.f }, { 0, 1.f, 0 } },
+    { { +.5f, 0.f, +.5f }, { 0.f, 0.f }, { 0, 1.f, 0 } },
+    { { +.5f, 0.f, -.5f }, { 0.f, 1.f }, { 0, 1.f, 0 } },
   };
   std::vector<unsigned int> indices{
     3, 2, 0, 1,0,2
@@ -66,93 +77,98 @@ Mesh CreatePlaneMesh()
   return Mesh(vertices, indices);
 }
 
-static void SkipStreamText(std::istream& stream, const char* text)
+static void SkipStreamText(std::istream &stream, const char *text)
 {
-    char c;
-    while (*text) {
-        if ((c = stream.get()) != *text) {
-            std::cerr << "Expected " << *text << " but got " << c;
-            throw std::runtime_error("Unexpected charactor got in stream");
-        }
-        text++;
+  char c;
+  while (*text) {
+    if ((c = stream.get()) != *text) {
+      std::cerr << "Expected " << *text << " but got " << c;
+      throw std::runtime_error("Unexpected charactor got in stream");
     }
+    text++;
+  }
 }
 
-Mesh LoadMeshFromFile(const fs::path& objPath)
+Mesh LoadMeshFromFile(const fs::path &objPath)
 {
-    std::ifstream modelFile{ objPath };
-    constexpr size_t bufSize = 10000;
-    char lineBuffer[bufSize];
+  std::ifstream modelFile{ objPath };
+  constexpr size_t bufSize = 100;
+  char lineBuffer[bufSize];
 
-    std::vector<glm::vec3> positions;
-    std::vector<glm::vec3> normals;
-    std::vector<glm::vec2> uvs;
+  std::vector<glm::vec3> positions;
+  std::vector<glm::vec3> normals;
+  std::vector<glm::vec2> uvs;
 
-    uvs.emplace_back();
+  std::vector<std::tuple<int, int, int>> cachedVertices;
+  std::vector<unsigned int> indices;
+  std::vector<Vertex> vertices;
 
-    std::vector<std::tuple<int, int, int>> cachedVertices;
-    std::vector<unsigned int> indices;
-    std::vector<Vertex> vertices;
+  while (modelFile.good()) {
+    modelFile.getline(lineBuffer, bufSize);
+    if (lineBuffer[0] == '#')
+      continue;
+    int space = 0;
+    while (lineBuffer[space] != '\0' && lineBuffer[space] != ' ')
+      space++;
+    if (lineBuffer[space] == '\0')
+      continue;
+    std::stringstream ss;
+    ss.str(lineBuffer + space + 1);
 
-    while (modelFile.good()) {
-        modelFile.getline(lineBuffer, bufSize);
-        if (lineBuffer[0] == '#')
-            continue;
-        int space = 0;
-        while (lineBuffer[space] != '\0' && lineBuffer[space] != ' ')
-            space++;
-        if (lineBuffer[space] == '\0')
-            continue;
-        std::stringstream ss;
-        ss.str(lineBuffer + space + 1);
-
-        float f1, f2, f3;
-        int i1, i2, i3;
-        if (strstr(lineBuffer, "v ") == lineBuffer) { // vertex
-            ss >> f1 >> f2 >> f3;
-            positions.push_back({ f1, f2, f3 });
+    float f1, f2, f3;
+    int i1, i2, i3;
+    if (strstr(lineBuffer, "v ") == lineBuffer) { // vertex
+      ss >> f1 >> f2 >> f3;
+      positions.push_back({ f1, f2, f3 });
+    } else if (strstr(lineBuffer, "vt ") == lineBuffer) { // texture coordinate
+      ss >> f1 >> f2;
+      uvs.push_back({ f1, f2 });
+    } else if (strstr(lineBuffer, "vn ") == lineBuffer) { // normal
+      ss >> f1 >> f2 >> f3;
+      normals.push_back({ f1, f2, f3 });
+    } else if (strstr(lineBuffer, "f ") == lineBuffer) { // face
+      for (size_t i = 0; i < 3; i++) {
+        ss >> i1; SkipStreamText(ss, "/");
+        ss >> i2; SkipStreamText(ss, "/");
+        ss >> i3;
+        std::tuple<int, int, int> cacheKey{ i1, i2, i3 };
+        auto inCacheIndex = std::find(cachedVertices.begin(), cachedVertices.end(), cacheKey);
+        if (inCacheIndex == cachedVertices.end()) {
+          vertices.emplace_back(positions[i1 - 1ll], uvs[i2 - 1ll], normals[i3 - 1ll]);
+          indices.push_back((unsigned int)cachedVertices.size());
+          cachedVertices.push_back(cacheKey);
+        } else {
+          indices.push_back((unsigned int)(inCacheIndex - cachedVertices.begin()));
         }
-        else if (strstr(lineBuffer, "vt ") == lineBuffer) { // texture coordinate
-            ss >> f1 >> f2;
-            uvs.push_back({ f1, f2 });
-        }
-        else if (strstr(lineBuffer, "vn ") == lineBuffer) { // normal
-            ss >> f1 >> f2 >> f3;
-            normals.push_back({ f1, f2, f3 });
-        }
-        else if (strstr(lineBuffer, "f ") == lineBuffer) { // face
-            for (size_t i = 0; i < 3; i++) {
-                ss >> i1; SkipStreamText(ss, "/");
-                if (ss.peek() != '/')
-                    ss >> i2;
-                else
-                    i2 = 1;
-                SkipStreamText(ss, "/");
-                ss >> i3;
-                std::tuple<int, int, int> cacheKey{ i1, i2, i3 };
-                auto inCacheIndex = std::find(cachedVertices.begin(), cachedVertices.end(), cacheKey);
-                if (inCacheIndex == cachedVertices.end()) {
-                    vertices.emplace_back(positions[i1 - 1ll], uvs[i2 - 1ll], normals[i3 - 1ll]);
-                    indices.push_back((unsigned int)cachedVertices.size());
-                    cachedVertices.push_back(cacheKey);
-                }
-                else {
-                    indices.push_back((unsigned int)(inCacheIndex - cachedVertices.begin()));
-                }
-            }
-        }
-        else { // unrecognized line
-            continue;
-        }
+      }
+    } else { // unrecognized line
+      continue;
     }
+  }
 
-    return Mesh(vertices, indices);
+  return Mesh(vertices, indices);
+}
+
+void Clear()
+{
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Init()
 {
+  VertexBufferLayout emptyLayout;
   s_keepAliveResources = new KeepAliveResources;
+
   s_keepAliveResources->standardMeshShader = LoadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_mesh.fs");
+  s_keepAliveResources->standardLineShader = LoadShaderFromFiles("res/shaders/standard_line.vs", "res/shaders/standard_color.fs");
+  
+  s_keepAliveResources->lineIBO = IndexBufferObject({ 0, 1 });
+  s_keepAliveResources->lineVAO.addBuffer(s_keepAliveResources->emptyVBO, emptyLayout, s_keepAliveResources->lineIBO);
+
+  s_keepAliveResources->debugCubeMesh = CreateCubeMesh();
+  s_keepAliveResources->debugCubeShader = LoadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_color.fs");
+
+  VertexArray::Unbind();
 }
 
 void Shutdown()
@@ -171,20 +187,64 @@ void RenderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm:
   mesh.Draw();
 }
 
-Shader& getShader() { if (s_keepAliveResources) return s_keepAliveResources->standardMeshShader; }
+Shader& getShader() { if (s_keepAliveResources) return s_keepAliveResources->standardMeshShader; } // TODO fix the else case
 
-}
-
-
-static void SkipStreamText(std::istream& stream, const char* text)
+void RenderDebugLine(const glm::mat4 &VP, glm::vec3 from, glm::vec3 to, const glm::vec4 &color)
 {
-    char c;
-    while (*text) {
-        if ((c = stream.get()) != *text) {
-            std::cerr << "Expected " << *text << " but got " << c;
-            throw std::runtime_error("Unexpected charactor got in stream");
-        }
-        text++;
-    }
+  s_keepAliveResources->lineVAO.Bind();
+  s_keepAliveResources->standardLineShader.Bind();
+  s_keepAliveResources->standardLineShader.SetUniform3f("u_from", from);
+  s_keepAliveResources->standardLineShader.SetUniform3f("u_to", to);
+  s_keepAliveResources->standardLineShader.SetUniform4f("u_color", color);
+  s_keepAliveResources->standardLineShader.SetUniformMat4f("u_VP", VP);
+  glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, nullptr);
 }
 
+void RenderDebugCube(const glm::mat4 &VP, glm::vec3 position, glm::vec3 size, const glm::vec4 &color)
+{
+  glm::mat4 M(1.f);
+  M = glm::translate(M, position);
+  M = glm::scale(M, size);
+  s_keepAliveResources->debugCubeShader.Bind();
+  s_keepAliveResources->debugCubeShader.SetUniform4f("u_color", color);
+  s_keepAliveResources->debugCubeShader.SetUniformMat4f("u_M", M);
+  s_keepAliveResources->debugCubeShader.SetUniformMat4f("u_VP", VP);
+  s_keepAliveResources->debugCubeMesh.Draw();
+}
+
+void RenderDebugAxis(const glm::mat4 &VP)
+{
+  RenderDebugLine(VP, { 0, 0, 0 }, { 10, 0, 0 }, { 1.f, 0.f, 0.f, 1.f }); // x red
+  RenderDebugLine(VP, { 0, 0, 0 }, { 0, 10, 0 }, { 0.f, 1.f, 0.f, 1.f }); // y green
+  RenderDebugLine(VP, { 0, 0, 0 }, { 0, 0, 10 }, { 0.f, 0.f, 1.f, 1.f }); // z blue
+}
+
+
+BlitPass::BlitPass()
+  : BlitPass("res/shaders/blit.fs")
+{
+}
+
+BlitPass::BlitPass(const fs::path &fragmentShaderPath)
+{
+  m_shader = LoadShaderFromFiles("res/shaders/blit.vs", fragmentShaderPath);
+  m_keepAliveIBO = IndexBufferObject({ 0, 2, 1, 3, 2, 0 });
+  m_vao.addBuffer(m_keepAliveVBO, VertexBufferLayout{}, m_keepAliveIBO);
+}
+
+void BlitPass::DoBlit(const Texture &renderTexture)
+{
+  glDisable(GL_DEPTH_TEST);
+  Renderer::Clear();
+  renderTexture.Bind();
+
+  m_shader.Bind();
+  m_shader.SetUniform2f("u_screenSize", (float)Window::getWinWidth(), (float)Window::getWinHeight()); // TODO remove, this uniform is only necessary because the vignette vfx is in the blit shader, which it shouldn't, it should be in a res/shaders/testfb_blit.fs shader
+  m_vao.Bind();
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+  renderTexture.Unbind();
+  m_vao.Unbind();
+  glEnable(GL_DEPTH_TEST);
+}
+
+}

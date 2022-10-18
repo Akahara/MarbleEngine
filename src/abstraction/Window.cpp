@@ -51,18 +51,20 @@ void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
   default:                                severityName = "?";               break;
   }
   
-  
+  // TODO filter out unimportant messages
   std::cerr
     << "GL CALLBACK: " << sourceName << "\n"
     << " type     = " << typeName << "\n"
     << " severity = " << severityName << "\n"
     << " message  = " << message
     << std::endl;
-  if (type != GL_DEBUG_TYPE_PERFORMANCE) {
-      __debugbreak();
-  }
   
-  // add a breakpoint at the end of the function to catch opengl errors
+  if (
+    (type != GL_DEBUG_TYPE_PERFORMANCE) &&
+    (type != GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR)
+    ) {
+    __debugbreak();
+  }
 }
 
 void createWindow(unsigned int width, unsigned int height, const char *title)
@@ -119,6 +121,7 @@ void createWindow(unsigned int width, unsigned int height, const char *title)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
+  glLineWidth(5.f);
   glViewport(0, 0, width, height);
   glClearColor(.3f, 0.53f, 0.67f, 1.0f);
 }
@@ -206,16 +209,7 @@ void capFramerate()
 
 void captureMouse(bool enabled)
 {
-
-    if (enabled) {
-      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    }
-    else {
-
-      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-    }
+  glfwSetInputMode(window, GLFW_CURSOR, enabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
 void registerInputHandler(InputHandler *handler)

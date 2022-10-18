@@ -1,6 +1,7 @@
 #include "Debug.h"
 
 #include <glad/glad.h>
+
 #include "../vendor/imgui/imgui.h"
 
 namespace DebugWindow {

@@ -1,6 +1,4 @@
 #include "VertexBufferObject.h"
-#include "Renderer.h"
-
 
 namespace Renderer {
 

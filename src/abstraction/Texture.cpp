@@ -1,5 +1,10 @@
 #include "Texture.h"
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <stb/stb_image.h>
+#include <stb/stb_image_write.h>
+
 #include "../Utils/Debug.h"
 
 namespace Renderer {
@@ -34,6 +39,23 @@ Texture::Texture(const std::string &path)
 	__debugbreak();
 	stbi_image_free(localBuffer);
   }
+}
+
+Texture::Texture(unsigned int width, unsigned int height)
+  : m_Width(width), m_Height(height)
+{
+  glGenTextures(1, &m_RendererID);
+  glBindTexture(GL_TEXTURE_2D, m_RendererID);
+
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RED, GL_BYTE, nullptr);
+  glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 Texture::Texture(unsigned int rendererId, int width, int height)
@@ -109,6 +131,47 @@ Texture Texture::createTextureFromData(const float *data, int width, int height,
   glBindTexture(GL_TEXTURE_2D, 0);
 
   return Texture(rendererId, width, height);
+}
+
+Texture Texture::createDepthTexture(int width, int height)
+{
+  unsigned int rendererId;
+  glGenTextures(1, &rendererId);
+  glBindTexture(GL_TEXTURE_2D, rendererId);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  return Texture(rendererId, width, height);
+}
+
+// TODO move this elsewhere ?
+void Texture::WriteToFile(const Texture &texture, const std::filesystem::path &path, bool isDepthTexture)
+{
+  int w, h;
+  int lod = 0;
+  glBindTexture(GL_TEXTURE_2D, texture.m_RendererID);
+  glGetTexLevelParameteriv(GL_TEXTURE_2D, lod, GL_TEXTURE_WIDTH, &w);
+  glGetTexLevelParameteriv(GL_TEXTURE_2D, lod, GL_TEXTURE_HEIGHT, &h);
+  char *data = new char[(size_t)w * h * 4];
+  bool success;
+  std::string pathStr = path.string();
+  if (isDepthTexture) {
+	glGetTexImage(GL_TEXTURE_2D, lod, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, data);
+	success = stbi_write_png(pathStr.c_str(), w, h, 1, data, w); // TODO the depth texture cannot be saved without being linearized
+	// and also depth-linearized (.1-1000. -> 0-1)
+  } else {
+	glGetTexImage(GL_TEXTURE_2D, lod, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	success = stbi_write_png(pathStr.c_str(), w, h, 4, data, w * 4);
+  }
+  delete[] data;
+  if (!success)
+	throw std::exception("Could not write to file");
 }
 
 }
