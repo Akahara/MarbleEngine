@@ -73,9 +73,4 @@ void Player::UpdateCamera()
   m_camera.setPitch(m_pitch);
   m_camera.recalculateViewMatrix();
   m_camera.recalculateViewProjectionMatrix();
-  //glm::mat4 view(1.f);
-  //view = glm::rotate(view, m_pitch, { 1, 0, 0 });
-  //view = glm::rotate(view, -m_yaw, UP);
-  //view = glm::translate(view, -m_position);
-  //m_camera.setView(view);
 }

@@ -6,6 +6,8 @@
 #include "Mesh.h"
 #include "Texture.h"
 
+
+
 namespace Renderer {
 
 namespace fs = std::filesystem;
@@ -16,6 +18,8 @@ Mesh CreatePlaneMesh();
 Mesh LoadMeshFromFile(const fs::path &objPath);
 
 void Clear();
+
+Mesh LoadMeshFromFile(const fs::path& objPath);
 
 void Init();
 void Shutdown();
@@ -42,5 +46,7 @@ public:
 
   void DoBlit(const Texture &renderTexture);
 };
+
+Shader& getShader();
 
 }

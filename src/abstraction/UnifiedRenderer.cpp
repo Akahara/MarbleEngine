@@ -1,4 +1,5 @@
 #include "UnifiedRenderer.h"
+#include "Mesh.h"
 
 #include <fstream>
 #include <sstream>
@@ -19,7 +20,7 @@ static struct KeepAliveResources {
   VertexArray        lineVAO;
   IndexBufferObject  lineIBO;
   VertexBufferObject emptyVBO; // used by the line vao
-} *s_keepAliveResources;
+} *s_keepAliveResources = nullptr;
 
 
 Shader LoadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath)
@@ -71,7 +72,7 @@ Mesh CreatePlaneMesh()
     { { +.5f, 0.f, -.5f }, { 0.f, 1.f }, { 0, 1.f, 0 } },
   };
   std::vector<unsigned int> indices{
-    0, 1, 2, 2, 3, 0
+    3, 2, 0, 1,0,2
   };
   return Mesh(vertices, indices);
 }
@@ -185,6 +186,8 @@ void RenderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm:
   s_keepAliveResources->standardMeshShader.SetUniformMat4f("u_VP", VP);
   mesh.Draw();
 }
+
+Shader& getShader() { if (s_keepAliveResources) return s_keepAliveResources->standardMeshShader; } // TODO fix the else case
 
 void RenderDebugLine(const glm::mat4 &VP, glm::vec3 from, glm::vec3 to, const glm::vec4 &color)
 {

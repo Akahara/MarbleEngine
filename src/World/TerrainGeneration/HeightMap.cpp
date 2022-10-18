@@ -1,23 +1,10 @@
 #include "HeightMap.h"
-
 #include "../../Utils/Mathf.h"
-#include "Noise.h"
 
-HeightMap::HeightMap()
-  : m_width(0),
-  m_height(0),
-  m_heightValues(nullptr)
-{
-}
 
-HeightMap::~HeightMap()
-{
-  delete m_heightValues;
-}
 
 void HeightMap::setHeights(unsigned int width, unsigned int height, float *heights)
 {
-  delete m_heightValues;
   m_width = width;
   m_height = height;
   m_heightValues = heights;

@@ -209,16 +209,7 @@ void capFramerate()
 
 void captureMouse(bool enabled)
 {
-
-    if (enabled) {
-      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    }
-    else {
-
-      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-    }
+  glfwSetInputMode(window, GLFW_CURSOR, enabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
 void registerInputHandler(InputHandler *handler)
