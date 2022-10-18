@@ -41,7 +41,7 @@ public:
   void OnRender() override
   {
     m_fb.Bind();
-    Renderer::FrameBufferObject::SetViewport(m_fbRenderTexture);
+    Renderer::FrameBufferObject::SetViewportToTexture(m_fbRenderTexture);
 
     m_backingScene->OnRender();
 

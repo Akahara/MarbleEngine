@@ -33,7 +33,7 @@ public:
       "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
       "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" }
   {
-    m_player.SetPostion({ 0.f, 30.f, 0 });
+    m_player.SetPostion({ 100.f, 500.f, 0 });
     m_player.UpdateCamera();
     RegenerateTerrain();
   }
