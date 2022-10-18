@@ -21,13 +21,13 @@ namespace TerrainMeshGenerator {
         Chunk() : mesh() {}
 
         Chunk(const Chunk&) = delete;
-        Chunk(Chunk&& moved) {
+        Chunk(Chunk&& moved) noexcept {
 
             mesh = std::move(moved.mesh);
         }
 
         Chunk& operator=(const Chunk&) = delete;
-        Chunk& operator=(Chunk&& moved)
+        Chunk& operator=(Chunk&& moved) noexcept
         {
             this->~Chunk();
             new (this)Chunk(std::move(moved));
@@ -42,7 +42,7 @@ namespace TerrainMeshGenerator {
 
         Terrain() : chunkSize(0), heightMap(), chunksPosition() {}
         Terrain(const Terrain&) = delete;
-        Terrain(Terrain&& moved) {
+        Terrain(Terrain&& moved) noexcept {
 
             chunkSize = moved.chunkSize;
             heightMap = std::move(moved.heightMap);
@@ -50,7 +50,7 @@ namespace TerrainMeshGenerator {
         }
 
         Terrain& operator=(const Terrain&) = delete;
-        Terrain& operator=(Terrain&& moved)
+        Terrain& operator=(Terrain&& moved) noexcept
         {
             this->~Terrain();
             new (this)Terrain(std::move(moved));
@@ -71,5 +71,5 @@ Renderer::Mesh generateMesh(const HeightMap &heightmap);
 Renderer::Mesh generateMesh(const HeightMapView& heightmap);
 
 
-Terrain generateTerrain(float* noiseMap, float w, float h, unsigned int chunkSize); 
+Terrain generateTerrain(float* noiseMap, unsigned int w, unsigned int h, unsigned int chunkSize); 
 }

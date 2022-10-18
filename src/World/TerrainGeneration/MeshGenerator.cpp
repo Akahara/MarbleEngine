@@ -106,21 +106,21 @@ Mesh generateMesh(const HeightMapView& heightmap )
 }
 
 
-Terrain generateTerrain(float* noiseMap, float w, float h, unsigned int chunkSize) {
-
+Terrain generateTerrain(float* noiseMap, unsigned int w, unsigned int h, unsigned int chunkSize) {
+    
     Terrain terrain;
     terrain.heightMap.setHeights(w, h, noiseMap);
     
     terrain.chunkSize = chunkSize;
 
-    int numberOfChunksSide = std::min(terrain.heightMap.getMapWidth() / terrain.chunkSize, terrain.heightMap.getMapHeight() / terrain.chunkSize);
-    int numberOfChunks = numberOfChunksSide * numberOfChunksSide;
+    unsigned int numberOfChunksSide = std::min(terrain.heightMap.getMapWidth() / terrain.chunkSize, terrain.heightMap.getMapHeight() / terrain.chunkSize);
+    unsigned int numberOfChunks = numberOfChunksSide * numberOfChunksSide;
 
     for (unsigned int i = 0; i < numberOfChunks; i++) { // todo calculer le nombre de chunks
 
         glm::vec2 chunk_position = { i % numberOfChunksSide , i / numberOfChunksSide  };
 
-        HeightMapView hmv = HeightMapView(terrain.heightMap, chunk_position, glm::vec2(chunkSize));
+        HeightMapView hmv = HeightMapView(terrain.heightMap, chunk_position, glm::ivec2(chunkSize));
         Chunk chunk = generateChunk(hmv);
         terrain.chunksPosition.insert({ chunk_position, std::move(chunk) }); // todo calculer la position
     }

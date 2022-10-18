@@ -17,10 +17,9 @@ private:
   Renderer::Cubemap m_skybox;
   Player            m_player;
   HeightMap         m_heightmap;
-  Renderer::Texture m_terrainTexture;
   Renderer::Mesh    m_terrainMesh;
   bool              m_playerIsFlying = true;
-  int w = 200, h = 200;
+  unsigned int w = 200, h = 200;
   float scale = 27.6f;
   float terrainHeight = 120.f;
   int o = 4;
@@ -64,15 +63,14 @@ public:
     m_player.SetPostion({ 100.f, 500.f, 0 });
     m_player.UpdateCamera();
     RegenerateTerrain();
-    //m_terrainMesh.AddTexture(m_grassTexture);
     m_waterMesh = Renderer::CreatePlaneMesh();
     m_cubeMesh = Renderer::CreateCubeMesh();
     m_Sun.position = { 100,100,100 };
     m_Water.position = { 50,24,50};
     m_grassTexture.Bind(2U);
     m_rockTexture.Bind(1U);
-    Renderer::getShader().Bind();
     GLint samplers[8] = { 0,1,2,3,4,5,6,7 };
+    Renderer::getShader().Bind();
     Renderer::getShader().SetUniform1iv("u_Textures2D", 8, samplers);
     Renderer::getShader().SetUniform1f("u_Strenght", strength);
     m_testMesh = Renderer::LoadMeshFromFile("res/meshes/house.obj");
@@ -87,7 +85,6 @@ public:
     noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
     m_heightmap.setHeights(w, h, noiseMap);
     terrain = TerrainMeshGenerator::generateTerrain(noiseMap, w, h, 8);
-    //m_terrainTexture = MapUtilities::genTextureFromHeightmap(m_heightmap);
   }
 
   void Step(float delta) override
@@ -110,13 +107,13 @@ public:
     Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
 
     // TODO : fix chunkSize
+    // TODO! : fix the texture issue in the standard mesh shader
     int i  = 0;
-    m_terrainTexture.Bind();
+    m_rockTexture.Bind(0);
     for (const auto& [position, chunk] : terrain.chunksPosition) {
            Renderer::RenderMesh(glm::vec3{ position.x , 300.f, position.y}, glm::vec3(1), chunk.mesh, m_player.GetCamera().getViewProjectionMatrix());
     }
     Renderer::RenderMesh(m_Sun.position, { 5,5,5 }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix());
-    //Renderer::RenderMesh(m_Sun.position, { 100,100,100 }, m_testMesh, m_player.GetCamera().getViewProjectionMatrix());
     Renderer::getShader().Bind();
     Renderer::getShader().SetUniform3f("u_SunPos", m_Sun.position.x, m_Sun.position.y, m_Sun.position.z);
     Renderer::getShader().Unbind();
@@ -127,7 +124,7 @@ public:
 
   void OnImGuiRender() override
   {
-    if (ImGui::SliderInt("Width", &w, 10, 2000) + ImGui::SliderInt("Height", &h, 10, 2000) +
+    if (ImGui::SliderInt("Width", (int*)&w, 10, 2000) + ImGui::SliderInt("Height", (int*)&h, 10, 2000) +
         ImGui::SliderFloat("Scale", &scale, 0, 50) + ImGui::SliderInt("Number of octaves", &o, 0, 10) +
         ImGui::SliderFloat("persistence", &p, 0, 1) + ImGui::SliderFloat("lacunarity", &l, 0, 50) +
         ImGui::SliderInt("seed", &seed, 0, 5) + ImGui::SliderFloat("Depth", &terrainHeight, 0, 100.f)) {

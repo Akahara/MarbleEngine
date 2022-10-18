@@ -22,7 +22,7 @@ public:
 
   }
 
-  HeightMap(HeightMap&& moved) {
+  HeightMap(HeightMap&& moved) noexcept {
 
 	  m_width = moved.m_width;
 	  m_height = moved.m_height;
@@ -31,7 +31,7 @@ public:
 
   }
 
-  HeightMap& operator=(HeightMap&& moved) {
+  HeightMap& operator=(HeightMap&& moved) noexcept {
 	  this->~HeightMap();
 	  new (this)HeightMap(std::move(moved));
 	  return *this;
@@ -82,31 +82,26 @@ class HeightMapView {
 private:
 
 	const HeightMap* originMap;
-	glm::vec2 originPoint, subMapSize;
+	glm::ivec2 originPoint, subMapSize;
 
 public:
-	HeightMapView(const HeightMap& heightMap, const glm::vec2& origin, const glm::vec2& size)
-
+	HeightMapView(const HeightMap& heightMap, const glm::ivec2& origin, const glm::ivec2& size)
 	{
 		originMap = &heightMap;
 		subMapSize = size;
 		originPoint = origin;
-
 	}
 	
 	float getHeight(int x, int y) const {
-
 		int projectedX, projectedY;
-
 
 		projectedX = originPoint.x + x;
 		projectedY = originPoint.y + y;
 
 		return originMap->getHeight(projectedX, projectedY);
-
 	}
 
-	unsigned int getMapWidth() const { return subMapSize.x+1; }
+	unsigned int getMapWidth() const { return subMapSize.x+1; } // TODO the +1 should not be here (my (albin) fault!)
 	unsigned int getMapHeight() const { return subMapSize.y+1; }
 
 };
