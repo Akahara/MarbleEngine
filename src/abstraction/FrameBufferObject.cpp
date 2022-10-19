@@ -10,80 +10,80 @@ namespace Renderer {
 FrameBufferObject::FrameBufferObject()
   : m_depthBufferID(0)
 {
-  glGenFramebuffers(1, &m_RenderID);
+  glGenFramebuffers(1, &m_renderID);
 }
 
 FrameBufferObject::~FrameBufferObject()
 {
-  Delete();
+  destroy();
 }
 
 FrameBufferObject &FrameBufferObject::operator=(FrameBufferObject &&moved) noexcept
 {
-  Delete();
+  destroy();
   new (this)FrameBufferObject(std::move(moved));
   return *this;
 }
 
 FrameBufferObject::FrameBufferObject(FrameBufferObject &&moved) noexcept
 {
-  m_RenderID = moved.m_RenderID;
+  m_renderID = moved.m_renderID;
   m_depthBufferID = moved.m_depthBufferID;
-  moved.m_RenderID = 0;
+  moved.m_renderID = 0;
   moved.m_depthBufferID = 0;
 }
 
-void FrameBufferObject::Bind() const
+void FrameBufferObject::bind() const
 {
-  glBindFramebuffer(GL_FRAMEBUFFER, m_RenderID);
+  glBindFramebuffer(GL_FRAMEBUFFER, m_renderID);
 }
 
-void FrameBufferObject::Unbind() const
+void FrameBufferObject::unbind()
 {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void FrameBufferObject::Delete()
+void FrameBufferObject::destroy()
 {
-  glDeleteFramebuffers(1, &m_RenderID);
+  glDeleteFramebuffers(1, &m_renderID);
   glDeleteTextures(1, &m_depthBufferID);
-  m_RenderID = 0;
+  m_renderID = 0;
   m_depthBufferID = 0;
 }
 
-void FrameBufferObject::SetTargetTexture(Texture &texture)
+void FrameBufferObject::setTargetTexture(Texture &texture)
 {
-  Bind();
+  bind();
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.getId(), 0);
-  AssertIsValid();
-  Unbind();
+  assertIsValid();
+  unbind();
 }
 
-void FrameBufferObject::SetDepthTexture(Texture &texture)
+void FrameBufferObject::setDepthTexture(Texture &texture)
 {
-  Bind();
+  bind();
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture.getId(), 0);
-  AssertIsValid();
-  Unbind();
+  assertIsValid();
+  unbind();
 }
 
-void FrameBufferObject::AssertIsValid() const
+void FrameBufferObject::assertIsValid() const
 {
-  Bind();
+  bind();
   assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 }
 
-void FrameBufferObject::SetViewport(unsigned int width, unsigned int height)
+void FrameBufferObject::setViewport(unsigned int width, unsigned int height)
 {
   glViewport(0, 0, width, height);
 }
 
-void FrameBufferObject::SetViewportToTexture(const Texture &texture)
+void FrameBufferObject::setViewportToTexture(const Texture &texture)
 {
-  glViewport(0, 0, texture.GetWidth(), texture.GetHeight());
+  glViewport(0, 0, texture.getWidth(), texture.getHeight());
 }
 
-void FrameBufferObject::SetViewportToWindow()
+void FrameBufferObject::setViewportToWindow()
 {
   glViewport(0, 0, Window::getWinWidth(), Window::getWinHeight());
 }

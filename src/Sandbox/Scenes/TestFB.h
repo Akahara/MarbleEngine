@@ -23,9 +23,9 @@ public:
   {
     m_backingScene = new TestTerrainScene;
     m_fbRenderTexture = Renderer::Texture(16*5, 9*5);
-    m_fbDepthTexture = Renderer::Texture::createDepthTexture(m_fbRenderTexture.GetWidth(), m_fbRenderTexture.GetHeight());
-    m_fb.SetTargetTexture(m_fbRenderTexture);
-    m_fb.SetDepthTexture(m_fbDepthTexture);
+    m_fbDepthTexture = Renderer::Texture::createDepthTexture(m_fbRenderTexture.getWidth(), m_fbRenderTexture.getHeight());
+    m_fb.setTargetTexture(m_fbRenderTexture);
+    m_fb.setDepthTexture(m_fbDepthTexture);
   }
 
   ~TestFBScene()
@@ -33,27 +33,27 @@ public:
     delete m_backingScene;
   }
 
-  void Step(float delta) override
+  void step(float delta) override
   {
-    m_backingScene->Step(delta);
+    m_backingScene->step(delta);
   }
 
-  void OnRender() override
+  void onRender() override
   {
-    m_fb.Bind();
-    Renderer::FrameBufferObject::SetViewportToTexture(m_fbRenderTexture);
+    m_fb.bind();
+    Renderer::FrameBufferObject::setViewportToTexture(m_fbRenderTexture);
 
-    m_backingScene->OnRender();
+    m_backingScene->onRender();
 
-    m_fb.Unbind();
-    Renderer::FrameBufferObject::SetViewport(Window::getWinWidth(), Window::getWinHeight());
+    Renderer::FrameBufferObject::unbind();
+    Renderer::FrameBufferObject::setViewport(Window::getWinWidth(), Window::getWinHeight());
 
-    m_blitData.DoBlit(m_fbRenderTexture);
+    m_blitData.doBlit(m_fbRenderTexture);
   }
 
-  void OnImGuiRender() override 
+  void onImGuiRender() override 
   {
-    m_backingScene->OnImGuiRender();
+    m_backingScene->onImGuiRender();
 
     if (ImGui::Begin("VFX")) {
       if (ImGui::CollapsingHeader("Vignette")) {
@@ -65,10 +65,10 @@ public:
             ImGui::SliderFloat("min", &vignetteMin, 0.f, 2.f) +
             ImGui::SliderFloat("max", &vignetteMax, 0.f, 2.f) +
             ImGui::SliderFloat("strength", &vignetteStrength, -1.f, 1.f)) {
-          m_blitData.GetShader().Bind();
-          m_blitData.GetShader().SetUniform1f("u_vignetteMin", vignetteMin);
-          m_blitData.GetShader().SetUniform1f("u_vignetteMax", vignetteMax);
-          m_blitData.GetShader().SetUniform1f("u_vignetteStrength", vignetteStrength * vignetteEnable);
+          m_blitData.getShader().bind();
+          m_blitData.getShader().setUniform1f("u_vignetteMin", vignetteMin);
+          m_blitData.getShader().setUniform1f("u_vignetteMax", vignetteMax);
+          m_blitData.getShader().setUniform1f("u_vignetteStrength", vignetteStrength * vignetteEnable);
         }
       }
     }

@@ -34,7 +34,7 @@ Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> 
   m_verticesCount((unsigned int)indices.size())
 {
   m_VAO.addBuffer(m_VBO, getVertexBufferLayout(), m_IBO);
-  m_VAO.Unbind();
+  VertexArray::unbind();
 }
 
 Mesh::~Mesh()
@@ -57,11 +57,11 @@ Mesh &Mesh::operator=(Mesh &&moved) noexcept
   return *this;
 }
 
-void Mesh::Draw() const
+void Mesh::draw() const
 {
-  m_VAO.Bind();
+  m_VAO.bind();
   glDrawElements(GL_TRIANGLES, m_verticesCount, GL_UNSIGNED_INT, nullptr);
-  m_VAO.Unbind();
+  VertexArray::unbind();
 }
 
 }

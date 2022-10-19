@@ -160,7 +160,7 @@
     <ClCompile Include="src\abstraction\Mesh.cpp" />
     <ClCompile Include="src\abstraction\Renderer.cpp" />
     <ClCompile Include="src\abstraction\Shader.cpp" />
-    <ClCompile Include="src\abstraction\stb_image.cpp" />
+    <ClCompile Include="src\abstraction\stb_image_impl.cpp" />
     <ClCompile Include="src\abstraction\Texture.cpp" />
     <ClCompile Include="src\abstraction\TextureAtlas.cpp" />
     <ClCompile Include="src\abstraction\UnifiedRenderer.cpp" />
@@ -238,6 +238,8 @@
   <ItemGroup>
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
+    <None Include="imgui.ini" />
+    <None Include="README.md" />
     <None Include="res\shaders\blit.fs" />
     <None Include="res\shaders\blit.vs" />
     <None Include="res\shaders\shadows.fs" />

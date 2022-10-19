@@ -12,35 +12,36 @@ namespace Renderer {
 class Shader
 {
 private:
-	unsigned int m_ShaderID;
-	std::unordered_map<std::string_view, int> m_UniformLocationCache;
+	unsigned int m_shaderID;
+	std::unordered_map<std::string_view, int> m_uniformLocationCache;
 
 public:
-	Shader() : m_ShaderID(0) {}
+	Shader() : m_shaderID(0) {}
 	Shader(const std::string& str_vertexShader, const std::string& str_fragmentShader);
 	Shader(Shader &&moved) noexcept;
 	Shader &operator=(Shader &&moved) noexcept;
 	Shader &operator=(const Shader &) = delete;
 	Shader(const Shader &) = delete;
 
-	void Bind() const;
-	static void Unbind();
-	void Delete();
-	void SetUniform1i(std::string_view name, int value);
-	void SetUniform1f(std::string_view name, float value);
-	void SetUniform2f(std::string_view name, float v1, float v2);
-	void SetUniform3f(std::string_view name, float v1, float v2, float v3);
-	void SetUniform4f(std::string_view name, float v1, float v2, float v3, float v4);
-	void SetUniformMat4f(std::string_view name, const glm::mat4 &matrix);
-	void SetUniformMat4x3f(std::string_view name, const glm::mat4x3 &matrix);
-	void SetUniform2f(std::string_view name, glm::vec2 v) { SetUniform2f(name, v.x, v.y); }
-	void SetUniform3f(std::string_view name, glm::vec3 v) { SetUniform3f(name, v.x, v.y, v.z); }
-	void SetUniform4f(std::string_view name, glm::vec4 v) { SetUniform4f(name, v.x, v.y, v.z, v.w); }
-	void SetUniform1iv(std::string_view name, unsigned int count, const GLint* data);
+	void bind() const;
+	static void unbind();
+	void destroy();
+
+	void setUniform1i(std::string_view name, int value);
+	void setUniform1f(std::string_view name, float value);
+	void setUniform2f(std::string_view name, float v1, float v2);
+	void setUniform3f(std::string_view name, float v1, float v2, float v3);
+	void setUniform4f(std::string_view name, float v1, float v2, float v3, float v4);
+	void setUniformMat4f(std::string_view name, const glm::mat4 &matrix);
+	void setUniformMat4x3f(std::string_view name, const glm::mat4x3 &matrix);
+	void setUniform2f(std::string_view name, glm::vec2 v) { setUniform2f(name, v.x, v.y); }
+	void setUniform3f(std::string_view name, glm::vec3 v) { setUniform3f(name, v.x, v.y, v.z); }
+	void setUniform4f(std::string_view name, glm::vec4 v) { setUniform4f(name, v.x, v.y, v.z, v.w); }
+	void setUniform1iv(std::string_view name, unsigned int count, const GLint* data);
 	// Unsafe
-	inline unsigned int getId() { return m_ShaderID; }
+	inline unsigned int getId() { return m_shaderID; }
 private:
-	int GetUniformLocation(std::string_view name);
+	int getUniformLocation(std::string_view name);
 };
 
 
@@ -58,22 +59,22 @@ public:
 	assert(1 <= size && size <= 4);
   }
 
-  const float *GetValue() const { return &m_value[0]; }
-  const std::string &GetName() const { return m_name; }
-  int GetSize() const { return m_size; }
+  const float *getValue() const { return &m_value[0]; }
+  const std::string &getName() const { return m_name; }
+  int getSize() const { return m_size; }
 
   template<int N>
-  void SetValue(const float *value) {
+  void setValue(const float *value) {
 	assert(m_size == N);
 	for (int i = 0; i < N; i++)
 	  m_value[i] = value[i];
-	SendUniformValue();
+	sendUniformValue();
   }
 
-  void RenderImGui();
+  void renderImGui();
 
 private:
-  void SendUniformValue();
+  void sendUniformValue();
 };
 
 class ShaderManager {
@@ -86,13 +87,13 @@ private:
   std::vector<ManagedShader> m_managedShaders;
   std::vector<TestUniform>   m_testUniforms;
 public:
-  void AddShader(Shader *shader, const char *vertexPath, const char *fragmentPath, bool loadNow=true);
+  void addShader(Shader *shader, const char *vertexPath, const char *fragmentPath, bool loadNow=true);
 
-  bool PromptReloadAndUI();
+  bool promptReloadAndUI();
 
-  void ReloadShaders();
+  void reloadShaders();
 private:
-  void CollectTestUniforms(Shader *shader, const std::vector<TestUniform> &previousUniforms);
+  void collectTestUniforms(Shader *shader, const std::vector<TestUniform> &previousUniforms);
 };
 
 }

@@ -10,17 +10,17 @@ private:
   Player     m_player;
   World::Sky m_sky;
 public:
-  void Step(float delta) override
+  void step(float delta) override
   {
-    m_player.Step(delta);
-    m_sky.Step(delta);
+    m_player.step(delta);
+    m_sky.step(delta);
   }
 
-  void OnRender() override
+  void onRender() override
   {
-    Renderer::Renderer::Clear();
-    m_sky.Render(m_player);
+    Renderer::Renderer::clear();
+    m_sky.render(m_player);
   }
 
-  void OnImGuiRender() override {}
+  void onImGuiRender() override {}
 };

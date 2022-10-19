@@ -15,7 +15,7 @@ namespace Renderer {
 		glm::vec3 position;
 		glm::vec2 uv;
 		glm::vec3 normal;
-		float texId;
+		float texId; // TODO figure out how/if? we can use texture ids in vertices
 	};
 
 class Mesh {
@@ -33,7 +33,7 @@ public:
   Mesh &operator=(const Mesh &) = delete;
   Mesh(const Mesh &) = delete;
 
-  void Draw() const;
+  void draw() const;
 };
 
 }

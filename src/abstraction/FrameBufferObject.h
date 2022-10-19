@@ -5,8 +5,9 @@
 
 namespace Renderer {
 
-class FrameBufferObject : public BufferObject {
+class FrameBufferObject {
 private:
+  unsigned int m_renderID;
   unsigned int m_depthBufferID;
 public:
   FrameBufferObject();
@@ -16,18 +17,18 @@ public:
   FrameBufferObject &operator=(FrameBufferObject &&moved) noexcept;
   FrameBufferObject(FrameBufferObject &&moved) noexcept;
 
-  void Bind() const override;
-  void Unbind() const override;
-  void Delete() override;
+  void bind() const;
+  static void unbind();
+  void destroy();
 
-  void SetTargetTexture(Texture &texture);
-  void SetDepthTexture(Texture &texture);
+  void setTargetTexture(Texture &texture);
+  void setDepthTexture(Texture &texture);
 
-  void AssertIsValid() const;
+  void assertIsValid() const;
 
-  static void SetViewport(unsigned int width, unsigned int height);
-  static void SetViewportToTexture(const Texture &texture);
-  static void SetViewportToWindow();
+  static void setViewport(unsigned int width, unsigned int height);
+  static void setViewportToTexture(const Texture &texture);
+  static void setViewportToWindow();
 };
 
 }

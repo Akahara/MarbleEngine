@@ -40,35 +40,35 @@ public:
 
 };
 
-void ObserveInputs()
+void observeInputs()
 {
   Window::registerInputHandler(new InputsObserver);
   Window::captureMouse();
 }
 
-void UpdateInputs()
+void updateInputs()
 {
   s_cursorPositionDelta = s_cursorLockFrames > 1 ? s_cursorPosition - s_previousCursorPosition : glm::vec2{};
   if (s_cursorLockFrames >= 0) s_cursorLockFrames++;
   s_previousCursorPosition = s_cursorPosition;
 }
 
-bool IsKeyPressed(int keycode)
+bool isKeyPressed(int keycode)
 {
   return s_pressedKeys.contains(keycode);
 }
 
-glm::vec2 GetMousePosition()
+glm::vec2 getMousePosition()
 {
   return s_cursorPosition;
 }
 
-glm::vec2 GetMouseDelta()
+glm::vec2 getMouseDelta()
 {
   return s_cursorPositionDelta;
 }
 
-glm::vec2 GetInputRange()
+glm::vec2 getInputRange()
 {
   return { Window::getWinWidth(), Window::getWinHeight() };
 }

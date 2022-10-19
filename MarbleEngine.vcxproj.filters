@@ -10,7 +10,7 @@
     <ClCompile Include="src\abstraction\Inputs.cpp" />
     <ClCompile Include="src\abstraction\Renderer.cpp" />
     <ClCompile Include="src\abstraction\Shader.cpp" />
-    <ClCompile Include="src\abstraction\stb_image.cpp" />
+    <ClCompile Include="src\abstraction\stb_image_impl.cpp" />
     <ClCompile Include="src\abstraction\Texture.cpp" />
     <ClCompile Include="src\abstraction\TextureAtlas.cpp" />
     <ClCompile Include="src\abstraction\VertexArray.cpp" />
@@ -103,5 +103,7 @@
     <None Include="res\shaders\shadows_testblitdepth.fs" />
     <None Include="res\shaders\standard_line.vs" />
     <None Include="res\shaders\standard_color.fs" />
+    <None Include="imgui.ini" />
+    <None Include="README.md" />
   </ItemGroup>
 </Project>

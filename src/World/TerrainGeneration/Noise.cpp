@@ -2,14 +2,14 @@
 #include "Noise.h"
 #include <glm/gtc/noise.hpp>
 
-float InverseLerp(float xx, float yy, float value)
+static inline float inverseLerp(float xx, float yy, float value)
 {
 	return (value - xx) / (yy - xx);
 }
 
 namespace Noise {
 
-	float* GenerateNoiseMap(int mapWidth, int mapHeight, float scale, int octaves, float persistance, float lacunarity, int s) {
+	float* generateNoiseMap(int mapWidth, int mapHeight, float scale, int octaves, float persistance, float lacunarity, int s) {
 		
 		float* noiseMap = new float[mapWidth * mapHeight];
 
@@ -65,7 +65,7 @@ namespace Noise {
 
 			for (int x = 0; x < mapWidth; x++) {
 
-				noiseMap[y * mapWidth + x] = InverseLerp(minNoiseHeight, maxNoiseHeight, noiseMap[y*mapWidth+x]);
+				noiseMap[y * mapWidth + x] = inverseLerp(minNoiseHeight, maxNoiseHeight, noiseMap[y*mapWidth+x]);
 
 			}
 		}

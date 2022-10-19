@@ -4,12 +4,12 @@
 
 namespace Inputs {
 
-void ObserveInputs();
-void UpdateInputs();
+void observeInputs();
+void updateInputs();
 
-bool IsKeyPressed(int keycode);
-glm::vec2 GetMousePosition();
-glm::vec2 GetMouseDelta();
-glm::vec2 GetInputRange(); // returns the window size, GetMousePosition and GetMouseDelta are in that range
+bool isKeyPressed(int keycode);
+glm::vec2 getMousePosition();
+glm::vec2 getMouseDelta();
+glm::vec2 getInputRange(); // returns the window size, GetMousePosition and GetMouseDelta are in that range
 
 }

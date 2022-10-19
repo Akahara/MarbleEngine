@@ -8,11 +8,11 @@
 
 class EmptyScene : public Scene {
 public:
-  void Step(float delta) override {}
-  void OnRender() override {
-    Renderer::Renderer::Clear();
+  void step(float delta) override {}
+  void onRender() override {
+    Renderer::Renderer::clear();
   }
-  void OnImGuiRender() override {}
+  void onImGuiRender() override {}
 };
 
 namespace SceneManager {
@@ -21,19 +21,19 @@ static std::vector<std::pair<std::string, SceneProvider>> s_availableScenes;
 static size_t s_activeSceneIndex = -1;
 static Scene *s_activeScene = nullptr;
 
-void Init()
+void init()
 {
-  RegisterScene<EmptyScene>("Empty");
+  registerScene<EmptyScene>("Empty");
   s_activeScene = s_availableScenes[0].second();
   s_activeSceneIndex = 0;
 }
 
-void Shutdown()
+void shutdown()
 {
   delete s_activeScene;
 }
 
-void SwitchToScene(size_t sceneIndex)
+void switchToScene(size_t sceneIndex)
 {
   delete s_activeScene;
   auto &[name, provider] = s_availableScenes[sceneIndex];
@@ -41,25 +41,25 @@ void SwitchToScene(size_t sceneIndex)
   s_activeSceneIndex = sceneIndex;
 }
 
-void Step(float delta)
+void step(float delta)
 {
-  s_activeScene->Step(delta);
+  s_activeScene->step(delta);
 }
 
-void OnRender()
+void onRender()
 {
-  s_activeScene->OnRender();
+  s_activeScene->onRender();
 }
 
-void OnImGuiRender()
+void onImGuiRender()
 {
-  s_activeScene->OnImGuiRender();
+  s_activeScene->onImGuiRender();
 
   ImGui::Begin("Scenes");
   for (size_t i = 0; i < s_availableScenes.size(); i++) {
     auto &[name, provider] = s_availableScenes[i];
     if (ImGui::Button(name.c_str()))
-      SwitchToScene(i);
+      switchToScene(i);
     if (s_activeSceneIndex == i) {
       ImGui::SameLine();
       ImGui::Text("< active");
@@ -68,7 +68,7 @@ void OnImGuiRender()
   ImGui::End();
 }
 
-void RegisterScene(const std::string &name, SceneProvider provider)
+void registerScene(const std::string &name, SceneProvider provider)
 {
   s_availableScenes.push_back(std::make_pair(name, provider));
 }

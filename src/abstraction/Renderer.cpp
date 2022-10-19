@@ -60,18 +60,18 @@ static RendererData s_RendererData;
 
 namespace Renderer {
 
-	void Renderer::Clear() {
+	void Renderer::clear() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	void Renderer::Draw(const VertexArray& va, const IndexBufferObject& ibo, const Shader& shader) {
-		shader.Bind();
-		va.Bind();
-		ibo.Bind();
+	void Renderer::draw(const VertexArray& va, const IndexBufferObject& ibo, const Shader& shader) {
+		shader.bind();
+		va.bind();
+		ibo.bind();
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(ibo.getCount()), GL_UNSIGNED_INT, nullptr);
 	}
 
-	void Renderer::Init(){
+	void Renderer::init() {
 
 		std::string vs = R"glsl(
 			#version 330 core
@@ -121,7 +121,7 @@ namespace Renderer {
 		
 
 		s_RendererData.QuadShader = std::make_shared<Shader>(vs, fs);
-		s_RendererData.QuadShader->Bind();
+		s_RendererData.QuadShader->bind();
 
 		s_RendererData.QuadBuffer = new Vertex[MaxVertexCount];
 
@@ -154,44 +154,44 @@ namespace Renderer {
 
 		s_RendererData.QuadIBO = std::make_shared<IndexBufferObject>(indices, MaxIndicesCount);
 		s_RendererData.QuadVA->addBuffer(*s_RendererData.QuadVBO, layout, *s_RendererData.QuadIBO);
-		s_RendererData.QuadVA->Unbind();
+		s_RendererData.QuadVA->unbind();
 
 		s_RendererData.WhiteTexture = std::make_shared<Texture>("whitePixel.png");
 		s_RendererData.TextureSlots[0] = s_RendererData.WhiteTexture;
 
 
 		GLint samplers[8] = { 0,1,2,3,4,5,6,7 };
-		s_RendererData.QuadShader->SetUniform1iv("u_Textures", 8, samplers);
+		s_RendererData.QuadShader->setUniform1iv("u_Textures", 8, samplers);
 		
 	}
 
-	void Renderer::Shutdown() {
+	void Renderer::shutdown() {
 
 		delete[] s_RendererData.QuadBuffer;
 	}
 
-	void Renderer::BeginBatch(const Camera& camera){
+	void Renderer::beginBatch(const Camera& camera) {
 
-		s_RendererData.QuadShader->Bind();
-		s_RendererData.QuadShader->SetUniformMat4f("u_MVP", camera.getViewProjectionMatrix());
+		s_RendererData.QuadShader->bind();
+		s_RendererData.QuadShader->setUniformMat4f("u_MVP", camera.getViewProjectionMatrix());
 		s_RendererData.QuadBufferPtr = s_RendererData.QuadBuffer;
 
 		s_RendererData.isBatching = true;
 
 	}
-	void Renderer::EndBatch(){
+	void Renderer::endBatch() {
 
 
 		GLsizeiptr size = (uint8_t*)s_RendererData.QuadBufferPtr - (uint8_t*)s_RendererData.QuadBuffer;
 
-		s_RendererData.QuadVBO->Bind();
-		s_RendererData.QuadVA->SendToGPU(size, s_RendererData.QuadBuffer);
+		s_RendererData.QuadVBO->bind();
+		s_RendererData.QuadVA->sendToGPU(size, s_RendererData.QuadBuffer);
 
 
 	}
 
 
-	void Renderer::Flush(){
+	void Renderer::flush() {
 
 
 		s_RendererData.isBatching = false;
@@ -199,26 +199,26 @@ namespace Renderer {
 		
 		for (unsigned int i = 0; i < s_RendererData.TextureSlotIndex; i++) {
 
-			s_RendererData.TextureSlots[i]->Bind(i);
+			s_RendererData.TextureSlots[i]->bind(i);
 		}
 		
-		s_RendererData.QuadVA->Bind();
+		s_RendererData.QuadVA->bind();
 		glDrawElements(GL_TRIANGLES, s_RendererData.IndexCount, GL_UNSIGNED_INT, nullptr);
 
 		s_RendererData.IndexCount = 0;
 		s_RendererData.TextureSlotIndex = 1;
-		s_RendererData.QuadVA->Unbind();
+		s_RendererData.QuadVA->unbind();
 
 
 	}
 
-	void Renderer::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& colors) {
+	void Renderer::drawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& colors) {
 
 
 		if (s_RendererData.IndexCount >= MaxIndicesCount) { // TODO query
 
-			EndBatch();
-			Flush();
+			endBatch();
+			flush();
 			s_RendererData.QuadBufferPtr = s_RendererData.QuadBuffer;
 
 		}
@@ -259,12 +259,12 @@ namespace Renderer {
 
 	}
 
-	void Renderer::DrawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Texture>& texture, const glm::vec4& colors) {
+	void Renderer::drawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Texture>& texture, const glm::vec4& colors) {
 
 		if (s_RendererData.IndexCount >= MaxIndicesCount || s_RendererData.TextureSlotIndex > 7) { // TODO query
 
-			EndBatch();
-			Flush();
+			endBatch();
+			flush();
 			s_RendererData.QuadBufferPtr = s_RendererData.QuadBuffer;
 
 		}
@@ -322,7 +322,7 @@ namespace Renderer {
 
 	}
 
-	void Renderer::DrawQuadFromAtlas(const glm::vec3& position, const glm::vec2& size, const TextureAtlas& textureAtlas, int x, int y, const glm::vec4& colors /*= {1.0f,1.0f,1.0f,1.0f}*/) {
+	void Renderer::drawQuadFromAtlas(const glm::vec3& position, const glm::vec2& size, const TextureAtlas& textureAtlas, int x, int y, const glm::vec4& colors /*= {1.0f,1.0f,1.0f,1.0f}*/) {
 		
 		std::shared_ptr<Texture> texture = textureAtlas.getTexture();
 
@@ -337,8 +337,8 @@ namespace Renderer {
 
 		if (s_RendererData.IndexCount >= MaxIndicesCount || s_RendererData.TextureSlotIndex > 7) { // TODO query
 
-			EndBatch();
-			Flush();
+			endBatch();
+			flush();
 			s_RendererData.QuadBufferPtr = s_RendererData.QuadBuffer;
 
 		}

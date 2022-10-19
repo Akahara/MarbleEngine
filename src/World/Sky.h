@@ -14,16 +14,16 @@ private:
 public:
   Sky();
 
-  void Step(float delta);
-  void Render(const Player &player) const;
+  void step(float delta);
+  void render(const Player &player) const;
 };
 
 }
 
 namespace Renderer::SkyRenderer {
 
-void Init();
-void DrawSkyClouds(const Texture &cloudsTexture, const Player &player);
-//void Shutdown();
+void init();
+void drawSkyClouds(const Texture &cloudsTexture, const Player &player);
+//void Shutdown(); // TODO restore this shutdown and move the renderer elsewhere
 
 }

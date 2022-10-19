@@ -23,7 +23,7 @@ static struct KeepAliveResources {
 } *s_keepAliveResources = nullptr;
 
 
-Shader LoadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath)
+Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath)
 {
   std::ifstream vertexFile{ vertexPath };
   std::ifstream fragmentFile{ fragmentPath };
@@ -36,7 +36,7 @@ Shader LoadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentP
   return Shader{ vertexCode, fragmentCode };
 }
 
-Mesh CreateCubeMesh()
+Mesh createCubeMesh()
 {
   // TODO add UVs
   float s3 = std::sqrtf(3);
@@ -62,7 +62,7 @@ Mesh CreateCubeMesh()
   return Mesh(vertices, indices);
 }
 
-Mesh CreatePlaneMesh()
+Mesh createPlaneMesh()
 {
   std::vector<Renderer::Vertex> vertices{
     // position             uv            normal (up)
@@ -77,7 +77,7 @@ Mesh CreatePlaneMesh()
   return Mesh(vertices, indices);
 }
 
-static void SkipStreamText(std::istream &stream, const char *text)
+static void skipStreamText(std::istream &stream, const char *text)
 {
   char c;
   while (*text) {
@@ -89,7 +89,7 @@ static void SkipStreamText(std::istream &stream, const char *text)
   }
 }
 
-Mesh LoadMeshFromFile(const fs::path &objPath)
+Mesh loadMeshFromFile(const fs::path &objPath)
 {
   std::ifstream modelFile{ objPath };
   constexpr size_t bufSize = 100;
@@ -128,8 +128,8 @@ Mesh LoadMeshFromFile(const fs::path &objPath)
       normals.push_back({ f1, f2, f3 });
     } else if (strstr(lineBuffer, "f ") == lineBuffer) { // face
       for (size_t i = 0; i < 3; i++) {
-        ss >> i1; SkipStreamText(ss, "/");
-        ss >> i2; SkipStreamText(ss, "/");
+        ss >> i1; skipStreamText(ss, "/");
+        ss >> i2; skipStreamText(ss, "/"); // TODO fix the case where no uvs are specified
         ss >> i3;
         std::tuple<int, int, int> cacheKey{ i1, i2, i3 };
         auto inCacheIndex = std::find(cachedVertices.begin(), cachedVertices.end(), cacheKey);
@@ -149,74 +149,79 @@ Mesh LoadMeshFromFile(const fs::path &objPath)
   return Mesh(vertices, indices);
 }
 
-void Clear()
+void clear()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Init()
+void init()
 {
   VertexBufferLayout emptyLayout;
   s_keepAliveResources = new KeepAliveResources;
 
-  s_keepAliveResources->standardMeshShader = LoadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_mesh.fs");
-  s_keepAliveResources->standardLineShader = LoadShaderFromFiles("res/shaders/standard_line.vs", "res/shaders/standard_color.fs");
+  s_keepAliveResources->standardMeshShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_mesh.fs");
+  s_keepAliveResources->standardLineShader = loadShaderFromFiles("res/shaders/standard_line.vs", "res/shaders/standard_color.fs");
   
   s_keepAliveResources->lineIBO = IndexBufferObject({ 0, 1 });
   s_keepAliveResources->lineVAO.addBuffer(s_keepAliveResources->emptyVBO, emptyLayout, s_keepAliveResources->lineIBO);
 
-  s_keepAliveResources->debugCubeMesh = CreateCubeMesh();
-  s_keepAliveResources->debugCubeShader = LoadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_color.fs");
+  s_keepAliveResources->debugCubeMesh = createCubeMesh();
+  s_keepAliveResources->debugCubeShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_color.fs");
 
-  VertexArray::Unbind();
+  VertexArray::unbind();
 }
 
-void Shutdown()
+void shutdown()
 {
   delete s_keepAliveResources;
 }
 
-void RenderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm::mat4 &VP)
+Shader &getStandardMeshShader()
+{
+  if (s_keepAliveResources == nullptr)
+    throw std::exception("Cannot fetch resources while the renderer is uninitialized");
+  return s_keepAliveResources->standardMeshShader;
+}
+
+void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm::mat4 &VP)
 {
   glm::mat4 M(1.f);
   M = glm::translate(M, position);
   M = glm::scale(M, size);
-  s_keepAliveResources->standardMeshShader.Bind();
-  s_keepAliveResources->standardMeshShader.SetUniformMat4f("u_M", M);
-  s_keepAliveResources->standardMeshShader.SetUniformMat4f("u_VP", VP);
-  mesh.Draw();
+  s_keepAliveResources->standardMeshShader.bind();
+  s_keepAliveResources->standardMeshShader.setUniformMat4f("u_M", M);
+  s_keepAliveResources->standardMeshShader.setUniformMat4f("u_VP", VP);
+  mesh.draw();
 }
 
-Shader& getShader() { if (s_keepAliveResources) return s_keepAliveResources->standardMeshShader; } // TODO fix the else case
-
-void RenderDebugLine(const glm::mat4 &VP, glm::vec3 from, glm::vec3 to, const glm::vec4 &color)
+void renderDebugLine(const glm::mat4 &VP, glm::vec3 from, glm::vec3 to, const glm::vec4 &color)
 {
-  s_keepAliveResources->lineVAO.Bind();
-  s_keepAliveResources->standardLineShader.Bind();
-  s_keepAliveResources->standardLineShader.SetUniform3f("u_from", from);
-  s_keepAliveResources->standardLineShader.SetUniform3f("u_to", to);
-  s_keepAliveResources->standardLineShader.SetUniform4f("u_color", color);
-  s_keepAliveResources->standardLineShader.SetUniformMat4f("u_VP", VP);
+  s_keepAliveResources->lineVAO.bind();
+  s_keepAliveResources->standardLineShader.bind();
+  s_keepAliveResources->standardLineShader.setUniform3f("u_from", from);
+  s_keepAliveResources->standardLineShader.setUniform3f("u_to", to);
+  s_keepAliveResources->standardLineShader.setUniform4f("u_color", color);
+  s_keepAliveResources->standardLineShader.setUniformMat4f("u_VP", VP);
   glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, nullptr);
 }
 
-void RenderDebugCube(const glm::mat4 &VP, glm::vec3 position, glm::vec3 size, const glm::vec4 &color)
+void renderDebugCube(const glm::mat4 &VP, glm::vec3 position, glm::vec3 size, const glm::vec4 &color)
 {
   glm::mat4 M(1.f);
   M = glm::translate(M, position);
   M = glm::scale(M, size);
-  s_keepAliveResources->debugCubeShader.Bind();
-  s_keepAliveResources->debugCubeShader.SetUniform4f("u_color", color);
-  s_keepAliveResources->debugCubeShader.SetUniformMat4f("u_M", M);
-  s_keepAliveResources->debugCubeShader.SetUniformMat4f("u_VP", VP);
-  s_keepAliveResources->debugCubeMesh.Draw();
+  s_keepAliveResources->debugCubeShader.bind();
+  s_keepAliveResources->debugCubeShader.setUniform4f("u_color", color);
+  s_keepAliveResources->debugCubeShader.setUniformMat4f("u_M", M);
+  s_keepAliveResources->debugCubeShader.setUniformMat4f("u_VP", VP);
+  s_keepAliveResources->debugCubeMesh.draw();
 }
 
-void RenderDebugAxis(const glm::mat4 &VP)
+void renderDebugAxis(const glm::mat4 &VP)
 {
-  RenderDebugLine(VP, { 0, 0, 0 }, { 10, 0, 0 }, { 1.f, 0.f, 0.f, 1.f }); // x red
-  RenderDebugLine(VP, { 0, 0, 0 }, { 0, 10, 0 }, { 0.f, 1.f, 0.f, 1.f }); // y green
-  RenderDebugLine(VP, { 0, 0, 0 }, { 0, 0, 10 }, { 0.f, 0.f, 1.f, 1.f }); // z blue
+  renderDebugLine(VP, { 0, 0, 0 }, { 10, 0, 0 }, { 1.f, 0.f, 0.f, 1.f }); // x red
+  renderDebugLine(VP, { 0, 0, 0 }, { 0, 10, 0 }, { 0.f, 1.f, 0.f, 1.f }); // y green
+  renderDebugLine(VP, { 0, 0, 0 }, { 0, 0, 10 }, { 0.f, 0.f, 1.f, 1.f }); // z blue
 }
 
 
@@ -227,23 +232,23 @@ BlitPass::BlitPass()
 
 BlitPass::BlitPass(const fs::path &fragmentShaderPath)
 {
-  m_shader = LoadShaderFromFiles("res/shaders/blit.vs", fragmentShaderPath);
+  m_shader = loadShaderFromFiles("res/shaders/blit.vs", fragmentShaderPath);
   m_keepAliveIBO = IndexBufferObject({ 0, 2, 1, 3, 2, 0 });
   m_vao.addBuffer(m_keepAliveVBO, VertexBufferLayout{}, m_keepAliveIBO);
 }
 
-void BlitPass::DoBlit(const Texture &renderTexture)
+void BlitPass::doBlit(const Texture &renderTexture)
 {
   glDisable(GL_DEPTH_TEST);
-  Renderer::Clear();
-  renderTexture.Bind();
+  Renderer::clear();
+  renderTexture.bind();
 
-  m_shader.Bind();
-  m_shader.SetUniform2f("u_screenSize", (float)Window::getWinWidth(), (float)Window::getWinHeight()); // TODO remove, this uniform is only necessary because the vignette vfx is in the blit shader, which it shouldn't, it should be in a res/shaders/testfb_blit.fs shader
-  m_vao.Bind();
+  m_shader.bind();
+  m_shader.setUniform2f("u_screenSize", (float)Window::getWinWidth(), (float)Window::getWinHeight()); // TODO remove, this uniform is only necessary because the vignette vfx is in the blit shader, which it shouldn't, it should be in a res/shaders/testfb_blit.fs shader
+  m_vao.bind();
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-  renderTexture.Unbind();
-  m_vao.Unbind();
+  Texture::unbind();
+  VertexArray::unbind();
   glEnable(GL_DEPTH_TEST);
 }
 

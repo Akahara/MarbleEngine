@@ -9,9 +9,9 @@ class Scene {
 public:
   virtual ~Scene() = default;
 
-  virtual void Step(float delta) = 0; // OnUpdate
-  virtual void OnRender() = 0;
-  virtual void OnImGuiRender() = 0;
+  virtual void step(float delta) = 0; // OnUpdate
+  virtual void onRender() = 0;
+  virtual void onImGuiRender() = 0;
 };
 
 //typedef Scene *(*SceneProvider)();
@@ -19,17 +19,17 @@ typedef std::function<Scene *()> SceneProvider;
 
 namespace SceneManager {
 
-void Init();
-void Shutdown();
+void init();
+void shutdown();
 
-void Step(float delta);
-void OnRender();
-void OnImGuiRender();
+void step(float delta);
+void onRender();
+void onImGuiRender();
 
-void RegisterScene(const std::string &name, SceneProvider provider);
+void registerScene(const std::string &name, SceneProvider provider);
 template<class T>
-void RegisterScene(const std::string &name) { RegisterScene(name, []() { return new T; }); }
+void registerScene(const std::string &name) { registerScene(name, []() { return new T; }); }
 
-void SwitchToScene(size_t index);
+void switchToScene(size_t index);
 
 }

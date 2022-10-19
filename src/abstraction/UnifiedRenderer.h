@@ -12,22 +12,22 @@ namespace Renderer {
 
 namespace fs = std::filesystem;
 
-Shader LoadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath);
-Mesh CreateCubeMesh();
-Mesh CreatePlaneMesh();
-Mesh LoadMeshFromFile(const fs::path &objPath);
+Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath);
+Mesh createCubeMesh();
+Mesh createPlaneMesh();
+Mesh loadMeshFromFile(const fs::path &objPath);
 
-void Clear();
+void clear();
 
-Mesh LoadMeshFromFile(const fs::path& objPath);
+void init();
+void shutdown();
 
-void Init();
-void Shutdown();
+Shader &getStandardMeshShader();
 
-void RenderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm::mat4 &VP);
-void RenderDebugLine(const glm::mat4 &VP, glm::vec3 from, glm::vec3 to, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});
-void RenderDebugCube(const glm::mat4 &VP, glm::vec3 position, glm::vec3 size={1.f, 1.f, 1.f}, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});
-void RenderDebugAxis(const glm::mat4 &VP);
+void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm::mat4 &VP);
+void renderDebugLine(const glm::mat4 &VP, glm::vec3 from, glm::vec3 to, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});
+void renderDebugCube(const glm::mat4 &VP, glm::vec3 position, glm::vec3 size={1.f, 1.f, 1.f}, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});
+void renderDebugAxis(const glm::mat4 &VP);
 
 class BlitPass {
 private:
@@ -42,11 +42,9 @@ public:
   BlitPass(const BlitPass &) = delete;
   BlitPass &operator=(const BlitPass &) = delete;
 
-  Shader &GetShader() { return m_shader; }
+  Shader &getShader() { return m_shader; }
 
-  void DoBlit(const Texture &renderTexture);
+  void doBlit(const Texture &renderTexture);
 };
-
-Shader& getShader();
 
 }

@@ -17,32 +17,32 @@ public:
       "res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
       "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
       "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" },
-      m_cubeMesh{ Renderer::CreateCubeMesh() }
+      m_cubeMesh{ Renderer::createCubeMesh() }
   {
   }
 
-  void Step(float delta) override
+  void step(float delta) override
   {
-    m_player.Step(delta);
+    m_player.step(delta);
   }
 
-  void OnRender() override
+  void onRender() override
   {
-    Renderer::Renderer::Clear();
-    Renderer::CubemapRenderer::DrawCubemap(m_skybox, m_player.GetCamera(), m_player.GetPosition());
-    //Renderer::RenderCube({ 1, 0, 0 }, glm::vec3{ 2.f, .05f, .05f }, { 0.f, 0.f, 1.f }, m_player.GetCamera().getViewProjectionMatrix()); // +x blue
-    //Renderer::RenderCube({ 0, 1, 0 }, glm::vec3{ .05f, 2.f, .05f }, { 1.f, 0.f, 0.f }, m_player.GetCamera().getViewProjectionMatrix()); // +y red
-    //Renderer::RenderCube({ 0, 0, 1 }, glm::vec3{ .05f, .05f, 2.f }, { 0.f, 1.f, 0.f }, m_player.GetCamera().getViewProjectionMatrix()); // +z green
-    //Renderer::RenderCube({ 0, 0, 0 }, glm::vec3{ 1.f,  1.f,  1.f }, { .9f, .9f, .9f }, m_player.GetCamera().getViewProjectionMatrix()); // unit cube
-    Renderer::RenderMesh({ 1, 0, 0 }, { .1f, .1f, 1.f }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix()); // +x blue
-    Renderer::RenderMesh({ 0, 1, 0 }, { 1.f, .1f, .1f }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix()); // +y red
-    Renderer::RenderMesh({ 0, 0, 1 }, { .1f, 1.f, .1f }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix()); // +z green
-    Renderer::RenderMesh({ 0, 0, 0 }, { .9f, .9f, .9f }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix()); // unit cube
-    Renderer::RenderMesh({ -5, 3, 12 }, { .9f, .9f, .9f }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix()); // unit cube
-    Renderer::RenderMesh({ 5, 0, 0 }, { .9f, .9f, .9f }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix()); // unit cube
-    Renderer::RenderMesh({ 3.f, 80.f, 5.f }, { 10.f, 10.f, 10.f }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix());
+    Renderer::Renderer::clear();
+    Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera(), m_player.getPosition());
+    //Renderer::RenderCube({ 1, 0, 0 }, glm::vec3{ 2.f, .05f, .05f }, { 0.f, 0.f, 1.f }, m_player.getCamera().getViewProjectionMatrix()); // +x blue
+    //Renderer::RenderCube({ 0, 1, 0 }, glm::vec3{ .05f, 2.f, .05f }, { 1.f, 0.f, 0.f }, m_player.getCamera().getViewProjectionMatrix()); // +y red
+    //Renderer::RenderCube({ 0, 0, 1 }, glm::vec3{ .05f, .05f, 2.f }, { 0.f, 1.f, 0.f }, m_player.getCamera().getViewProjectionMatrix()); // +z green
+    //Renderer::RenderCube({ 0, 0, 0 }, glm::vec3{ 1.f,  1.f,  1.f }, { .9f, .9f, .9f }, m_player.getCamera().getViewProjectionMatrix()); // unit cube
+    Renderer::renderMesh({ 1, 0, 0 }, { .1f, .1f, 1.f }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix()); // +x blue
+    Renderer::renderMesh({ 0, 1, 0 }, { 1.f, .1f, .1f }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix()); // +y red
+    Renderer::renderMesh({ 0, 0, 1 }, { .1f, 1.f, .1f }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix()); // +z green
+    Renderer::renderMesh({ 0, 0, 0 }, { .9f, .9f, .9f }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix()); // unit cube
+    Renderer::renderMesh({ -5, 3, 12 }, { .9f, .9f, .9f }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix()); // unit cube
+    Renderer::renderMesh({ 5, 0, 0 }, { .9f, .9f, .9f }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix()); // unit cube
+    Renderer::renderMesh({ 3.f, 80.f, 5.f }, { 10.f, 10.f, 10.f }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix());
 
   }
 
-  void OnImGuiRender() override {}
+  void onImGuiRender() override {}
 };

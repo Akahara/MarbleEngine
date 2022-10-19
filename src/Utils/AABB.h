@@ -26,15 +26,15 @@ public:
     return AABB(origin, size);
   }
 
-  const glm::vec3 &GetOrigin() const { return m_origin; }
-  const glm::vec3 &GetSize() const { return m_size; }
+  const glm::vec3 &getOrigin() const { return m_origin; }
+  const glm::vec3 &getSize() const { return m_size; }
 
   AABB move(const glm::vec3 &displacement)
   {
     return AABB(m_origin + displacement, m_size);
   }
 
-  bool IsInBounds(const glm::vec3 &point) const 
+  bool isInBounds(const glm::vec3 &point) const 
   {
     return 
       point.x > m_origin.x && point.x < m_origin.x + m_size.x &&
@@ -42,7 +42,7 @@ public:
       point.z > m_origin.z && point.z < m_origin.z + m_size.z;
   }
 
-  static bool DoBoxOverlap(const AABB &box1, const AABB &box2)
+  static bool doBoxesOverlap(const AABB &box1, const AABB &box2)
   {
     return
       box1.m_origin.x < box2.m_origin.x + box2.m_size.x && box1.m_origin.x + box2.m_origin.x > box2.m_origin.x &&
@@ -63,10 +63,10 @@ public:
     : m_aabb(aabb), m_vertexIndex(vertexIndex) { }
 
   glm::vec3 operator*() const {
-    glm::vec3 v = m_aabb->GetOrigin();
-    if (m_vertexIndex & 1) v.x += m_aabb->GetSize().x;
-    if (m_vertexIndex & 2) v.y += m_aabb->GetSize().y;
-    if (m_vertexIndex & 4) v.z += m_aabb->GetSize().z;
+    glm::vec3 v = m_aabb->getOrigin();
+    if (m_vertexIndex & 1) v.x += m_aabb->getSize().x;
+    if (m_vertexIndex & 2) v.y += m_aabb->getSize().y;
+    if (m_vertexIndex & 4) v.z += m_aabb->getSize().z;
     return v;
   }
 

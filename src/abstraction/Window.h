@@ -32,7 +32,7 @@ void pollUserEvents();
 void destroyWindow();
 
 // Unsafe, returns a GLFWwindow*
-void *GetWindowHandle();
+void *getWindowHandle();
 
 unsigned int getWinWidth();
 unsigned int getWinHeight();

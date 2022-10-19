@@ -8,7 +8,7 @@ namespace DebugWindow {
 
 static bool s_wireframeDisplay = false;
 
-void OnImGuiRender()
+void onImGuiRender()
 {
   if (ImGui::Begin("Debug")) {
     if (ImGui::Checkbox("Render as wireframe", &s_wireframeDisplay)) {

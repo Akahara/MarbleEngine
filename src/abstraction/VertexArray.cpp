@@ -8,7 +8,7 @@ VertexArray::VertexArray() {
 }
 
 VertexArray::~VertexArray() {
-  Delete();
+  destroy();
 }
 
 VertexArray::VertexArray(VertexArray &&moved) noexcept {
@@ -18,29 +18,29 @@ VertexArray::VertexArray(VertexArray &&moved) noexcept {
 
 VertexArray &VertexArray::operator=(VertexArray &&moved) noexcept
 {
-  Delete();
+  destroy();
   new (this) VertexArray(std::move(moved));
   return *this;
 }
 
-void VertexArray::Bind() const {
+void VertexArray::bind() const {
   glBindVertexArray(m_RendererID);
 }
 
-void VertexArray::Unbind() {
+void VertexArray::unbind() {
   glBindVertexArray(0);
 }
 
-void VertexArray::Delete()
+void VertexArray::destroy()
 {
   glDeleteVertexArrays(1, &m_RendererID);
   m_RendererID = 0;
 }
 
 void VertexArray::addBuffer(const VertexBufferObject& vb, const VertexBufferLayout& layout, const IndexBufferObject &ib) {
-	Bind();
-	vb.Bind();
-	ib.Bind();
+	bind();
+	vb.bind();
+	ib.bind();
 
 	const auto& elements = layout.getElements();
 	unsigned int offset = 0;
@@ -51,11 +51,11 @@ void VertexArray::addBuffer(const VertexBufferObject& vb, const VertexBufferLayo
 		glEnableVertexAttribArray(i);
 		glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.getStride(), *(const void**)&offset);
 
-		offset += element.count * VertexBufferElement::GetSizeOfType(element.type);
+		offset += element.count * VertexBufferElement::getSizeOfType(element.type);
 	}
 }
 
-void VertexArray::SendToGPU(GLsizeiptr size, const void* data) {
+void VertexArray::sendToGPU(GLsizeiptr size, const void* data) {
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 }
 

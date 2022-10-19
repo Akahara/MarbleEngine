@@ -4,44 +4,44 @@ namespace Renderer {
 
 
     VertexBufferObject::VertexBufferObject(const void *vertices, size_t size) {
-        glGenBuffers(1, &m_RenderID);
-        glBindBuffer(GL_ARRAY_BUFFER, m_RenderID);
+        glGenBuffers(1, &m_renderID);
+        glBindBuffer(GL_ARRAY_BUFFER, m_renderID);
         glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
     }
 
     VertexBufferObject::VertexBufferObject(size_t size) {
-        glGenBuffers(1, &m_RenderID);
-        glBindBuffer(GL_ARRAY_BUFFER, m_RenderID);
+        glGenBuffers(1, &m_renderID);
+        glBindBuffer(GL_ARRAY_BUFFER, m_renderID);
         glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
     }
 
     VertexBufferObject::~VertexBufferObject() {
-        Delete();
+        destroy();
     }
 
     VertexBufferObject::VertexBufferObject(VertexBufferObject &&moved) noexcept
     {
-        m_RenderID = moved.m_RenderID;
-        moved.m_RenderID = 0;
+        m_renderID = moved.m_renderID;
+        moved.m_renderID = 0;
     }
 
     VertexBufferObject &VertexBufferObject::operator=(VertexBufferObject &&moved) noexcept
     {
-        Delete();
+        destroy();
         new (this)VertexBufferObject(std::move(moved));
         return *this;
     }
 
-    void VertexBufferObject::Bind() const {
-        glBindBuffer(GL_ARRAY_BUFFER, m_RenderID);
+    void VertexBufferObject::bind() const {
+        glBindBuffer(GL_ARRAY_BUFFER, m_renderID);
     }
 
-    void VertexBufferObject::Unbind() const {
+    void VertexBufferObject::unbind() const {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
-    void VertexBufferObject::Delete() {
-        glDeleteBuffers(1, &m_RenderID);
-        m_RenderID = 0;
+    void VertexBufferObject::destroy() {
+        glDeleteBuffers(1, &m_renderID);
+        m_renderID = 0;
     }
 }

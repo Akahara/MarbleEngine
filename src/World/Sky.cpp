@@ -23,18 +23,18 @@ Sky::Sky()
 {
   HeightMap noisemap;
   unsigned int textureSize = 300;
-  noisemap.setHeights(textureSize, textureSize, Noise::GenerateNoiseMap(textureSize, textureSize, 10.f, 4, .5f, 1.5f, 0));
+  noisemap.setHeights(textureSize, textureSize, Noise::generateNoiseMap(textureSize, textureSize, 10.f, 4, .5f, 1.5f, 0));
   m_cloudsTexture = MapUtilities::genTextureFromHeightmap(noisemap);
 }
 
-void Sky::Step(float delta)
+void Sky::step(float delta)
 {
 }
 
-void Sky::Render(const Player &player) const
+void Sky::render(const Player &player) const
 {
-  Renderer::CubemapRenderer::DrawCubemap(m_skybox, player.GetCamera(), player.GetPosition());
-  Renderer::SkyRenderer::DrawSkyClouds(m_cloudsTexture, player);
+  Renderer::CubemapRenderer::drawCubemap(m_skybox, player.getCamera(), player.getPosition());
+  Renderer::SkyRenderer::drawSkyClouds(m_cloudsTexture, player);
 }
 
 }
@@ -61,10 +61,10 @@ static Renderer::Mesh createPlaneMesh()
   return Renderer::Mesh(vertices, indices);
 }
 
-void Init()
+void init()
 {
   keepAliveResources = new KeepAliveResources;
-  keepAliveResources->planeMesh = Renderer::CreatePlaneMesh();
+  keepAliveResources->planeMesh = Renderer::createPlaneMesh();
 
   keepAliveResources->cloudsShader = Shader(R"glsl(
 #version 330 core
@@ -107,22 +107,22 @@ void main()
 )glsl");
 }
 
-void DrawSkyClouds(const Texture &cloudsTexture, const Player &player)
+void drawSkyClouds(const Texture &cloudsTexture, const Player &player)
 {
   glDepthMask(false); // do not write to depth buffer
   glm::mat4 M(1.f);
   // beware! if vertices go too far outside the clip range after the vertex shader
   // transformation, some may flicker, making triangles break and the whole plane
   // falling appart
-  M = glm::translate(M, player.GetPosition() + glm::vec3{ 0, .3f, 0 });
+  M = glm::translate(M, player.getPosition() + glm::vec3{ 0, .3f, 0 });
   M = glm::scale(M, { 5.f, 1.f, 5.f });
-  keepAliveResources->cloudsShader.Bind();
-  keepAliveResources->cloudsShader.SetUniformMat4f("u_M", M);
-  keepAliveResources->cloudsShader.SetUniformMat4f("u_VP", player.GetCamera().getViewProjectionMatrix());
-  cloudsTexture.Bind();
-  keepAliveResources->planeMesh.Draw();
-  //cloudsTexture.Bind();
-  //Renderer::RenderMesh(player.GetPosition() + glm::vec3{ 0, .3f, 0 }, { 5.f, 1.f, 5.f }, keepAliveResources->planeMesh, player.GetCamera().getViewProjectionMatrix());
+  keepAliveResources->cloudsShader.bind();
+  keepAliveResources->cloudsShader.setUniformMat4f("u_M", M);
+  keepAliveResources->cloudsShader.setUniformMat4f("u_VP", player.getCamera().getViewProjectionMatrix());
+  cloudsTexture.bind();
+  keepAliveResources->planeMesh.draw();
+  //cloudsTexture.bind();
+  //Renderer::RenderMesh(player.getPosition() + glm::vec3{ 0, .3f, 0 }, { 5.f, 1.f, 5.f }, keepAliveResources->planeMesh, player.getCamera().getViewProjectionMatrix());
   glDepthMask(true);
 }
 

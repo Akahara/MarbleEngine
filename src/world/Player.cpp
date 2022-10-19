@@ -21,44 +21,44 @@ Player::Player()
   m_pitch = .5f;
   m_position = { 3, 3, 3 };
 
-  UpdateCamera();
+  updateCamera();
 }
 
-void Player::Step(float delta)
+void Player::step(float delta)
 {
   glm::vec3 motion{ 0 };
-  if (Inputs::IsKeyPressed('A'))
-    motion -= GetRight();
-  if (Inputs::IsKeyPressed('D'))
-    motion += GetRight();
-  if (Inputs::IsKeyPressed('W'))
-    motion += GetForward();
-  if (Inputs::IsKeyPressed('S'))
-    motion -= GetForward();
-  if (Inputs::IsKeyPressed(' '))
+  if (Inputs::isKeyPressed('A'))
+    motion -= getRight();
+  if (Inputs::isKeyPressed('D'))
+    motion += getRight();
+  if (Inputs::isKeyPressed('W'))
+    motion += getForward();
+  if (Inputs::isKeyPressed('S'))
+    motion -= getForward();
+  if (Inputs::isKeyPressed(' '))
     motion += UP;
-  if (Inputs::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
+  if (Inputs::isKeyPressed(GLFW_KEY_LEFT_SHIFT))
     motion -= UP;
 
   float speed = 25.f;
-  if (Inputs::IsKeyPressed(GLFW_KEY_TAB))
+  if (Inputs::isKeyPressed(GLFW_KEY_TAB))
     speed *= 15.f;
 
-  glm::vec2 rotationMotion = Inputs::GetMouseDelta() / Inputs::GetInputRange() * Mathf::PI;
+  glm::vec2 rotationMotion = Inputs::getMouseDelta() / Inputs::getInputRange() * Mathf::PI;
 
   m_yaw -= rotationMotion.x;
   m_pitch = std::max(-Mathf::PI * .499f, std::min(+Mathf::PI * .499f, m_pitch + rotationMotion.y));
   m_position += motion * delta * speed;
 
-  if (Inputs::IsKeyPressed('Q')) {
+  if (Inputs::isKeyPressed('Q')) {
     m_yaw = 0;
     m_pitch = 0;
     m_position = { 10, 10, 10 };
-    UpdateCamera();
+    updateCamera();
   }
 
   if(motion != glm::vec3(0) || rotationMotion != glm::vec2(0))
-    UpdateCamera();
+    updateCamera();
 
   //m_camera.setPosition({ 10, 10, 10 });
   //m_camera.lookAt({ 0, 0, 0 });
@@ -66,7 +66,7 @@ void Player::Step(float delta)
   //m_camera.recalculateViewProjectionMatrix();
 }
 
-void Player::UpdateCamera()
+void Player::updateCamera()
 {
   m_camera.setPosition(m_position);
   m_camera.setYaw(m_yaw);

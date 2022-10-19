@@ -70,10 +70,6 @@ glm::vec3 Camera::getUp() const
 
 void Camera::lookAt(const glm::vec3 &target)
 {
-  //glm::vec3 d = target - m_position;
-  //float l = glm::sqrt(d.x * d.x + d.z * d.z);
-  //m_pitch = glm::atan(d.y / l);
-  //m_yaw = glm::asin(d.x / l);
   glm::vec3 d = glm::normalize(target - m_position);
   m_pitch = glm::asin(-d.y);
   m_yaw = glm::atan(d.x, d.z);

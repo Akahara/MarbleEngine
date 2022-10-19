@@ -17,7 +17,7 @@ namespace Renderer {
 
 		
 		TextureAtlas(const std::string& path, float width, float height, float spriteWidth, float spriteHeight)
-			: m_Atlas(std::make_shared<Texture>(path)),
+			: m_atlas(std::make_shared<Texture>(path)),
 			m_sheetWidth(width),
 			m_sheetHeight(height),
 			m_spriteWidth(spriteWidth),
@@ -28,7 +28,7 @@ namespace Renderer {
 
 
 		TextureAtlas(std::shared_ptr<Texture> texture, float width, float height, float spriteWidth, float spriteHeight)
-			: m_Atlas(texture),
+			: m_atlas(texture),
 			m_sheetWidth(width),
 			m_sheetHeight(height),
 			m_spriteWidth(spriteWidth),
@@ -45,7 +45,7 @@ namespace Renderer {
 		~TextureAtlas() {}
 
 
-		inline std::shared_ptr<Texture> getTexture() const { return m_Atlas; }
+		inline std::shared_ptr<Texture> getTexture() const { return m_atlas; }
 		inline float getSheetWidth()const { return m_sheetWidth; }
 		inline float getSheetHeight() const { return m_sheetHeight; }
 		inline float getSpriteWidth()const { return m_spriteWidth; }
@@ -55,7 +55,7 @@ namespace Renderer {
 			
 	private :
 
-		std::shared_ptr<Texture> m_Atlas;
+		std::shared_ptr<Texture> m_atlas;
 		float m_sheetWidth, m_sheetHeight;
 		float m_spriteWidth, m_spriteHeight;
 

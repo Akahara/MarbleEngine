@@ -9,7 +9,7 @@ namespace Renderer {
 class Texture {
 private:
   unsigned int m_RendererID;
-  int          m_Width, m_Height;
+  int          m_width, m_height;
 public:
   Texture();
   explicit Texture(const std::string &path);
@@ -20,20 +20,20 @@ public:
   Texture &operator=(const Texture &) = delete;
   Texture(const Texture &) = delete;
 
-  void Bind(unsigned int slot = 0) const;
-  void Unbind() const;
-  void Delete();
+  void bind(unsigned int slot = 0) const;
+  static void unbind(unsigned int slot = 0);
+  void destroy();
 
-  void ChangeColor(uint32_t color);
+  void changeColor(uint32_t color);
 
-  inline int GetWidth() const { return m_Width; }
-  inline int GetHeight() const { return m_Height; }
+  inline int getWidth() const { return m_width; }
+  inline int getHeight() const { return m_height; }
   inline unsigned int getId() const { return m_RendererID; } // unsafe
 
   static Texture createTextureFromData(const float *data, int width, int height, int floatPerPixel = 4);
   static Texture createDepthTexture(int width, int height);
 
-  static void WriteToFile(const Texture &texture, const std::filesystem::path &path, bool isDepthTexture = false);
+  static void writeToFile(const Texture &texture, const std::filesystem::path &path, bool isDepthTexture = false);
 private:
   Texture(unsigned int rendererId, int width, int height);
 };

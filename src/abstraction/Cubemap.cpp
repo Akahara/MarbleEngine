@@ -42,12 +42,12 @@ Cubemap::~Cubemap()
   glDeleteTextures(1, &m_id);
 }
 
-void Cubemap::Bind() const
+void Cubemap::bind() const
 {
   glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
 }
 
-void Cubemap::Unbind()
+void Cubemap::unbind()
 {
   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
@@ -66,7 +66,7 @@ static struct {
   IndexBufferObject *ibo;
 } keepAliveResources;
 
-void Init()
+void init()
 {
   cmRenderData.shader = new Shader{ 
 R"glsl(
@@ -123,23 +123,23 @@ void main()
   layout.push<float>(3);
   cmRenderData.vao = new VertexArray;
   cmRenderData.vao->addBuffer(*keepAliveResources.vbo, layout, *keepAliveResources.ibo);
-  cmRenderData.vao->Unbind();
+  cmRenderData.vao->unbind();
 }
 
-void DrawCubemap(const Cubemap &cubemap, const Camera &camera, const glm::vec3 &offset)
+void drawCubemap(const Cubemap &cubemap, const Camera &camera, const glm::vec3 &offset)
 {
-  cmRenderData.vao->Bind();
-  cmRenderData.shader->Bind();
-  cmRenderData.shader->SetUniformMat4f("u_VP", camera.getViewProjectionMatrix());
-  cmRenderData.shader->SetUniform3f("u_displacement", offset.x, offset.y, offset.z);
-  cubemap.Bind();
+  cmRenderData.vao->bind();
+  cmRenderData.shader->bind();
+  cmRenderData.shader->setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+  cmRenderData.shader->setUniform3f("u_displacement", offset.x, offset.y, offset.z);
+  cubemap.bind();
 
   glDepthMask(false); // do not write to depth buffer
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
   glDepthMask(true);
 }
 
-void Shutdown()
+void shutdown()
 {
   delete cmRenderData.shader;
   delete cmRenderData.vao;

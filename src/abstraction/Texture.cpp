@@ -10,16 +10,16 @@
 namespace Renderer {
 
 Texture::Texture()
-  : m_RendererID(0), m_Width(0), m_Height(0)
+  : m_RendererID(0), m_width(0), m_height(0)
 {
 }
 
 Texture::Texture(const std::string &path)
-  : m_RendererID(0), m_Width(0), m_Height(0)
+  : m_RendererID(0), m_width(0), m_height(0)
 {
   stbi_set_flip_vertically_on_load(1);
 
-  unsigned char *localBuffer = stbi_load(path.c_str(), &m_Width, &m_Height, nullptr, 4);
+  unsigned char *localBuffer = stbi_load(path.c_str(), &m_width, &m_height, nullptr, 4);
 
   glGenTextures(1, &m_RendererID);
   glBindTexture(GL_TEXTURE_2D, m_RendererID);
@@ -30,7 +30,7 @@ Texture::Texture(const std::string &path)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
   if (localBuffer) {
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, localBuffer);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	stbi_image_free(localBuffer);
   } else {
@@ -42,7 +42,7 @@ Texture::Texture(const std::string &path)
 }
 
 Texture::Texture(unsigned int width, unsigned int height)
-  : m_Width(width), m_Height(height)
+  : m_width(width), m_height(height)
 {
   glGenTextures(1, &m_RendererID);
   glBindTexture(GL_TEXTURE_2D, m_RendererID);
@@ -54,57 +54,57 @@ Texture::Texture(unsigned int width, unsigned int height)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RED, GL_BYTE, nullptr);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RED, GL_BYTE, nullptr);
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 Texture::Texture(unsigned int rendererId, int width, int height)
-  : m_RendererID(rendererId), m_Width(width), m_Height(height)
+  : m_RendererID(rendererId), m_width(width), m_height(height)
 {
 }
 
 Texture::~Texture()
 {
-  Delete();
+  destroy();
 }
 
 Texture::Texture(Texture &&moved) noexcept
 {
   m_RendererID = moved.m_RendererID;
-  m_Width = moved.m_Width;
-  m_Height = moved.m_Height;
+  m_width = moved.m_width;
+  m_height = moved.m_height;
   moved.m_RendererID = 0;
-  moved.m_Width = 0;
-  moved.m_Height = 0;
+  moved.m_width = 0;
+  moved.m_height = 0;
 }
 
 Texture &Texture::operator=(Texture &&moved) noexcept
 {
-  Delete();
+  destroy();
   new (this) Texture(std::move(moved));
   return *this;
 }
 
-void Texture::Delete()
+void Texture::destroy()
 {
   glDeleteTextures(1, &m_RendererID);
   m_RendererID = 0;
 }
 
-void Texture::Bind(unsigned int slot /* = 0*/) const
+void Texture::bind(unsigned int slot /* = 0*/) const
 {
   glActiveTexture(GL_TEXTURE0 + slot);
   glBindTexture(GL_TEXTURE_2D, m_RendererID);
 
 }
-void Texture::Unbind() const
+void Texture::unbind(unsigned int slot /* = 0*/)
 {
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Texture::ChangeColor(uint32_t color)
+void Texture::changeColor(uint32_t color)
 {
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GetWidth(), GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, &color);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, getWidth(), getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, &color);
 }
 
 Texture Texture::createTextureFromData(const float *data, int width, int height, int floatPerPixel)
@@ -151,7 +151,7 @@ Texture Texture::createDepthTexture(int width, int height)
 }
 
 // TODO move this elsewhere ?
-void Texture::WriteToFile(const Texture &texture, const std::filesystem::path &path, bool isDepthTexture)
+void Texture::writeToFile(const Texture &texture, const std::filesystem::path &path, bool isDepthTexture)
 {
   int w, h;
   int lod = 0;

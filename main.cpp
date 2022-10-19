@@ -32,27 +32,27 @@ int main()
     Window::setVisible(true);
     Window::setPosition(400, 100);
     Window::capFramerate();
-    Inputs::ObserveInputs();
+    Inputs::observeInputs();
 
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(Window::GetWindowHandle()), true);
+    ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(Window::getWindowHandle()), true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
-	Renderer::Renderer::Init();
-    Renderer::CubemapRenderer::Init();
-    Renderer::SkyRenderer::Init();
-    Renderer::Init();
-    SceneManager::Init();
+	Renderer::Renderer::init();
+    Renderer::CubemapRenderer::init();
+    Renderer::SkyRenderer::init();
+    Renderer::init();
+    SceneManager::init();
 
-    SceneManager::RegisterScene<Test2DScene>("Test");
-    SceneManager::RegisterScene<Test3DScene>("Test3D");
-    SceneManager::RegisterScene<TestTerrainScene>("Terrain");
-    SceneManager::RegisterScene<TestSkyScene>("Sky");
-    SceneManager::RegisterScene<TestFBScene>("Framebuffer");
-    SceneManager::RegisterScene<TestShadersScene>("Shaders");
-    SceneManager::RegisterScene<TestShadowsScene>("Shadows");
-    SceneManager::SwitchToScene(7);
+    SceneManager::registerScene<Test2DScene>("Test");
+    SceneManager::registerScene<Test3DScene>("Test3D");
+    SceneManager::registerScene<TestTerrainScene>("Terrain");
+    SceneManager::registerScene<TestSkyScene>("Sky");
+    SceneManager::registerScene<TestFBScene>("Framebuffer");
+    SceneManager::registerScene<TestShadersScene>("Shaders");
+    SceneManager::registerScene<TestShadowsScene>("Shadows");
+    SceneManager::switchToScene(7);
 
     //===========================================================//
 
@@ -68,19 +68,19 @@ int main()
         firstTime = nextTime;
 
         Window::pollUserEvents();
-        Inputs::UpdateInputs();
+        Inputs::updateInputs();
         frames++;
 
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
         
-        SceneManager::Step(realDelta);
-        SceneManager::OnRender();
-        SceneManager::OnImGuiRender();
-        DebugWindow::OnImGuiRender();
+        SceneManager::step(realDelta);
+        SceneManager::onRender();
+        SceneManager::onImGuiRender();
+        DebugWindow::onImGuiRender();
 
-        Renderer::Shader::Unbind(); // unbind shaders before ImGui's new frame, so it won't try to restore a shader that has been deleted
+        Renderer::Shader::unbind(); // unbind shaders before ImGui's new frame, so it won't try to restore a shader that has been deleted
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -95,7 +95,7 @@ int main()
         }
     }
 
-    SceneManager::Shutdown();
+    SceneManager::shutdown();
 
     ImGui_ImplGlfw_Shutdown();
     ImGui_ImplOpenGL3_Shutdown();

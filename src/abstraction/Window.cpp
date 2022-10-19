@@ -166,7 +166,7 @@ unsigned int getWinHeight()
   return winHeight;
 }
 
-void *GetWindowHandle()
+void *getWindowHandle()
 {
   return window;
 }

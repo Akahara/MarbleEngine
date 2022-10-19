@@ -4,19 +4,19 @@ namespace Renderer {
 
 class BufferObject {
 protected:
-  unsigned int m_RenderID;
+  unsigned int m_renderID;
 
 public:
-  virtual void Bind() const = 0;
-  virtual void Unbind() const = 0;
-  virtual void Delete() = 0;
+  virtual void bind() const = 0;
+  virtual void unbind() const = 0;
+  virtual void destroy() = 0;
 
-  BufferObject() : m_RenderID(0) {}
+  BufferObject() : m_renderID(0) {}
   BufferObject(const BufferObject &) = delete;
   BufferObject &operator=(const BufferObject &) = delete;
 
   // Unsafe
-  unsigned int getId() { return m_RenderID; }
+  unsigned int getId() { return m_renderID; }
 };
 
 }

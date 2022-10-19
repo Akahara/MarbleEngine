@@ -18,12 +18,12 @@ public:
   VertexArray &operator=(VertexArray &&moved) noexcept;
   VertexArray(VertexArray &&moved) noexcept;
 
-  void Bind() const;
-  static void Unbind();
-  void Delete();
+  void bind() const;
+  static void unbind();
+  void destroy();
 
   void addBuffer(const VertexBufferObject &vb, const VertexBufferLayout &layout, const IndexBufferObject &ib);
-  void SendToGPU(GLsizeiptr size, const void *data);
+  void sendToGPU(GLsizeiptr size, const void *data);
 };
 
 }

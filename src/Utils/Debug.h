@@ -6,6 +6,6 @@
 
 namespace DebugWindow {
 
-void OnImGuiRender();
+void onImGuiRender();
 
 }
