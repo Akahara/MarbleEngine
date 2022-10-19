@@ -5,6 +5,7 @@
 
 using namespace Renderer;
 static glm::vec3 color_chunk = { 0.f, 0.f, 0.f };
+
 namespace TerrainMeshGenerator {
 
   
@@ -18,48 +19,6 @@ Chunk generateChunk(const HeightMapView& heightmap, float depth) {
 
 }
 
-// TODO : concreteMap
-Mesh generateMesh(const HeightMap &heightmap )
-{
-  std::vector<Vertex> vertices;
-  std::vector<unsigned int> indices;
-
-  for (int y = 0; y < (int)heightmap.getMapHeight(); y++) {
-    for (int x = 0; x < (int)heightmap.getMapWidth(); x++) {
-      Vertex &vertex = vertices.emplace_back();
-      vertex.position = { x , heightmap.getHeight(x, y) * 100, y };
-      vertex.uv = { (float)x / heightmap.getMapWidth(), (float)y / heightmap.getMapHeight() };
-      vertex.uv *= 10;
-
-      glm::vec3 A, B;      
-      A = { 0 , heightmap.getHeight(x + 1, y) - heightmap.getHeight(x, y) , 1.f / heightmap.getMapHeight()};
-      B = { 1.f/ heightmap.getMapWidth()  , heightmap.getHeight(x + 1, y + 1) - heightmap.getHeight(x, y), 0};
-      glm::vec3 N = glm::cross(A, B);
-
-      vertex.normal = glm::normalize(N);
-    }
-  }
-
-  for (int x = 0; x < (int)heightmap.getMapWidth() - 1; x++) {
-    for (int y = 0; y < (int)heightmap.getMapHeight()-1; y++) {
-      unsigned int a1 = y * heightmap.getMapWidth() + x;
-      unsigned int a2 = y * heightmap.getMapWidth() + x + 1;
-      unsigned int a3 = (y + 1) * heightmap.getMapWidth() + x;
-      unsigned int a4 = (y + 1) * heightmap.getMapWidth() + x + 1;
-      indices.push_back(a1);
-      indices.push_back(a3);
-      indices.push_back(a2);
-      indices.push_back(a2);
-      indices.push_back(a3);
-      indices.push_back(a4);
-    }
-  }
-
-  Mesh mesh{ vertices, indices };
-  return mesh;
-}
-
-// TODO ; enelver ca
 Mesh generateMesh(const HeightMapView& heightmap, float depth)
 {
     std::vector<Vertex> vertices;
@@ -108,7 +67,6 @@ Mesh generateMesh(const HeightMapView& heightmap, float depth)
     return mesh;
 }
 
-
 Terrain generateTerrain(float* noiseMap, float w, float h, unsigned int numberOfChunks, float depth) {
 
     Terrain terrain;
@@ -128,7 +86,7 @@ Terrain generateTerrain(float* noiseMap, float w, float h, unsigned int numberOf
 
         HeightMapView hmv = HeightMapView(terrain.heightMap, chunk_position, glm::vec2(chunkSize));
         Chunk chunk = generateChunk(hmv, depth);
-        terrain.chunksPosition.insert({ chunk_position, std::move(chunk) }); // todo calculer la position
+        terrain.chunksPosition.insert({ chunk_position, std::move(chunk) });
     }
 
 
