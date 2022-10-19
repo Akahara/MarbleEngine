@@ -9,6 +9,7 @@
 #include <iostream>
 #include <glm/gtx/hash.hpp>
 #include <unordered_map>
+#include <map>
 #include "Noise.h"
 #include "HeightMap.h"
 
@@ -66,10 +67,10 @@ namespace TerrainMeshGenerator {
 
     };
 
-Renderer::Mesh generateMesh(const HeightMap &heightmap);
+Renderer::Mesh generateMesh(const HeightMap &heightmap, float depth);
 
-Renderer::Mesh generateMesh(const HeightMapView& heightmap);
+Renderer::Mesh generateMesh(const HeightMapView& heightmap, float depth);
 
 
-Terrain generateTerrain(float* noiseMap, float w, float h, unsigned int chunkSize); 
+Terrain generateTerrain(float* noiseMap, float w, float h, unsigned int numberOfChunks, float depth); 
 }

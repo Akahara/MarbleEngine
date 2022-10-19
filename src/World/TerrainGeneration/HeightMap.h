@@ -105,6 +105,8 @@ public:
 		return originMap->getHeight(projectedX, projectedY);
 
 	}
+	const HeightMap& getOriginMap()  const { return *originMap; }
+	glm::vec2 getOriginPoint() const { return originPoint; }
 
 	unsigned int getMapWidth() const { return subMapSize.x+1; }
 	unsigned int getMapHeight() const { return subMapSize.y+1; }

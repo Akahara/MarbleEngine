@@ -16,6 +16,7 @@ namespace Renderer {
 		glm::vec2 uv;
 		glm::vec3 normal;
 		float texId;
+		glm::vec3 color;
 	};
 
 class Mesh {

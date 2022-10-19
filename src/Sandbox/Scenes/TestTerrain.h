@@ -22,7 +22,7 @@ private:
   bool              m_playerIsFlying = true;
   int w = 200, h = 200;
   float scale = 27.6f;
-  float terrainHeight = 120.f;
+  float terrainHeight = 20.f;
   int o = 4;
   float p = 0.3f, l = 3.18f;
   int seed = 5;
@@ -40,6 +40,10 @@ private:
   Renderer::Texture m_grassTexture = Renderer::Texture( "res/textures/grass5.jpg" );
 
   TerrainMeshGenerator::Terrain terrain;
+
+  float m_mSize = 1;
+  bool m_RenderChunks = 0;
+  int numberOfChunks = 8;
 
   struct Sun {
 
@@ -62,6 +66,7 @@ public:
       "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" }
       
   {
+
     m_player.setPostion({ 100.f, 500.f, 0 });
     m_player.UpdateCamera();
     RegenerateTerrain();
@@ -78,7 +83,7 @@ public:
     Renderer::getShader().SetUniform1f("u_Strenght", strength);
     m_testMesh = Renderer::LoadMeshFromFile("res/meshes/house.obj");
     noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
-    terrain = TerrainMeshGenerator::generateTerrain(noiseMap, w, h, 8);
+    terrain = TerrainMeshGenerator::generateTerrain(noiseMap, w, h, numberOfChunks, terrainHeight);
 
   }
 
@@ -87,7 +92,7 @@ public:
     free(noiseMap);
     noiseMap = Noise::GenerateNoiseMap(w, h, scale, o, p, l, seed);
     m_heightmap.setHeights(w, h, noiseMap);
-    terrain = TerrainMeshGenerator::generateTerrain(noiseMap, w, h, 8);
+    terrain = TerrainMeshGenerator::generateTerrain(noiseMap, w, h, numberOfChunks, terrainHeight);
     //m_terrainTexture = MapUtilities::genTextureFromHeightmap(m_heightmap);
   }
 
@@ -112,12 +117,15 @@ public:
     // TODO : fix chunkSize
     int i  = 0;
     for (const auto& [position, chunk] : terrain.chunksPosition) {
-           Renderer::RenderMesh(glm::vec3{ position.x , 300.f, position.y}, glm::vec3(1), chunk.mesh, m_player.GetCamera().getViewProjectionMatrix());
+           Renderer::RenderMesh(glm::vec3{ position.x , 0.F, position.y} * m_mSize , glm::vec3(m_mSize), chunk.mesh, m_player.GetCamera().getViewProjectionMatrix());
     }
     Renderer::RenderMesh(m_Sun.position, { 5,5,5 }, m_cubeMesh, m_player.GetCamera().getViewProjectionMatrix());
     //Renderer::RenderMesh(m_Sun.position, { 100,100,100 }, m_testMesh, m_player.GetCamera().getViewProjectionMatrix());
     Renderer::getShader().Bind();
     Renderer::getShader().SetUniform3f("u_SunPos", m_Sun.position.x, m_Sun.position.y, m_Sun.position.z);
+    Renderer::getShader().SetUniform1i("u_RenderChunks", 0);
+    if (m_RenderChunks)
+        Renderer::getShader().SetUniform1i("u_RenderChunks", 1);
     Renderer::getShader().Unbind();
 
 
@@ -130,17 +138,19 @@ public:
     if (ImGui::SliderInt("Width", &w, 10, 2000) + ImGui::SliderInt("Height", &h, 10, 2000) +
         ImGui::SliderFloat("Scale", &scale, 0, 50) + ImGui::SliderInt("Number of octaves", &o, 0, 10) +
         ImGui::SliderFloat("persistence", &p, 0, 1) + ImGui::SliderFloat("lacunarity", &l, 0, 50) +
-        ImGui::SliderInt("seed", &seed, 0, 5) + ImGui::SliderFloat("Depth", &terrainHeight, 0, 100.f)) {
+        ImGui::SliderInt("seed", &seed, 0, 5) + ImGui::SliderFloat("Depth", &terrainHeight, 0, 100.f)+
+        ImGui::SliderInt("chunksize", &numberOfChunks, 1, 16)) {
       RegenerateTerrain();
     }
 
     ImGui::SliderFloat3("Sun position", &m_Sun.position[0], -200, 200);
-    ImGui::SliderFloat3("Water level", &m_Water.position[0], -200, 200);
-    
+   // ImGui::SliderFloat3("Water level", &m_Water.position[0], -200, 200);
+    ImGui::SliderFloat("mesh size", &m_mSize, 0, 5);
     if (ImGui::SliderFloat("Strength", &strength, 0, 2)) {
         Renderer::getShader().SetUniform1f("u_Strenght", strength);
     }
     
     ImGui::Checkbox("Fly", &m_playerIsFlying);
+    ImGui::Checkbox("Render Chunks", &m_RenderChunks);
   }
 };
