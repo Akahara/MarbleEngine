@@ -28,10 +28,11 @@ En 2D, une caméra peut être définie par un rectangle en coordonnées du monde
 > [!attention] Attention, des maths arrivent !
 
 Mathématiquement, si le rectangle de la caméra est défini par $(x_1,y_1,x_2,y_2)$ on doit rapporter cet intervalle aux coordonnées du viewport :
-$$
-(x,y) \mapsto (\frac{x-x_1}{x_2-x_1},\frac{y-y_1}{y_2-y_1})
-$$
+
+$$ (x,y) \mapsto (\frac{x-x_1}{x_2-x_1},\frac{y-y_1}{y_2-y_1}) $$
+
 ou
+
 $$
 p \mapsto Ap\quad
 A=\begin{pmatrix}
@@ -41,6 +42,7 @@ b & \frac{1}{y_2-y_1} & \frac{-y_1}{y_2-y_1}\\
 \end{pmatrix},
 p=\begin{pmatrix} x \\ y \\ 1 \end{pmatrix}
 $$
+
 Un des avantages du gpu sur le cpu est qu'il est très performant dans le calcul de matrices, donc la deuxième solution est tout a fait viable même si elle semble plus compliquée c'est souvent ce qui est choisit.
 
 En 3D on utilise le même mécanisme mais avec des matrices 4x4 et des points $(x,y,z,1)$.
