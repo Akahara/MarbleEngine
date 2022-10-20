@@ -7,7 +7,7 @@ En terme de performances on cherchera à faire ce cycle au moins 60 fois pas sec
 
 ![swapchain](res/advanced_concepts/swapchain.excalidraw.svg)
 
-%% c'est pas très précis mais c'est pour ne pas écrire plus que ca %%
+<!-- c'est pas très précis mais c'est pour ne pas écrire plus que ca -->
 
 ## Les coordonnées
 
@@ -15,7 +15,7 @@ OpenGL ne définit pas de système de coordonnées globales, seulement celles du
 
 Plutôt que de tout calculer en fonction du viewport on définira des coordonnées du monde (xyz). On placera les objets dans ce système et la caméra se chargera de rapporter (projeter) ces coordonnées à celles du viewport, cela permet de facilement prendre en compte le zoom, les rotations...
 
-![[coordinates_systems.excalidraw.svg]]
+![coordinates systems](res/advanced_concepts/coordinates_systems.excalidraw.svg)
 
 > Techniquement les points projetés sont sur un repère (xyzw) dans le viewport, z symbolise la distance à la caméra et w vaut toujours 1. Ce qui est important à retenir ici est que les deux n'ont rien à voir et qu'on passe de l'un à l'autre par une projection.
 
