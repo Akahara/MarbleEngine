@@ -1,0 +1,168 @@
+{
+  "main": {
+    "id": "002f618295dc8df4",
+    "type": "split",
+    "children": [
+      {
+        "id": "2555db5faacd6f42",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7c49658415379055",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Concepts avancés OpenGL.md",
+                "mode": "source",
+                "source": true
+              }
+            },
+            "group": "05a9c56603c16053"
+          }
+        ]
+      },
+      {
+        "id": "851b31a6dcd113eb",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6943e076e58067ef",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Concepts avancés OpenGL.md",
+                "mode": "preview",
+                "source": true
+              }
+            },
+            "group": "05a9c56603c16053"
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "76e11f7b7b285fc9",
+    "type": "split",
+    "children": [
+      {
+        "id": "12ee061578750878",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "cd7ecdef9a207274",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "a5edcb68ad5b9e9b",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "32bd6362a2d1fa33",
+            "type": "leaf",
+            "state": {
+              "type": "starred",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "eaac150990fb2144",
+    "type": "split",
+    "children": [
+      {
+        "id": "344a72eac1bca319",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7385db515b3c55a4",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Concepts avancés OpenGL.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "9f3fde0b28c16b2f",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Concepts avancés OpenGL.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "71b4cb804355002d",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "05d34172fa282948",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Concepts avancés OpenGL.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "ribbon": {
+    "mostRecentAction": ""
+  },
+  "active": "7c49658415379055",
+  "lastOpenFiles": [
+    "Intro à OpenGL.md",
+    "res/advanced_concepts/coordinates_systems.excalidraw.svg",
+    "res/advanced_concepts/coordinates_systems.excalidraw.md"
+  ]
+}
