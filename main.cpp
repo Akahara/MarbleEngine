@@ -18,6 +18,7 @@
 #include "src/Sandbox/Scenes/TestFB.h"
 #include "src/Sandbox/Scenes/TestShaders.h"
 #include "src/Sandbox/Scenes/TestShadows.h"
+#include "src/Sandbox/Scenes/TestCameras.h"
 
 inline long long nanoTime()
 {
@@ -52,7 +53,8 @@ int main()
     SceneManager::registerScene<TestFBScene>("Framebuffer");
     SceneManager::registerScene<TestShadersScene>("Shaders");
     SceneManager::registerScene<TestShadowsScene>("Shadows");
-    SceneManager::switchToScene(7);
+    SceneManager::registerScene<TestCamerasScene>("Cameras");
+    SceneManager::switchToScene(8);
 
     //===========================================================//
 

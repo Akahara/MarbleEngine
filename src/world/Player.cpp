@@ -59,11 +59,6 @@ void Player::step(float delta)
 
   if(motion != glm::vec3(0) || rotationMotion != glm::vec2(0))
     updateCamera();
-
-  //m_camera.setPosition({ 10, 10, 10 });
-  //m_camera.lookAt({ 0, 0, 0 });
-  //m_camera.recalculateViewMatrix();
-  //m_camera.recalculateViewProjectionMatrix();
 }
 
 void Player::updateCamera()

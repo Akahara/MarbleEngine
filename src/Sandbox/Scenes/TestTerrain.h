@@ -108,7 +108,7 @@ public:
   void onRender() override
   {
     Renderer::Renderer::clear();
-    Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera(), m_player.getPosition());
+    Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera());
 
     // TODO : fix chunkSize
     // TODO! : fix the texture issue in the standard mesh shader

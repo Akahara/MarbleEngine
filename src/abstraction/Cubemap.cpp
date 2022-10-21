@@ -107,6 +107,11 @@ void main()
     -.5f, +.5f, +.5f,
   };
 
+  // expand the box for it to not go outside of orthographic cameras bounding boxes
+  // (this requires all camera to have zFar be at least 25*sqrt(3) to see the full cuboid)
+  for (float &v : vertices)
+    v *= 50.f;
+
   unsigned int indices[] = {
     0, 1, 3, 3, 1, 2,
     1, 5, 2, 2, 5, 6,
@@ -126,12 +131,12 @@ void main()
   cmRenderData.vao->unbind();
 }
 
-void drawCubemap(const Cubemap &cubemap, const Camera &camera, const glm::vec3 &offset)
+void drawCubemap(const Cubemap &cubemap, const Camera &camera)
 {
   cmRenderData.vao->bind();
   cmRenderData.shader->bind();
   cmRenderData.shader->setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
-  cmRenderData.shader->setUniform3f("u_displacement", offset.x, offset.y, offset.z);
+  cmRenderData.shader->setUniform3f("u_displacement", camera.getPosition());
   cubemap.bind();
 
   glDepthMask(false); // do not write to depth buffer

@@ -87,6 +87,7 @@
     <ClInclude Include="src\Sandbox\Scenes\TestShadows.h" />
     <ClInclude Include="src\Utils\AABB.h" />
     <ClInclude Include="src\World\SunCameraHelper.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestCameras.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />

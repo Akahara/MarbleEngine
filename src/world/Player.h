@@ -11,6 +11,7 @@ public:
   void step(float delta);
 
   const Renderer::Camera &getCamera() const { return m_camera; }
+  Renderer::Camera &getCamera() { return m_camera; }
   glm::vec3 getForward() const { return { -sin(m_yaw), 0, -cos(m_yaw) }; }
   glm::vec3 getRight() const { return m_camera.getRight(); }
   glm::vec3 getPosition() const { return m_position; }

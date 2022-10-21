@@ -14,21 +14,21 @@ enum class CameraProjection : unsigned char {
 };
 
 struct PerspectiveProjection {
-  float fovy;
-  float aspect;
-  float zNear = .1f;
-  float zFar = 1000.f;
+  float fovy;          // in radians, in range ]0,PI[
+  float aspect;        // camera width/camera height
+  float zNear = .1f;   // in world space
+  float zFar = 1000.f; // in world space
 
   glm::mat4 computeProjectionMatrix() const;
 };
 
 struct OrthographicProjection {
-  float left;
-  float right;
-  float bottom;
-  float top;
-  float zNear = .1f;
-  float zFar = 1000.f;
+  float left;          // in world space
+  float right;         // in world space
+  float bottom;        // in world space
+  float top;           // in world space
+  float zNear = .1f;   // in world space
+  float zFar = 1000.f; // in world space
 
   glm::mat4 computeProjectionMatrix() const;
 };

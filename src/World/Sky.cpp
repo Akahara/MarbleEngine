@@ -33,7 +33,7 @@ void Sky::step(float delta)
 
 void Sky::render(const Player &player) const
 {
-  Renderer::CubemapRenderer::drawCubemap(m_skybox, player.getCamera(), player.getPosition());
+  Renderer::CubemapRenderer::drawCubemap(m_skybox, player.getCamera());
   Renderer::SkyRenderer::drawSkyClouds(m_cloudsTexture, player);
 }
 

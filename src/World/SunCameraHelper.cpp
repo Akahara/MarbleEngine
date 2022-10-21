@@ -89,7 +89,7 @@ void SunCameraHelper::finishSunCameraMovement()
   projection.zNear = SUN_CAM_ZNEAR;
   projection.zFar = camZFar;
   m_sunCamera.setPosition(m_sunI * I + m_sunJ * J + (m_sunNearK + SUN_CAM_ZNEAR) * m_sunDir);
-  m_sunCamera.lookAt(m_sunCamera.getPosition() + m_sunDir);
+  m_sunCamera.lookAt(m_sunCamera.getPosition() - m_sunDir);
   m_sunCamera.setProjection(projection);
   m_sunCamera.recalculateViewMatrix();
   m_sunCamera.recalculateViewProjectionMatrix();

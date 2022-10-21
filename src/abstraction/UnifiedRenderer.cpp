@@ -106,7 +106,10 @@ Mesh loadMeshFromFile(const fs::path &objPath)
   if (!modelFile.good())
     throw std::exception("Could not open model file");
 
+  int l = 0;
   while (modelFile.good()) {
+    l++;
+    if (l % 1000 == 0) std::cout << "l" << l << std::endl;
     modelFile.getline(lineBuffer, bufSize);
     if (lineBuffer[0] == '#')
       continue;
@@ -249,9 +252,9 @@ void renderAABBDebugOutline(const Camera &camera, const AABB &aabb, const glm::v
   renderDebugLine(camera.getViewProjectionMatrix(), o + x + y, o + z + x + y, color);
 }
 
-static void renderOrthoCameraDebugOutline(const Camera &viewCamera, const Camera &outlinedCamera)
+static void renderDebugOrthographicCameraOutline(const Camera &viewCamera, const Camera &outlinedCamera)
 {
-  const Renderer::OrthographicProjection &proj = outlinedCamera.getProjection<OrthographicProjection>();
+  const OrthographicProjection &proj = outlinedCamera.getProjection<OrthographicProjection>();
   const glm::vec3 pos = outlinedCamera.getPosition();
   glm::vec3 I = outlinedCamera.getRight();
   glm::vec3 J = outlinedCamera.getUp();
@@ -264,9 +267,9 @@ static void renderOrthoCameraDebugOutline(const Camera &viewCamera, const Camera
   glm::vec3 p4 = pos - I * proj.right + J * proj.top;
 
   renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + F * zFar, { 1.f, 0.f, .0f, 1.f }); // dir
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + Renderer::Camera::UP, { 1.f, 1.f, .3f, 1.f }); // up
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + I, { .5f, 1.f, .5f, 1.f });
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + J, { 1.f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + Camera::UP, { 1.f, 1.f, .3f, 1.f }); // world up
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + I, { .5f, 1.f, .5f, 1.f }); // right
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + J, { 1.f, .5f, .5f, 1.f }); // up
   renderDebugLine(viewCamera.getViewProjectionMatrix(), p1, p1 + F * zFar, { .5f, .5f, .5f, 1.f });
   renderDebugLine(viewCamera.getViewProjectionMatrix(), p2, p2 + F * zFar, { .5f, .5f, .5f, 1.f });
   renderDebugLine(viewCamera.getViewProjectionMatrix(), p3, p3 + F * zFar, { .5f, .5f, .5f, 1.f });
@@ -280,12 +283,49 @@ static void renderOrthoCameraDebugOutline(const Camera &viewCamera, const Camera
   renderDebugCube(viewCamera.getViewProjectionMatrix(), pos, { .1f, .1f, .1f });
 }
 
-void renderCameraDebugOutline(const Camera &viewCamera, const Camera &outlinedCamera)
+static void renderDebugPerspectiveCameraOutline(const Camera &viewCamera, const Camera &outlinedCamera)
+{
+  const PerspectiveProjection &proj = outlinedCamera.getProjection<PerspectiveProjection>();
+  glm::vec3 pos = outlinedCamera.getPosition();
+  glm::vec3 I = outlinedCamera.getRight();
+  glm::vec3 J = outlinedCamera.getUp();
+  glm::vec3 F = outlinedCamera.getForward();
+  float dh = sin(proj.fovy * .5f);
+  float dw = dh * proj.aspect;
+  glm::vec3 U1 = F + dh * J + dw * I;
+  glm::vec3 U2 = F - dh * J + dw * I;
+  glm::vec3 U3 = F - dh * J - dw * I;
+  glm::vec3 U4 = F + dh * J - dw * I;
+  float zNear = proj.zNear;
+  float zFar = proj.zFar;
+
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + F * zFar, { 1.f, 0.f, .0f, 1.f }); // dir
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + Camera::UP, { 1.f, 1.f, .3f, 1.f }); // world up
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + I, { .5f, 1.f, .5f, 1.f }); // right
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + J, { 1.f, .5f, .5f, 1.f }); // up
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + U1 * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + U2 * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + U3 * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + U4 * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U1 * zFar, pos + U2 * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U2 * zFar, pos + U3 * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U3 * zFar, pos + U4 * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U4 * zFar, pos + U1 * zFar, { .5f, .5f, .5f, 1.f });
+  for (float z = zNear; z < zFar; z += 5) {
+    renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U1 * z, pos + U2 * z, { .5f, .5f, .5f, 1.f });
+    renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U2 * z, pos + U3 * z, { .5f, .5f, .5f, 1.f });
+    renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U3 * z, pos + U4 * z, { .5f, .5f, .5f, 1.f });
+    renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U4 * z, pos + U1 * z, { .5f, .5f, .5f, 1.f });
+  }
+  renderDebugCube(viewCamera.getViewProjectionMatrix(), pos, { .1f, .1f, .1f });
+}
+
+void renderDebugCameraOutline(const Camera &viewCamera, const Camera &outlinedCamera)
 {
   switch (outlinedCamera.getProjectionType()) {
-  case CameraProjection::ORTHOGRAPHIC: renderOrthoCameraDebugOutline(viewCamera, outlinedCamera); break;
-  case CameraProjection::PERSPECTIVE:  throw std::exception("Unimplemented");                     break;
-  default:                             throw std::exception("Unreachable");                       break;
+  case CameraProjection::ORTHOGRAPHIC: renderDebugOrthographicCameraOutline(viewCamera, outlinedCamera);       break;
+  case CameraProjection::PERSPECTIVE:  renderDebugPerspectiveCameraOutline(viewCamera, outlinedCamera); break;
+  default:                             throw std::exception("Unreachable");                             break;
   }
 }
 

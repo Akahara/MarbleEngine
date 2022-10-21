@@ -29,7 +29,7 @@ public:
   void onRender() override
   {
     Renderer::Renderer::clear();
-    Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera(), m_player.getPosition());
+    Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera());
     //Renderer::RenderCube({ 1, 0, 0 }, glm::vec3{ 2.f, .05f, .05f }, { 0.f, 0.f, 1.f }, m_player.getCamera().getViewProjectionMatrix()); // +x blue
     //Renderer::RenderCube({ 0, 1, 0 }, glm::vec3{ .05f, 2.f, .05f }, { 1.f, 0.f, 0.f }, m_player.getCamera().getViewProjectionMatrix()); // +y red
     //Renderer::RenderCube({ 0, 0, 1 }, glm::vec3{ .05f, .05f, 2.f }, { 0.f, 1.f, 0.f }, m_player.getCamera().getViewProjectionMatrix()); // +z green

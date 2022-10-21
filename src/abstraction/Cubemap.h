@@ -29,7 +29,7 @@ public:
 namespace CubemapRenderer {
 
 void init();
-void drawCubemap(const Cubemap &cubemap, const Camera &camera, const glm::vec3 &offset = { 0,0,0 });
+void drawCubemap(const Cubemap &cubemap, const Camera &camera);
 void shutdown();
 
 }
