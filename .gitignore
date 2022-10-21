@@ -101,6 +101,9 @@ StyleCopReport.xml
 *.svclog
 *.scc
 
+## Project specific files that look like visual studio's
+!res/meshes/*.obj
+
 # Chutzpah Test files
 _Chutzpah*
 

@@ -1,5 +1,4 @@
 #include "UnifiedRenderer.h"
-#include "Mesh.h"
 
 #include <fstream>
 #include <sstream>
@@ -9,6 +8,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "Window.h"
+#include "Mesh.h"
 
 namespace Renderer {
 
@@ -102,6 +102,9 @@ Mesh loadMeshFromFile(const fs::path &objPath)
   std::vector<std::tuple<int, int, int>> cachedVertices;
   std::vector<unsigned int> indices;
   std::vector<Vertex> vertices;
+
+  if (!modelFile.good())
+    throw std::exception("Could not open model file");
 
   while (modelFile.good()) {
     modelFile.getline(lineBuffer, bufSize);
@@ -224,6 +227,67 @@ void renderDebugAxis(const glm::mat4 &VP)
   renderDebugLine(VP, { 0, 0, 0 }, { 0, 0, 10 }, { 0.f, 0.f, 1.f, 1.f }); // z blue
 }
 
+
+// TODO move these debug methods elsewhere
+void renderAABBDebugOutline(const Camera &camera, const AABB &aabb, const glm::vec4 &color)
+{
+  glm::vec3 o = aabb.getOrigin();
+  glm::vec3 x = { aabb.getSize().x, 0, 0 };
+  glm::vec3 y = { 0, aabb.getSize().y, 0 };
+  glm::vec3 z = { 0, 0, aabb.getSize().z };
+  renderDebugLine(camera.getViewProjectionMatrix(), o, o + x, color);
+  renderDebugLine(camera.getViewProjectionMatrix(), o + y, o + x + y, color);
+  renderDebugLine(camera.getViewProjectionMatrix(), o + z, o + x + z, color);
+  renderDebugLine(camera.getViewProjectionMatrix(), o + y + z, o + x + y + z, color);
+  renderDebugLine(camera.getViewProjectionMatrix(), o, o + y, color);
+  renderDebugLine(camera.getViewProjectionMatrix(), o + x, o + y + x, color);
+  renderDebugLine(camera.getViewProjectionMatrix(), o + z, o + y + z, color);
+  renderDebugLine(camera.getViewProjectionMatrix(), o + x + z, o + y + x + z, color);
+  renderDebugLine(camera.getViewProjectionMatrix(), o, o + z, color);
+  renderDebugLine(camera.getViewProjectionMatrix(), o + x, o + z + x, color);
+  renderDebugLine(camera.getViewProjectionMatrix(), o + y, o + z + y, color);
+  renderDebugLine(camera.getViewProjectionMatrix(), o + x + y, o + z + x + y, color);
+}
+
+static void renderOrthoCameraDebugOutline(const Camera &viewCamera, const Camera &outlinedCamera)
+{
+  const Renderer::OrthographicProjection &proj = outlinedCamera.getProjection<OrthographicProjection>();
+  const glm::vec3 pos = outlinedCamera.getPosition();
+  glm::vec3 I = outlinedCamera.getRight();
+  glm::vec3 J = outlinedCamera.getUp();
+  glm::vec3 F = outlinedCamera.getForward();
+  float zNear = proj.zNear;
+  float zFar = proj.zFar;
+  glm::vec3 p1 = pos + I * proj.right + J * proj.top;
+  glm::vec3 p2 = pos + I * proj.right - J * proj.top;
+  glm::vec3 p3 = pos - I * proj.right - J * proj.top;
+  glm::vec3 p4 = pos - I * proj.right + J * proj.top;
+
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + F * zFar, { 1.f, 0.f, .0f, 1.f }); // dir
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + Renderer::Camera::UP, { 1.f, 1.f, .3f, 1.f }); // up
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + I, { .5f, 1.f, .5f, 1.f });
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + J, { 1.f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), p1, p1 + F * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), p2, p2 + F * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), p3, p3 + F * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera.getViewProjectionMatrix(), p4, p4 + F * zFar, { .5f, .5f, .5f, 1.f });
+  for (float z = zNear; z < zFar; z += 5) {
+    renderDebugLine(viewCamera.getViewProjectionMatrix(), p1 + z * F, p2 + z * F, { .5f, .5f, .5f, 1.f });
+    renderDebugLine(viewCamera.getViewProjectionMatrix(), p2 + z * F, p3 + z * F, { .5f, .5f, .5f, 1.f });
+    renderDebugLine(viewCamera.getViewProjectionMatrix(), p3 + z * F, p4 + z * F, { .5f, .5f, .5f, 1.f });
+    renderDebugLine(viewCamera.getViewProjectionMatrix(), p4 + z * F, p1 + z * F, { .5f, .5f, .5f, 1.f });
+  }
+  renderDebugCube(viewCamera.getViewProjectionMatrix(), pos, { .1f, .1f, .1f });
+}
+
+void renderCameraDebugOutline(const Camera &viewCamera, const Camera &outlinedCamera)
+{
+  switch (outlinedCamera.getProjectionType()) {
+  case CameraProjection::ORTHOGRAPHIC: renderOrthoCameraDebugOutline(viewCamera, outlinedCamera); break;
+  case CameraProjection::PERSPECTIVE:  throw std::exception("Unimplemented");                     break;
+  default:                             throw std::exception("Unreachable");                       break;
+  }
+}
 
 BlitPass::BlitPass()
   : BlitPass("res/shaders/blit.fs")
