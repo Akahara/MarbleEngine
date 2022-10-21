@@ -52,7 +52,7 @@ int main()
     SceneManager::registerScene<TestFBScene>("Framebuffer");
     SceneManager::registerScene<TestShadersScene>("Shaders");
     SceneManager::registerScene<TestShadowsScene>("Shadows");
-    SceneManager::switchToScene(7);
+    SceneManager::switchToScene(3);
 
     //===========================================================//
 

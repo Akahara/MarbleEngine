@@ -184,11 +184,13 @@ static void renderOrthoCameraDebugOutline(const Renderer::Camera &viewCamera, co
 
 }
 
+
+
 static void renderCameraDebugOutline(const Renderer::Camera &viewCamera, const Renderer::Camera &outlinedCamera)
 {
   switch (outlinedCamera.getProjectionType()) {
   case Renderer::CameraProjection::ORTHOGRAPHIC: renderOrthoCameraDebugOutline(viewCamera, outlinedCamera); break;
-  case Renderer::CameraProjection::PERSPECTIVE:  throw std::exception("Unimplemented");                     break;
+  case Renderer::CameraProjection::PERSPECTIVE: throw std::exception("Unreachable");
   default:                                       throw std::exception("Unreachable");                       break;
   }
 }

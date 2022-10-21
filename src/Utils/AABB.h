@@ -34,6 +34,17 @@ public:
     return AABB(m_origin + displacement, m_size);
   }
 
+  void setOrigin(const glm::vec3& origin) {
+
+      m_origin = origin;
+
+  }
+
+  void setSize(const glm::vec3 size) {
+
+      m_size = size;
+  }
+
   bool isInBounds(const glm::vec3 &point) const 
   {
     return 

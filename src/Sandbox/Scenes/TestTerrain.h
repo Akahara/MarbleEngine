@@ -11,6 +11,10 @@
 #include "../../World/TerrainGeneration/MapUtilities.h"
 #include "../../World/TerrainGeneration/Noise.h"
 
+#include "../../Utils/AABB.h"
+#include "../Scenes/TestShadows.h"
+
+
 
 class TestTerrainScene : public Scene {
 private:
@@ -30,6 +34,9 @@ private:
   float realTime = 0;
   float* noiseMap;
 
+  glm::vec3 m_CowSize{5};
+
+  AABB m_aabbSun;
 
   Renderer::Mesh m_cubeMesh;
   Renderer::Mesh m_waterMesh;
@@ -39,6 +46,11 @@ private:
   Renderer::Texture m_grassTexture = Renderer::Texture( "res/textures/grass5.jpg" );
 
   TerrainMeshGenerator::Terrain terrain;
+  std::vector<AABB> m_aabbs;
+  Renderer::Frustum m_frustum;
+  Renderer::Frustum m_frustumTemp;
+
+  Renderer::Camera m_camTemp;
 
   float m_mSize = 1;
   bool m_renderChunks = 0;
@@ -78,9 +90,36 @@ public:
     Renderer::getStandardMeshShader().bind();
     Renderer::getStandardMeshShader().setUniform1iv("u_Textures2D", 8, samplers);
     Renderer::getStandardMeshShader().setUniform1f("u_Strenght", strength);
-    m_testMesh = Renderer::loadMeshFromFile("res/meshes/house.obj");
+    m_testMesh = Renderer::loadMeshFromFile("res/meshes/cow.obj");
     noiseMap = Noise::generateNoiseMap(w, h, scale, o, p, l, seed);
     terrain = TerrainMeshGenerator::generateTerrain(noiseMap, w, h, numberOfChunks, terrainHeight);
+
+    unsigned int chunkSize = std::min(terrain.heightMap.getMapWidth() / numberOfChunks, terrain.heightMap.getMapHeight() / numberOfChunks);
+
+    for (const auto& [position, chunk] : terrain.chunksPosition) {
+
+        // make aabb
+
+        AABB aabb = AABB({ position.x, 0.f, position.y }, glm::vec3(chunkSize));
+        m_aabbs.push_back(aabb);
+    }
+
+    m_aabbSun = AABB{ m_sun.position ,{5,5,5}};
+
+    m_frustum = Renderer::Frustum::createFrustumFromCamera(
+        m_player.getCamera(),
+        m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().aspect,
+        m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().fovy,
+        m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().zNear,
+        m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().zFar
+    );
+
+    m_frustumTemp = m_frustum;
+
+
+
+    m_camTemp = m_player.getCamera();
+
 
   }
 
@@ -95,14 +134,26 @@ public:
 
   void step(float delta) override
   {
-    realTime += delta;
-    m_player.step(delta);
-    if (!m_playerIsFlying) {
-      glm::vec3 pos = m_player.getPosition();
-      pos.y = m_heightmap.getHeightLerp(pos.x, pos.z) + 1.f;
-      m_player.setPostion(pos);
-      m_player.updateCamera();
-    }
+      realTime += delta;
+      m_player.step(delta);
+      if (!m_playerIsFlying) {
+          glm::vec3 pos = m_player.getPosition();
+          pos.y = m_heightmap.getHeightLerp(pos.x, pos.z) + 1.f;
+          m_player.setPostion(pos);
+          m_player.updateCamera();
+      }
+      m_aabbSun.setOrigin(m_sun.position + glm::vec3{-m_CowSize.x, m_CowSize.y, -m_CowSize.z});
+      m_aabbSun.setSize({-m_CowSize.x, m_CowSize.y, -m_CowSize.z});
+
+    
+      m_frustum = Renderer::Frustum::createFrustumFromCamera(
+          m_player.getCamera(),
+          m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().aspect,
+          m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().fovy,
+          m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().zNear,
+          m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().zFar
+      );
+
   }
 
   void onRender() override
@@ -110,15 +161,28 @@ public:
     Renderer::Renderer::clear();
     Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera(), m_player.getPosition());
 
-    // TODO : fix chunkSize
     // TODO! : fix the texture issue in the standard mesh shader
-    int i  = 0;
     m_rockTexture.bind(0);
+  
+    //Renderer::renderMesh(m_sun.position, { 5,5,5 }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix());
+    Renderer::renderMesh(m_sun.position, m_CowSize, m_testMesh, m_player.getCamera().getViewProjectionMatrix());
+    
+    for (const auto& aabb : m_aabbs)
+        renderAABBDebugOutline(m_player.getCamera(), aabb);
+
+    if (Renderer::Frustum::isOnFrustum(m_frustum, m_aabbSun)) {
+        renderAABBDebugOutline(m_player.getCamera(), m_aabbSun);
+    }
+
     for (const auto& [position, chunk] : terrain.chunksPosition) {
            Renderer::renderMesh(glm::vec3{ position.x , 0.F, position.y} * m_mSize , glm::vec3(m_mSize), chunk.mesh, m_player.getCamera().getViewProjectionMatrix());
     }
-    Renderer::renderMesh(m_sun.position, { 5,5,5 }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix());
-    //Renderer::RenderMesh(m_Sun.position, { 100,100,100 }, m_testMesh, m_player.GetCamera().getViewProjectionMatrix());
+
+    //Renderer::renderDebugPerspectiveCameraOutline(m_player.getCamera(), m_camTemp);
+    Renderer::renderDebugFrustumOutline(m_player.getCamera(), m_frustumTemp);
+
+
+
     Renderer::getStandardMeshShader().bind();
     Renderer::getStandardMeshShader().setUniform3f("u_SunPos", m_sun.position.x, m_sun.position.y, m_sun.position.z);
     Renderer::getStandardMeshShader().setUniform1i("u_RenderChunks", 0);
@@ -141,6 +205,7 @@ public:
     }
 
     ImGui::SliderFloat3("Sun position", &m_sun.position[0], -200, 200);
+    ImGui::SliderFloat3("Cow size", &m_CowSize[0], -5, 15);
     ImGui::SliderFloat3("Water level", &m_water.position[0], -200, 200);
     
     if (ImGui::SliderFloat("Strength", &strength, 0, 2)) {
@@ -148,6 +213,11 @@ public:
       Renderer::getStandardMeshShader().setUniform1f("u_Strength", strength);
     }
     
+    if (ImGui::Button("refresh camera")) {
+        m_camTemp = m_player.getCamera();
+
+        m_frustumTemp = m_frustum;
+    }
     ImGui::Checkbox("Fly", &m_playerIsFlying);
     ImGui::Checkbox("Render Chunks", &m_renderChunks);
   }
