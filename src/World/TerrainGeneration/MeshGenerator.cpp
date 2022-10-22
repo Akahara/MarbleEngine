@@ -43,7 +43,7 @@ Mesh generateMesh(const HeightMapView& heightmap, float depth)
             vertex.normal = glm::normalize(N);
             vertex.color = color_chunk;
             vertex.texId = 1;
-            if (glm::dot(vertex.normal, glm::vec3{ 0.f,1.f,0.f }) > 0.9) vertex.texId = 2;
+            if (glm::dot(vertex.normal, glm::vec3{ 0.f,1.f,0.f }) > 0.3) vertex.texId = 0;
 
         }
     }

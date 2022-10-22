@@ -24,8 +24,8 @@ void main()
        
     if (u_RenderChunks==0) {
         int index = int(o_texId);
-        index = 1;
-        color = texture(u_Textures2D[0*index], o_uv); // TODO fix the texture sampling (use u_Textures2D)
+        //index = 1;
+        color = texture(u_Textures2D[index], o_uv); // TODO fix the texture sampling (use u_Textures2D)
         color.rgb += vec3(0.09,0.09,0.09) * 0.2 + vec3(.2f, .2f, 0.f) * dot(normalize(o_normal), normalize(u_SunPos)) * u_Strenght;
     }
     else {

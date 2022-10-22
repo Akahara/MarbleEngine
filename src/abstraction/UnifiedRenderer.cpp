@@ -37,20 +37,20 @@ Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentP
   return Shader{ vertexCode, fragmentCode };
 }
 
-Mesh createCubeMesh()
+Mesh createCubeMesh(unsigned int texId)
 {
   // TODO add UVs
   float s3 = std::sqrtf(3);
   std::vector<Vertex> vertices{
-    // position              uv            normal
-    { { -.5f, -.5f, -.5f }, { 0.f, 0.f }, { -s3, -s3, -s3 } },
-    { { +.5f, -.5f, -.5f }, { 0.f, 0.f }, { +s3, -s3, -s3 } },
-    { { +.5f, +.5f, -.5f }, { 0.f, 0.f }, { +s3, +s3, -s3 } },
-    { { -.5f, +.5f, -.5f }, { 0.f, 0.f }, { -s3, +s3, -s3 } },
-    { { -.5f, -.5f, +.5f }, { 0.f, 0.f }, { -s3, -s3, +s3 } },
-    { { +.5f, -.5f, +.5f }, { 0.f, 0.f }, { +s3, -s3, +s3 } },
-    { { +.5f, +.5f, +.5f }, { 0.f, 0.f }, { +s3, +s3, +s3 } },
-    { { -.5f, +.5f, +.5f }, { 0.f, 0.f }, { -s3, +s3, +s3 } },
+    // position              uv            normal            // tex id          // color
+    { { -.5f, -.5f, -.5f }, { 0.f, 0.f }, { -s3, -s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, -.5f, -.5f }, { 0.f, 0.f }, { +s3, -s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, +.5f, -.5f }, { 0.f, 0.f }, { +s3, +s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { -.5f, +.5f, -.5f }, { 0.f, 0.f }, { -s3, +s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { -.5f, -.5f, +.5f }, { 0.f, 0.f }, { -s3, -s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, -.5f, +.5f }, { 0.f, 0.f }, { +s3, -s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, +.5f, +.5f }, { 0.f, 0.f }, { +s3, +s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { -.5f, +.5f, +.5f }, { 0.f, 0.f }, { -s3, +s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f} },
   };
   std::vector<unsigned int> indices{
     0, 3, 1, 1, 3, 2,

@@ -45,14 +45,8 @@ int main()
     Renderer::init();
     SceneManager::init();
 
-    SceneManager::registerScene<Test2DScene>("Test");
-    SceneManager::registerScene<Test3DScene>("Test3D");
     SceneManager::registerScene<TestTerrainScene>("Terrain");
-    SceneManager::registerScene<TestSkyScene>("Sky");
-    SceneManager::registerScene<TestFBScene>("Framebuffer");
-    SceneManager::registerScene<TestShadersScene>("Shaders");
-    SceneManager::registerScene<TestShadowsScene>("Shadows");
-    SceneManager::switchToScene(3);
+    SceneManager::switchToScene(1);
 
     //===========================================================//
 

@@ -41,9 +41,9 @@ private:
   Renderer::Mesh m_cubeMesh;
   Renderer::Mesh m_waterMesh;
   Renderer::Mesh m_testMesh;
-
+  
   Renderer::Texture m_rockTexture = Renderer::Texture( "res/textures/rock.jpg" );
-  Renderer::Texture m_grassTexture = Renderer::Texture( "res/textures/grass5.jpg" );
+  Renderer::Texture m_grassTexture = Renderer::Texture( "res/textures/grass6.jpg" );
 
   TerrainMeshGenerator::Terrain terrain;
   std::vector<AABB> m_aabbs;
@@ -77,6 +77,12 @@ public:
       "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" }
   {
 
+
+
+      m_rockTexture.bind(0);
+      m_grassTexture.bind(1);
+
+
     m_player.setPostion({ 100.f, 500.f, 0 });
     m_player.updateCamera();
     regenerateTerrain();
@@ -84,11 +90,12 @@ public:
     m_cubeMesh = Renderer::createCubeMesh();
     m_sun.position = { 100,100,100 };
     m_water.position = { 50,24,50};
-    m_grassTexture.bind(2U);
-    m_rockTexture.bind(1U);
-    GLint samplers[8] = { 0,1,2,3,4,5,6,7 };
+
+
+    int samplers[8] = { 0,1,2,3,4,5,6,7 };
     Renderer::getStandardMeshShader().bind();
     Renderer::getStandardMeshShader().setUniform1iv("u_Textures2D", 8, samplers);
+
     Renderer::getStandardMeshShader().setUniform1f("u_Strenght", strength);
     m_testMesh = Renderer::loadMeshFromFile("res/meshes/cow.obj");
     noiseMap = Noise::generateNoiseMap(w, h, scale, o, p, l, seed);
@@ -96,6 +103,8 @@ public:
 
     unsigned int chunkSize = std::min(terrain.heightMap.getMapWidth() / numberOfChunks, terrain.heightMap.getMapHeight() / numberOfChunks);
 
+
+    /*
     for (const auto& [position, chunk] : terrain.chunksPosition) {
 
         // make aabb
@@ -119,6 +128,7 @@ public:
 
 
     m_camTemp = m_player.getCamera();
+    */
 
 
   }
@@ -142,10 +152,10 @@ public:
           m_player.setPostion(pos);
           m_player.updateCamera();
       }
+    /*
       m_aabbSun.setOrigin(m_sun.position + glm::vec3{-m_CowSize.x, m_CowSize.y, -m_CowSize.z});
       m_aabbSun.setSize({-m_CowSize.x, m_CowSize.y, -m_CowSize.z});
 
-    
       m_frustum = Renderer::Frustum::createFrustumFromCamera(
           m_player.getCamera(),
           m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().aspect,
@@ -153,6 +163,7 @@ public:
           m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().zNear,
           m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().zFar
       );
+    */
 
   }
 
@@ -162,11 +173,23 @@ public:
     Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera(), m_player.getPosition());
 
     // TODO! : fix the texture issue in the standard mesh shader
+
+
+    int samplers[8] = { 0,1,2,3,4,5,6,7 };
+    Renderer::getStandardMeshShader().bind();
+    Renderer::getStandardMeshShader().setUniform1iv("u_Textures2D", 8, samplers);
+    Renderer::getStandardMeshShader().unbind();
     m_rockTexture.bind(0);
+    m_grassTexture.bind(1);
+
+    
   
     //Renderer::renderMesh(m_sun.position, { 5,5,5 }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix());
     Renderer::renderMesh(m_sun.position, m_CowSize, m_testMesh, m_player.getCamera().getViewProjectionMatrix());
-    
+
+    Renderer::renderMesh({0.f, 0.f, 0.f}, glm::vec3(20), m_cubeMesh, m_player.getCamera().getViewProjectionMatrix());
+    Renderer::renderMesh({30.f, 0.f, 0.f}, glm::vec3(20), m_cubeMesh, m_player.getCamera().getViewProjectionMatrix());
+    /*
     for (const auto& aabb : m_aabbs)
         renderAABBDebugOutline(m_player.getCamera(), aabb);
 
@@ -177,9 +200,10 @@ public:
     for (const auto& [position, chunk] : terrain.chunksPosition) {
            Renderer::renderMesh(glm::vec3{ position.x , 0.F, position.y} * m_mSize , glm::vec3(m_mSize), chunk.mesh, m_player.getCamera().getViewProjectionMatrix());
     }
+    */
 
     //Renderer::renderDebugPerspectiveCameraOutline(m_player.getCamera(), m_camTemp);
-    Renderer::renderDebugFrustumOutline(m_player.getCamera(), m_frustumTemp);
+    //Renderer::renderDebugFrustumOutline(m_player.getCamera(), m_frustumTemp);
 
 
 
@@ -196,6 +220,7 @@ public:
 
   void onImGuiRender() override
   {
+      /*
     if (ImGui::SliderInt("Width", (int*)&w, 10, 2000) + ImGui::SliderInt("Height", (int*)&h, 10, 2000) +
         ImGui::SliderFloat("Scale", &scale, 0, 50) + ImGui::SliderInt("Number of octaves", &o, 0, 10) +
         ImGui::SliderFloat("persistence", &p, 0, 1) + ImGui::SliderFloat("lacunarity", &l, 0, 50) +
@@ -203,6 +228,7 @@ public:
         ImGui::SliderInt("chunksize", &numberOfChunks, 1, 16)) {
       regenerateTerrain();
     }
+      */
 
     ImGui::SliderFloat3("Sun position", &m_sun.position[0], -200, 200);
     ImGui::SliderFloat3("Cow size", &m_CowSize[0], -5, 15);

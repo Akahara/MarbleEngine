@@ -14,7 +14,7 @@ namespace Renderer {
 namespace fs = std::filesystem;
 
 Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath);
-Mesh createCubeMesh();
+Mesh createCubeMesh(unsigned int texId = 2);
 Mesh createPlaneMesh();
 Mesh loadMeshFromFile(const fs::path &objPath);
 

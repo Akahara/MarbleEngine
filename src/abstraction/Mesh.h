@@ -15,8 +15,8 @@ namespace Renderer {
 		glm::vec3 position;
 		glm::vec2 uv;
 		glm::vec3 normal;
-		float texId; // TODO figure out how/if? we can use texture ids in vertices
-		glm::vec3 color;
+		float texId = 2; // TODO figure out how/if? we can use texture ids in vertices
+		glm::vec3 color = {1.0f, 0.f, 0.f};
 	};
 
 class Mesh {
