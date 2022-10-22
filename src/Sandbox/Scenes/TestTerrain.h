@@ -37,6 +37,8 @@ private:
 
   Renderer::Texture m_rockTexture = Renderer::Texture( "res/textures/rock.jpg" );
   Renderer::Texture m_grassTexture = Renderer::Texture( "res/textures/grass5.jpg" );
+  
+  Renderer::TestUniform m_depthTestUniform;
 
   TerrainMeshGenerator::Terrain terrain;
 
@@ -81,7 +83,8 @@ public:
     m_testMesh = Renderer::loadMeshFromFile("res/meshes/house.obj");
     noiseMap = Noise::generateNoiseMap(w, h, scale, o, p, l, seed);
     terrain = TerrainMeshGenerator::generateTerrain(noiseMap, w, h, numberOfChunks, terrainHeight);
-
+    m_depthTestUniform = Renderer::TestUniform(&Renderer::getStandardMeshShader(), "u_fogDamping", 3, .0001f);
+    m_depthTestUniform.setValue(.003f, .01f, .013f);
   }
 
   void regenerateTerrain()
@@ -115,9 +118,9 @@ public:
     int i  = 0;
     m_rockTexture.bind(0);
     for (const auto& [position, chunk] : terrain.chunksPosition) {
-           Renderer::renderMesh(glm::vec3{ position.x , 0.F, position.y} * m_mSize , glm::vec3(m_mSize), chunk.mesh, m_player.getCamera().getViewProjectionMatrix());
+           Renderer::renderMesh(glm::vec3{ position.x , 0.F, position.y} * m_mSize , glm::vec3(m_mSize), chunk.mesh, m_player.getCamera());
     }
-    Renderer::renderMesh(m_sun.position, { 5,5,5 }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix());
+    Renderer::renderMesh(m_sun.position, { 5,5,5 }, m_cubeMesh, m_player.getCamera());
     //Renderer::RenderMesh(m_Sun.position, { 100,100,100 }, m_testMesh, m_player.GetCamera().getViewProjectionMatrix());
     Renderer::getStandardMeshShader().bind();
     Renderer::getStandardMeshShader().setUniform3f("u_SunPos", m_sun.position.x, m_sun.position.y, m_sun.position.z);
@@ -150,5 +153,7 @@ public:
     
     ImGui::Checkbox("Fly", &m_playerIsFlying);
     ImGui::Checkbox("Render Chunks", &m_renderChunks);
+
+    m_depthTestUniform.renderImGui();
   }
 };

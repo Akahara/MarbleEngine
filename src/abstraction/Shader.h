@@ -53,6 +53,11 @@ private:
   int         m_size;
   float       m_speed;
 public:
+  TestUniform()
+	: m_shader(nullptr), m_name(), m_value(), m_size(0), m_speed(0)
+  {
+  }
+
   TestUniform(Shader *shader, const char *name, unsigned int size, float speed = .1f)
 	: m_shader(shader), m_name(name), m_value(), m_size(size), m_speed(speed)
   {
@@ -68,6 +73,15 @@ public:
 	assert(m_size == N);
 	for (int i = 0; i < N; i++)
 	  m_value[i] = value[i];
+	sendUniformValue();
+  }
+
+  void setValue(float f1, float f2=0.f, float f3=0.f, float f4=0.f)
+  {
+	m_value[0] = f1;
+	m_value[1] = f2;
+	m_value[2] = f3;
+	m_value[3] = f4;
 	sendUniformValue();
   }
 

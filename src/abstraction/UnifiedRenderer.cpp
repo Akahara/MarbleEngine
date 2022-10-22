@@ -189,14 +189,15 @@ Shader &getStandardMeshShader()
   return s_keepAliveResources->standardMeshShader;
 }
 
-void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm::mat4 &VP)
+void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const Camera &camera)
 {
   glm::mat4 M(1.f);
   M = glm::translate(M, position);
   M = glm::scale(M, size);
   s_keepAliveResources->standardMeshShader.bind();
+  s_keepAliveResources->standardMeshShader.setUniform3f("u_cameraPos", camera.getPosition());
   s_keepAliveResources->standardMeshShader.setUniformMat4f("u_M", M);
-  s_keepAliveResources->standardMeshShader.setUniformMat4f("u_VP", VP);
+  s_keepAliveResources->standardMeshShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
   mesh.draw();
 }
 
