@@ -15,6 +15,24 @@
 
 namespace TerrainMeshGenerator {
 
+    //============================================================================//
+
+    // These values are kinda magical and good looking
+    struct TerrainData {
+        unsigned int  width = 200;        // < Could be a single field as the terrain is squared
+        unsigned int  height = 200;
+        float         scale = 27.6f;
+        float         terrainHeight = 20.f;
+        int           octaves = 4;          // < Number of times we add a new frequency to the heightmap
+        float         persistence = 0.3f;       // < How impactfull 
+        float         lacunarity = 3.18f;
+        int           seed = 5;
+
+        float* noiseMap = Noise::generateNoiseMap(width, height, scale, octaves, persistence, lacunarity, seed);
+    };
+
+    //============================================================================//
+
     struct Chunk {
 
         Renderer::Mesh mesh;
@@ -38,6 +56,7 @@ namespace TerrainMeshGenerator {
 
     };
 
+    //============================================================================//
 
     struct Terrain {
 
@@ -61,16 +80,20 @@ namespace TerrainMeshGenerator {
         //---------------------------/
 
         unsigned int chunkSize;
+        unsigned int numberOfChunks;
         HeightMap heightMap;
         std::unordered_map<glm::vec2, Chunk> chunksPosition;
 
 
     };
 
-Renderer::Mesh generateMesh(const HeightMap &heightmap, float depth);
+    //============================================================================//
 
-Renderer::Mesh generateMesh(const HeightMapView& heightmap, float depth);
+    Chunk generateChunk(const HeightMapView& heightmap, float depth); 
 
+    Renderer::Mesh generateMesh(const HeightMapView& heightmap, float depth);
 
-Terrain generateTerrain(float* noiseMap, unsigned int w, unsigned int h, unsigned int numberOfChunks, float depth); 
+    Terrain generateTerrain(TerrainData terrainData, unsigned int numberOfChunks);
+
+    Terrain generateTerrain(float* noiseMap, unsigned int w, unsigned int h, unsigned int numberOfChunks, float depth); 
 }

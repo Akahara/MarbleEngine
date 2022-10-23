@@ -15,6 +15,7 @@ namespace Renderer {
 
         int vertexCount;
         int meshCount;
+        int debugLines;
     } s_debugData ;
 
     
@@ -30,7 +31,8 @@ void clear();
 void init();
 void shutdown();
 void clearDebugData();
-void showDebugData();
+const debugData& getRendererDebugData();
+
 
 Shader &getStandardMeshShader();
 

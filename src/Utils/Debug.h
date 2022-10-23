@@ -4,8 +4,12 @@
 
 #include "../abstraction/Shader.h"
 
+
 namespace DebugWindow {
 
+
 void onImGuiRender();
+bool renderAABB();
+
 
 }

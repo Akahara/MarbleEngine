@@ -3,6 +3,7 @@
 #include <string>
 #include <functional>
 
+#include "../Utils/Debug.h"
 #include "../vendor/imgui/imgui.h"
 
 class Scene {

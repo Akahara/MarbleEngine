@@ -19,7 +19,7 @@ Chunk generateChunk(const HeightMapView& heightmap, float depth) {
 
 }
 
-Mesh generateMesh(const HeightMapView& heightmap, float depth)
+Renderer::Mesh generateMesh(const HeightMapView& heightmap, float depth)
 {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
@@ -65,6 +65,13 @@ Mesh generateMesh(const HeightMapView& heightmap, float depth)
 
     Mesh mesh{ vertices, indices };
     return mesh;
+}
+
+
+// Convenient function
+Terrain generateTerrain(TerrainData terrainData, unsigned int numberOfChunks) {
+
+    return generateTerrain(terrainData.noiseMap, terrainData.width, terrainData.height, numberOfChunks, terrainData.terrainHeight);
 }
 
 Terrain generateTerrain(float* noiseMap, unsigned int w, unsigned int h, unsigned int numberOfChunks, float depth) {

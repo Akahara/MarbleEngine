@@ -212,6 +212,8 @@ void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm:
 
 void renderDebugLine(const glm::mat4 &VP, glm::vec3 from, glm::vec3 to, const glm::vec4 &color)
 {
+    s_debugData.debugLines++;
+    s_debugData.vertexCount += 2;
   s_keepAliveResources->lineVAO.bind();
   s_keepAliveResources->standardLineShader.bind();
   s_keepAliveResources->standardLineShader.setUniform3f("u_from", from);
@@ -264,15 +266,18 @@ void BlitPass::doBlit(const Texture &renderTexture)
   m_shader.setUniform2f("u_screenSize", (float)Window::getWinWidth(), (float)Window::getWinHeight()); // TODO remove, this uniform is only necessary because the vignette vfx is in the blit shader, which it shouldn't, it should be in a res/shaders/testfb_blit.fs shader
   m_vao.bind();
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-  Texture::unbind();
+  //Texture::unbind();
   VertexArray::unbind();
   glEnable(GL_DEPTH_TEST);
 }
 
-void clearDebugData() { s_debugData.meshCount = 0; s_debugData.vertexCount = 0; }
-void showDebugData() {
-    printf("%d\n", s_debugData.vertexCount);
-    std::cout << "Number of verticies : " << s_debugData.vertexCount << std::endl;
+void clearDebugData() {
+    s_debugData.meshCount = 0;
+    s_debugData.vertexCount = 0;
+    s_debugData.debugLines = 0;
+}
+const debugData& getRendererDebugData() {
+    return s_debugData;
 }
 
 }
