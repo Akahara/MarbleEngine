@@ -46,6 +46,9 @@ private:
   bool                  m_renderChunks = 0;
 
   /* Other */
+
+  Renderer::Mesh        m_treeMesh = Renderer::loadMeshFromFile("res/meshes/tree.obj"); // <! CHANGER CE PUTAIN DE SOL
+
   struct Sun {
 
       glm::vec3 position;
@@ -69,7 +72,7 @@ public:
       m_grassTexture.bind(1);
 
 
-    m_player.setPostion({ 100.f, 500.f, 0 });
+    m_player.setPostion({ 100.f, 200.f , 100.f });
     m_player.updateCamera();
     regenerateTerrain();
     m_sun.position = { 100,100,100 };
@@ -161,10 +164,11 @@ public:
 
            if (Renderer::Frustum::isOnFrustum(m_frustum, aabbtemp)) {
 
-               Renderer::renderMesh(glm::vec3{ position.x , 0.F, position.y} * m_mSize , glm::vec3(m_mSize), chunk.mesh, m_player.getCamera().getViewProjectionMatrix());
+               Renderer::renderMesh(glm::vec3{ position.x , 0.F, position.y} * m_mSize , glm::vec3(m_mSize), chunk.mesh, m_player.getCamera());
                if (DebugWindow::renderAABB()) (renderAABBDebugOutline(m_player.getCamera(), aabbtemp));
            }
     }
+    Renderer::renderMesh(glm::vec3{ 100.f ,m_terrain.heightMap.getHeight(100.f, 100.f) * m_terrainData.terrainHeight, 100.F}, glm::vec3(5), m_treeMesh, m_player.getCamera());
     
 
 
@@ -190,7 +194,7 @@ public:
     }
       
     ImGui::SliderFloat3("Sun position", &m_sun.position[0], -200, 200);
-
+    ImGui::Text("X : %f , Y : %f, Z : %f", m_player.getPosition().x, m_player.getPosition().y, m_player.getPosition().z);
     ImGui::Checkbox("Fly", &m_playerIsFlying);
     ImGui::Checkbox("Render Chunks", &m_renderChunks);
   }

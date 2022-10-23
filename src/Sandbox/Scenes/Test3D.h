@@ -34,13 +34,13 @@ public:
     //Renderer::RenderCube({ 0, 1, 0 }, glm::vec3{ .05f, 2.f, .05f }, { 1.f, 0.f, 0.f }, m_player.getCamera().getViewProjectionMatrix()); // +y red
     //Renderer::RenderCube({ 0, 0, 1 }, glm::vec3{ .05f, .05f, 2.f }, { 0.f, 1.f, 0.f }, m_player.getCamera().getViewProjectionMatrix()); // +z green
     //Renderer::RenderCube({ 0, 0, 0 }, glm::vec3{ 1.f,  1.f,  1.f }, { .9f, .9f, .9f }, m_player.getCamera().getViewProjectionMatrix()); // unit cube
-    Renderer::renderMesh({ 1, 0, 0 }, { .1f, .1f, 1.f }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix()); // +x blue
-    Renderer::renderMesh({ 0, 1, 0 }, { 1.f, .1f, .1f }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix()); // +y red
-    Renderer::renderMesh({ 0, 0, 1 }, { .1f, 1.f, .1f }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix()); // +z green
-    Renderer::renderMesh({ 0, 0, 0 }, { .9f, .9f, .9f }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix()); // unit cube
-    Renderer::renderMesh({ -5, 3, 12 }, { .9f, .9f, .9f }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix()); // unit cube
-    Renderer::renderMesh({ 5, 0, 0 }, { .9f, .9f, .9f }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix()); // unit cube
-    Renderer::renderMesh({ 3.f, 80.f, 5.f }, { 10.f, 10.f, 10.f }, m_cubeMesh, m_player.getCamera().getViewProjectionMatrix());
+    Renderer::renderMesh({ 1, 0, 0 }, { .1f, .1f, 1.f }, m_cubeMesh, m_player.getCamera()); // +x blue
+    Renderer::renderMesh({ 0, 1, 0 }, { 1.f, .1f, .1f }, m_cubeMesh, m_player.getCamera()); // +y red
+    Renderer::renderMesh({ 0, 0, 1 }, { .1f, 1.f, .1f }, m_cubeMesh, m_player.getCamera()); // +z green
+    Renderer::renderMesh({ 0, 0, 0 }, { .9f, .9f, .9f }, m_cubeMesh, m_player.getCamera()); // unit cube
+    Renderer::renderMesh({ -5, 3, 12 }, { .9f, .9f, .9f }, m_cubeMesh, m_player.getCamera()); // unit cube
+    Renderer::renderMesh({ 5, 0, 0 }, { .9f, .9f, .9f }, m_cubeMesh, m_player.getCamera()); // unit cube
+    Renderer::renderMesh({ 3.f, 80.f, 5.f }, { 10.f, 10.f, 10.f }, m_cubeMesh, m_player.getCamera());
 
   }
 

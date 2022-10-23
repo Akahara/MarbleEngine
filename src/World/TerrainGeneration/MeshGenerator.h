@@ -77,7 +77,12 @@ namespace TerrainMeshGenerator {
             return *this;
         }
 
+        float getHeight(int x, int y) { return heightMap.getHeight(x, y); }
+
+
         //---------------------------/
+
+
 
         unsigned int chunkSize;
         unsigned int numberOfChunks;

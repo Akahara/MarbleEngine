@@ -33,6 +33,7 @@
     <ClCompile Include="src\World\TerrainGeneration\MapUtilities.cpp" />
     <ClCompile Include="src\Utils\Debug.cpp" />
     <ClCompile Include="src\abstraction\UnifiedRenderer.cpp" />
+    <ClCompile Include="src\world\TerrainGeneration\TreeGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h" />
@@ -85,6 +86,7 @@
     <ClInclude Include="src\Sandbox\Scenes\TestShaders.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestShadows.h" />
     <ClInclude Include="src\Utils\AABB.h" />
+    <ClInclude Include="src\world\TerrainGeneration\TreeGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />

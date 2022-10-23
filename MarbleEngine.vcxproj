@@ -182,6 +182,7 @@
     <ClCompile Include="src\world\TerrainGeneration\MeshGenerator.cpp" />
     <ClCompile Include="src\world\TerrainGeneration\Noise.cpp" />
     <ClCompile Include="src\World\Sky.cpp" />
+    <ClCompile Include="src\world\TerrainGeneration\TreeGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h" />
@@ -234,6 +235,7 @@
     <ClInclude Include="src\world\TerrainGeneration\Noise.h" />
     <ClInclude Include="src\world\TerrainGeneration\PerlinNoise.hpp" />
     <ClInclude Include="src\World\Sky.h" />
+    <ClInclude Include="src\world\TerrainGeneration\TreeGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />
