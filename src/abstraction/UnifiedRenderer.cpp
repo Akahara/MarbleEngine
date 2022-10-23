@@ -44,12 +44,12 @@ Mesh createCubeMesh(unsigned int texId)
   std::vector<Vertex> vertices{
     // position              uv            normal            // tex id          // color
     { { -.5f, -.5f, -.5f }, { 0.f, 0.f }, { -s3, -s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
-    { { +.5f, -.5f, -.5f }, { 0.f, 0.f }, { +s3, -s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
-    { { +.5f, +.5f, -.5f }, { 0.f, 0.f }, { +s3, +s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
-    { { -.5f, +.5f, -.5f }, { 0.f, 0.f }, { -s3, +s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
-    { { -.5f, -.5f, +.5f }, { 0.f, 0.f }, { -s3, -s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
-    { { +.5f, -.5f, +.5f }, { 0.f, 0.f }, { +s3, -s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
-    { { +.5f, +.5f, +.5f }, { 0.f, 0.f }, { +s3, +s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, -.5f, -.5f }, { 1.f, 0.f }, { +s3, -s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, +.5f, -.5f }, { 1.f, 1.f }, { +s3, +s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { -.5f, +.5f, -.5f }, { 0.f, 1.f }, { -s3, +s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { -.5f, -.5f, +.5f }, { 0.f, 1.f }, { -s3, -s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, -.5f, +.5f }, { 1.f, 1.f }, { +s3, -s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, +.5f, +.5f }, { 1.f, 0.f }, { +s3, +s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
     { { -.5f, +.5f, +.5f }, { 0.f, 0.f }, { -s3, +s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f} },
   };
   std::vector<unsigned int> indices{
@@ -197,7 +197,11 @@ Shader &getStandardMeshShader()
 
 void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const glm::mat4 &VP)
 {
-  glm::mat4 M(1.f);
+
+    s_debugData.meshCount++;
+    s_debugData.vertexCount += mesh.getVertexCount();
+
+    glm::mat4 M(1.f);
   M = glm::translate(M, position);
   M = glm::scale(M, size);
   s_keepAliveResources->standardMeshShader.bind();
@@ -265,6 +269,10 @@ void BlitPass::doBlit(const Texture &renderTexture)
   glEnable(GL_DEPTH_TEST);
 }
 
-
+void clearDebugData() { s_debugData.meshCount = 0; s_debugData.vertexCount = 0; }
+void showDebugData() {
+    printf("%d\n", s_debugData.vertexCount);
+    std::cout << "Number of verticies : " << s_debugData.vertexCount << std::endl;
+}
 
 }

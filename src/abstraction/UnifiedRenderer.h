@@ -11,10 +11,17 @@
 
 namespace Renderer {
 
+    static struct debugData {
+
+        int vertexCount;
+        int meshCount;
+    } s_debugData ;
+
+    
 namespace fs = std::filesystem;
 
 Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath);
-Mesh createCubeMesh(unsigned int texId = 2);
+Mesh createCubeMesh(unsigned int texId = 0);
 Mesh createPlaneMesh();
 Mesh loadMeshFromFile(const fs::path &objPath);
 
@@ -22,6 +29,8 @@ void clear();
 
 void init();
 void shutdown();
+void clearDebugData();
+void showDebugData();
 
 Shader &getStandardMeshShader();
 

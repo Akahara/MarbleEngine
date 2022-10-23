@@ -169,6 +169,7 @@ public:
 
   void onRender() override
   {
+    Renderer::clearDebugData();
     Renderer::Renderer::clear();
     Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera(), m_player.getPosition());
 
@@ -214,8 +215,7 @@ public:
         Renderer::getStandardMeshShader().setUniform1i("u_RenderChunks", 1);
     Renderer::getStandardMeshShader().unbind();
 
-
-
+    Renderer::showDebugData();
   }
 
   void onImGuiRender() override

@@ -34,6 +34,10 @@ public:
   Mesh &operator=(const Mesh &) = delete;
   Mesh(const Mesh &) = delete;
 
+  unsigned int getVertexCount() const {
+	  return m_verticesCount;
+  }
+
   void draw() const;
 };
 
