@@ -214,7 +214,9 @@
     <ClInclude Include="src\Sandbox\Scenes\TestSky.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestTerrain.h" />
     <ClInclude Include="src\Utils\AABB.h" />
+    <ClInclude Include="src\Utils\BoundingSphere.h" />
     <ClInclude Include="src\Utils\Debug.h" />
+    <ClInclude Include="src\Utils\BoundingVolume.h" />
     <ClInclude Include="src\Utils\Mathf.h" />
     <ClInclude Include="src\vendor\imgui\imconfig.h" />
     <ClInclude Include="src\vendor\imgui\imgui.h" />

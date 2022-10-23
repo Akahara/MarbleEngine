@@ -36,7 +36,7 @@ const debugData& getRendererDebugData();
 
 Shader &getStandardMeshShader();
 
-void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh& mesh, const Camera& camera);
+void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh& mesh, const Camera& camera, bool recomputeBB = false);
 void renderDebugLine(const glm::mat4 &VP, glm::vec3 from, glm::vec3 to, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});
 void renderDebugPlane(const glm::mat4 &VP, const glm::vec3& normal, float point, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});
 void renderDebugCube(const glm::mat4 &VP, glm::vec3 position, glm::vec3 size={1.f, 1.f, 1.f}, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});

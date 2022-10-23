@@ -26,7 +26,8 @@ private:
   VertexArray			m_VAO;
   unsigned int			m_verticesCount;
 
-  AABB					m_boudingBox;	// TODO : change to BoudingVolume 
+  mutable AABB			m_boudingBox;	// TODO : compute (wip) , mutable bc we need to move the aabb in const func
+  std::vector<Vertex>	m_vertices; // change that ?? 
 
 
 public:
@@ -41,8 +42,12 @@ public:
   unsigned int getVertexCount() const {
 	  return m_verticesCount;
   }
+  AABB& getBoundingBox() const { return m_boudingBox; }
+
 
   void draw() const;
+  void computeBoundingBox() const;
+  void moveBoundingBox(const glm::vec3& origin) const;
 };
 
 }

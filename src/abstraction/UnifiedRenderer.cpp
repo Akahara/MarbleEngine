@@ -195,21 +195,37 @@ Shader &getStandardMeshShader()
   return s_keepAliveResources->standardMeshShader;
 }
 
-void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const Camera& camera)
+void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const Camera& camera, bool recomputeBB)
 {
 
     s_debugData.meshCount++;
     s_debugData.vertexCount += mesh.getVertexCount();
 
-    glm::mat4 M(1.f);
-  M = glm::translate(M, position);
-  M = glm::scale(M, size);
-  s_keepAliveResources->standardMeshShader.bind();
 
-  s_keepAliveResources->standardMeshShader.setUniform3f("u_cameraPos", camera.getPosition());
-  s_keepAliveResources->standardMeshShader.setUniformMat4f("u_M", M);
-  s_keepAliveResources->standardMeshShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
-  mesh.draw();
+    glm::mat4 M(1.f);
+    M = glm::translate(M, position);
+    M = glm::scale(M, size);
+    s_keepAliveResources->standardMeshShader.bind();
+    
+    s_keepAliveResources->standardMeshShader.setUniform3f("u_cameraPos", camera.getPosition());
+    s_keepAliveResources->standardMeshShader.setUniformMat4f("u_M", M);
+    s_keepAliveResources->standardMeshShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+    /* 
+        Il est 23H20, merci d'être indulgent quant à la qualité du code ci-dessous.
+        Je suis encore assez eveillé pour comprendre l'aberration que c'est.
+                                   Merci.
+    */
+    if (recomputeBB) {
+    mesh.computeBoundingBox();                  // TODO : avoid forcing the recalculation of the bouding box... 
+                                                //        I havent tried but this might mess up chunks
+                                                //     UPDATE : it did, added a shitty default param then im going to bed
+    mesh.getBoundingBox().setOrigin({ position.x - size.x *2.f,
+                                    position.y - size.y  ,
+                                    position.z - size.z *2.f});
+    mesh.getBoundingBox().scale(size);
+    }
+
+    mesh.draw();
 }
 
 void renderDebugLine(const glm::mat4 &VP, glm::vec3 from, glm::vec3 to, const glm::vec4 &color)
@@ -268,7 +284,7 @@ void BlitPass::doBlit(const Texture &renderTexture)
   m_shader.setUniform2f("u_screenSize", (float)Window::getWinWidth(), (float)Window::getWinHeight()); // TODO remove, this uniform is only necessary because the vignette vfx is in the blit shader, which it shouldn't, it should be in a res/shaders/testfb_blit.fs shader
   m_vao.bind();
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-  //Texture::unbind();
+  Texture::unbind();
   VertexArray::unbind();
   glEnable(GL_DEPTH_TEST);
 }

@@ -87,6 +87,8 @@
     <ClInclude Include="src\Sandbox\Scenes\TestShadows.h" />
     <ClInclude Include="src\Utils\AABB.h" />
     <ClInclude Include="src\world\TerrainGeneration\TreeGenerator.h" />
+    <ClInclude Include="src\Utils\BoundingVolume.h" />
+    <ClInclude Include="src\Utils\BoundingSphere.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />

@@ -47,7 +47,7 @@ private:
 
   /* Other */
 
-  Renderer::Mesh        m_treeMesh = Renderer::loadMeshFromFile("res/meshes/tree.obj"); // <! CHANGER CE PUTAIN DE SOL
+  Renderer::Mesh        m_treeMesh = Renderer::loadMeshFromFile("res/meshes/cow.obj"); // <! CHANGER CE PUTAIN DE SOL
 
   struct Sun {
 
@@ -72,7 +72,7 @@ public:
       m_grassTexture.bind(1);
 
 
-    m_player.setPostion({ 100.f, 200.f , 100.f });
+    m_player.setPostion({ 100.f, 22.F , 100.f });
     m_player.updateCamera();
     regenerateTerrain();
     m_sun.position = { 100,100,100 };
@@ -168,8 +168,8 @@ public:
                if (DebugWindow::renderAABB()) (renderAABBDebugOutline(m_player.getCamera(), aabbtemp));
            }
     }
-    Renderer::renderMesh(glm::vec3{ 100.f ,m_terrain.heightMap.getHeight(100.f, 100.f) * m_terrainData.terrainHeight, 100.F}, glm::vec3(5), m_treeMesh, m_player.getCamera());
-    
+    Renderer::renderMesh(glm::vec3{ 100.f ,m_terrain.heightMap.getHeight(100.f, 100.f) * m_terrainData.terrainHeight, 100.F}, glm::vec3(2), m_treeMesh, m_player.getCamera(), true);   
+    renderAABBDebugOutline(m_player.getCamera(), m_treeMesh.getBoundingBox());
 
 
 

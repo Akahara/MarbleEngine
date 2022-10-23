@@ -1,10 +1,12 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "BoundingVolume.h"
+#include "BoundingSphere.h"
+
 
 class AABBIterator;
 
-class AABB {
+class AABB : public BoundingVolume {
 private:
   glm::vec3 m_origin;
   glm::vec3 m_size;
@@ -29,9 +31,22 @@ public:
   const glm::vec3 &getOrigin() const { return m_origin; }
   const glm::vec3 &getSize() const { return m_size; }
 
+  static AABB makeAABBfromBoundingSphere(const BoundingSphere& sphere) {
+
+      glm::vec3 A = sphere.getCenter() - glm::vec3(sphere.getRadius());
+      glm::vec3 B = sphere.getCenter() + glm::vec3(sphere.getRadius());
+
+      return make_aabb(A, B);
+  }
+
+
   AABB move(const glm::vec3 &displacement)
   {
     return AABB(m_origin + displacement, m_size);
+  }
+
+  void scale(const glm::vec3& factor) {
+      m_size *= factor;
   }
 
   void setOrigin(const glm::vec3& origin) {
