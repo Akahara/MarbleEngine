@@ -1,183 +1,22 @@
-# Blender 3.3.1 MTL File: 'yamaboushi_tan_6000_a.blend'
+# Blender 3.3.1 MTL File: 'Tree.blend'
 # www.blender.org
 
-newmtl Material.001
+newmtl Leaves
 Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.214041 0.214041 0.214041
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 2
-
-newmtl yamaboushi_flower1_1_MatSG
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-illum 2
-map_Kd tex/yamaboushi_flower1_1.png
-map_d tex/yamaboushi_flower1_1_Opacity.png
-
-newmtl yamaboushi_flower1_2_MatSG
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-illum 2
-map_Kd tex/yamaboushi_flower1_2.png
-map_d tex/yamaboushi_flower1_2_Opacity.png
-
-newmtl yamaboushi_flower1_3_MatSG
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-illum 2
-map_Kd tex/yamaboushi_flower1_3.png
-map_d tex/yamaboushi_flower1_3_Opacity.png
-
-newmtl yamaboushi_flower2_1_MatSG
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-illum 2
-map_Kd tex/yamaboushi_flower2_1.png
-map_d tex/yamaboushi_flower2_1_Opacity.png
-
-newmtl yamaboushi_flower2_2_MatSG
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-illum 2
-map_Kd tex/yamaboushi_flower2_2.png
-map_d tex/yamaboushi_flower2_2_Opacity.png
-
-newmtl yamaboushi_flower2_3_MatSG
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-illum 2
-map_Kd tex/yamaboushi_flower2_3.png
-map_d tex/yamaboushi_flower2_3_Opacity.png
-
-newmtl yamaboushi_leaf_aut1_1_MatSG
-Ns 360.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
+Ks 0.000000 0.000000 0.000000
 Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
-illum 2
+illum 1
 
-newmtl yamaboushi_leaf_aut1_2_MatSG
-Ns 360.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-
-newmtl yamaboushi_leaf_aut1_3_MatSG
-Ns 360.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-
-newmtl yamaboushi_leaf_spr1_1_MatSG
-Ns 360.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-
-newmtl yamaboushi_leaf_spr1_2_MatSG
-Ns 360.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-
-newmtl yamaboushi_leaf_spr1_3_MatSG
-Ns 360.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-
-newmtl yamaboushi_leaf_sum1_1_MatSG
-Ns 360.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-
-newmtl yamaboushi_leaf_sum1_2_MatSG
-Ns 360.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-
-newmtl yamaboushi_leaf_sum1_3_MatSG
-Ns 360.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
-
-newmtl yamaboushi_stalk_MatSG
+newmtl Trunk
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
+Kd 0.246188 0.139848 0.075498
+Ks 0.000000 0.000000 0.000000
 Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-illum 2
-map_Kd tex/yamaboushi_stalk.png
-map_d tex/yamaboushi_stalk_Opacity.png
-
-newmtl yamaboushi_tan_trunk_MatSG
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-illum 2
-map_Kd tex/yamaboushi_tan_trunk.png
-map_d tex/yamaboushi_tan_trunk_Opacity.png
-map_Bump -bm 1.000000 tex/yamaboushi_tan_trunk_Normal.png
+Ni 1.000000
+d 1.000000
+illum 1

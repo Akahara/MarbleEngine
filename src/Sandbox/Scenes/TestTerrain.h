@@ -45,9 +45,14 @@ private:
   float                 m_mSize = 1; // < Terrain mesh size
   bool                  m_renderChunks = 0;
 
+
+
   /* Other */
 
-  Renderer::Mesh        m_treeMesh = Renderer::loadMeshFromFile("res/meshes/cow.obj"); // <! CHANGER CE PUTAIN DE SOL
+  float test = 1;
+
+  Renderer::Mesh        m_treeMesh = Renderer::loadMeshFromFile("res/meshes/Tree.obj"); // <! CHANGER CE PUTAIN DE SOL
+  Renderer::Mesh        m_grassBlade = Renderer::loadMeshFromFile("res/meshes/blade.obj"); 
 
   struct Sun {
 
@@ -168,7 +173,20 @@ public:
                if (DebugWindow::renderAABB()) (renderAABBDebugOutline(m_player.getCamera(), aabbtemp));
            }
     }
-    Renderer::renderMesh(glm::vec3{ 100.f ,m_terrain.heightMap.getHeight(100.f, 100.f) * m_terrainData.terrainHeight, 100.F}, glm::vec3(2), m_treeMesh, m_player.getCamera(), true);   
+    Renderer::renderMesh(glm::vec3{ 100.f ,m_terrain.heightMap.getHeight(100.f, 100.f) * m_terrainData.terrainHeight, 100.F}, glm::vec3(2), m_treeMesh, m_player.getCamera(), true);
+    /*
+    for (unsigned int i = 0; i < 100; i++) {
+        for (unsigned int j = 0; j < 100; j++) {
+
+            if (Renderer::Frustum::isOnFrustum(m_frustum, m_grassBlade.getBoundingBox())) {
+                Renderer::renderMesh(glm::vec3{ i ,m_terrain.heightMap.getHeight(i, j) * m_terrainData.terrainHeight, j }, glm::vec3(10), m_grassBlade, m_player.getCamera(), true);
+            }
+
+            Renderer::renderMesh(glm::vec3{ i ,m_terrain.heightMap.getHeight(i, j) * m_terrainData.terrainHeight, j }, glm::vec3(10), m_grassBlade, m_player.getCamera(), true);
+        }
+    }
+    */
+
     renderAABBDebugOutline(m_player.getCamera(), m_treeMesh.getBoundingBox());
 
 
@@ -191,6 +209,11 @@ public:
         ImGui::SliderInt("seed", &m_terrainData.seed, 0, 5) + ImGui::SliderFloat("Depth", &m_terrainData.terrainHeight, 0, 100.f) +
         ImGui::SliderInt("chunksize", &m_numberOfChunks, 1, 16)) {
       regenerateTerrain();
+    }
+
+    if (ImGui::SliderFloat("test ", &test, 0, 1)) {
+        m_treeMesh.getBoundingBox().setSize(glm::vec3(test));
+
     }
       
     ImGui::SliderFloat3("Sun position", &m_sun.position[0], -200, 200);

@@ -219,7 +219,7 @@ void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const Came
     mesh.computeBoundingBox();                  // TODO : avoid forcing the recalculation of the bouding box... 
                                                 //        I havent tried but this might mess up chunks
                                                 //     UPDATE : it did, added a shitty default param then im going to bed
-    mesh.getBoundingBox().setOrigin({ position.x - size.x *2.f,
+    mesh.getBoundingBox().setOrigin({ position.x - size.x * 2.f,
                                     position.y - size.y  ,
                                     position.z - size.z *2.f});
     mesh.getBoundingBox().scale(size);
