@@ -5,7 +5,7 @@ out vec4 color;
 in vec2 o_uv;
 in vec3 o_normal;
 in vec3 o_pos;
-in float o_texId;
+flat in float o_texId;
 in vec3 o_color;
 
 uniform vec3 u_SunPos;

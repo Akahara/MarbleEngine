@@ -173,7 +173,7 @@ public:
                if (DebugWindow::renderAABB()) (renderAABBDebugOutline(m_player.getCamera(), aabbtemp));
            }
     }
-    Renderer::renderMesh(glm::vec3{ 100.f ,m_terrain.heightMap.getHeight(100.f, 100.f) * m_terrainData.terrainHeight, 100.F}, glm::vec3(2), m_treeMesh, m_player.getCamera(), true);
+    //Renderer::renderMesh(glm::vec3{ 100.f ,m_terrain.heightMap.getHeight(100.f, 100.f) * m_terrainData.terrainHeight, 100.F}, glm::vec3(2), m_treeMesh, m_player.getCamera(), true);
     /*
     for (unsigned int i = 0; i < 100; i++) {
         for (unsigned int j = 0; j < 100; j++) {
@@ -187,7 +187,7 @@ public:
     }
     */
 
-    renderAABBDebugOutline(m_player.getCamera(), m_treeMesh.getBoundingBox());
+   // renderAABBDebugOutline(m_player.getCamera(), m_treeMesh.getBoundingBox());
 
 
 
