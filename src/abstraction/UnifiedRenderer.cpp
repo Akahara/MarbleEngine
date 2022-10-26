@@ -8,6 +8,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "Window.h"
+#include "Camera.h"
 #include "Mesh.h"
 
 namespace Renderer {
@@ -36,20 +37,20 @@ Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentP
   return Shader{ vertexCode, fragmentCode };
 }
 
-Mesh createCubeMesh()
+Mesh createCubeMesh(unsigned int texId)
 {
   // TODO add UVs
   float s3 = std::sqrtf(3);
   std::vector<Vertex> vertices{
-    // position              uv            normal
-    { { -.5f, -.5f, -.5f }, { 0.f, 0.f }, { -s3, -s3, -s3 } },
-    { { +.5f, -.5f, -.5f }, { 0.f, 0.f }, { +s3, -s3, -s3 } },
-    { { +.5f, +.5f, -.5f }, { 0.f, 0.f }, { +s3, +s3, -s3 } },
-    { { -.5f, +.5f, -.5f }, { 0.f, 0.f }, { -s3, +s3, -s3 } },
-    { { -.5f, -.5f, +.5f }, { 0.f, 0.f }, { -s3, -s3, +s3 } },
-    { { +.5f, -.5f, +.5f }, { 0.f, 0.f }, { +s3, -s3, +s3 } },
-    { { +.5f, +.5f, +.5f }, { 0.f, 0.f }, { +s3, +s3, +s3 } },
-    { { -.5f, +.5f, +.5f }, { 0.f, 0.f }, { -s3, +s3, +s3 } },
+    // position              uv            normal            // tex id          // color
+    { { -.5f, -.5f, -.5f }, { 0.f, 0.f }, { -s3, -s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, -.5f, -.5f }, { 1.f, 0.f }, { +s3, -s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, +.5f, -.5f }, { 1.f, 1.f }, { +s3, +s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { -.5f, +.5f, -.5f }, { 0.f, 1.f }, { -s3, +s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { -.5f, -.5f, +.5f }, { 0.f, 1.f }, { -s3, -s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, -.5f, +.5f }, { 1.f, 1.f }, { +s3, -s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, +.5f, +.5f }, { 1.f, 0.f }, { +s3, +s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
+    { { -.5f, +.5f, +.5f }, { 0.f, 0.f }, { -s3, +s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f} },
   };
   std::vector<unsigned int> indices{
     0, 3, 1, 1, 3, 2,
@@ -89,19 +90,21 @@ static void skipStreamText(std::istream &stream, const char *text)
   }
 }
 
-Mesh loadMeshFromFile(const fs::path &objPath)
+Mesh loadMeshFromFile(const fs::path& objPath)
 {
-  std::ifstream modelFile{ objPath };
-  constexpr size_t bufSize = 100;
-  char lineBuffer[bufSize];
+    std::ifstream modelFile{ objPath };
+    constexpr size_t bufSize = 10000;
+    char lineBuffer[bufSize];
 
-  std::vector<glm::vec3> positions;
-  std::vector<glm::vec3> normals;
-  std::vector<glm::vec2> uvs;
+    std::vector<glm::vec3> positions;
+    std::vector<glm::vec3> normals;
+    std::vector<glm::vec2> uvs;
 
-  std::vector<std::tuple<int, int, int>> cachedVertices;
-  std::vector<unsigned int> indices;
-  std::vector<Vertex> vertices;
+    uvs.emplace_back();
+
+    std::vector<std::tuple<int, int, int>> cachedVertices;
+    std::vector<unsigned int> indices;
+    std::vector<Vertex> vertices;
 
   if (!modelFile.good())
     throw std::exception("Could not open model file");
@@ -109,7 +112,6 @@ Mesh loadMeshFromFile(const fs::path &objPath)
   int l = 0;
   while (modelFile.good()) {
     l++;
-    if (l % 1000 == 0) std::cout << "l" << l << std::endl;
     modelFile.getline(lineBuffer, bufSize);
     if (lineBuffer[0] == '#')
       continue;
@@ -189,20 +191,44 @@ Shader &getStandardMeshShader()
   return s_keepAliveResources->standardMeshShader;
 }
 
-void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const Camera &camera)
+void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const Camera& camera, bool recomputeBB)
 {
-  glm::mat4 M(1.f);
-  M = glm::translate(M, position);
-  M = glm::scale(M, size);
-  s_keepAliveResources->standardMeshShader.bind();
-  s_keepAliveResources->standardMeshShader.setUniform3f("u_cameraPos", camera.getPosition());
-  s_keepAliveResources->standardMeshShader.setUniformMat4f("u_M", M);
-  s_keepAliveResources->standardMeshShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
-  mesh.draw();
+
+    s_debugData.meshCount++;
+    s_debugData.vertexCount += mesh.getVertexCount();
+
+
+    glm::mat4 M(1.f);
+    M = glm::translate(M, position);
+    M = glm::scale(M, size);
+    s_keepAliveResources->standardMeshShader.bind();
+    
+    s_keepAliveResources->standardMeshShader.setUniform3f("u_cameraPos", camera.getPosition());
+    s_keepAliveResources->standardMeshShader.setUniformMat4f("u_M", M);
+    s_keepAliveResources->standardMeshShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+    /* 
+        Il est 23H20, merci d'être indulgent quant à la qualité du code ci-dessous.
+        Je suis encore assez eveillé pour comprendre l'aberration que c'est.
+                                   Merci.
+    */
+    // TODO cleanup this whole function ^.^
+    if (recomputeBB) {
+      mesh.computeBoundingBox();                  // TODO : avoid forcing the recalculation of the bouding box... 
+                                                  //        I havent tried but this might mess up chunks
+                                                  //     UPDATE : it did, added a shitty default param then im going to bed
+      mesh.getBoundingBox().setOrigin({ position.x - size.x * 2.f,
+                                      position.y - size.y  ,
+                                      position.z - size.z *2.f});
+      mesh.getBoundingBox().scale(size);
+    }
+
+    mesh.draw();
 }
 
 void renderDebugLine(const glm::mat4 &VP, glm::vec3 from, glm::vec3 to, const glm::vec4 &color)
 {
+  s_debugData.debugLines++;
+  s_debugData.vertexCount += 2;
   s_keepAliveResources->lineVAO.bind();
   s_keepAliveResources->standardLineShader.bind();
   s_keepAliveResources->standardLineShader.setUniform3f("u_from", from);
@@ -355,6 +381,16 @@ void BlitPass::doBlit(const Texture &renderTexture)
   Texture::unbind();
   VertexArray::unbind();
   glEnable(GL_DEPTH_TEST);
+}
+
+void clearDebugData() {
+    s_debugData.meshCount = 0;
+    s_debugData.vertexCount = 0;
+    s_debugData.debugLines = 0;
+}
+
+const debugData& getRendererDebugData() {
+    return s_debugData;
 }
 
 }

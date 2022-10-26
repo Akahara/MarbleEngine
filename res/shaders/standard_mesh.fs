@@ -5,7 +5,7 @@ out vec4 color;
 in vec2 o_uv;
 in vec3 o_normal;
 in vec3 o_pos;
-in float o_texId;
+flat in float o_texId;
 in vec3 o_color;
 
 uniform vec3 u_SunPos;
@@ -14,8 +14,6 @@ uniform int u_RenderChunks;
 uniform vec3 u_cameraPos;
 
 uniform sampler2D u_Textures2D[8];
-int u_TexID;
-//uniform int u_TexID;
 
 uniform vec3 u_fogColor = vec3(.71, .86, 1.);
 uniform vec3 u_fogDamping = vec3(.001, .001, .001);
@@ -25,8 +23,7 @@ void main()
        
     if (u_RenderChunks==0) {
         int index = int(o_texId);
-        index = 1;
-        color = texture(u_Textures2D[0*index], o_uv); // TODO fix the texture sampling (use u_Textures2D)
+        color = texture(u_Textures2D[index], o_uv);
         color.rgb += vec3(0.09,0.09,0.09) * 0.2 + vec3(.2f, .2f, 0.f) * dot(normalize(o_normal), normalize(u_SunPos)) * u_Strenght;
     }
     else {

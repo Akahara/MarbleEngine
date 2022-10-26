@@ -7,7 +7,7 @@
 #include "VertexArray.h"
 #include "Texture.h"
 
-
+#include "../Utils/AABB.h"
 
 namespace Renderer {
 
@@ -15,16 +15,21 @@ namespace Renderer {
 		glm::vec3 position;
 		glm::vec2 uv;
 		glm::vec3 normal;
-		float texId; // TODO figure out how/if? we can use texture ids in vertices
-		glm::vec3 color;
+		float texId = 0; // TODO figure out how/if? we can use texture ids in vertices
+		glm::vec3 color = {1.0f, 0.f, 0.f};
 	};
 
 class Mesh {
 private:
-  VertexBufferObject m_VBO;
-  IndexBufferObject  m_IBO;
-  VertexArray        m_VAO;
-  unsigned int       m_verticesCount;
+  VertexBufferObject	m_VBO;
+  IndexBufferObject		m_IBO;
+  VertexArray			m_VAO;
+  unsigned int			m_verticesCount;
+
+  mutable AABB			m_boudingBox;	// TODO : compute (wip) , mutable bc we need to move the aabb in const func
+  std::vector<Vertex>	m_vertices; // change that ?? 
+
+
 public:
   Mesh();
   Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indicies);
@@ -34,7 +39,15 @@ public:
   Mesh &operator=(const Mesh &) = delete;
   Mesh(const Mesh &) = delete;
 
+  unsigned int getVertexCount() const {
+	  return m_verticesCount;
+  }
+  AABB& getBoundingBox() const { return m_boudingBox; }
+
+
   void draw() const;
+  void computeBoundingBox() const;
+  void moveBoundingBox(const glm::vec3& origin) const;
 };
 
 }

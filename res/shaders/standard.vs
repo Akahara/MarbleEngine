@@ -9,7 +9,7 @@ layout(location = 4) in vec3 i_color;
 out vec2 o_uv;
 out vec3 o_normal;
 out vec3 o_pos;
-out float o_texId;
+flat out float o_texId;
 out vec3 o_color;
 
 uniform mat4 u_VP;
