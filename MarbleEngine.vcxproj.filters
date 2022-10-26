@@ -91,6 +91,7 @@
     <ClInclude Include="src\Utils\BoundingSphere.h" />
     <ClInclude Include="src\World\SunCameraHelper.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestCameras.h" />
+    <ClInclude Include="src\world\TerrainGeneration\Erosion\Erosion.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
