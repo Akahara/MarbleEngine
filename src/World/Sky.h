@@ -10,12 +10,11 @@ namespace World {
 class Sky {
 private:
   Renderer::Cubemap m_skybox;
-  Renderer::Texture m_cloudsTexture;
 public:
   Sky();
 
   void step(float delta);
-  void render(const Player &player) const;
+  void render(const Renderer::Camera &camera, float time=0.f) const;
 };
 
 }
@@ -23,7 +22,7 @@ public:
 namespace Renderer::SkyRenderer {
 
 void init();
-void drawSkyClouds(const Texture &cloudsTexture, const Player &player);
+void drawSkyClouds(const Camera &camera, float time);
 //void Shutdown(); // TODO restore this shutdown and move the renderer elsewhere
 
 }

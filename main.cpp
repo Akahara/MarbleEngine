@@ -12,7 +12,6 @@
 #include "src/World/Sky.h"
 #include "src/Utils/Debug.h"
 #include "src/Sandbox/Scenes/Test2D.h"
-#include "src/Sandbox/Scenes/Test3D.h"
 #include "src/Sandbox/Scenes/TestSky.h"
 #include "src/Sandbox/Scenes/TestTerrain.h"
 #include "src/Sandbox/Scenes/TestFB.h"
@@ -47,14 +46,13 @@ int main()
     SceneManager::init();
 
     SceneManager::registerScene<Test2DScene>("Test");
-    SceneManager::registerScene<Test3DScene>("Test3D");
     SceneManager::registerScene<TestTerrainScene>("Terrain");
     SceneManager::registerScene<TestSkyScene>("Sky");
     SceneManager::registerScene<TestFBScene>("Framebuffer");
     SceneManager::registerScene<TestShadersScene>("Shaders");
     SceneManager::registerScene<TestShadowsScene>("Shadows");
     SceneManager::registerScene<TestCamerasScene>("Cameras");
-    SceneManager::switchToScene(8);
+    SceneManager::switchToScene(3);
 
     //===========================================================//
 

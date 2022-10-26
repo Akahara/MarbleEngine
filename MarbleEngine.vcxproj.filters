@@ -76,7 +76,6 @@
     <ClInclude Include="Libraries\include\stb\stb_image_write.h" />
     <ClInclude Include="src\World\Sky.h" />
     <ClInclude Include="src\Sandbox\Scenes\Test2D.h" />
-    <ClInclude Include="src\Sandbox\Scenes\Test3D.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestTerrain.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestSky.h" />
     <ClInclude Include="src\World\TerrainGeneration\MapUtilities.h" />

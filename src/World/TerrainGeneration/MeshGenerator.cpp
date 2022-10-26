@@ -78,13 +78,13 @@ Terrain generateTerrain(float* noiseMap, unsigned int w, unsigned int h, unsigne
 
     for (unsigned int i = 0; i < numberOfChunks * numberOfChunks ; i++) {
         
-        float r = ((double)rand() / (RAND_MAX));
-        float g = ((double)rand() / (RAND_MAX));
-        float b = ((double)rand() / (RAND_MAX));
+        float r = ((float)rand() / (RAND_MAX));
+        float g = ((float)rand() / (RAND_MAX));
+        float b = ((float)rand() / (RAND_MAX));
         color_chunk = {r,g,b};
         glm::vec2 chunk_position = { i % numberOfChunks * chunkSize, i / numberOfChunks * chunkSize };
 
-        HeightMapView hmv = HeightMapView(terrain.heightMap, chunk_position, glm::vec2(chunkSize));
+        HeightMapView hmv = HeightMapView(terrain.heightMap, chunk_position, glm::vec2((float)chunkSize));
         Chunk chunk = generateChunk(hmv, depth);
         terrain.chunksPosition.insert({ chunk_position, std::move(chunk) });
     }

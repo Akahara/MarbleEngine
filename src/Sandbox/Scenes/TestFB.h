@@ -6,7 +6,6 @@
 #include "../../abstraction/Camera.h"
 
 #include "Test2D.h"
-#include "Test3D.h"
 #include "TestTerrain.h"
 
 

@@ -208,7 +208,6 @@
     <ClInclude Include="src\abstraction\Window.h" />
     <ClInclude Include="src\Sandbox\Scene.h" />
     <ClInclude Include="src\Sandbox\Scenes\Test2D.h" />
-    <ClInclude Include="src\Sandbox\Scenes\Test3D.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestCameras.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestFB.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestShaders.h" />

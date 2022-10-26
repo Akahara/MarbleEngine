@@ -41,7 +41,7 @@ public:
 
 	  m_width = other.m_width;
 	  m_height = other.m_height;
-	  m_heightValues = new float[m_width * m_height];
+	  m_heightValues = new float[(size_t)m_width * m_height];
 
 	  for (unsigned int i = 0; i < m_width * m_height; i++) {
 
@@ -54,7 +54,7 @@ public:
 	  delete[] m_heightValues;
 	  m_width = other.m_width;
 	  m_height = other.m_height;
-	  m_heightValues = new float[m_width * m_height];
+	  m_heightValues = new float[(size_t)m_width * m_height];
 
 	  for (unsigned int i = 0; i < m_width * m_height; i++) {
 
