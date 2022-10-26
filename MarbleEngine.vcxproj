@@ -188,6 +188,7 @@
     <ClCompile Include="src\world\TerrainGeneration\TreeGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\world\TerrainGeneration\Erosion\Erosion.h" />
     <ClInclude Include="Libraries\include\glad\glad.h" />
     <ClInclude Include="Libraries\include\GLFW\glfw3.h" />
     <ClInclude Include="Libraries\include\GLFW\glfw3native.h" />
