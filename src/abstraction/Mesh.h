@@ -25,9 +25,7 @@ private:
   IndexBufferObject		m_IBO;
   VertexArray			m_VAO;
   unsigned int			m_verticesCount;
-
-  mutable AABB			m_boudingBox;	// TODO : compute (wip) , mutable bc we need to move the aabb in const func
-  std::vector<Vertex>	m_vertices; // change that ?? 
+  AABB					m_boudingBox;
 
 
 public:
@@ -39,15 +37,11 @@ public:
   Mesh &operator=(const Mesh &) = delete;
   Mesh(const Mesh &) = delete;
 
-  unsigned int getVertexCount() const {
-	  return m_verticesCount;
-  }
-  AABB& getBoundingBox() const { return m_boudingBox; }
-
+  unsigned int getVertexCount() const { return m_verticesCount; }
+  const AABB &getBoundingBox() const { return m_boudingBox; }
+  AABB getBoundingBoxInstance(glm::vec3 instancePosition, glm::vec3 instanceSize) const;
 
   void draw() const;
-  void computeBoundingBox() const;
-  void moveBoundingBox(const glm::vec3& origin) const;
 };
 
 }

@@ -28,6 +28,8 @@ private:
   Player            m_player;
   bool              m_playerIsFlying = true;
   float             realTime = 0;
+  Player            m_roguePlayer; // another player used to better visualize frustum culling
+  bool              m_isRoguePlayerActive = false;
 
     /* Terrain generation stuff */
   Renderer::Mesh                    m_terrainMesh;
@@ -42,7 +44,6 @@ private:
   Renderer::Texture     m_rockTexture = Renderer::Texture( "res/textures/rock.jpg" );
   Renderer::Texture     m_grassTexture = Renderer::Texture( "res/textures/grass6.jpg" );
 
-  float                 m_mSize = 1; // < Terrain mesh size
   bool                  m_renderChunks = 0;
 
   Renderer::TestUniform m_depthTestUniform;
@@ -58,7 +59,7 @@ private:
 
   struct Sun {
 
-      glm::vec3 position;
+      glm::vec3 position{ 0.f };
       float strength = 1.25f;
 
   } m_sun;
@@ -72,12 +73,8 @@ public:
       "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
       "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" }
   {
-
-
-
-      m_rockTexture.bind(0);
-      m_grassTexture.bind(1);
-
+    m_rockTexture.bind(0);
+    m_grassTexture.bind(1);
 
     m_player.setPostion({ 100.f, 22.F , 100.f });
     m_player.updateCamera();
@@ -134,7 +131,7 @@ public:
   void step(float delta) override
   {
       realTime += delta;
-      m_player.step(delta);
+      (m_isRoguePlayerActive ? m_roguePlayer : m_player).step(delta);
       if (!m_playerIsFlying) {
           glm::vec3 pos = m_player.getPosition();
           pos.y = m_terrain.heightMap.getHeightLerp(pos.x, pos.z) + 1.f;
@@ -142,7 +139,7 @@ public:
           m_player.updateCamera();
       }
     
-      m_frustum = Renderer::Frustum::createFrustumFromCamera(
+      m_frustum = Renderer::Frustum::createFrustumFromCamera( // TODO #createFrustumFromCamera can retrieve the projection itself, instead of passing the 4 arguments here
           m_player.getCamera(),
           m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().aspect,
           m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().fovy,
@@ -155,26 +152,30 @@ public:
 
   void onRender() override
   {
-    Renderer::Renderer::clear();
-    Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera());
+    Renderer::Camera &renderCamera = (m_isRoguePlayerActive ? m_roguePlayer : m_player).getCamera();
 
-    // TODO! : fix the texture issue in the standard mesh shader
+    Renderer::Renderer::clear();
+    Renderer::CubemapRenderer::drawCubemap(m_skybox, renderCamera);
+
     m_rockTexture.bind(0);
     m_grassTexture.bind(1);
 
-    AABB aabbtemp;
-    aabbtemp.setSize(glm::vec3((float)m_terrain.chunkSize));
-
     for (const auto& [position, chunk] : m_terrain.chunksPosition) {
-            
-           aabbtemp.setOrigin(glm::vec3{ position.x, 0.f, position.y } * m_mSize);
+      const AABB &chunkAABB = chunk.mesh.getBoundingBox();
+      bool isVisible = Renderer::Frustum::isOnFrustum(m_frustum, chunkAABB);
 
-           if (Renderer::Frustum::isOnFrustum(m_frustum, aabbtemp)) {
+      if (DebugWindow::renderAABB() && (isVisible || m_isRoguePlayerActive))
+        renderAABBDebugOutline(renderCamera, chunkAABB, isVisible ? glm::vec4{ 1,1,0,1 } : glm::vec4{ 1,0,0,1 });
 
-               Renderer::renderMesh(glm::vec3{ position.x , 0.F, position.y} * m_mSize , glm::vec3(m_mSize), chunk.mesh, m_player.getCamera());
-               if (DebugWindow::renderAABB()) (renderAABBDebugOutline(m_player.getCamera(), aabbtemp));
-           }
+      if (isVisible) {
+        Renderer::renderMesh(glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.mesh, renderCamera);
+      }
     }
+
+    if (m_isRoguePlayerActive) {
+      Renderer::renderDebugCameraOutline(renderCamera, m_player.getCamera());
+    }
+
     //Renderer::renderMesh(glm::vec3{ 100.f ,m_terrain.heightMap.getHeight(100.f, 100.f) * m_terrainData.terrainHeight, 100.F}, glm::vec3(2), m_treeMesh, m_player.getCamera(), true);
     /*
     for (unsigned int i = 0; i < 100; i++) {
@@ -211,15 +212,15 @@ public:
       regenerateTerrain();
     }
 
-    if (ImGui::SliderFloat("test ", &test, 0, 1)) {
-        m_treeMesh.getBoundingBox().setSize(glm::vec3(test));
-
-    }
-      
     ImGui::SliderFloat3("Sun position", &m_sun.position[0], -200, 200);
-    ImGui::Text("X : %f , Y : %f, Z : %f", m_player.getPosition().x, m_player.getPosition().y, m_player.getPosition().z);
     ImGui::Checkbox("Fly", &m_playerIsFlying);
     ImGui::Checkbox("Render Chunks", &m_renderChunks);
+    ImGui::Checkbox("Use rogue player", &m_isRoguePlayerActive);
+    glm::vec3 playerPos = m_player.getPosition();
+    if (ImGui::DragFloat3("Player position", &playerPos.x, .1f)) {
+      m_player.setPostion(playerPos);
+      m_player.updateCamera();
+    }
 
     m_depthTestUniform.renderImGui();
   }

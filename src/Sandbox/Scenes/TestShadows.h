@@ -22,7 +22,7 @@ private:
   Renderer::Shader   m_shader;
 
   SunCameraHelper    m_sunCameraHelper;
-  AABB               m_visibleAABB = AABB::make_aabb({ -5, -.25f, -4 }, { 7, 3, 4 }).move({ 3, 0, 0 });
+  AABB               m_visibleAABB = AABB::make_aabb({ -2, -.25f, -4 }, { 7, 3, 4 });
 
   Renderer::FrameBufferObject m_depthFBO;
   Renderer::Texture  m_depthTexture;

@@ -10,15 +10,14 @@
 
 
 namespace Renderer {
-
-    static struct debugData {
-        int vertexCount;
-        int meshCount;
-        int debugLines;
-    } s_debugData ;
-
     
 namespace fs = std::filesystem;
+
+static struct DebugData {
+  int vertexCount;
+  int meshCount;
+  int debugLines;
+} s_debugData;
 
 Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath);
 Mesh createCubeMesh(unsigned int texId = 0);
@@ -30,12 +29,12 @@ void clear();
 void init();
 void shutdown();
 void clearDebugData();
-const debugData& getRendererDebugData();
+const DebugData& getRendererDebugData();
 
 Shader &getStandardMeshShader();
 
-// TODO pass cameras in debug rendering functions instead of 
-void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh& mesh, const Camera& camera, bool recomputeBB = false);
+// TODO pass cameras in debug rendering functions instead of VP matrices
+void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh& mesh, const Camera& camera);
 void renderDebugLine(const glm::mat4 &VP, glm::vec3 from, glm::vec3 to, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});
 void renderDebugPlane(const glm::mat4 &VP, const glm::vec3& normal, float point, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});
 void renderDebugCube(const glm::mat4 &VP, glm::vec3 position, glm::vec3 size={1.f, 1.f, 1.f}, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});

@@ -12,7 +12,7 @@
 namespace DebugWindow {
 
 static bool s_wireframeDisplay = false;
-bool aabbRender = false;
+static bool aabbRender = true;
 
 void onImGuiRender()
 {

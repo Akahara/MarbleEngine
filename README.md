@@ -32,20 +32,20 @@ Toute la partie documentation reste à faire, les cases cochées le sont seuleme
 - [x] Perspective/Isométrique
 
 **VFX**:
-- [ ] Lumière ambiante
-- [ ] Ombres
+- [x] Lumière ambiante
+- [x] Ombres
 - [ ] ? Ambient occlusion
 - [ ] HDR (=grande plage de couleurs)
 - [ ] Bloom (=surbrillance)
 - [x] Vignette
-- [ ] Brouillard de distance (!= brouillard ambiant)
+- [x] Brouillard de distance (!= brouillard ambiant)
 - [ ] Dirt mask
 
 **Animations**:
 - [ ] Animation de meshs
 - [ ] ? Vent (après les features)
 - [ ] ? Pluie
-- [ ] Nuages
+- [x] Nuages
 - [ ] ? Cycle jour nuit
 
 **Documentation**:

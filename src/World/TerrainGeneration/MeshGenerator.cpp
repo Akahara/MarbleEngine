@@ -24,13 +24,14 @@ Renderer::Mesh generateMesh(const HeightMapView& heightmap, float depth)
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
 
+    glm::vec2 originPoint = heightmap.getOriginPoint();
+
     for (int y = 0; y < (int)heightmap.getMapHeight(); y++) {
         for (int x = 0; x < (int)heightmap.getMapWidth(); x++) {
             Vertex& vertex = vertices.emplace_back();
-            vertex.position = { x , heightmap.getHeight(x, y) * depth, y };
+            vertex.position = { x + originPoint.x, heightmap.getHeight(x, y) * depth, y + originPoint.y };
 
 
-            glm::vec2 originPoint = heightmap.getOriginPoint();
             vertex.uv = { originPoint.x + (float)x / (heightmap.getOriginMap().getMapWidth()), originPoint.y + (float)y / heightmap.getOriginMap().getMapHeight()};
             vertex.uv *= 10;
 
