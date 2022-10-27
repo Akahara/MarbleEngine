@@ -10,6 +10,7 @@
 #include "../../World/TerrainGeneration/MeshGenerator.h"
 #include "../../World/TerrainGeneration/MapUtilities.h"
 #include "../../World/TerrainGeneration/Noise.h"
+#include "../../World/TerrainGeneration/Erosion/Erosion.h"
 
 #include "../../Utils/AABB.h"
 #include "../Scenes/TestShadows.h"
@@ -91,7 +92,9 @@ public:
 
     Renderer::getStandardMeshShader().setUniform1f("u_Strenght", m_sun.strength);
 
+
     m_terrain = TerrainMeshGenerator::generateTerrain(m_terrainData, m_numberOfChunks);
+    Erosion::Erode(m_terrain.heightMap, 1000);
 
     m_frustum = Renderer::Frustum::createFrustumFromCamera(
         m_player.getCamera(),
@@ -158,7 +161,6 @@ public:
     Renderer::Renderer::clear();
     Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera());
 
-    // TODO! : fix the texture issue in the standard mesh shader
     m_rockTexture.bind(0);
     m_grassTexture.bind(1);
 
@@ -175,19 +177,6 @@ public:
                if (DebugWindow::renderAABB()) (renderAABBDebugOutline(m_player.getCamera(), aabbtemp));
            }
     }
-    //Renderer::renderMesh(glm::vec3{ 100.f ,m_terrain.heightMap.getHeight(100.f, 100.f) * m_terrainData.terrainHeight, 100.F}, glm::vec3(2), m_treeMesh, m_player.getCamera(), true);
-    /*
-    for (unsigned int i = 0; i < 100; i++) {
-        for (unsigned int j = 0; j < 100; j++) {
-
-            if (Renderer::Frustum::isOnFrustum(m_frustum, m_grassBlade.getBoundingBox())) {
-                Renderer::renderMesh(glm::vec3{ i ,m_terrain.heightMap.getHeight(i, j) * m_terrainData.terrainHeight, j }, glm::vec3(10), m_grassBlade, m_player.getCamera(), true);
-            }
-
-            Renderer::renderMesh(glm::vec3{ i ,m_terrain.heightMap.getHeight(i, j) * m_terrainData.terrainHeight, j }, glm::vec3(10), m_grassBlade, m_player.getCamera(), true);
-        }
-    }
-    */
 
     // renderAABBDebugOutline(m_player.getCamera(), m_treeMesh.getBoundingBox());
 
@@ -216,6 +205,9 @@ public:
 
     }
       
+    if (ImGui::Button("Simulate some erosion ?")) {
+        Erosion::Erode(m_terrain.heightMap, 50000);
+    }
     ImGui::SliderFloat3("Sun position", &m_sun.position[0], -200, 200);
     ImGui::Text("X : %f , Y : %f, Z : %f", m_player.getPosition().x, m_player.getPosition().y, m_player.getPosition().z);
     ImGui::Checkbox("Fly", &m_playerIsFlying);

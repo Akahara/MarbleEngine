@@ -37,8 +37,7 @@ contains and the sediment  it carries both as float values."
 
 		void setDirection(const glm::vec2& dir) {
 
-			assert(glm::length(dir) == 1);
-			direction = dir;
+			direction = glm::normalize(dir);
 
 		}
 
@@ -61,7 +60,7 @@ public:
 	Erosion() = delete;
 
 
-	static void Erode(HeightMap& heightmap, int mapSize, unsigned int nbDroplets=1) {
+	static void Erode(HeightMap& heightmap, unsigned int nbDroplets=1) {
 
 		// -- INITIALISATIONS
 		 
@@ -115,7 +114,7 @@ public:
 
 
 				// Break if the droplet is not valid (outside of the map or no mvmnt)
-				if ((dirX == 0 && dirY == 0) || droplet.position.x < 0 || droplet.position.x >= mapSize - 1 || droplet.position.y < 0 || droplet.position.y >= mapSize - 1) {
+				if ((dirX == 0 && dirY == 0) || droplet.position.x < 0 || droplet.position.x >=  heightmap.getMapWidth() - 1 || droplet.position.y < 0 || droplet.position.y >= heightmap.getMapHeight() - 1) {
 					break;
 				}
 
@@ -159,12 +158,27 @@ public:
 
 				}
 
-				// Else 
+				// Else $
+				else {
 					// Erode a fraction of the droplets remaining capacity from the ground
 					// dont erode more than deltaHeight
 
+					float amountToErode = std::min((sedimentCapacity - droplet.sediment) * erodeSpeed, -deltaHeight);
+
+					// shitty brush thing, wtf does it mean 
+					// TODO droplet radius 
+
+					heightmap.addHeightAt(droplet.position.x, droplet.position.y, -amountToErode);
+					droplet.sediment += amountToErode;
+
+				}
+
+
 				// update dropplets speed based on deltaheight
 				// evaporate a fraction of the water of the droplet
+
+				droplet.speed = std::sqrt(droplet.speed * droplet.speed + deltaHeight * gravity);
+				droplet.water *= (1 - evaporateSpeed);
 
 
 			}
