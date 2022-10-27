@@ -34,6 +34,9 @@ public:
   ~ConcreteHeightMap();
 
   void setHeights(unsigned int width, unsigned int height, float *heights);
+  void setHeightAt(int x, int y, float value); // for erosion
+  void addHeightAt(int x, int y, float delta);
+
 
   float getHeight(int x, int y) const override;
   const float *getBackingArray() const;
