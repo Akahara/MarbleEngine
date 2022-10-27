@@ -3,11 +3,34 @@
 
 
 
+
 void HeightMap::setHeights(unsigned int width, unsigned int height, float *heights)
 {
   m_width = width;
   m_height = height;
   m_heightValues = heights;
+}
+
+void HeightMap::setHeightAt(int x, int y, float value) {
+
+    assert(x <= m_width && x >= 0);
+    assert(y <= m_height && y >= 0);
+    assert(value <= 1 && value >= 0);
+
+    m_heightValues[y * m_width + x] = value;
+
+
+}
+
+void HeightMap::addHeightAt(int x, int y, float delta) {
+
+    float prev = getHeight(x, y);
+    float value = (delta < 0) ? std::min(0.f, prev + delta) : std::max(1.f, prev + delta);
+
+    setHeightAt(x, y, value);
+
+
+
 }
 
 float HeightMap::getHeight(int x, int y) const
