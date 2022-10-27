@@ -19,6 +19,9 @@
 #include "src/Sandbox/Scenes/TestShadows.h"
 #include "src/Sandbox/Scenes/TestCameras.h"
 
+#define WITH_IMGUI(x) x
+// #define WITH_IMGUI(x)
+
 inline long long nanoTime()
 {
     using namespace std::chrono;
@@ -34,10 +37,10 @@ int main()
     Window::capFramerate();
     Inputs::observeInputs();
 
-    ImGui::CreateContext();
-    ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(Window::getWindowHandle()), true);
-    ImGui_ImplOpenGL3_Init("#version 330 core");
+    WITH_IMGUI(ImGui::CreateContext());
+    WITH_IMGUI(ImGui::StyleColorsDark());
+    WITH_IMGUI(ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(Window::getWindowHandle()), true));
+    WITH_IMGUI(ImGui_ImplOpenGL3_Init("#version 330 core"));
 
 	Renderer::Renderer::init();
     Renderer::CubemapRenderer::init();
@@ -71,19 +74,20 @@ int main()
         Inputs::updateInputs();
         frames++;
 
-        ImGui_ImplGlfw_NewFrame();
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui::NewFrame();
+        WITH_IMGUI(ImGui_ImplGlfw_NewFrame());
+        WITH_IMGUI(ImGui_ImplOpenGL3_NewFrame());
+        WITH_IMGUI(ImGui::NewFrame());
         
         SceneManager::step(realDelta);
         SceneManager::onRender();
-        SceneManager::onImGuiRender();
-        DebugWindow::onImGuiRender();
+        WITH_IMGUI(SceneManager::onImGuiRender());
+        WITH_IMGUI(DebugWindow::onImGuiRender());
 
         Renderer::Shader::unbind(); // unbind shaders before ImGui's new frame, so it won't try to restore a shader that has been deleted
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        WITH_IMGUI(ImGui::Render());
+        WITH_IMGUI(ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()));
+
         Window::sendFrame();
 
         if (lastSec + 1E9 < nextTime) {
@@ -97,9 +101,9 @@ int main()
 
     SceneManager::shutdown();
 
-    ImGui_ImplGlfw_Shutdown();
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui::DestroyContext();
+    WITH_IMGUI(ImGui_ImplGlfw_Shutdown());
+    WITH_IMGUI(ImGui_ImplOpenGL3_Shutdown());
+    WITH_IMGUI(ImGui::DestroyContext());
 
 	return 0;
 }

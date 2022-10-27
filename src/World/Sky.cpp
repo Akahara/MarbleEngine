@@ -101,9 +101,9 @@ void main()
 {
   vec2 uv = o_uv*2.-1.;
   float t = u_time * .1;
-  vec2 o = uv - t * .01 - u_worldOffset * .0003;
-  float h = smoothstep(0, 1, noise(o*10 + t*2.)) * .7;
-  float w = h*(noise(o*50) + h*(noise(o.yx*100) + h*(noise(o*200))));
+  vec2 o = uv*3 - t * .01 - u_worldOffset * .0003;
+  float h = max(0., mix(-.2, .7, noise(o*10 + t*2.)));
+  float w = h*(noise(o*50) + h*(noise(o.yx*100) + h*(noise(o*200) + 1)));
   float l = 1-dot(uv, uv);
   color = vec4(1.);
   color.a = easeOut(w * l);
