@@ -56,6 +56,10 @@ public:
   BlitPass &operator=(const BlitPass &) = delete;
 
   Shader &getShader() { return m_shader; }
+  void setShader(const fs::path& fs) {
+          m_shader = loadShaderFromFiles("res/shaders/blit.vs", fs);
+
+  }
 
   void doBlit(const Texture &renderTexture);
 };
