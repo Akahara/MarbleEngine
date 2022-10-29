@@ -19,8 +19,8 @@ namespace TerrainMeshGenerator {
 
     // These values are kinda magical and good looking
     struct TerrainData {
-        unsigned int  width = 200;        // < Could be a single field as the terrain is squared
-        unsigned int  height = 200;
+        unsigned int  width = 64;        // < Could be a single field as the terrain is squared
+        unsigned int  height = 64;
         float         scale = 27.6f;
         float         terrainHeight = 20.f;
         int           octaves = 4;          // < Number of times we add a new frequency to the heightmap
@@ -80,6 +80,8 @@ namespace TerrainMeshGenerator {
         float getHeight(int x, int y) { return heightMap.getHeight(x, y); }
 
 
+
+
         //---------------------------/
 
 
@@ -101,4 +103,5 @@ namespace TerrainMeshGenerator {
     Terrain generateTerrain(TerrainData terrainData, unsigned int numberOfChunks);
 
     Terrain generateTerrain(float* noiseMap, unsigned int w, unsigned int h, unsigned int numberOfChunks, float depth); 
+    Terrain generateTerrain(const HeightMap& heightmap, unsigned int numberOfChunks, float depth);
 }

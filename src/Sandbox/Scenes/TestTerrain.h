@@ -206,7 +206,10 @@ public:
     }
       
     if (ImGui::Button("Simulate some erosion ?")) {
-        Erosion::Erode(m_terrain.heightMap, 50000);
+        std::cout << m_terrain.heightMap.getHeight(20, 20) << std::endl;
+        Erosion::Erode(m_terrain.heightMap, 10000);
+        std::cout << m_terrain.heightMap.getHeight(20, 20) << std::endl;
+        m_terrain = TerrainMeshGenerator::generateTerrain(m_terrain.heightMap, m_numberOfChunks, m_terrainData.terrainHeight);
     }
     ImGui::SliderFloat3("Sun position", &m_sun.position[0], -200, 200);
     ImGui::Text("X : %f , Y : %f, Z : %f", m_player.getPosition().x, m_player.getPosition().y, m_player.getPosition().z);

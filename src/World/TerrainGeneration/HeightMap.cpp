@@ -13,12 +13,12 @@ void HeightMap::setHeights(unsigned int width, unsigned int height, float *heigh
 
 void HeightMap::setHeightAt(int x, int y, float value) {
 
-    assert(x <= m_width && x >= 0);
-    assert(y <= m_height && y >= 0);
-    assert(value <= 1 && value >= 0);
+    //assert(x <= m_width && x >= 0);
+    //assert(y <= m_height && y >= 0);
+    //assert(value <= 1 && value >= 0);
 
-    m_heightValues[y * m_width + x] = value;
-
+    //m_heightValues[y * m_width + x] = value;
+    m_heightValues[Mathf::positiveModulo(x, m_width) + Mathf::positiveModulo(y, m_height) * m_width] = value;
 
 }
 

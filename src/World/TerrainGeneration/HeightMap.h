@@ -72,6 +72,7 @@ public:
   void setHeightAt(int x, int y, float value); // for erosion
   void addHeightAt(int x, int y, float delta);
 
+  const float* getValues() const { return m_heightValues; } // dangereux
 
   unsigned int getMapWidth() const { return m_width; }
   unsigned int getMapHeight() const { return m_height; }
