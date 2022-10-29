@@ -12,6 +12,7 @@ bool HeightMap::isInBounds(int x, int y) const
   return (x >= 0 && x < (int)m_width) && (y >= 0 && y < (int)m_height);
 }
 
+<<<<<<< HEAD
 float HeightMap::getHeightLerp(float x, float y) const
 {
   int x1 = (int)x;
@@ -36,6 +37,14 @@ ConcreteHeightMap::ConcreteHeightMap(unsigned int width, unsigned int height, fl
   : HeightMap(width, height), m_heightValues(heights)
 {
 }
+=======
+    //assert(x <= m_width && x >= 0);
+    //assert(y <= m_height && y >= 0);
+    //assert(value <= 1 && value >= 0);
+
+    //m_heightValues[y * m_width + x] = value;
+    m_heightValues[Mathf::positiveModulo(x, m_width) + Mathf::positiveModulo(y, m_height) * m_width] = value;
+>>>>>>> feat : end of the algorithm, doesnt work ! too bad !
 
 ConcreteHeightMap::ConcreteHeightMap(ConcreteHeightMap &&moved) noexcept
   : HeightMap(moved.getMapWidth(), moved.getMapHeight())

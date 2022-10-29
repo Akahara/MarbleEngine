@@ -63,7 +63,7 @@ public:
 	static void Erode(HeightMap& heightmap, unsigned int nbDroplets=1) {
 
 		// -- INITIALISATIONS
-		 
+
 		unsigned int maxDropletLifetime = 30;
 		float sedimentCapacityFactor = 4.f;
 		float minSedimentCapacity = 0.01f;
@@ -78,14 +78,16 @@ public:
 
 			Droplet droplet{
 
-				{	(int)rand() % heightmap.getMapWidth() ,
-					(int)rand() % heightmap.getMapHeight()
+				{	rand() % heightmap.getMapWidth() ,
+					rand() % heightmap.getMapHeight()
 				}
 			};
 
+			//std::cout << heightmap.getHeight(droplet.position.x, droplet.position.y) << " (" << droplet.position.x << "," << droplet.position.y << ")";
+
 			float dirX = 0;
 			float dirY = 0;
-			float inertia = 1;
+			float inertia = 0.3;
 
 
 
@@ -182,10 +184,11 @@ public:
 
 
 			}
+			//std::cout << " : " << heightmap.getHeight(droplet.position.x, droplet.position.y) <<  " (" << droplet.position.x << "," << droplet.position.y << ")" << std::endl;
 		}
 	}
 
-	static glm::vec3 computeHeightGradientOfCell(HeightMap heightmap, int x, int y) {
+	static glm::vec3 computeHeightGradientOfCell(const HeightMap& heightmap, int x, int y) {
 
 		// Get the gradient from the surroundings points
 		// (0,0) is North west, (1,1) is south east
