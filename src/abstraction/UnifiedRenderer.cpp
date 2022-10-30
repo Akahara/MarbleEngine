@@ -365,6 +365,7 @@ void BlitPass::doBlit(const Texture &renderTexture)
   glEnable(GL_DEPTH_TEST);
 }
 
+
 void clearDebugData() {
     s_debugData.meshCount = 0;
     s_debugData.vertexCount = 0;

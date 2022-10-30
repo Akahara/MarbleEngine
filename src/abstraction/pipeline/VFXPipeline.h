@@ -26,6 +26,8 @@ namespace visualEffects {
 
 		} m_context ;
 
+		Renderer::FrameBufferObject m_renderfbo;
+		Renderer::BlitPass	m_blitData;
 		std::vector< VFX* > m_effects;
 
 	public:
@@ -71,14 +73,14 @@ namespace visualEffects {
 
 		void unbind() const {
 			m_context.fbo.unbind();
+			Renderer::FrameBufferObject::setViewport(Window::getWinWidth(), Window::getWinHeight());
 		}
 
 
-		template<class T> 
+		template<typename T> 
 		void registerEffect() {
 
 			T* ptr = new T;
-
 			m_effects.push_back( ptr  );
 			std::cout << "Registered an effect : " << ((VFX*)ptr)->getName() << std::endl;
 
@@ -115,18 +117,24 @@ namespace visualEffects {
 
 
 		void renderPipeline()  {
-			//assert(m_context.isTargetReady);
-			static bool once = false;
-			if (!once) {
-				Renderer::Texture::writeToFile(m_context.targetTexture, "inrenderpipeline.png");
-				once = true;
-			}
+
+			Renderer::Texture::writeToFile(m_context.targetTexture, "inrenderpipeline.png");
 			for (VFX* effect : m_effects) {
 
 				if (!effect->isEnabled()) continue;
 
-				m_context.targetTexture = std::move(effect->applyEffect(m_context.targetTexture)); // TODO change to a context parameter
+				Renderer::FrameBufferObject::unbind();
+				m_renderfbo.bind();
+				m_renderfbo.setTargetTexture(m_context.targetTexture);
+				Renderer::FrameBufferObject::setViewportToTexture(m_context.targetTexture);
 
+				effect->applyEffect(m_context.targetTexture); // TODO change to a context parameter
+
+				m_renderfbo.unbind();
+				Renderer::FrameBufferObject::setViewport(Window::getWinWidth(), Window::getWinHeight());
+
+				// -- Draw texture to file
+				 
 				std::stringstream ss;
 				ss << effect->getName();
 				ss << ".png";
@@ -135,18 +143,23 @@ namespace visualEffects {
 				Renderer::Texture::writeToFile(m_context.targetTexture, ss.str().c_str());
 
 				ss.str(std::string());
+				
 			}
 
-
+			Renderer::Texture::writeToFile(m_context.targetTexture, "inrenderpipeline2.png");
+			//m_blitData.doBlit(m_context.targetTexture);
 
 		}
 
-		void onImGuiRender() const {
+		void onImGuiRender() {
+			if(ImGui::Begin("Effects")) {
+
 			for (VFX* effect : m_effects)
 				effect->onImGuiRender();
+			}
 		}
 
-		const Renderer::Texture &getTargetTexture() const {
+		Renderer::Texture &getTargetTexture() {
 			return m_context.targetTexture;
 		}
 

@@ -91,6 +91,14 @@
     <ClInclude Include="src\Utils\BoundingSphere.h" />
     <ClInclude Include="src\World\SunCameraHelper.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestCameras.h" />
+    <ClInclude Include="src\abstraction\pipeline\Bloom.h" />
+    <ClInclude Include="src\abstraction\pipeline\Contrast.h" />
+    <ClInclude Include="src\abstraction\pipeline\GammaCorrection.h" />
+    <ClInclude Include="src\abstraction\pipeline\Saturation.h" />
+    <ClInclude Include="src\abstraction\pipeline\Sharpness.h" />
+    <ClInclude Include="src\abstraction\pipeline\Tonemapper.h" />
+    <ClInclude Include="src\abstraction\pipeline\VFX.h" />
+    <ClInclude Include="src\abstraction\pipeline\VFXPipeline.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
@@ -111,5 +119,6 @@
     <None Include="res\shaders\standard_color.fs" />
     <None Include="imgui.ini" />
     <None Include="README.md" />
+    <None Include="res\shaders\saturation.fs" />
   </ItemGroup>
 </Project>

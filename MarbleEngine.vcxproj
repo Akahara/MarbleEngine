@@ -198,6 +198,14 @@
     <ClInclude Include="src\abstraction\IndexBufferObject.h" />
     <ClInclude Include="src\abstraction\Inputs.h" />
     <ClInclude Include="src\abstraction\Mesh.h" />
+    <ClInclude Include="src\abstraction\pipeline\Bloom.h" />
+    <ClInclude Include="src\abstraction\pipeline\Contrast.h" />
+    <ClInclude Include="src\abstraction\pipeline\GammaCorrection.h" />
+    <ClInclude Include="src\abstraction\pipeline\Saturation.h" />
+    <ClInclude Include="src\abstraction\pipeline\Sharpness.h" />
+    <ClInclude Include="src\abstraction\pipeline\Tonemapper.h" />
+    <ClInclude Include="src\abstraction\pipeline\VFX.h" />
+    <ClInclude Include="src\abstraction\pipeline\VFXPipeline.h" />
     <ClInclude Include="src\abstraction\Renderer.h" />
     <ClInclude Include="src\abstraction\Shader.h" />
     <ClInclude Include="Libraries\include\stb\stb_image_write.h" />
@@ -249,6 +257,7 @@
     <None Include="README.md" />
     <None Include="res\shaders\blit.fs" />
     <None Include="res\shaders\blit.vs" />
+    <None Include="res\shaders\saturation.fs" />
     <None Include="res\shaders\shadows.fs" />
     <None Include="res\shaders\shadows.vs" />
     <None Include="res\shaders\shadows_testblitdepth.fs" />

@@ -29,7 +29,7 @@ namespace visualEffects {
 		SBFEffect,
 		GammaCorrectionEffect,
 		TonemapperEffect
-	};
+	} ;
 
 
 
@@ -41,6 +41,7 @@ private:
 	std::string					m_name;
 	
 	Renderer::BlitPass          m_blitData;
+	std::string					m_shaderpath; // debugging purposes
 
 
 public:
@@ -56,16 +57,18 @@ public:
 
 	void setFragmentShader(const std::filesystem::path& fs) {
 		m_blitData.setShader(fs);
+		m_shaderpath = fs.string();
 	}
 
 	virtual Renderer::Texture& applyEffect(Renderer::Texture& targetTexture) {
 
-		Renderer::FrameBufferObject::setViewport(Window::getWinWidth(), Window::getWinHeight());
 		m_blitData.doBlit(targetTexture);
 
 		return targetTexture;
 
 	}
+
+	Renderer::Shader& getShader() { return m_blitData.getShader(); }
 
 	void onImGuiRender() const {
 
@@ -74,7 +77,7 @@ public:
 	}
 
 
-
+	std::string getShaderName() const { return m_shaderpath; }
 	std::string getName() const { return m_name; }
 
 	virtual EffectType getType() const {
