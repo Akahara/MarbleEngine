@@ -8,15 +8,16 @@ in vec2 o_uv;
 uniform sampler2D u_texture;
 uniform vec2 u_screenSize;
 
+uniform float u_gamma = 2.2f;
+
+
 void main()
 {
    
-    
+       
     vec2 uv = o_uv;
-    color = 1 - texture(u_texture, uv);
+    color = texture(u_texture, uv);
+    color.xyz = pow(color.xyz, vec3(1.0/u_gamma));
     color.a = 1;
-
-
-    //color = vec4(1.0f, 0.0f, 0.0f, 1.f);
     
 }

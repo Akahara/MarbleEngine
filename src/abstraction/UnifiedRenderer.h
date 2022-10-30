@@ -61,7 +61,7 @@ public:
 
   }
 
-  void doBlit(const Texture &renderTexture);
+  void doBlit(const Texture &renderTexture, bool bindRenderTexture=true);
 };
 
 }

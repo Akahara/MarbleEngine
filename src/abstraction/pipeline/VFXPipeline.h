@@ -21,8 +21,13 @@ namespace visualEffects {
 
 			bool isTargetReady = false;
 			Renderer::FrameBufferObject fbo;
+
 			Renderer::Texture targetTexture;
+			Renderer::Texture originTexture;
+
 			Renderer::Texture depthTexture;
+
+
 
 		} m_context ;
 
@@ -36,6 +41,7 @@ namespace visualEffects {
 		VFXPipeline(int w, int h) {
 
 			m_context.targetTexture = Renderer::Texture(w,h);
+			m_context.originTexture = Renderer::Texture(w,h);
 			m_context.depthTexture = Renderer::Texture::createDepthTexture(w,h);
 
 			m_context.fbo.setTargetTexture(m_context.targetTexture);
@@ -46,7 +52,6 @@ namespace visualEffects {
 		void setTargetTexture(Renderer::Texture&& texture) {
 				
 				m_context.targetTexture = std::move(texture);
-				m_context.fbo.setTargetTexture(m_context.targetTexture);
 				m_context.isTargetReady = true;
 			
 		}
@@ -66,9 +71,10 @@ namespace visualEffects {
 			}
 
 		}
-		void bind() const {
+		void bind() {
+			m_context.fbo.setTargetTexture(m_context.originTexture);
 			m_context.fbo.bind();
-			Renderer::FrameBufferObject::setViewportToTexture(m_context.targetTexture);
+			Renderer::FrameBufferObject::setViewportToTexture(m_context.originTexture);
 		}
 
 		void unbind() const {
@@ -118,36 +124,31 @@ namespace visualEffects {
 
 		void renderPipeline()  {
 
-			Renderer::Texture::writeToFile(m_context.targetTexture, "inrenderpipeline.png");
 			for (VFX* effect : m_effects) {
 
 				if (!effect->isEnabled()) continue;
 
-				Renderer::FrameBufferObject::unbind();
-				m_renderfbo.bind();
-				m_renderfbo.setTargetTexture(m_context.targetTexture);
-				Renderer::FrameBufferObject::setViewportToTexture(m_context.targetTexture);
 
-				effect->applyEffect(m_context.targetTexture); // TODO change to a context parameter
+				// Render the effect
 
-				m_renderfbo.unbind();
-				Renderer::FrameBufferObject::setViewport(Window::getWinWidth(), Window::getWinHeight());
+				m_context.originTexture.bind(0);
+				m_context.fbo.setTargetTexture(m_context.targetTexture);
+			
+				m_context.fbo.bind();
 
-				// -- Draw texture to file
+				effect->applyEffect(m_context.originTexture);
+
+				m_context.fbo.unbind();
+
+				// Recycle textures
+				std::swap(m_context.originTexture, m_context.targetTexture);
+				
+				
 				 
-				std::stringstream ss;
-				ss << effect->getName();
-				ss << ".png";
-
-
-				Renderer::Texture::writeToFile(m_context.targetTexture, ss.str().c_str());
-
-				ss.str(std::string());
 				
 			}
 
-			Renderer::Texture::writeToFile(m_context.targetTexture, "inrenderpipeline2.png");
-			//m_blitData.doBlit(m_context.targetTexture);
+			m_blitData.doBlit(m_context.originTexture);
 
 		}
 

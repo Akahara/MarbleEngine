@@ -120,5 +120,6 @@
     <None Include="imgui.ini" />
     <None Include="README.md" />
     <None Include="res\shaders\saturation.fs" />
+    <None Include="res\shaders\gammacorrection.fs" />
   </ItemGroup>
 </Project>

@@ -35,7 +35,7 @@ namespace visualEffects {
 
 class VFX {
 
-private:
+protected:
 
 	bool						m_isEnabled ;
 	std::string					m_name;
@@ -60,17 +60,15 @@ public:
 		m_shaderpath = fs.string();
 	}
 
-	virtual Renderer::Texture& applyEffect(Renderer::Texture& targetTexture) {
+	virtual void applyEffect(Renderer::Texture& targetTexture) {
 
-		m_blitData.doBlit(targetTexture);
-
-		return targetTexture;
+		m_blitData.doBlit(targetTexture, false);
 
 	}
 
 	Renderer::Shader& getShader() { return m_blitData.getShader(); }
 
-	void onImGuiRender() const {
+	virtual void onImGuiRender() {
 
 		ImGui::Checkbox(m_name.c_str(), (bool*) & m_isEnabled);
 

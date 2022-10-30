@@ -257,6 +257,7 @@
     <None Include="README.md" />
     <None Include="res\shaders\blit.fs" />
     <None Include="res\shaders\blit.vs" />
+    <None Include="res\shaders\gammacorrection.fs" />
     <None Include="res\shaders\saturation.fs" />
     <None Include="res\shaders\shadows.fs" />
     <None Include="res\shaders\shadows.vs" />

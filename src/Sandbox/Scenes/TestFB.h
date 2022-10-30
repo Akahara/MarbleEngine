@@ -5,7 +5,10 @@
 #include "../../abstraction/Renderer.h"
 #include "../../abstraction/Camera.h"
 #include "../../abstraction/pipeline/VFXPipeline.h"
+
+
 #include "../../abstraction/pipeline/Saturation.h"
+#include "../../abstraction/pipeline/GammaCorrection.h"
 
 #include "Test2D.h"
 #include "TestTerrain.h"
@@ -23,8 +26,10 @@ private:
   {
     m_backingScene = new TestTerrainScene;
     m_pipeline.registerEffect<visualEffects::Saturation>();
+    m_pipeline.registerEffect<visualEffects::GammaCorrection>();
 
     m_pipeline.setShaderOfEffect(visualEffects::SaturationEffect, "res/shaders/saturation.fs");
+    m_pipeline.setShaderOfEffect(visualEffects::GammaCorrectionEffect, "res/shaders/gammacorrection.fs");
 
   }
 
