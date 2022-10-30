@@ -9,6 +9,7 @@
 
 #include "../../abstraction/pipeline/Saturation.h"
 #include "../../abstraction/pipeline/GammaCorrection.h"
+#include "../../abstraction/pipeline/Contrast.h"
 
 #include "Test2D.h"
 #include "TestTerrain.h"
@@ -25,11 +26,17 @@ private:
   TestFBScene()
   {
     m_backingScene = new TestTerrainScene;
+
+
     m_pipeline.registerEffect<visualEffects::Saturation>();
     m_pipeline.registerEffect<visualEffects::GammaCorrection>();
+    m_pipeline.registerEffect<visualEffects::Contrast>();
 
-    m_pipeline.setShaderOfEffect(visualEffects::SaturationEffect, "res/shaders/saturation.fs");
-    m_pipeline.setShaderOfEffect(visualEffects::GammaCorrectionEffect, "res/shaders/gammacorrection.fs");
+    m_pipeline.setShaderOfEffect(visualEffects::SaturationEffect,       "res/shaders/saturation.fs"     );
+    m_pipeline.setShaderOfEffect(visualEffects::GammaCorrectionEffect,  "res/shaders/gammacorrection.fs");
+    m_pipeline.setShaderOfEffect(visualEffects::ContrastEffect,         "res/shaders/contrast.fs"       );
+
+    m_pipeline.sortPipeline();
 
   }
 

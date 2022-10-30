@@ -14,7 +14,6 @@ namespace visualEffects {
 
 	public:
 
-		EFFECT_CLASS_TYPE(GammaCorrectionEffect);
 
 		GammaCorrection()
 			: VFX("Gamma correction")
@@ -31,6 +30,7 @@ namespace visualEffects {
 
 
 		}
+		EFFECT_CLASS_TYPE(GammaCorrectionEffect);
 
 
 	};

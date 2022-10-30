@@ -15,6 +15,9 @@ private:
 	unsigned int m_shaderID;
 	std::unordered_map<std::string_view, int> m_uniformLocationCache;
 
+	std::string m_fsPath;
+
+
 public:
 	Shader() : m_shaderID(0) {}
 	Shader(const std::string& str_vertexShader, const std::string& str_fragmentShader);
@@ -40,6 +43,8 @@ public:
 	void setUniform1iv(std::string_view name, unsigned int count, const GLint* data);
 	// Unsafe
 	inline unsigned int getId() { return m_shaderID; }
+	inline std::string getFragPath() const { return m_fsPath; }
+
 private:
 	int getUniformLocation(std::string_view name);
 };
