@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include "Camera.h"
 #include "Shader.h"
 #include "VertexArray.h"
 #include "IndexBufferObject.h"

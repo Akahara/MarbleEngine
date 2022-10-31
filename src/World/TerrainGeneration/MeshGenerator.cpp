@@ -83,8 +83,8 @@ static Renderer::Mesh generateChunkMesh(const HeightMap &heightmap, glm::ivec2 c
       }
     }
 
-    for (int x = 0; x < chunkSize; x++) {
-      for (int y = 0; y < chunkSize; y++) {
+    for (int x = 0; x < (int)chunkSize; x++) {
+      for (int y = 0; y < (int)chunkSize; y++) {
         unsigned int a1 = y * (chunkSize+1) + x;
         unsigned int a2 = y * (chunkSize+1) + x + 1;
         unsigned int a3 = (y + 1) * (chunkSize+1) + x;

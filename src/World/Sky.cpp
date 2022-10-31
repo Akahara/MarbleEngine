@@ -102,11 +102,18 @@ void main()
   vec2 uv = o_uv*2.-1.;
   float t = u_time * .1;
   vec2 o = uv*3 - t * .01 - u_worldOffset * .0003;
-  float h = max(0., mix(-.2, .7, noise(o*10 + t*2.)));
-  float w = h*(noise(o*50) + h*(noise(o.yx*100) + h*(noise(o*200) + 1)));
+  float height = 0;
+  float amplitude = .5;
+  float lacunarity = 10;
+  for(int i = 0; i < 5; i++) {
+	height += noise(o * lacunarity + vec2(cos(i), sin(i))*t) * amplitude;
+	amplitude *= .35;
+	lacunarity *= 2.52;
+  }
+  float w = height;
   float l = 1-dot(uv, uv);
   color = vec4(1.);
-  color.a = easeOut(w * l);
+  color.a = smoothstep(.3, .7, w) * easeOut(l);
 }
 )glsl");
 }
