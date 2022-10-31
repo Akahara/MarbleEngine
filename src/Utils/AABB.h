@@ -16,9 +16,9 @@ public:
   AABB(const glm::vec3 &origin, const glm::vec3 &size)
     : m_origin(origin), m_size(size)
   {
-    assert(size.x > 0);
-    assert(size.y > 0);
-    assert(size.z > 0);
+    assert(size.x >= 0);
+    assert(size.y >= 0);
+    assert(size.z >= 0);
   }
 
   static AABB make_aabb(const glm::vec3 &A, const glm::vec3 &B)

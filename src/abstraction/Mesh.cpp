@@ -27,7 +27,8 @@ Mesh::Mesh()
   : m_VBO(),
   m_IBO(),
   m_VAO(),
-  m_verticesCount(0)
+  m_verticesCount(0),
+  m_boudingBox()
 {
 }
 
@@ -80,6 +81,64 @@ void Mesh::draw() const
 AABB Mesh::getBoundingBoxInstance(glm::vec3 instancePosition, glm::vec3 instanceSize) const
 {
   return AABB(m_boudingBox.getOrigin() + instancePosition, m_boudingBox.getSize() * instanceSize);
+}
+
+NormalsMesh::NormalsMesh()
+  : m_VBO(),
+  m_IBO(),
+  m_VAO(),
+  m_verticesCount(0)
+{
+}
+
+NormalsMesh::NormalsMesh(const std::vector<Vertex> &vertices)
+{
+  std::vector<Vertex> newVertices;
+  newVertices.resize(vertices.size() * 2);
+  std::vector<unsigned int> newIndices;
+  newIndices.resize(vertices.size() * 2);
+
+  for (size_t i = 0; i < vertices.size(); i++) {
+    const Vertex &v = vertices[i];
+    newVertices[2*i]   = v;
+    newVertices[2*i+1] = v;
+    newVertices[2*i+1].position = v.position + v.normal;
+  }
+  for (size_t i = 0; i < newVertices.size(); i++)
+    newIndices[i] = i;
+
+  m_VBO = VertexBufferObject(newVertices.data(), sizeof(Vertex) * newVertices.size());
+  m_IBO = IndexBufferObject(newIndices.data(), newIndices.size());
+  m_VAO.addBuffer(m_VBO, getVertexBufferLayout(), m_IBO);
+  m_verticesCount = (unsigned int)newVertices.size();
+  VertexArray::unbind();
+}
+
+NormalsMesh::~NormalsMesh()
+{
+}
+
+NormalsMesh::NormalsMesh(NormalsMesh &&moved) noexcept
+  : m_VAO(std::move(moved.m_VAO)),
+  m_VBO(std::move(moved.m_VBO)),
+  m_IBO(std::move(moved.m_IBO)),
+  m_verticesCount(moved.m_verticesCount)
+{
+  moved.m_verticesCount = 0;
+}
+
+NormalsMesh &NormalsMesh::operator=(NormalsMesh &&moved) noexcept
+{
+  this->~NormalsMesh();
+  new (this)NormalsMesh(std::move(moved));
+  return *this;
+}
+
+void NormalsMesh::draw() const
+{
+  m_VAO.bind();
+  glDrawElements(GL_LINES, m_verticesCount, GL_UNSIGNED_INT, nullptr);
+  VertexArray::unbind();
 }
 
 }

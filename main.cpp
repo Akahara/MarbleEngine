@@ -55,7 +55,7 @@ int main()
     SceneManager::registerScene<TestShadersScene>("Shaders");
     SceneManager::registerScene<TestShadowsScene>("Shadows");
     SceneManager::registerScene<TestCamerasScene>("Cameras");
-    SceneManager::switchToScene(3);
+    SceneManager::switchToScene(2);
 
     //===========================================================//
 

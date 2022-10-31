@@ -27,10 +27,9 @@ private:
   unsigned int			m_verticesCount;
   AABB					m_boudingBox;
 
-
 public:
   Mesh();
-  Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indicies);
+  Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices);
   ~Mesh();
   Mesh(Mesh &&moved) noexcept;
   Mesh &operator=(Mesh &&moved) noexcept;
@@ -40,6 +39,28 @@ public:
   unsigned int getVertexCount() const { return m_verticesCount; }
   const AABB &getBoundingBox() const { return m_boudingBox; }
   AABB getBoundingBoxInstance(glm::vec3 instancePosition, glm::vec3 instanceSize) const;
+
+  void draw() const;
+};
+
+
+class NormalsMesh {
+private:
+  VertexBufferObject	m_VBO;
+  IndexBufferObject		m_IBO;
+  VertexArray			m_VAO;
+  unsigned int			m_verticesCount;
+
+public:
+  NormalsMesh();
+  NormalsMesh(const std::vector<Vertex> &vertices);
+  ~NormalsMesh();
+  NormalsMesh(NormalsMesh &&moved) noexcept;
+  NormalsMesh &operator=(NormalsMesh &&moved) noexcept;
+  NormalsMesh &operator=(const NormalsMesh &) = delete;
+  NormalsMesh(const NormalsMesh &) = delete;
+
+  unsigned int getVertexCount() const { return m_verticesCount; }
 
   void draw() const;
 };

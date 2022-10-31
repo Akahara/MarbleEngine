@@ -14,8 +14,6 @@
 #include "../../Utils/AABB.h"
 #include "../Scenes/TestShadows.h"
 
-
-
 class TestTerrainScene : public Scene {
 
 
@@ -47,7 +45,7 @@ private:
   bool                  m_renderChunks = 0;
 
   Renderer::TestUniform m_depthTestUniform;
-
+  Renderer::TestUniform m_grassSteepnessTestUniform;
 
 
   /* Other */
@@ -81,12 +79,11 @@ public:
     regenerateTerrain();
     m_sun.position = { 100,100,100 };
 
-
     int samplers[8] = { 0,1,2,3,4,5,6,7 };
     Renderer::getStandardMeshShader().bind();
     Renderer::getStandardMeshShader().setUniform1iv("u_Textures2D", 8, samplers);
 
-    Renderer::getStandardMeshShader().setUniform1f("u_Strenght", m_sun.strength);
+    Renderer::getStandardMeshShader().setUniform1f("u_Strength", m_sun.strength);
 
     m_terrain = TerrainMeshGenerator::generateTerrain(m_terrainData, m_numberOfChunks);
 
@@ -100,6 +97,8 @@ public:
 
     m_depthTestUniform = Renderer::TestUniform(&Renderer::getStandardMeshShader(), "u_fogDamping", 3, .0001f);
     m_depthTestUniform.setValue(.003f, .01f, .013f);
+    m_grassSteepnessTestUniform = Renderer::TestUniform(&Renderer::getStandardMeshShader(), "u_grassSteepness", 2, .01f);
+    m_grassSteepnessTestUniform.setValue(.79f, 1.f);
   }
 
   void regenerateTerrain()
@@ -146,8 +145,6 @@ public:
           m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().zNear,
           m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().zFar
       );
-    
-
   }
 
   void onRender() override
@@ -223,5 +220,6 @@ public:
     }
 
     m_depthTestUniform.renderImGui();
+    m_grassSteepnessTestUniform.renderImGui();
   }
 };

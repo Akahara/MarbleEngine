@@ -8,36 +8,29 @@
 #include "../abstraction/UnifiedRenderer.h"
 
 
-
 namespace DebugWindow {
 
 static bool s_wireframeDisplay = false;
-static bool aabbRender = true;
+static bool s_renderAABBs = false;
 
 void onImGuiRender()
 {
-
-
-    const auto debug_data = Renderer::getRendererDebugData();
-    
+  const auto &debugData = Renderer::getRendererDebugData();
 
   if (ImGui::Begin("Debug")) {
-
-      ImGui::Text("Number of drawn vertices : %d\n", debug_data.vertexCount);
-      ImGui::Text("Number of drawn meshes : %d\n", debug_data.meshCount);
-      ImGui::Text("Number of debug lines : %d\n", debug_data.debugLines);
-    if (ImGui::Checkbox("Render as wireframe", &s_wireframeDisplay)) {
-      glPolygonMode(GL_FRONT_AND_BACK, s_wireframeDisplay ? GL_LINE : GL_FILL);
-    }
-    (ImGui::Checkbox("Render AABBS", &aabbRender));
-
-
+      ImGui::Text("Number of drawn vertices : %d\n", debugData.vertexCount);
+      ImGui::Text("Number of drawn meshes : %d\n", debugData.meshCount);
+      ImGui::Text("Number of debug lines : %d\n", debugData.debugLines);
+      if (ImGui::Checkbox("Render as wireframe", &s_wireframeDisplay)) {
+        glPolygonMode(GL_FRONT_AND_BACK, s_wireframeDisplay ? GL_LINE : GL_FILL);
+      }
+      ImGui::Checkbox("Render AABBS", &s_renderAABBs);
   }
 
   ImGui::End();
   Renderer::clearDebugData();
 }
 
-bool renderAABB() { return aabbRender; }
+bool renderAABB() { return s_renderAABBs; }
 
 }

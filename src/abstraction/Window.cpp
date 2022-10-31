@@ -52,7 +52,7 @@ void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
   }
   
   // TODO filter out unimportant messages
-  /*
+  
   std::cerr
     << "GL CALLBACK: " << sourceName << "\n"
     << " type     = " << typeName << "\n"
@@ -66,7 +66,6 @@ void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
     ) {
     __debugbreak();
   }
-  */
 }
 
 void createWindow(unsigned int width, unsigned int height, const char *title)

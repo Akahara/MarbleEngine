@@ -16,6 +16,7 @@ namespace Renderer {
 static struct KeepAliveResources {
   Shader             standardMeshShader;
   Shader             standardLineShader;
+  Shader             debugNormalsShader;
   Shader             debugCubeShader;
   Mesh               debugCubeMesh;
   VertexArray        lineVAO;
@@ -175,6 +176,7 @@ void init()
 
   s_keepAliveResources->debugCubeMesh = createCubeMesh();
   s_keepAliveResources->debugCubeShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_color.fs");
+  s_keepAliveResources->debugNormalsShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_color.fs");
 
   VertexArray::unbind();
 }
@@ -191,7 +193,7 @@ Shader &getStandardMeshShader()
   return s_keepAliveResources->standardMeshShader;
 }
 
-void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const Camera& camera)
+void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const Camera &camera)
 {
   s_debugData.meshCount++;
   s_debugData.vertexCount += mesh.getVertexCount();
@@ -200,11 +202,26 @@ void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const Came
   M = glm::translate(M, position);
   M = glm::scale(M, size);
   s_keepAliveResources->standardMeshShader.bind();
-    
+
   s_keepAliveResources->standardMeshShader.setUniform3f("u_cameraPos", camera.getPosition());
   s_keepAliveResources->standardMeshShader.setUniformMat4f("u_M", M);
   s_keepAliveResources->standardMeshShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
   mesh.draw();
+}
+
+void renderNormalsMesh(glm::vec3 position, glm::vec3 size, const NormalsMesh &normalsMesh, const Camera &camera, const glm::vec4 &color)
+{
+  s_debugData.meshCount++;
+  s_debugData.debugLines += normalsMesh.getVertexCount()/2;
+
+  glm::mat4 M(1.f);
+  M = glm::translate(M, position);
+  M = glm::scale(M, size);
+  s_keepAliveResources->debugNormalsShader.bind();
+  s_keepAliveResources->debugNormalsShader.setUniform4f("u_color", color);
+  s_keepAliveResources->debugNormalsShader.setUniformMat4f("u_M", M);
+  s_keepAliveResources->debugNormalsShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+  normalsMesh.draw();
 }
 
 void renderDebugLine(const glm::mat4 &VP, glm::vec3 from, glm::vec3 to, const glm::vec4 &color)
@@ -240,7 +257,6 @@ void renderDebugAxis(const glm::mat4 &VP)
 }
 
 
-// TODO move these debug methods elsewhere
 void renderAABBDebugOutline(const Camera &camera, const AABB &aabb, const glm::vec4 &color)
 {
   glm::vec3 o = aabb.getOrigin();

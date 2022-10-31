@@ -11,12 +11,9 @@ namespace TerrainMeshGenerator {
   
 
 Chunk generateChunk(const HeightMapView& heightmap, float depth) {
-
-
     Chunk chunk;
     chunk.mesh = generateMesh(heightmap, depth);
     return chunk;
-
 }
 
 Renderer::Mesh generateMesh(const HeightMapView& heightmap, float depth)
@@ -31,17 +28,14 @@ Renderer::Mesh generateMesh(const HeightMapView& heightmap, float depth)
             Vertex& vertex = vertices.emplace_back();
             vertex.position = { x + originPoint.x, heightmap.getHeight(x, y) * depth, y + originPoint.y };
 
-
             vertex.uv = { originPoint.x + (float)x / (heightmap.getOriginMap().getMapWidth()), originPoint.y + (float)y / heightmap.getOriginMap().getMapHeight()};
             vertex.uv *= 10;
 
+            vertex.normal = glm::normalize(glm::cross(
+              glm::vec3{ 0.f, (heightmap.getHeight(x, y + 1) - heightmap.getHeight(x, y - 1)) * depth, 2.f },
+              glm::vec3{ 2.f, (heightmap.getHeight(x + 1, y) - heightmap.getHeight(x - 1, y)) * depth, 0.f }
+            ));
 
-            glm::vec3 A, B;
-            A = { 0 , heightmap.getHeight(x + 1, y) - heightmap.getHeight(x, y) , 1.f / heightmap.getOriginMap().getMapHeight() };
-            B = { 1.f / heightmap.getOriginMap().getMapWidth()  , heightmap.getHeight(x + 1, y + 1) - heightmap.getHeight(x, y), 0};
-            glm::vec3 N = glm::cross(A, B);
-
-            vertex.normal = glm::normalize(N);
             vertex.color = color_chunk;
             vertex.texId = 1;
             if (glm::dot(vertex.normal, glm::vec3{ 0.f,1.f,0.f }) > 0.3) vertex.texId = 0;
