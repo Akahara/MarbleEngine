@@ -154,10 +154,10 @@ namespace visualEffects {
 
 		void onImGuiRender() {
 			if(ImGui::Begin("Effects")) {
-
-			for (VFX* effect : m_effects)
-				effect->onImGuiRender();
+			  for (VFX* effect : m_effects)
+				  effect->onImGuiRender();
 			}
+			ImGui::End();
 		}
 
 		Renderer::Texture &getTargetTexture() {

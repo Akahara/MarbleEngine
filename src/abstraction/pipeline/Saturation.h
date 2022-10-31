@@ -23,13 +23,11 @@ namespace visualEffects {
 		}
 
 		virtual void onImGuiRender() override {
-
 			VFX::onImGuiRender();
-			if (ImGui::SliderFloat("Saturation", &m_saturation, -1.f, 2.f)) 
+			if (ImGui::SliderFloat("Intensity", &m_saturation, -1.f, 2.f)) {
+				m_blitData.getShader().bind();
 				m_blitData.getShader().setUniform1f("u_saturation", m_saturation);
-			
-
-
+			}
 		}
 
 		EFFECT_CLASS_TYPE(SaturationEffect);

@@ -66,8 +66,7 @@ private:
   void onImGuiRender() override 
   {
     m_backingScene->onImGuiRender();
+    
     m_pipeline.onImGuiRender();
-
-    ImGui::End();
   }
 };

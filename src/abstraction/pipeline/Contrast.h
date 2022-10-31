@@ -25,8 +25,10 @@ namespace visualEffects {
 		virtual void onImGuiRender() override {
 
 			VFX::onImGuiRender();
-			if (ImGui::SliderFloat("shift", &m_shift, 0.f, 2.f))
+			if (ImGui::SliderFloat("shift", &m_shift, 0.f, 2.f)) {
+				m_blitData.getShader().bind();
 				m_blitData.getShader().setUniform1f("u_contrastShift", m_shift);
+			}
 
 
 		}

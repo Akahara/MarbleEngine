@@ -25,8 +25,10 @@ namespace visualEffects {
 		virtual void onImGuiRender() override {
 
 			VFX::onImGuiRender();
-			if (ImGui::SliderFloat("Gamma", &m_gamma, 0.01f, 3.f))
+			if (ImGui::SliderFloat("Gamma", &m_gamma, 0.01f, 3.f)) {
+				m_blitData.getShader().bind();
 				m_blitData.getShader().setUniform1f("u_gamma", m_gamma);
+			}
 
 
 		}

@@ -69,9 +69,7 @@ public:
 	Renderer::Shader& getShader() { return m_blitData.getShader(); }
 
 	virtual void onImGuiRender() {
-
-		ImGui::Checkbox(m_name.c_str(), (bool*) & m_isEnabled);
-
+		ImGui::Checkbox(m_name.c_str(), &m_isEnabled);
 	}
 
 
