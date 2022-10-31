@@ -21,6 +21,16 @@ inline glm::vec3 unitVectorFromRotation(float yaw, float pitch)
   return { -sy*cp, sp, -cy*cp };
 }
 
+inline float fract(float x)
+{
+  return x - (int)x;
+}
+
+inline float rand(float s)
+{
+  return fract(sin(s * 12.9898f) * 43758.5453f);
+}
+
 }
 
 template<typename T, glm::qualifier Q>

@@ -5,105 +5,50 @@
 
 class HeightMap
 {
-
-
-private:
+protected:
   unsigned int m_width, m_height;
-  float *m_heightValues;
 public:
-
-
-	HeightMap() : 
-		m_heightValues(nullptr),
-		m_width(0),
-	  m_height(0) {
-	}
-	~HeightMap() {
-
-  }
-
-  HeightMap(HeightMap&& moved) noexcept {
-
-	  m_width = moved.m_width;
-	  m_height = moved.m_height;
-	  m_heightValues = moved.m_heightValues;
-	  moved.m_heightValues = nullptr;
-
-  }
-
-  HeightMap& operator=(HeightMap&& moved) noexcept {
-	  this->~HeightMap();
-	  new (this)HeightMap(std::move(moved));
-	  return *this;
-  }
-
-  HeightMap(const HeightMap& other) {
-
-	  m_width = other.m_width;
-	  m_height = other.m_height;
-	  m_heightValues = new float[(size_t)m_width * m_height];
-
-	  for (unsigned int i = 0; i < m_width * m_height; i++) {
-
-		  m_heightValues[i] = other.m_heightValues[i];
-
-	  }
-  }
-  HeightMap& operator=(const HeightMap& other) {
-
-	  delete[] m_heightValues;
-	  m_width = other.m_width;
-	  m_height = other.m_height;
-	  m_heightValues = new float[(size_t)m_width * m_height];
-
-	  for (unsigned int i = 0; i < m_width * m_height; i++) {
-
-		  m_heightValues[i] = other.m_heightValues[i];
-
-	  }
-
-
-	  return *this;
-
-	  
-  }
-
-  void setHeights(unsigned int width, unsigned int height, float *heights);
+  HeightMap(unsigned int width, unsigned int height);
+  virtual ~HeightMap() = default;
 
   unsigned int getMapWidth() const { return m_width; }
   unsigned int getMapHeight() const { return m_height; }
-  float getHeight(int x, int y) const;
+
+  bool isInBounds(int x, int y) const;
+  virtual float getHeight(int x, int y) const = 0;
   float getHeightLerp(float x, float y) const;
+};
+
+class ConcreteHeightMap : public HeightMap
+{
+private:
+  float *m_heightValues;
+
+public:
+  ConcreteHeightMap();
+  ConcreteHeightMap(unsigned int width, unsigned int height, float *heights);
+  ConcreteHeightMap(ConcreteHeightMap &&moved) noexcept;
+  ConcreteHeightMap &operator=(ConcreteHeightMap &&moved) noexcept;
+  ConcreteHeightMap(const ConcreteHeightMap &other);
+  ConcreteHeightMap &operator=(const ConcreteHeightMap &other);
+  ~ConcreteHeightMap();
+
+  void setHeights(unsigned int width, unsigned int height, float *heights);
+
+  float getHeight(int x, int y) const override;
   const float *getBackingArray() const;
 };
 
-class HeightMapView {
-
+class HeightMapView : public HeightMap {
 private:
-
-	const HeightMap* originMap;
-	glm::ivec2 originPoint, subMapSize;
+  const HeightMap* m_originMap;
+  glm::ivec2 m_originPoint;
 
 public:
-	HeightMapView(const HeightMap& heightMap, const glm::ivec2& origin, const glm::ivec2& size)
-	{
-		originMap = &heightMap;
-		subMapSize = size;
-		originPoint = origin;
-	}
-	
-	float getHeight(int x, int y) const {
-		int projectedX, projectedY;
+  HeightMapView(const HeightMap &heightMap, const glm::ivec2 &origin, const glm::ivec2 &size);
 
-		projectedX = originPoint.x + x;
-		projectedY = originPoint.y + y;
+  float getHeight(int x, int y) const override;
 
-		return originMap->getHeight(projectedX, projectedY);
-	}
-	const HeightMap& getOriginMap()  const { return *originMap; }
-	glm::vec2 getOriginPoint() const { return originPoint; }
-
-	unsigned int getMapWidth() const { return subMapSize.x+1; } // TODO the +1 should not be here (my (albin) fault!)
-	unsigned int getMapHeight() const { return subMapSize.y+1; }
-
+  //const HeightMap& getOriginMap()  const { return *m_originMap; }
+  //glm::vec2 getOriginPoint() const { return m_originPoint; }
 };

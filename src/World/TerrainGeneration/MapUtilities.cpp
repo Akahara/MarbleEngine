@@ -13,10 +13,10 @@ Texture genTextureFromHeightmap(const HeightMap &heightmap, unsigned int minX, u
   bool areHeightExtracted = false;
   width = std::min(width, heightmap.getMapWidth() - minX);
   height = std::min(height, heightmap.getMapHeight() - minY);
-  assert(width * height > 0);
+  assert(width > 0 && height > 0);
 
-  if (minX == 0 && minY == 0 && width == heightmap.getMapWidth() && height == heightmap.getMapHeight()) {
-    heights = (float*)heightmap.getBackingArray();
+  if (minX == 0 && minY == 0 && width == heightmap.getMapWidth() && height == heightmap.getMapHeight() && reinterpret_cast<const ConcreteHeightMap*>(&heightmap) != nullptr) {
+    heights = (float*)((const ConcreteHeightMap&)heightmap).getBackingArray();
   } else {
     heights = new float[width * height];
     areHeightExtracted = true;

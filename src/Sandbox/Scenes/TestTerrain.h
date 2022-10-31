@@ -32,8 +32,9 @@ private:
     /* Terrain generation stuff */
   Renderer::Mesh                    m_terrainMesh;
   TerrainMeshGenerator::Terrain     m_terrain;      // holds heightmap and chunksize
-  TerrainMeshGenerator::TerrainData m_terrainData; // < This holds default and nice configuration for the terrain
-  int                               m_numberOfChunks = 8;
+  TerrainMeshGenerator::TerrainData m_terrainData;  // < This holds default and nice configuration for the terrain
+  unsigned int                      m_terrainWidthInChunks = 10, m_terrainHeightInChunks = 10;
+  int                               m_chunkSize = 16;
 
 
     /* Rendering stuff */
@@ -85,7 +86,7 @@ public:
 
     Renderer::getStandardMeshShader().setUniform1f("u_Strength", m_sun.strength);
 
-    m_terrain = TerrainMeshGenerator::generateTerrain(m_terrainData, m_numberOfChunks);
+    regenerateTerrain();
 
     m_frustum = Renderer::Frustum::createFrustumFromCamera(
         m_player.getCamera(),
@@ -103,28 +104,11 @@ public:
 
   void regenerateTerrain()
   {
-
-        free(m_terrainData.noiseMap);
-
-        m_terrainData.noiseMap = Noise::generateNoiseMap(
-            m_terrainData.width,
-            m_terrainData.height,
-            m_terrainData.scale,
-            m_terrainData.octaves,
-            m_terrainData.persistence,
-            m_terrainData.lacunarity,
-            m_terrainData.seed
-        );
-
-
-        m_terrain.heightMap.setHeights(
-            m_terrainData.width,
-            m_terrainData.height,
-            m_terrainData.noiseMap
-        );
-
-        m_terrain = TerrainMeshGenerator::generateTerrain(m_terrainData, m_numberOfChunks);
-
+    m_terrain = TerrainMeshGenerator::generateTerrain(
+      m_terrainData,
+      m_terrainWidthInChunks,
+      m_terrainHeightInChunks, 
+      m_chunkSize);
   }
 
   void step(float delta) override
@@ -133,7 +117,7 @@ public:
       (m_isRoguePlayerActive ? m_roguePlayer : m_player).step(delta);
       if (!m_playerIsFlying) {
           glm::vec3 pos = m_player.getPosition();
-          pos.y = m_terrain.heightMap.getHeightLerp(pos.x, pos.z) + 1.f;
+          pos.y = m_terrain.getHeightMap().getHeightLerp(pos.x, pos.z) + 1.f;
           m_player.setPostion(pos);
           m_player.updateCamera();
       }
@@ -157,15 +141,15 @@ public:
     m_rockTexture.bind(0);
     m_grassTexture.bind(1);
 
-    for (const auto& [position, chunk] : m_terrain.chunksPosition) {
-      const AABB &chunkAABB = chunk.mesh.getBoundingBox();
+    for (const auto &[position, chunk] : m_terrain.getChunks()) {
+      const AABB &chunkAABB = chunk.getMesh().getBoundingBox();
       bool isVisible = Renderer::Frustum::isOnFrustum(m_frustum, chunkAABB);
 
       if (DebugWindow::renderAABB() && (isVisible || m_isRoguePlayerActive))
         renderAABBDebugOutline(renderCamera, chunkAABB, isVisible ? glm::vec4{ 1,1,0,1 } : glm::vec4{ 1,0,0,1 });
 
       if (isVisible) {
-        Renderer::renderMesh(glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.mesh, renderCamera);
+        Renderer::renderMesh(glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh(), renderCamera);
       }
     }
 
@@ -173,39 +157,21 @@ public:
       Renderer::renderDebugCameraOutline(renderCamera, m_player.getCamera());
     }
 
-    //Renderer::renderMesh(glm::vec3{ 100.f ,m_terrain.heightMap.getHeight(100.f, 100.f) * m_terrainData.terrainHeight, 100.F}, glm::vec3(2), m_treeMesh, m_player.getCamera(), true);
-    /*
-    for (unsigned int i = 0; i < 100; i++) {
-        for (unsigned int j = 0; j < 100; j++) {
-
-            if (Renderer::Frustum::isOnFrustum(m_frustum, m_grassBlade.getBoundingBox())) {
-                Renderer::renderMesh(glm::vec3{ i ,m_terrain.heightMap.getHeight(i, j) * m_terrainData.terrainHeight, j }, glm::vec3(10), m_grassBlade, m_player.getCamera(), true);
-            }
-
-            Renderer::renderMesh(glm::vec3{ i ,m_terrain.heightMap.getHeight(i, j) * m_terrainData.terrainHeight, j }, glm::vec3(10), m_grassBlade, m_player.getCamera(), true);
-        }
-    }
-    */
-
-    // renderAABBDebugOutline(m_player.getCamera(), m_treeMesh.getBoundingBox());
-
     Renderer::getStandardMeshShader().bind();
     Renderer::getStandardMeshShader().setUniform3f("u_SunPos", m_sun.position.x, m_sun.position.y, m_sun.position.z);
     Renderer::getStandardMeshShader().setUniform1i("u_RenderChunks", 0);
     if (m_renderChunks)
-        Renderer::getStandardMeshShader().setUniform1i("u_RenderChunks", 1);
+      Renderer::getStandardMeshShader().setUniform1i("u_RenderChunks", 1);
     Renderer::getStandardMeshShader().unbind();
-
   }
 
   void onImGuiRender() override
   {
-      
-    if (ImGui::SliderInt("Width", (int*)&m_terrainData.width, 10, 2000) + ImGui::SliderInt("Height", (int*)& m_terrainData.height, 10, 2000) +
+    if (ImGui::SliderInt("Width", (int*)&m_terrainWidthInChunks, 2, 100) + ImGui::SliderInt("Height", (int*)& m_terrainHeightInChunks, 2, 100) +
         ImGui::SliderFloat("Scale", &m_terrainData.scale, 0, 50) + ImGui::SliderInt("Number of octaves", &m_terrainData.octaves, 0, 10) +
         ImGui::SliderFloat("persistence", &m_terrainData.persistence, 0, 1) + ImGui::SliderFloat("lacunarity", &m_terrainData.lacunarity, 0, 50) +
         ImGui::SliderInt("seed", &m_terrainData.seed, 0, 5) + ImGui::SliderFloat("Depth", &m_terrainData.terrainHeight, 0, 100.f) +
-        ImGui::SliderInt("chunksize", &m_numberOfChunks, 1, 16)) {
+        ImGui::SliderInt("chunksize", &m_chunkSize, 1, 16)) {
       regenerateTerrain();
     }
 
