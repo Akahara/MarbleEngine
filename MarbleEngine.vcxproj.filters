@@ -35,6 +35,7 @@
     <ClCompile Include="src\abstraction\UnifiedRenderer.cpp" />
     <ClCompile Include="src\world\TerrainGeneration\TreeGenerator.cpp" />
     <ClCompile Include="src\World\SunCameraHelper.cpp" />
+    <ClCompile Include="src\abstraction\ComputeShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h" />
@@ -99,6 +100,7 @@
     <ClInclude Include="src\abstraction\pipeline\Tonemapper.h" />
     <ClInclude Include="src\abstraction\pipeline\VFX.h" />
     <ClInclude Include="src\abstraction\pipeline\VFXPipeline.h" />
+    <ClInclude Include="src\abstraction\ComputeShader.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
