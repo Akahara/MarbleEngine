@@ -103,6 +103,7 @@
     <ClInclude Include="src\abstraction\ComputeShader.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestComputeShader.h" />
     <ClInclude Include="src\Sandbox\Tests.h" />
+    <ClInclude Include="src\abstraction\compute.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />

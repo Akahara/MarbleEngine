@@ -1,13 +1,30 @@
-#version 460 core
+#version 430 core
+
+// inputs from compute shader
+//
+// in uvec3 gl_NumWorkGroups;
+// in uvec3 gl_WorkGroupID;
+// in uvec3 gl_LocalInvocationID;
+// in uvec3 gl_GlobalInvocationID;
+// in uint gl_LocalInvocationIndex;
+//
+// more details at https://www.khronos.org/opengl/wiki/Compute_Shader#Inputs
+
+// outputs will need to be either in a shader storage buffer object
+// or an image load store
+//
+// more details at https://www.khronos.org/opengl/wiki/Compute_Shader#Outputs
 
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 layout(r32f, binding = 0) uniform image2D out_tex;
 
 void main() {
-
+    // get position to read/write data from
     ivec2 pos = ivec2( gl_GlobalInvocationID.xy );
 
+    // get value stored in the image
     float in_val = imageLoad( out_tex, pos ).r;
 
+    // store new value in image
     imageStore( out_tex, pos, vec4( in_val + 1, 0.0, 0.0, 0.0 ) );
 }
