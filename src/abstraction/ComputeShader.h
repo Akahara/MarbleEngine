@@ -34,6 +34,7 @@ namespace Renderer {
 		ComputeShader(const std::string& str_computeshader, const glm::uvec2& workSize = glm::vec2(1, 1)) 
 			:	m_workSize(workSize)
 		{
+		    // TODO move all this in the .cpp file >:(
 
 			const char* computeSource = str_computeshader.c_str();
 
@@ -42,6 +43,18 @@ namespace Renderer {
 			glCompileShader(computeShader);
 
 			m_shaderID = glCreateProgram();
+			
+			// --- TODO cleanup the following code and add it to Shader.cpp
+			int compiled;
+			glGetShaderiv(computeShader, GL_COMPILE_STATUS, &compiled);
+			if (compiled == GL_FALSE) {
+			  char infoLog[2048];
+			  GLsizei infoLen;
+			  glGetShaderInfoLog(computeShader, sizeof(infoLog), &infoLen, infoLog); // NOT glGetProgramInfoLog
+			  if (infoLen != 0)
+				std::cout << infoLog << std::endl;
+			}
+			// ----
 
 			glAttachShader(m_shaderID, computeShader);
 			glLinkProgram(m_shaderID);

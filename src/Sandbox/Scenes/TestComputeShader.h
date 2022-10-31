@@ -12,6 +12,8 @@
 #include "../../abstraction/Camera.h"
 #include "../../World/Player.h"
 
+#include <fstream>
+
 class TestComputeShader : public Scene {
 private:
 
@@ -20,7 +22,14 @@ private:
 public:
     TestComputeShader()
     {
-        m_computeShader = Renderer::ComputeShader("res/shaders/shader.comp", glm::uvec2(10, 1));
+      // TODO cleanup
+      std::ifstream computeFile{ "res/shaders/shader.comp" };
+      std::stringstream buffer;
+      buffer << computeFile.rdbuf();
+      std::string fragmentCode = buffer.str();
+
+
+        m_computeShader = Renderer::ComputeShader(fragmentCode, glm::uvec2(10, 1));
         m_computeShader.use();
         float values[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         m_computeShader.set_values(values);
