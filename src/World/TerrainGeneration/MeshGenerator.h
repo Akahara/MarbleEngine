@@ -60,7 +60,7 @@ namespace TerrainMeshGenerator {
 
     struct Terrain {
 
-        Terrain() : chunkSize(0), heightMap(), chunksPosition() {}
+        Terrain() : chunkSize(0), heightMap(), chunksPosition(), numberOfChunks(8) {}
         Terrain(const Terrain&) = delete;
         Terrain(Terrain&& moved) noexcept {
 

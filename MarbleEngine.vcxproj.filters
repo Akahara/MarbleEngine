@@ -101,6 +101,8 @@
     <ClInclude Include="src\abstraction\pipeline\VFX.h" />
     <ClInclude Include="src\abstraction\pipeline\VFXPipeline.h" />
     <ClInclude Include="src\abstraction\ComputeShader.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestComputeShader.h" />
+    <ClInclude Include="src\Sandbox\Tests.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
@@ -124,5 +126,6 @@
     <None Include="res\shaders\saturation.fs" />
     <None Include="res\shaders\gammacorrection.fs" />
     <None Include="res\shaders\contrast.fs" />
+    <None Include="res\shaders\shader.comp" />
   </ItemGroup>
 </Project>

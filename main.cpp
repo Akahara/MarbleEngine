@@ -7,17 +7,11 @@
 
 #include "src/abstraction/Window.h"
 #include "src/abstraction/Inputs.h"
-#include "src/abstraction/Shader.h"
+
 #include "src/Sandbox/Scene.h"
-#include "src/World/Sky.h"
 #include "src/Utils/Debug.h"
-#include "src/Sandbox/Scenes/Test2D.h"
-#include "src/Sandbox/Scenes/TestSky.h"
-#include "src/Sandbox/Scenes/TestTerrain.h"
-#include "src/Sandbox/Scenes/TestFB.h"
-#include "src/Sandbox/Scenes/TestShaders.h"
-#include "src/Sandbox/Scenes/TestShadows.h"
-#include "src/Sandbox/Scenes/TestCameras.h"
+
+#include "src/Sandbox/Tests.h"
 
 inline long long nanoTime()
 {
@@ -52,7 +46,9 @@ int main()
     SceneManager::registerScene<TestShadersScene>("Shaders");
     SceneManager::registerScene<TestShadowsScene>("Shadows");
     SceneManager::registerScene<TestCamerasScene>("Cameras");
-    SceneManager::switchToScene(2);
+    SceneManager::registerScene<TestComputeShader>("Compute Shader");
+
+    SceneManager::switchToScene(8);
 
     //===========================================================//
 

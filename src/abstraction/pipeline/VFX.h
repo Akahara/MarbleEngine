@@ -46,7 +46,7 @@ protected:
 
 public:
 
-	VFX() {
+	VFX() : m_isEnabled(false) {
 
 	}
 	VFX(const std::string& name = "N/A")

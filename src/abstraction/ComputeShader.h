@@ -13,13 +13,27 @@ namespace Renderer {
 	class ComputeShader
 	{
 	private:
+
 		unsigned int m_shaderID;
-		std::unordered_map<std::string_view, int> m_uniformLocationCache;
+
+		GLuint m_outTexture;
+
+		glm::uvec2 m_workSize;
 
 
 	public:
-		ComputeShader() : m_shaderID(0) {}
-		ComputeShader(const std::string& str_computeshader) {
+		ComputeShader() : m_shaderID(0) , m_outTexture(0)
+		{
+			generateOutputTexture(glm::ivec2(1,1));
+		}
+
+		~ComputeShader() {
+			destroy();
+		}
+
+		ComputeShader(const std::string& str_computeshader, const glm::uvec2& workSize = glm::vec2(1, 1)) 
+			:	m_workSize(workSize)
+		{
 
 			const char* computeSource = str_computeshader.c_str();
 
@@ -40,44 +54,65 @@ namespace Renderer {
 
 			glDeleteShader(computeShader);
 
+			generateOutputTexture(workSize);
+
+
+
 		}
 
-		ComputeShader(ComputeShader&& moved) noexcept
+		void generateOutputTexture(const glm::vec2& size) {
 
-		{
-			m_shaderID = moved.m_shaderID;
-			m_uniformLocationCache = std::move(moved.m_uniformLocationCache);
-			moved.m_shaderID = 0;
+			// generate texture
+			glGenTextures(1, &m_outTexture);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, m_outTexture);
+			// ???
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			// create empty texture
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, size.x, size.y, 0, GL_RED, GL_FLOAT, NULL);
+			glBindImageTexture(0, m_outTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+
+
 		}
 
 
-		ComputeShader& operator=(ComputeShader&& moved) noexcept
-		{
-			destroy();
-			new (this) ComputeShader(std::move(moved));
-			return *this;
-		}
-
-		ComputeShader& operator=(const ComputeShader&) = delete;
-
-		ComputeShader(const ComputeShader&) = delete;
-
-
-
-		void		bind() const {
+		void use() {
 			glUseProgram(m_shaderID);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, m_outTexture);
 		}
+		void dispatch() {
+			// just keep it simple, 2d work group
+			glDispatchCompute((GLuint)m_workSize.x, (GLuint)m_workSize.y, 1);
+		}
+		void wait() {
+			glMemoryBarrier(GL_ALL_BARRIER_BITS);
+		}
+
 		static void unbind() {
 			glUseProgram(0);
 		}
-
 
 		void		destroy() {
 			glDeleteProgram(m_shaderID);
 		}
 
+		void set_values(float* values) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, (GLuint)m_workSize.x, (GLuint)m_workSize.y, 0, GL_RED, GL_FLOAT, values);
+		}
+
+		std::vector<float> get_values() {
+			unsigned int collection_size = (GLuint)m_workSize.x * (GLuint)m_workSize.y;
+			std::vector<float> compute_data(collection_size);
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, compute_data.data());
+
+			return compute_data;
+		}
+
 		// Unsafe
 		inline unsigned int getId() { return m_shaderID; }
+
 
 	};
 
