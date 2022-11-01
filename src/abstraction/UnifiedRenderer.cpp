@@ -64,7 +64,7 @@ Mesh createCubeMesh(unsigned int texId)
   return Mesh(vertices, indices);
 }
 
-Mesh createPlaneMesh()
+Mesh createPlaneMesh(bool facingDown)
 {
   std::vector<Renderer::Vertex> vertices{
     // position             uv            normal (up)
@@ -73,9 +73,8 @@ Mesh createPlaneMesh()
     { { +.5f, 0.f, +.5f }, { 0.f, 0.f }, { 0, 1.f, 0 } },
     { { +.5f, 0.f, -.5f }, { 0.f, 1.f }, { 0, 1.f, 0 } },
   };
-  std::vector<unsigned int> indices{
-    3, 2, 0, 1,0,2
-  };
+  using i = std::initializer_list<unsigned int>;
+  std::vector<unsigned int> indices{ facingDown ? i{1,0,2, 3,2,0} : i{0,1,2, 2,3,0} };
   return Mesh(vertices, indices);
 }
 

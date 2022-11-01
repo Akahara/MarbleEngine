@@ -21,7 +21,7 @@ static struct DebugData {
 
 Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath);
 Mesh createCubeMesh(unsigned int texId = 0);
-Mesh createPlaneMesh();
+Mesh createPlaneMesh(bool facingDown=false);
 Mesh loadMeshFromFile(const fs::path &objPath);
 
 void clear();

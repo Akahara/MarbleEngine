@@ -1,6 +1,7 @@
 #include "Player.h"
 
 #include "../abstraction/Inputs.h"
+#include "../abstraction/Camera.h"
 #include "../Utils/Mathf.h"
 
 #include <GLFW/glfw3.h>
