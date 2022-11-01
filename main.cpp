@@ -7,20 +7,11 @@
 
 #include "src/abstraction/Window.h"
 #include "src/abstraction/Inputs.h"
-#include "src/abstraction/Shader.h"
-#include "src/Sandbox/Scene.h"
-#include "src/World/Sky.h"
-#include "src/Utils/Debug.h"
-#include "src/Sandbox/Scenes/Test2D.h"
-#include "src/Sandbox/Scenes/TestSky.h"
-#include "src/Sandbox/Scenes/TestTerrain.h"
-#include "src/Sandbox/Scenes/TestFB.h"
-#include "src/Sandbox/Scenes/TestShaders.h"
-#include "src/Sandbox/Scenes/TestShadows.h"
-#include "src/Sandbox/Scenes/TestCameras.h"
 
-#define WITH_IMGUI(x) x
-// #define WITH_IMGUI(x)
+#include "src/Sandbox/Scene.h"
+#include "src/Utils/Debug.h"
+
+#include "src/Sandbox/Tests.h"
 
 inline long long nanoTime()
 {
@@ -37,10 +28,10 @@ int main()
     Window::capFramerate();
     Inputs::observeInputs();
 
-    WITH_IMGUI(ImGui::CreateContext());
-    WITH_IMGUI(ImGui::StyleColorsDark());
-    WITH_IMGUI(ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(Window::getWindowHandle()), true));
-    WITH_IMGUI(ImGui_ImplOpenGL3_Init("#version 330 core"));
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(Window::getWindowHandle()), true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
 
 	Renderer::Renderer::init();
     Renderer::CubemapRenderer::init();
@@ -55,7 +46,9 @@ int main()
     SceneManager::registerScene<TestShadersScene>("Shaders");
     SceneManager::registerScene<TestShadowsScene>("Shadows");
     SceneManager::registerScene<TestCamerasScene>("Cameras");
-    SceneManager::switchToScene(2);
+    SceneManager::registerScene<TestComputeShader>("Compute Shader");
+
+    SceneManager::switchToScene(8);
 
     //===========================================================//
 
@@ -74,20 +67,19 @@ int main()
         Inputs::updateInputs();
         frames++;
 
-        WITH_IMGUI(ImGui_ImplGlfw_NewFrame());
-        WITH_IMGUI(ImGui_ImplOpenGL3_NewFrame());
-        WITH_IMGUI(ImGui::NewFrame());
+        ImGui_ImplGlfw_NewFrame();
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui::NewFrame();
         
         SceneManager::step(realDelta);
         SceneManager::onRender();
-        WITH_IMGUI(SceneManager::onImGuiRender());
-        WITH_IMGUI(DebugWindow::onImGuiRender());
+        SceneManager::onImGuiRender();
+        DebugWindow::onImGuiRender();
 
         Renderer::Shader::unbind(); // unbind shaders before ImGui's new frame, so it won't try to restore a shader that has been deleted
 
-        WITH_IMGUI(ImGui::Render());
-        WITH_IMGUI(ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()));
-
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         Window::sendFrame();
 
         if (lastSec + 1E9 < nextTime) {
@@ -101,9 +93,9 @@ int main()
 
     SceneManager::shutdown();
 
-    WITH_IMGUI(ImGui_ImplGlfw_Shutdown());
-    WITH_IMGUI(ImGui_ImplOpenGL3_Shutdown());
-    WITH_IMGUI(ImGui::DestroyContext());
+    ImGui_ImplGlfw_Shutdown();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui::DestroyContext();
 
 	return 0;
 }

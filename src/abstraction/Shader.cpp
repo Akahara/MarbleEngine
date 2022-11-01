@@ -20,11 +20,13 @@
 namespace Renderer {
 
 	//================== SHADER CLASS =============//
-
+  
 	Shader::Shader(const std::string& str_vertexShader, const std::string& str_fragmentShader) {
 
 		const char* vertexSource = str_vertexShader.c_str();
 		const char* fragmentSource = str_fragmentShader.c_str();
+
+		m_fsPath = std::string(str_fragmentShader);
 
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(vertexShader, 1, &vertexSource, NULL);
@@ -47,6 +49,8 @@ namespace Renderer {
 
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
+
+
 	}
 
 	Shader::Shader(Shader &&moved) noexcept
@@ -54,6 +58,7 @@ namespace Renderer {
 	  m_shaderID = moved.m_shaderID;
 	  m_uniformLocationCache = std::move(moved.m_uniformLocationCache);
 	  moved.m_shaderID = 0;
+	  m_fsPath = moved.m_fsPath;
 	}
 
 	Shader &Shader::operator=(Shader &&moved) noexcept
@@ -115,7 +120,7 @@ namespace Renderer {
 
 		int location = glGetUniformLocation(m_shaderID, name.data());
 		if (location == -1)
-			std::cout << "Warning : uniform \"" << name << "\" doesn't exist ! " << std::endl;
+			std::cout << "Frag shader : " << "Warning : uniform \"" << name << "\" doesn't exist ! " << std::endl;
 		m_uniformLocationCache[name] = location;
 
 		return location;

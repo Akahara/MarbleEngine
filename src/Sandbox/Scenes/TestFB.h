@@ -4,6 +4,13 @@
 
 #include "../../abstraction/Renderer.h"
 #include "../../abstraction/Camera.h"
+#include "../../abstraction/pipeline/VFXPipeline.h"
+
+
+#include "../../abstraction/pipeline/Saturation.h"
+#include "../../abstraction/pipeline/GammaCorrection.h"
+#include "../../abstraction/pipeline/Contrast.h"
+
 
 #include "Test2D.h"
 #include "TestTerrain.h"
@@ -13,18 +20,27 @@
 class TestFBScene : public Scene {
 private:
   Scene                      *m_backingScene;
-  Renderer::FrameBufferObject m_fb;
-  Renderer::Texture           m_fbRenderTexture;
-  Renderer::Texture           m_fbDepthTexture;
-  Renderer::BlitPass          m_blitData;
-public:
+  visualEffects::VFXPipeline  m_pipeline{ Window::getWinWidth(), Window::getWinHeight() };
+  Renderer::BlitPass            m_blitData;
+
+  public:
   TestFBScene()
   {
     m_backingScene = new TestTerrainScene;
-    m_fbRenderTexture = Renderer::Texture(16*5, 9*5);
-    m_fbDepthTexture = Renderer::Texture::createDepthTexture(m_fbRenderTexture.getWidth(), m_fbRenderTexture.getHeight());
-    m_fb.setTargetTexture(m_fbRenderTexture);
-    m_fb.setDepthTexture(m_fbDepthTexture);
+
+
+    m_pipeline.registerEffect<visualEffects::Saturation>();
+    m_pipeline.registerEffect<visualEffects::GammaCorrection>();
+    m_pipeline.registerEffect<visualEffects::Contrast>();
+    m_pipeline.registerEffect<visualEffects::Sharpness>();
+
+    m_pipeline.setShaderOfEffect(visualEffects::SaturationEffect,       "res/shaders/saturation.fs"     );
+    m_pipeline.setShaderOfEffect(visualEffects::GammaCorrectionEffect,  "res/shaders/gammacorrection.fs");
+    m_pipeline.setShaderOfEffect(visualEffects::ContrastEffect,         "res/shaders/contrast.fs"       );
+    m_pipeline.setShaderOfEffect(visualEffects::SharpnessEffect,         "res/shaders/sharpness.fs"       );
+
+    m_pipeline.sortPipeline();
+
   }
 
   ~TestFBScene()
@@ -39,38 +55,21 @@ public:
 
   void onRender() override
   {
-    m_fb.bind();
-    Renderer::FrameBufferObject::setViewportToTexture(m_fbRenderTexture);
+      m_pipeline.bind();
 
-    m_backingScene->onRender();
+      m_backingScene->onRender();
 
-    Renderer::FrameBufferObject::unbind();
-    Renderer::FrameBufferObject::setViewport(Window::getWinWidth(), Window::getWinHeight());
+      m_pipeline.unbind();
 
-    m_blitData.doBlit(m_fbRenderTexture);
+
+      m_pipeline.renderPipeline();
+
   }
 
   void onImGuiRender() override 
   {
     m_backingScene->onImGuiRender();
-
-    if (ImGui::Begin("VFX")) {
-      if (ImGui::CollapsingHeader("Vignette")) {
-        static float vignetteMin = 1.2f;
-        static float vignetteMax = .045f;
-        static float vignetteStrength = .2f;
-        static bool vignetteEnable = true;
-        if (ImGui::Checkbox("vignette", &vignetteEnable) +
-            ImGui::SliderFloat("min", &vignetteMin, 0.f, 2.f) +
-            ImGui::SliderFloat("max", &vignetteMax, 0.f, 2.f) +
-            ImGui::SliderFloat("strength", &vignetteStrength, -1.f, 1.f)) {
-          m_blitData.getShader().bind();
-          m_blitData.getShader().setUniform1f("u_vignetteMin", vignetteMin);
-          m_blitData.getShader().setUniform1f("u_vignetteMax", vignetteMax);
-          m_blitData.getShader().setUniform1f("u_vignetteStrength", vignetteStrength * vignetteEnable);
-        }
-      }
-    }
-    ImGui::End();
+    
+    m_pipeline.onImGuiRender();
   }
 };
