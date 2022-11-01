@@ -9,6 +9,8 @@
 #include <sstream>
 #include <vector>
 
+namespace Renderer {
+
 class ComputeShader {
 
 private:
@@ -101,3 +103,5 @@ public:
 
 };
 
+
+}

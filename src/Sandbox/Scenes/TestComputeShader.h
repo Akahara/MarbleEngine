@@ -21,10 +21,8 @@ class TestComputeShader : public Scene {
 private:
 
     // le mien
-    ComputeShader           m_computeShader{ "res/shaders/shader.comp", glm::uvec2(10, 1) };
+    Renderer::ComputeShader  m_computeShader{ "res/shaders/shader.comp", glm::uvec2(10, 1) };
 
-    // Le sien
-    Compute                 sonCompute{ "res/shaders/shader.comp", glm::uvec2(10, 1) };
 
 public:
     TestComputeShader()
@@ -33,11 +31,6 @@ public:
 
         float values[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-        /*
-        sonCompute.use();
-        sonCompute.set_values(values);
-
-        */
         m_computeShader.use();
         m_computeShader.set_values(values);
 
@@ -45,12 +38,6 @@ public:
 
     void step(float delta) override
     {
-        /*
-        sonCompute.use();
-        sonCompute.dispatch();
-        sonCompute.wait();
-        auto data = sonCompute.get_values();
-        */
 
         m_computeShader.use();
         m_computeShader.dispatch();
