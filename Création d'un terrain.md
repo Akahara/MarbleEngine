@@ -99,7 +99,7 @@ Debut :
 ---------
 
 noiseMap : Flottant[w * h]
-perlin   : siv::PerlinNoise{seed}
+perlin   : siv::PerlinNoise{seed} 
 
 Pour y allant de 0 à h:
 	Pour x allant de 0 à w:
@@ -136,16 +136,21 @@ Fin
 
 ```
 
+> On fait appel à la librairie siv (https://github.com/Reputeless/PerlinNoise). La librairie de maths que nous utilisons *glm* a aussi du perlinNoise inclus, mais celui-ci ne donnait pas d'aussi bon résultats. L'avantage de *siv*, c'est qu'elle ne repose que sur un unique `.h`
+
 Et voila, le tour est joué !
 
 **![](https://lh6.googleusercontent.com/Ott44CSVKgXsJVaYozGFtOKNkg7cYRTGBLpqD_983AZO3_OKCVciRwszkRW91N7P1PFZ2D5o0Uxoa9do1Xa4HTPSnPaDzRBCppOV8NQAJEFJiMz_cFo2MVeTJviq8ZRLLqBu2TGHkZko10ztR0I-KzDWirwJwN_AlAEWf1Hqdrv36IZW3KvwaS4zvA)**
 
 On peut facilement jouer sur les valeurs, pour obtenir un terrain qui nous plait en temps réel.
 
+**![](https://lh4.googleusercontent.com/T50eJgjqM0lgTObfNbWKMfK9Sv8qZimpvj2P6EiB3rorMiGSWsEs8Tr7KhQ0RF7EVI6Gk3sDH2e7nPjcInjoS-Eqd75pmHVitnBh62DoZsU3hmf0igw5nqGWm7Q3fN2jxrZsSM64bQs6ZRI6KdoXraqNxh8Lgik1750Fu1rMUvBXMfkzN3e3ZePwdw)
+
 -------------------------------------------------------------------------------
 
 ## L'érosion
 
+https://www.firespark.de/resources/downloads/implementation%20of%20a%20methode%20for%20hydraulic%20erosion.pdf
 
 Can we get much higher ? So hiiiiiiiiiiiiiigh
 
