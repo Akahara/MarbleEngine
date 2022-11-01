@@ -35,6 +35,13 @@ public:
     return make_aabb(A, B);
   }
 
+  BoundingSphere getBoundingSphere() const
+  {
+    float r = glm::length(m_size / 2.f);
+    glm::vec3 c = m_origin + m_size / 2.f;
+    return BoundingSphere(c, r);
+  }
+
   const glm::vec3 &getOrigin() const { return m_origin; }
   const glm::vec3 &getSize() const { return m_size; }
 
