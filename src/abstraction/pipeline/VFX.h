@@ -76,12 +76,7 @@ public:
 	std::string getShaderName() const { return m_shaderpath; }
 	std::string getName() const { return m_name; }
 
-	virtual EffectType getType() const {
-
-		return EffectType::na;
-
-
-	 }
+	virtual EffectType getType() const = 0;
 
 	bool isEnabled() const { return m_isEnabled; }
 

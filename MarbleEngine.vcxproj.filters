@@ -128,5 +128,6 @@
     <None Include="res\shaders\gammacorrection.fs" />
     <None Include="res\shaders\contrast.fs" />
     <None Include="res\shaders\shader.comp" />
+    <None Include="res\shaders\sharpness.fs" />
   </ItemGroup>
 </Project>

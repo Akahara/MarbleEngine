@@ -32,10 +32,12 @@ private:
     m_pipeline.registerEffect<visualEffects::Saturation>();
     m_pipeline.registerEffect<visualEffects::GammaCorrection>();
     m_pipeline.registerEffect<visualEffects::Contrast>();
+    m_pipeline.registerEffect<visualEffects::Sharpness>();
 
     m_pipeline.setShaderOfEffect(visualEffects::SaturationEffect,       "res/shaders/saturation.fs"     );
     m_pipeline.setShaderOfEffect(visualEffects::GammaCorrectionEffect,  "res/shaders/gammacorrection.fs");
     m_pipeline.setShaderOfEffect(visualEffects::ContrastEffect,         "res/shaders/contrast.fs"       );
+    m_pipeline.setShaderOfEffect(visualEffects::SharpnessEffect,         "res/shaders/sharpness.fs"       );
 
     m_pipeline.sortPipeline();
 

@@ -25,11 +25,14 @@ namespace visualEffects {
 		virtual void onImGuiRender() override {
 
 			VFX::onImGuiRender();
-			if (ImGui::SliderFloat("shift", &m_shift, 0.f, 2.f)) {
-				m_blitData.getShader().bind();
-				m_blitData.getShader().setUniform1f("u_contrastShift", m_shift);
+			if (m_isEnabled) {
+				if (ImGui::CollapsingHeader(m_name.c_str())) {
+					if (ImGui::SliderFloat("shift", &m_shift, 0.f, 2.f)) {
+						m_blitData.getShader().bind();
+						m_blitData.getShader().setUniform1f("u_contrastShift", m_shift);
+					}
+				}
 			}
-
 
 		}
 		EFFECT_CLASS_TYPE(ContrastEffect);

@@ -10,6 +10,13 @@
 #include <map>
 #include "VFX.h"
 
+#include "Bloom.h"
+#include "Sharpness.h"
+#include "Saturation.h"
+#include "Contrast.h"
+#include "GammaCorrection.h"
+#include "Tonemapper.h"
+
 
 namespace visualEffects {
 
@@ -31,7 +38,6 @@ namespace visualEffects {
 
 		} m_context ;
 
-		Renderer::FrameBufferObject m_renderfbo;
 		Renderer::BlitPass	m_blitData;
 		std::vector< VFX* > m_effects;
 
