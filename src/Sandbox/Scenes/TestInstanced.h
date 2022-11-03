@@ -8,6 +8,8 @@
 #include "../../abstraction/Cubemap.h"
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../World/Player.h"
+#include "../../Utils/Mathf.h"
+#include "../../Utils/MathIterators.h"
 
 namespace Renderer {
 
@@ -111,6 +113,13 @@ void main()
   color = vec4(vec3(o_fragmentHeight), 1);
 }
 )glsl");
+
+    int c = 0;
+    for (glm::ivec2 p : SpiralGridIterable::iterateOverSquare({ 0,0 }, 5)) {
+      std::cout << p << std::endl;
+      c++;
+    }
+    std::cout << c << std::endl;
   }
 
   static std::vector<Renderer::InstancedMesh::InstanceData> generateBladesInstances()
