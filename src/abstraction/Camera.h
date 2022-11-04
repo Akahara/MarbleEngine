@@ -118,6 +118,7 @@ struct Frustum {
     Plan farFace;
     Plan nearFace;
 
+    // TODO migrate code to .cpp file
     static Frustum createFrustumFromCamera(
         const Camera& cam, float aspect, float fovY,
         float zNear, float zFar)

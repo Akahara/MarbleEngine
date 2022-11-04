@@ -23,7 +23,7 @@ inline glm::vec3 unitVectorFromRotation(float yaw, float pitch)
 
 inline float fract(float x)
 {
-  return x - (int)x;
+  return x - floor(x);
 }
 
 inline float rand(float s)

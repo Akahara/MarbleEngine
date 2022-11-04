@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <glad/glad.h>
+#include <glad/glad.h> // TODO remove this include somehow, currently there is an explicit dependance between users of VBOs and glad, which isn't wanted
 #include <glm/glm.hpp>
 
 #include "BufferObject.h"
@@ -37,7 +37,7 @@ struct VertexBufferElement {
 	case GL_FLOAT:				return 4;
 	case GL_UNSIGNED_INT:		return 4;
 	case GL_UNSIGNED_BYTE:		return 1;
-	default:                    return 0;
+	default:                    throw std::exception("Unreachable");
 	}
   }
 

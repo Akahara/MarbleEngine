@@ -307,6 +307,7 @@ static void renderDebugOrthographicCameraOutline(const Camera &viewCamera, const
   renderDebugCube(viewCamera.getViewProjectionMatrix(), pos, { .1f, .1f, .1f });
 }
 
+// TODO this is off by a very small margin, no idea why
 static void renderDebugPerspectiveCameraOutline(const Camera &viewCamera, const Camera &outlinedCamera)
 {
   const PerspectiveProjection &proj = outlinedCamera.getProjection<PerspectiveProjection>();
