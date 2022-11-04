@@ -24,7 +24,7 @@ void main()
 {
   o_pos = (u_M * vec4(i_position,1)).xyz;
   
-  vec4 worldPos =  u_VP * u_M * vec4(i_position, +1.0);
+  vec4 worldPos =  u_M * vec4(i_position, +1.0);
 
   gl_ClipDistance[0] = dot(worldPos, u_plane);
 
@@ -37,5 +37,5 @@ void main()
 
 
 
-  gl_Position = worldPos;
+  gl_Position =  u_VP * u_M * vec4(i_position, +1.0);
 }

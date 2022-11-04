@@ -116,23 +116,24 @@ public:
     void onRender() override
     {
         Renderer::Renderer::clear();
-/*
-*/
-        Renderer::getStandardMeshShader().bind();
-        Renderer::getStandardMeshShader().setUniform4f("u_plane", glm::vec4(0, -1, 0, -m_waterSource.getHeight()));
-        Renderer::getStandardMeshShader().unbind();
+
         
         m_waterRenderer.bindRefractionBuffer();
+
+        Renderer::getStandardMeshShader().bind();
+        Renderer::getStandardMeshShader().setUniform4f("u_plane", glm::vec4(0, -1, 0, m_waterSource.getHeight()));
+        Renderer::getStandardMeshShader().unbind();
+
         renderScene();
         m_waterRenderer.unbind();
 
 
-        Renderer::getStandardMeshShader().bind();
-        Renderer::getStandardMeshShader().setUniform4f("u_plane", glm::vec4(0, 1, 0, m_waterSource.getHeight()));
-        Renderer::getStandardMeshShader().unbind();
 
         m_waterRenderer.setupCameraForReflection(m_player.getCamera(), m_waterSource);
         m_waterRenderer.bindReflectionBuffer();
+        Renderer::getStandardMeshShader().bind();
+        Renderer::getStandardMeshShader().setUniform4f("u_plane", glm::vec4(0, 1, 0, -m_waterSource.getHeight()));
+        Renderer::getStandardMeshShader().unbind();
         renderScene();
         m_waterRenderer.unbind();
         m_waterRenderer.undoSetupCameraForReflection(m_player.getCamera(), m_waterSource);
