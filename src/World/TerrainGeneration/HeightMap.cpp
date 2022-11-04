@@ -12,7 +12,6 @@ bool HeightMap::isInBounds(int x, int y) const
   return (x >= 0 && x < (int)m_width) && (y >= 0 && y < (int)m_height);
 }
 
-<<<<<<< HEAD
 float HeightMap::getHeightLerp(float x, float y) const
 {
   int x1 = (int)x;
@@ -28,6 +27,63 @@ float HeightMap::getHeightLerp(float x, float y) const
     y - y1);
 }
 
+ConcreteHeightMap ConcreteHeightMap::normalize(const HeightMap& heightmap) {
+
+    float* values = new float[heightmap.getMapWidth() * heightmap.getMapHeight()];
+
+
+    float max = -INFINITY;
+    float min = INFINITY;
+
+    for (int y = 0; y < heightmap.getMapHeight(); y++) {
+        for (int x = 0; x < heightmap.getMapWidth(); x++) {
+
+            max = std::max(heightmap.getHeight(x, y), max);
+            min = std::min(heightmap.getHeight(x, y), min);
+
+        }
+    }
+
+    float dist = 1.f/(max - min);
+
+    for (int y = 0; y < heightmap.getMapHeight(); y++) {
+        for (int x = 0; x < heightmap.getMapWidth(); x++) {
+
+            float norm = (heightmap.getHeight(x, y) - min) * dist;
+            values[y * heightmap.getMapWidth() + x] = norm;
+
+        }
+    }
+
+    ConcreteHeightMap res = ConcreteHeightMap(heightmap.getMapWidth(), heightmap.getMapHeight(), values);
+    res.max = max;
+    return res; 
+
+
+
+}
+
+ConcreteHeightMap ConcreteHeightMap::scale(const ConcreteHeightMap& heightmap, float scale) {
+
+    int mapWidth = heightmap.getMapWidth();
+    float* values = new float[mapWidth * heightmap.getMapHeight()];
+
+
+    for (int y = 0; y < heightmap.getMapHeight(); y++) {
+        for (int x = 0; x < heightmap.getMapWidth(); x++) {
+
+            values[y* mapWidth + x] = heightmap.getHeight(x, y) * scale;
+
+        }
+    }
+
+    ConcreteHeightMap res = ConcreteHeightMap(heightmap.getMapWidth(), heightmap.getMapHeight(), values);
+    return res; 
+
+
+}
+
+//==========================================================================================================================================//
 ConcreteHeightMap::ConcreteHeightMap()
   : HeightMap(0, 0), m_heightValues(nullptr)
 {
@@ -37,14 +93,7 @@ ConcreteHeightMap::ConcreteHeightMap(unsigned int width, unsigned int height, fl
   : HeightMap(width, height), m_heightValues(heights)
 {
 }
-=======
-    //assert(x <= m_width && x >= 0);
-    //assert(y <= m_height && y >= 0);
-    //assert(value <= 1 && value >= 0);
-
-    //m_heightValues[y * m_width + x] = value;
-    m_heightValues[Mathf::positiveModulo(x, m_width) + Mathf::positiveModulo(y, m_height) * m_width] = value;
->>>>>>> feat : end of the algorithm, doesnt work ! too bad !
+    
 
 ConcreteHeightMap::ConcreteHeightMap(ConcreteHeightMap &&moved) noexcept
   : HeightMap(moved.getMapWidth(), moved.getMapHeight())

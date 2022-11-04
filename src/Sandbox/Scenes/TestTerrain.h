@@ -11,6 +11,8 @@
 #include "../../World/TerrainGeneration/MapUtilities.h"
 #include "../../World/TerrainGeneration/Noise.h"
 
+#include "../../world/TerrainGeneration/Erosion/Erosion.h"
+
 #include "../../Utils/AABB.h"
 #include "../Scenes/TestShadows.h"
 
@@ -33,7 +35,7 @@ private:
   Renderer::Mesh                    m_terrainMesh;
   TerrainMeshGenerator::Terrain     m_terrain;      // holds heightmap and chunksize
   TerrainMeshGenerator::TerrainData m_terrainData;  // < This holds default and nice configuration for the terrain
-  unsigned int                      m_terrainWidthInChunks = 10, m_terrainHeightInChunks = 10;
+  unsigned int                      m_terrainWidthInChunks = 32, m_terrainHeightInChunks = 32;
   int                               m_chunkSize = 16;
 
 
@@ -100,6 +102,8 @@ public:
     m_depthTestUniform.setValue(.003f, .01f, .013f);
     m_grassSteepnessTestUniform = Renderer::TestUniform(&Renderer::getStandardMeshShader(), "u_grassSteepness", 2, .01f);
     m_grassSteepnessTestUniform.setValue(.79f, 1.f);
+
+
   }
 
   void regenerateTerrain()
@@ -175,6 +179,15 @@ public:
       regenerateTerrain();
     }
 
+    if (ImGui::Button("erode")) {
+        Erosion::Erode(m_terrain.getHeightMap(), 50000);
+        m_terrain = TerrainMeshGenerator::generateTerrain(
+            &m_terrain.getHeightMap(),
+            m_terrainWidthInChunks,
+            m_terrainHeightInChunks,
+            m_chunkSize)
+            ;
+    }
     ImGui::SliderFloat3("Sun position", &m_sun.position[0], -200, 200);
     ImGui::Checkbox("Fly", &m_playerIsFlying);
     ImGui::Checkbox("Render Chunks", &m_renderChunks);

@@ -46,13 +46,10 @@ int main()
     SceneManager::registerScene<TestShadersScene>("Shaders");
     SceneManager::registerScene<TestShadowsScene>("Shadows");
     SceneManager::registerScene<TestCamerasScene>("Cameras");
-<<<<<<< HEAD
     SceneManager::registerScene<TestComputeShader>("Compute Shader");
 
     SceneManager::switchToScene(8);
-=======
     SceneManager::switchToScene(2);
->>>>>>> feat : end of the algorithm, doesnt work ! too bad !
 
     //===========================================================//
 
