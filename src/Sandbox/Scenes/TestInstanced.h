@@ -58,6 +58,24 @@ public:
     m_vao.unbind();
   }
 
+  InstancedMesh(const std::vector<ModelVertex> &vertices, const std::vector<unsigned int> &indices, size_t instanceBufferSize)
+    : m_modelVBO(vertices.data(), vertices.size() * sizeof(ModelVertex)),
+    m_instanceVBO(instanceBufferSize),
+    m_ibo(indices.data(), indices.size()),
+    m_instanceCount(0),
+    m_vao()
+  {
+    VertexBufferLayout modelLayout;
+    VertexBufferLayout instanceLayout;
+    modelLayout.push<float>(3); // position
+    instanceLayout.push<float>(4); // position&height
+    instanceLayout.push<float>(1); // color palette
+    instanceLayout.push<float>(3); // padding
+    m_vao.addBuffer(m_modelVBO, modelLayout, m_ibo);
+    m_vao.addInstanceBuffer(m_instanceVBO, instanceLayout, modelLayout);
+    m_vao.unbind();
+  }
+
   InstancedMesh(InstancedMesh &&moved) noexcept
   {
     m_modelVBO = std::move(moved.m_modelVBO);
@@ -81,6 +99,7 @@ public:
   {
     m_vao.bind();
     glDrawElementsInstanced(GL_TRIANGLES, m_ibo.getCount(), GL_UNSIGNED_INT, nullptr, m_instanceCount);
+    m_vao.unbind();
   }
 };
 
@@ -96,6 +115,14 @@ static int getSSBOBaseAligment(GLuint type)
   default: throw std::exception("Unreachable");
   }
 }
+
+struct IndirectDrawCommand {
+  GLuint count;
+  GLuint instanceCount;
+  GLuint firstIndex;
+  GLint  baseVertex;
+  GLuint baseInstance;
+};
 
 class TestInstancedScene : public Scene {
 private:
@@ -114,7 +141,7 @@ private:
   unsigned int m_voteComputeShader;
   unsigned int m_scanComputeShader;
   unsigned int m_compactComputeShader;
-  unsigned int cullingBuffer;
+  unsigned int cullingBuffer, runningSumBuffer, initialInstancesBuffer, indirectDrawBuffer;
 
 public:
   TestInstancedScene()
@@ -187,7 +214,6 @@ const vec3 bladeColor2 = vec3(.05, .8, .41);
 void main()
 {
   color = vec4(mix(bladeColor1, bladeColor2, o_fragmentHeight), 1);
-  color = vec4(vec3(o_colorPalette), 1);
 }
 )glsl");
 
@@ -211,30 +237,128 @@ uniform mat4 u_VP;
 layout(std140, binding = 0) buffer i_instances {
   instance_data instances[];
 };
-layout(std430, binding = 1) buffer o_culled {
-  bool culled_instances[];
+layout(std430, binding = 1) buffer b_culled {
+  int culled_instances[];
 };
 
 const float culling = 1. + .05;
 
+uniform uint u_bladesCount;
+
 void main()
 {
   uint i = gl_LocalInvocationID.x + gl_WorkGroupID.x * gl_WorkGroupSize.x;
+  if(i >= u_bladesCount)
+    return;
   // if the "visible point" is outside of the view frustum, the whole instance is culled
   vec3 visiblePt = instances[i].position.xyz;
   visiblePt.y += instances[i].position.w * .5;
   vec4 proj = u_VP * vec4(visiblePt, 1);
   proj /= abs(proj.z);
   proj.xy = abs(proj.xy);
-  culled_instances[i] = proj.x < culling && proj.y < culling && proj.z > 0; // could use zNear and zFar, good enough for now
+  culled_instances[i] = (proj.x < culling && proj.y < culling && proj.z > 0) ? 1 : 0; // could use zNear and zFar, good enough for now
+}
+)glsl";
+
+    const char *scanComputeSource = R"glsl(
+#version 430 core
+
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+layout(std430, binding = 1) buffer b_culled {
+  int culled_instances[];
+};
+layout(std430, binding = 2) buffer b_runningSum {
+  int running_sum[];
+};
+layout(std430, binding = 4) buffer b_indirectDrawCommand {
+  uint count;
+  uint instanceCount;
+  uint firstIndex;
+  int  baseVertex;
+  uint baseInstance;
+};
+
+uniform uint u_bladesCount;
+
+void main()
+{
+  // VERY naive implementation
+  running_sum[0] = 0;
+  for(uint i = 1; i < u_bladesCount; i++) {
+    running_sum[i] = culled_instances[i-1] + running_sum[i-1];
+  }
+
+  instanceCount = running_sum[u_bladesCount-1] + culled_instances[u_bladesCount-1];
+}
+)glsl";
+
+    const char *compactComputeSource = R"glsl(
+#version 430 core
+
+layout(local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
+
+struct instance_data // base alignment=8
+{
+  vec4 position;
+  float colorPalette;
+
+  float p1,p2,p3; // padding, not necessary here, do NOT use vec3
+};
+
+layout(std140, binding = 0) buffer i_instances {
+  instance_data instances[];
+};
+layout(std430, binding = 1) buffer b_culled {
+  int culled_instances[];
+};
+layout(std430, binding = 2) buffer b_runningSum {
+  int running_sum[];
+};
+layout(std430, binding = 3) buffer o_instanceBuffer {
+  instance_data drawn_instances[];
+};
+
+uniform uint u_bladesCount;
+
+void main() {
+  uint i = gl_LocalInvocationID.x + gl_WorkGroupID.x * gl_WorkGroupSize.x;
+  if(i >= u_bladesCount || culled_instances[i] != 1)
+    return;
+  drawn_instances[running_sum[i]].position     = instances[i].position;
+  drawn_instances[running_sum[i]].colorPalette = instances[i].colorPalette;
 }
 )glsl";
 
     m_voteComputeShader = createComputeShader(voteComputeSource);
-
+    m_scanComputeShader = createComputeShader(scanComputeSource);
+    m_compactComputeShader = createComputeShader(compactComputeSource);
+    
     glCreateBuffers(1, &cullingBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, cullingBuffer);
     glBufferData(GL_ARRAY_BUFFER, getSSBOBaseAligment(GL_BOOL) * SSBO_ALIGNMENT_SIZE * TOTAL_BLADE_COUNT, nullptr, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glCreateBuffers(1, &runningSumBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, runningSumBuffer);
+    glBufferData(GL_ARRAY_BUFFER, getSSBOBaseAligment(GL_INT) * SSBO_ALIGNMENT_SIZE * TOTAL_BLADE_COUNT, nullptr, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    std::vector<Renderer::InstancedMesh::InstanceData> instances = generateBladesInstances();
+    glCreateBuffers(1, &initialInstancesBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, initialInstancesBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Renderer::InstancedMesh::InstanceData) * instances.size(), instances.data(), GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    IndirectDrawCommand drawCommand{};
+    drawCommand.count = m_grassMesh.m_ibo.getCount();
+    drawCommand.firstIndex = 0;
+    drawCommand.instanceCount = -1; // to be filled by compute shaders
+    drawCommand.baseInstance = 0;
+    drawCommand.baseVertex = 0;
+    glCreateBuffers(1, &indirectDrawBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, indirectDrawBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(IndirectDrawCommand), &drawCommand, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     //glShaderStorageBlockBinding(m_voteComputeShader, glGetProgramResourceIndex(m_voteComputeShader, GL_SHADER_STORAGE_BLOCK, "i_instances"), 0);
@@ -275,7 +399,7 @@ void main()
     bladeIndices.push_back(2); bladeIndices.push_back(4); bladeIndices.push_back(3);
     bladeIndices.push_back(3); bladeIndices.push_back(4); bladeIndices.push_back(5);
     bladeIndices.push_back(5); bladeIndices.push_back(4); bladeIndices.push_back(6);
-    return Renderer::InstancedMesh(bladeVertices, bladeIndices, generateBladesInstances());
+    return Renderer::InstancedMesh(bladeVertices, bladeIndices, TOTAL_BLADE_COUNT * sizeof(Renderer::InstancedMesh::InstanceData));
   }
 
   std::vector<Renderer::InstancedMesh::InstanceData> generateBladesInstances()
@@ -333,16 +457,34 @@ void main()
 
 
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_grassMesh.m_instanceVBO.getId());
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cullingBuffer);
-    glUseProgram(m_voteComputeShader);
     const glm::mat4 &VP = m_player.getCamera().getViewProjectionMatrix();
-    int u = glGetUniformLocation(m_voteComputeShader, "u_VP");
-    glUniformMatrix4fv(u, 1, GL_FALSE, glm::value_ptr(VP));
-    int groupCount = glm::ceil(TOTAL_BLADE_COUNT / 1024.f);
-    //std::cout << "dispating " << groupCount << " groups" << std::endl;
+    constexpr int groupCount = (TOTAL_BLADE_COUNT+1023/*ceil*/) / 1024;
+    static_assert(groupCount < 1024); // do not overflow compute shader capacity
+
+    glUseProgram(m_voteComputeShader);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, initialInstancesBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cullingBuffer);
+    glUniformMatrix4fv(glGetUniformLocation(m_voteComputeShader, "u_VP"), 1, GL_FALSE, glm::value_ptr(VP));
+    glUniform1ui(glGetUniformLocation(m_voteComputeShader, "u_bladesCount"), TOTAL_BLADE_COUNT);
     glDispatchCompute(groupCount, 1, 1);
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+    //glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    glUseProgram(m_scanComputeShader);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cullingBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, runningSumBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, indirectDrawBuffer);
+    glUniform1ui(glGetUniformLocation(m_scanComputeShader, "u_bladesCount"), TOTAL_BLADE_COUNT);
+    glDispatchCompute(1, 1, 1);
+    //glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    glUseProgram(m_compactComputeShader);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, initialInstancesBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cullingBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, runningSumBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_grassMesh.m_instanceVBO.getId());
+    glUniform1ui(glGetUniformLocation(m_compactComputeShader, "u_bladesCount"), TOTAL_BLADE_COUNT);
+    glDispatchCompute(groupCount, 1, 1);
+    //glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
     //constexpr size_t N = 50;
     //float buffer[N];
@@ -360,17 +502,35 @@ void main()
     float c = cos(theta), s = sin(theta);
     glm::mat2 facingCameraRotationMatrix = glm::mat2(c, s, -s, c);
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cullingBuffer);
     m_grassShader.bind();
     m_grassShader.setUniformMat4f("u_VP", renderCamera.getViewProjectionMatrix());
     m_grassShader.setUniformMat2f("u_R", facingCameraRotationMatrix);
-    m_grassMesh.draw();
+    
+    //IndirectDrawCommand cmd;
+    //glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectDrawBuffer);
+    ////glGetBufferSubData(GL_DRAW_INDIRECT_BUFFER, 0, sizeof(IndirectDrawCommand), &cmd);
+    //cmd.instanceCount = 1000;
+
+    m_grassMesh.m_vao.bind();
+    //glDrawElementsInstanced(GL_TRIANGLES, m_grassMesh.m_ibo.getCount(), GL_UNSIGNED_INT, nullptr, cmd.instanceCount);
+    //((Renderer::DebugData&) Renderer::getRendererDebugData()).meshCount = cmd.instanceCount;
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectDrawBuffer);
+    glDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr);
+    m_grassMesh.m_vao.unbind();
+    //m_grassMesh.draw();
   }
 
   void onImGuiRender() override
   {
     if (ImGui::Begin(">")) {
       ImGui::Checkbox("rogue player", &m_useRoguePlayer);
+      glm::vec3 pp = m_player.getPosition();
+      glm::vec2 pr = m_player.getRotation();
+      ImGui::DragFloat3("player position", glm::value_ptr(pp), .1f);
+      ImGui::DragFloat2("player rotation", glm::value_ptr(pr), .1f);
+      m_player.setPostion(pp);
+      m_player.setRotation(pr.x, pr.y);
+      m_player.updateCamera();
     }
     ImGui::End();
   }
