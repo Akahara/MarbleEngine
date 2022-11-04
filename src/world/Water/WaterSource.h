@@ -29,7 +29,7 @@ public:
 	WaterSource(float level, const glm::vec2& pos) 
 		: m_height(level), m_position(pos) 
 	{
-		m_mesh = Renderer::createPlaneMesh(4);
+		m_mesh = Renderer::createPlaneMesh();
 	}
 
 	WaterSource(const WaterSource& other)
@@ -44,13 +44,9 @@ public:
 
 	//------------------------------------//
 
-	void draw(const Renderer::Camera& camera) const {
+	void draw() const {
 
-		Renderer::renderMesh(
-			{ m_position.x, m_height, m_position.y },
-			{100, 1, 100},
-			m_mesh,
-			camera);
+		m_mesh.draw();
 	}
 
 

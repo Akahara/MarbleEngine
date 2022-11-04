@@ -83,6 +83,7 @@ public:
 
         m_frustum = Renderer::Frustum::createFrustumFromCamera(m_player.getCamera() );
         m_sources.push_back(&m_waterSource);
+        m_waterSource.setSize(30.f);
     }
 
     void step(float delta) override

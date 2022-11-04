@@ -12,6 +12,8 @@ out vec3 o_pos;
 flat out float o_texId;
 out vec3 o_color;
 
+out vec4 o_clipspace;
+
 uniform mat4 u_VP;
 uniform mat4 u_M;
 
@@ -23,7 +25,8 @@ uniform vec4 u_plane = vec4(0, -1, 0, 10000);
 void main()
 {
   o_pos = (u_M * vec4(i_position,1)).xyz;
-  
+  o_clipspace = u_VP * u_M * vec4(i_position, +1.0);
+
   vec4 worldPos =  u_M * vec4(i_position, +1.0);
 
   gl_ClipDistance[0] = dot(worldPos, u_plane);
@@ -35,7 +38,6 @@ void main()
   o_normal = i_normal;
 
 
-
-
-  gl_Position =  u_VP * u_M * vec4(i_position, +1.0);
+  gl_Position =  o_clipspace;
+  
 }
