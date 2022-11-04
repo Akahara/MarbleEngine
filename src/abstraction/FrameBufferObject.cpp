@@ -54,7 +54,7 @@ void FrameBufferObject::destroy()
 void FrameBufferObject::setTargetTexture(Texture &texture, unsigned int slot/*=0*/)
 {
   bind();
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+slot, GL_TEXTURE_2D, texture.getId(), 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.getId(), 0);
   assertIsValid();
   unbind();
 }

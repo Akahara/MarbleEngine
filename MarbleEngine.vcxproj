@@ -266,6 +266,8 @@
     <None Include="res\shaders\blit.fs" />
     <None Include="res\shaders\blit.vs" />
     <None Include="res\shaders\contrast.fs" />
+    <None Include="res\shaders\debugFlatScreen.fs" />
+    <None Include="res\shaders\debugFlatScreen.vs" />
     <None Include="res\shaders\gammacorrection.fs" />
     <None Include="res\shaders\saturation.fs" />
     <None Include="res\shaders\shader.comp" />
@@ -279,6 +281,8 @@
     <None Include="res\shaders\standard_mesh.fs" />
     <None Include="res\shaders\test_scene.fs" />
     <None Include="res\shaders\test_scene.vs" />
+    <None Include="res\shaders\water.fs" />
+    <None Include="res\shaders\water.vs" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />

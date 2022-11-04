@@ -15,12 +15,27 @@ out vec3 o_color;
 uniform mat4 u_VP;
 uniform mat4 u_M;
 
+
+uniform vec4 u_plane = vec4(0, -1, 0, 10000);
+
+
+
 void main()
 {
+  o_pos = (u_M * vec4(i_position,1)).xyz;
+  
+  vec4 worldPos =  u_VP * u_M * vec4(i_position, +1.0);
+
+  gl_ClipDistance[0] = dot(worldPos, u_plane);
+
   o_texId = i_texId;
   o_color = i_color;
-  o_pos = (u_M * vec4(i_position,1)).xyz;
+
   o_uv = i_uv;
   o_normal = i_normal;
-  gl_Position = u_VP * u_M * vec4(i_position, +1.0);
+
+
+
+
+  gl_Position = worldPos;
 }

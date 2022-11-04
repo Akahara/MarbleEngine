@@ -18,6 +18,8 @@
 #include "../../Utils/AABB.h"
 #include "../Scenes/TestShadows.h"
 
+#include <vector>
+
 class TestWater : public Scene {
 
 
@@ -43,6 +45,9 @@ private:
     /*  Water Stuff     */    
     WaterRenderer m_waterRenderer;
     WaterSource m_waterSource{ 0, {0,0} };
+    std::vector<WaterSource*> m_sources;
+    glm::vec3 m_waterPos{ 0 };
+    float m_height = 0;
 
     /* Rendering stuff */
     Renderer::Frustum     m_frustum;
@@ -77,7 +82,7 @@ public:
             m_chunkSize);
 
         m_frustum = Renderer::Frustum::createFrustumFromCamera(m_player.getCamera() );
-
+        m_sources.push_back(&m_waterSource);
     }
 
     void step(float delta) override
@@ -88,10 +93,7 @@ public:
         m_frustum = Renderer::Frustum::createFrustumFromCamera(m_player.getCamera());
     }
 
-    void onRender() override
-    {
-        // Render scene
-        {
+    void renderScene() {
 
         Renderer::Renderer::clear();
         Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera());
@@ -109,12 +111,49 @@ public:
                 Renderer::renderMesh(glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh(), m_player.getCamera());
             }
         }
-        }
+    }
 
+    void onRender() override
+    {
+        Renderer::Renderer::clear();
+/*
+*/
+        Renderer::getStandardMeshShader().bind();
+        Renderer::getStandardMeshShader().setUniform4f("u_plane", glm::vec4(0, -1, 0, -m_waterSource.getHeight()));
+        Renderer::getStandardMeshShader().unbind();
+        
+        m_waterRenderer.bindRefractionBuffer();
+        renderScene();
+        m_waterRenderer.unbind();
+
+
+        Renderer::getStandardMeshShader().bind();
+        Renderer::getStandardMeshShader().setUniform4f("u_plane", glm::vec4(0, 1, 0, m_waterSource.getHeight()));
+        Renderer::getStandardMeshShader().unbind();
+
+        m_waterRenderer.setupCameraForReflection(m_player.getCamera(), m_waterSource);
+        m_waterRenderer.bindReflectionBuffer();
+        renderScene();
+        m_waterRenderer.unbind();
+        m_waterRenderer.undoSetupCameraForReflection(m_player.getCamera(), m_waterSource);
+
+        glDisable(GL_CLIP_DISTANCE0);
+
+        
+
+        //m_waterRenderer.writeTexture();
+        renderScene();
+        m_waterRenderer.onRenderWater(m_sources, m_player.getCamera());
 
     }
 
     void onImGuiRender() override
     {
+        if (ImGui::SliderFloat2("Water plane pos", &m_waterPos.x, 0, 100)) {
+            m_waterSource.setPosition(m_waterPos);
+        }
+        if (ImGui::SliderFloat("Water plane pos", &m_height, 0, 100)) {
+            m_waterSource.setHeight(m_height);
+        }
     }
 };

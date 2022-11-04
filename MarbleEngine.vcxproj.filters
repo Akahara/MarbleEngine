@@ -132,5 +132,9 @@
     <None Include="res\shaders\contrast.fs" />
     <None Include="res\shaders\shader.comp" />
     <None Include="res\shaders\sharpness.fs" />
+    <None Include="res\shaders\water.fs" />
+    <None Include="res\shaders\water.vs" />
+    <None Include="res\shaders\debugFlatScreen.vs" />
+    <None Include="res\shaders\debugFlatScreen.fs" />
   </ItemGroup>
 </Project>
