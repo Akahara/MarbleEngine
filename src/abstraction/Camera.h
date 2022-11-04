@@ -118,12 +118,25 @@ struct Frustum {
     Plan farFace;
     Plan nearFace;
 
+
+    static Frustum createFrustumFromCamera(const Camera& cam)
+
+    {
+        float aspect = cam.getProjection<PerspectiveProjection>().aspect;
+        float fovY = cam.getProjection<PerspectiveProjection>().fovy;
+        float zNear = cam.getProjection<PerspectiveProjection>().zNear;
+        float zFar = cam.getProjection<PerspectiveProjection>().zFar;
+        return createFrustumFromCamera(cam, aspect, fovY, zNear, zFar);
+
+    }
+
     static Frustum createFrustumFromCamera(
         const Camera& cam, float aspect, float fovY,
         float zNear, float zFar)
 
     {
         Frustum     frustum;
+
         const float halfVSide = zFar * tanf(fovY * .5f);
         const float halfHSide = halfVSide * aspect;
         const glm::vec3 frontMultFar = zFar * cam.getForward();

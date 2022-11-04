@@ -47,8 +47,9 @@ int main()
     SceneManager::registerScene<TestShadowsScene>("Shadows");
     SceneManager::registerScene<TestCamerasScene>("Cameras");
     SceneManager::registerScene<TestComputeShader>("Compute Shader");
+    SceneManager::registerScene<TestWater>("Water");
 
-    SceneManager::switchToScene(8);
+    SceneManager::switchToScene(9);
 
     //===========================================================//
 

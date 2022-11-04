@@ -227,6 +227,7 @@
     <ClInclude Include="src\Sandbox\Scenes\TestShadows.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestSky.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestTerrain.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestWater.h" />
     <ClInclude Include="src\Sandbox\Tests.h" />
     <ClInclude Include="src\Utils\AABB.h" />
     <ClInclude Include="src\Utils\BoundingSphere.h" />
@@ -254,6 +255,8 @@
     <ClInclude Include="src\world\TerrainGeneration\PerlinNoise.hpp" />
     <ClInclude Include="src\World\Sky.h" />
     <ClInclude Include="src\world\TerrainGeneration\TreeGenerator.h" />
+    <ClInclude Include="src\world\Water\WaterRenderer.h" />
+    <ClInclude Include="src\world\Water\WaterSource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />
