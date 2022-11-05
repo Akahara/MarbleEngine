@@ -36,7 +36,6 @@
     <ClCompile Include="src\world\TerrainGeneration\TreeGenerator.cpp" />
     <ClCompile Include="src\World\SunCameraHelper.cpp" />
     <ClCompile Include="src\abstraction\ComputeShader.cpp" />
-    <ClCompile Include="res\shaders\grass\scan_blocks.comp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h" />
@@ -136,5 +135,8 @@
     <None Include="res\shaders\grass\compact.comp" />
     <None Include="res\shaders\grass\scan_groups.comp" />
     <None Include="res\shaders\grass\scan_accumulate.comp" />
+    <None Include="res\shaders\grass\grass.vs" />
+    <None Include="res\shaders\grass\grass.fs" />
+    <None Include="res\shaders\grass\scan_blocks.comp" />
   </ItemGroup>
 </Project>

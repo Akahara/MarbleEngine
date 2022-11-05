@@ -128,8 +128,8 @@ class TestInstancedScene : public Scene {
 private:
   static constexpr unsigned int CHUNK_COUNT_X = 4, CHUNK_COUNT_Y = 4, CHUNK_SIZE = 25;
   static constexpr float GRASS_DENSITY = 2.5f; // grass blade per square meter
-  static constexpr int BLADES_PER_CHUNK = Mathf::ceilToPowerOfTwo((CHUNK_SIZE * CHUNK_SIZE) * (GRASS_DENSITY * GRASS_DENSITY));
-  static constexpr int TOTAL_BLADE_COUNT = CHUNK_COUNT_X * CHUNK_COUNT_Y * BLADES_PER_CHUNK;
+  //static constexpr int BLADES_PER_CHUNK = Mathf::ceilToPowerOfTwo((CHUNK_SIZE * CHUNK_SIZE) * (GRASS_DENSITY * GRASS_DENSITY));
+  //static constexpr int TOTAL_BLADE_COUNT = CHUNK_COUNT_X * CHUNK_COUNT_Y * BLADES_PER_CHUNK;
   Renderer::Cubemap   m_skybox;
   Player              m_player, m_roguePlayer;
   bool                m_useRoguePlayer;
@@ -139,9 +139,24 @@ private:
   TerrainMeshGenerator::Terrain m_terrain;
 
   unsigned int m_voteComputeShader;
-  unsigned int m_scanComputeShader;
+  unsigned int m_scan1ComputeShader;
+  unsigned int m_scan2ComputeShader;
+  unsigned int m_scan3ComputeShader;
   unsigned int m_compactComputeShader;
-  unsigned int cullingBuffer, runningSumBuffer, runningSumTempBuffer, initialInstancesBuffer, indirectDrawBuffer;
+  unsigned int m_instancesBuffer, m_bigBuffer;
+
+  static constexpr unsigned int GROUP_COUNT = 16, GROUP_WORK = 1024;
+  static constexpr int TOTAL_BLADE_COUNT = GROUP_COUNT * GROUP_WORK;
+  int BLADES_PER_CHUNK = (int)glm::sqrt(TOTAL_BLADE_COUNT);
+
+  struct BigBuffer {
+    IndirectDrawCommand drawCommand; // must be the first member because BigBuffer will be used as a GL_DRAW_INDIRECT_BUFFER
+    int voteBuffer[TOTAL_BLADE_COUNT];
+    int scanBuffer[TOTAL_BLADE_COUNT];
+    int scanTempBuffer[TOTAL_BLADE_COUNT];
+    int totalsBuffer[GROUP_COUNT];
+    int totalsTempBuffer[GROUP_COUNT];
+  };
 
 public:
   TestInstancedScene()
@@ -170,126 +185,146 @@ public:
 
     m_grassMesh = generateGrassMesh();
 
-    m_grassShader = Renderer::Shader(R"glsl(
-#version 430 core
+    m_grassShader = Renderer::loadShaderFromFiles("res/shaders/grass/grass.vs", "res/shaders/grass/grass.fs");
 
-layout(std430, binding = 1) buffer o_culled {
-  bool culled_instances[];
-};
-
-layout(location = 0) in vec3 im_position;
-layout(location = 1) in vec4 ii_position;
-layout(location = 2) in float ii_colorPalette;
-
-out float o_fragmentHeight;
-out float o_colorPalette;
-
-uniform mat4 u_VP;
-uniform mat2 u_R;
-
-void main()
-{
-  o_fragmentHeight = im_position.y;
-  //o_colorPalette = ii_colorPalette;
-  o_colorPalette = culled_instances[gl_InstanceID] ? 1 : 0;
-  vec4 vertex = vec4(im_position, 1);
-  vertex.xz = u_R * vertex.xz;
-  vertex.y *= ii_position.w;
-  vertex.xyz += ii_position.xyz;
-  vertex = u_VP * vertex;
-  gl_Position = vertex;
-}
-
-)glsl", R"glsl(
-#version 330 core
-
-out vec4 color;
-
-in float o_fragmentHeight;
-in float o_colorPalette;
-
-const vec3 bladeColor1 = vec3(0, .14, 0);
-const vec3 bladeColor2 = vec3(.05, .8, .41);
-
-void main()
-{
-  color = vec4(mix(bladeColor1, bladeColor2, o_fragmentHeight), 1);
-}
-)glsl");
-
-    m_voteComputeShader = createComputeShader(voteComputeSource);
-    m_scanComputeShader = createComputeShader(scanTrueComputeSource);
-    m_compactComputeShader = createComputeShader(compactComputeSource);
-    
-    glCreateBuffers(1, &cullingBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, cullingBuffer);
-    glBufferData(GL_ARRAY_BUFFER, getSSBOBaseAligment(GL_BOOL) * SSBO_ALIGNMENT_SIZE * TOTAL_BLADE_COUNT, nullptr, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glCreateBuffers(1, &runningSumBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, runningSumBuffer);
-    glBufferData(GL_ARRAY_BUFFER, getSSBOBaseAligment(GL_INT) * SSBO_ALIGNMENT_SIZE * TOTAL_BLADE_COUNT, nullptr, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glCreateBuffers(1, &runningSumTempBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, runningSumBuffer);
-    glBufferData(GL_ARRAY_BUFFER, getSSBOBaseAligment(GL_INT) * SSBO_ALIGNMENT_SIZE * TOTAL_BLADE_COUNT * 2, nullptr, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    m_voteComputeShader = createComputeShader("res/shaders/grass/vote.comp");
+    m_scan1ComputeShader = createComputeShader("res/shaders/grass/scan_blocks.comp");
+    m_scan2ComputeShader = createComputeShader("res/shaders/grass/scan_groups.comp");
+    m_scan3ComputeShader = createComputeShader("res/shaders/grass/scan_accumulate.comp");
+    m_compactComputeShader = createComputeShader("res/shaders/grass/compact.comp");
 
     std::vector<Renderer::InstancedMesh::InstanceData> instances = generateBladesInstances();
-    glCreateBuffers(1, &initialInstancesBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, initialInstancesBuffer);
+    IndirectDrawCommand filledDrawCommand{};
+    filledDrawCommand.count = m_grassMesh.m_ibo.getCount();
+    filledDrawCommand.firstIndex = 0;
+    filledDrawCommand.instanceCount = -1; // to be filled by compute shaders
+    filledDrawCommand.baseInstance = 0;
+    filledDrawCommand.baseVertex = 0;
+
+    glCreateBuffers(1, &m_bigBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m_bigBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(BigBuffer), nullptr, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, offsetof(BigBuffer, drawCommand), sizeof(BigBuffer::drawCommand), &filledDrawCommand); // fill only the drawCommand part of the big buffer
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glCreateBuffers(1, &m_instancesBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m_instancesBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Renderer::InstancedMesh::InstanceData) * instances.size(), instances.data(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    int *buf = new int[N], *targetBuf = new int[N];
-    for (int i = 0; i < N; i++)
-      buf[i] = i;
-    glBindBuffer(GL_ARRAY_BUFFER, cullingBuffer);
-    glBufferData(GL_ARRAY_BUFFER, N * sizeof(int), buf, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, runningSumBuffer);
-    glBufferData(GL_ARRAY_BUFFER, N * sizeof(int), nullptr, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, runningSumTempBuffer);
-    glBufferData(GL_ARRAY_BUFFER, N * sizeof(int)*2, nullptr, GL_DYNAMIC_DRAW);
-    glUseProgram(m_scanComputeShader);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cullingBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, runningSumBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, runningSumTempBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, indirectDrawBuffer);
-    glUniform1ui(glGetUniformLocation(m_scanComputeShader, "u_bladesCount"), N);
+
+    // I/ vote
+    // TODO bind uniforms for the vote pass
+    //glUseProgram(m_voteComputeShader);
+    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_instancesBuffer);
+    //glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, voteBuffer), sizeof(BigBuffer::voteBuffer));
+    //glDispatchCompute(GROUP_COUNT, 1, 1);
+    //glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    int TEMPvoteBuffer[TOTAL_BLADE_COUNT];
+    for (size_t i = 0; i < TOTAL_BLADE_COUNT; i++)
+      //TEMPvoteBuffer[i] = i/GROUP_WORK;
+      TEMPvoteBuffer[i] = i % 3 == 0 ? 1 : 0;
+    glBindBuffer(GL_ARRAY_BUFFER, m_bigBuffer);
+    glBufferSubData(GL_ARRAY_BUFFER, offsetof(BigBuffer, voteBuffer), sizeof(BigBuffer::voteBuffer), TEMPvoteBuffer);
+
+    BigBuffer *bb = new BigBuffer; // TEMP
+
+    // II/ scan
+    glUseProgram(m_scan1ComputeShader);
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 0, m_bigBuffer, offsetof(BigBuffer, voteBuffer), sizeof(BigBuffer::voteBuffer));
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, scanBuffer), sizeof(BigBuffer::scanBuffer) + sizeof(BigBuffer::scanTempBuffer));
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 2, m_bigBuffer, offsetof(BigBuffer, totalsBuffer), sizeof(BigBuffer::totalsBuffer));
+    glDispatchCompute(GROUP_COUNT, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, m_bigBuffer); glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(BigBuffer), bb);
+
+    for (size_t i = 1; i < /*GROUP_COUNT*/3; i++) {
+      for (size_t j = 0; j < GROUP_WORK; j++) {
+        std::cout << i << "|" << j << " " << bb->voteBuffer[i * GROUP_WORK + j] << " " << bb->scanBuffer[i * GROUP_WORK + j] << std::endl;
+      }
+    }
+    for (size_t i = 0; i < GROUP_COUNT; i++) {
+      std::cout << "total" << i << " " << bb->totalsBuffer[i] << std::endl;
+    }
+
+    glUseProgram(m_scan2ComputeShader);
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 0, m_bigBuffer, offsetof(BigBuffer, totalsBuffer), sizeof(BigBuffer::totalsBuffer) + sizeof(BigBuffer::totalsTempBuffer));
     glDispatchCompute(1, 1, 1);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
-    glBindBuffer(GL_ARRAY_BUFFER, runningSumBuffer);
-    glGetBufferSubData(GL_ARRAY_BUFFER, 0, N * sizeof(int), targetBuf);
-    int s = 0;
-    for (int i = 0; i < N; i++) {
-      if(targetBuf[i] != s)
-        std::cout << i << ": got " << targetBuf[i] << " expected " << s << std::endl;
-      s += buf[i];
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_bigBuffer); glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(BigBuffer), bb);
+    for (size_t i = 0; i < GROUP_COUNT; i++) {
+      std::cout << "totalC" << i << " " << bb->totalsBuffer[i] << std::endl;
     }
-    std::cout << ">" << std::endl;
-    //for (int i = 0; i < sizeof(buf) / sizeof(buf[0]); i++)
-    //  std::cout << i << ": " << buf[i] << std::endl;
 
-    IndirectDrawCommand drawCommand{};
-    drawCommand.count = m_grassMesh.m_ibo.getCount();
-    drawCommand.firstIndex = 0;
-    drawCommand.instanceCount = -1; // to be filled by compute shaders
-    drawCommand.baseInstance = 0;
-    drawCommand.baseVertex = 0;
-    glCreateBuffers(1, &indirectDrawBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, indirectDrawBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(IndirectDrawCommand), &drawCommand, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glUseProgram(m_scan3ComputeShader);
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 0, m_bigBuffer, offsetof(BigBuffer, scanBuffer), sizeof(BigBuffer::scanBuffer));
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, totalsBuffer), sizeof(BigBuffer::totalsBuffer));
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 2, m_bigBuffer, offsetof(BigBuffer, drawCommand), sizeof(BigBuffer::drawCommand));
+    glDispatchCompute(GROUP_COUNT, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
-    //glShaderStorageBlockBinding(m_voteComputeShader, glGetProgramResourceIndex(m_voteComputeShader, GL_SHADER_STORAGE_BLOCK, "i_instances"), 0);
-    //glShaderStorageBlockBinding(m_voteComputeShader, glGetProgramResourceIndex(m_voteComputeShader, GL_SHADER_STORAGE_BLOCK, "o_culled"), 1);
+    glBindBuffer(GL_ARRAY_BUFFER, m_bigBuffer); glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(BigBuffer), bb);
+    for (size_t i = 1; i < /*GROUP_COUNT*/3; i++) {
+      for (size_t j = 0; j < GROUP_WORK; j++) {
+        std::cout << i << "|" << j << " " << bb->voteBuffer[i * GROUP_WORK + j] << " " << bb->scanBuffer[i * GROUP_WORK + j] << std::endl;
+      }
+    }
+
+    assert(bb->drawCommand.baseInstance == 0 && bb->drawCommand.baseVertex == 0 && bb->drawCommand.firstIndex == 0);
+    std::cout << "instances " << bb->drawCommand.instanceCount << std::endl;
+
+
+    // III/ compact
+    glUseProgram(m_compactComputeShader);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_instancesBuffer);
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, voteBuffer), sizeof(BigBuffer::voteBuffer));
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 2, m_bigBuffer, offsetof(BigBuffer, scanBuffer), sizeof(BigBuffer::scanBuffer));
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_grassMesh.m_modelVBO.getId());
+    glDispatchCompute(GROUP_COUNT, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    //int *buf = new int[N], *targetBuf = new int[N];
+    //for (int i = 0; i < N; i++)
+    //  buf[i] = i;
+    //glBindBuffer(GL_ARRAY_BUFFER, cullingBuffer);
+    //glBufferData(GL_ARRAY_BUFFER, N * sizeof(int), buf, GL_DYNAMIC_DRAW);
+    //glBindBuffer(GL_ARRAY_BUFFER, runningSumBuffer);
+    //glBufferData(GL_ARRAY_BUFFER, N * sizeof(int), nullptr, GL_DYNAMIC_DRAW);
+    //glBindBuffer(GL_ARRAY_BUFFER, runningSumTempBuffer);
+    //glBufferData(GL_ARRAY_BUFFER, N * sizeof(int)*2, nullptr, GL_DYNAMIC_DRAW);
+    //glUseProgram(m_scanComputeShader);
+    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cullingBuffer);
+    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, runningSumBuffer);
+    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, runningSumTempBuffer);
+    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, indirectDrawBuffer);
+    //glUniform1ui(glGetUniformLocation(m_scanComputeShader, "u_bladesCount"), N);
+    //glDispatchCompute(1, 1, 1);
+    //glMemoryBarrier(GL_ALL_BARRIER_BITS);
+    //glBindBuffer(GL_ARRAY_BUFFER, runningSumBuffer);
+    //glGetBufferSubData(GL_ARRAY_BUFFER, 0, N * sizeof(int), targetBuf);
+    //int s = 0;
+    //for (int i = 0; i < N; i++) {
+    //  if(targetBuf[i] != s)
+    //    std::cout << i << ": got " << targetBuf[i] << " expected " << s << std::endl;
+    //  s += buf[i];
+    //}
+    //std::cout << ">" << std::endl;
+    ////for (int i = 0; i < sizeof(buf) / sizeof(buf[0]); i++)
+    ////  std::cout << i << ": " << buf[i] << std::endl;
   }
 
-  static unsigned int createComputeShader(const char *source)
+  static unsigned int createComputeShader(const char *sourcePath)
   {
+    std::ifstream vertexFile{ sourcePath };
+    std::stringstream buffer;
+    buffer << vertexFile.rdbuf();
+    std::string vertexCode = buffer.str();
+    const char *vertexCodeCstr = vertexCode.c_str();
     unsigned int computeShader = glCreateShader(GL_COMPUTE_SHADER);
-    glShaderSource(computeShader, 1, &source, NULL);
+    glShaderSource(computeShader, 1, &vertexCodeCstr, NULL);
     glCompileShader(computeShader);
     unsigned int program = glCreateProgram();
     glAttachShader(program, computeShader);
@@ -379,46 +414,6 @@ void main()
 
 
     const glm::mat4 &VP = m_player.getCamera().getViewProjectionMatrix();
-    static_assert(Mathf::isPowerOfTwo(TOTAL_BLADE_COUNT));
-    constexpr int groupCount = (TOTAL_BLADE_COUNT+1023/*ceil*/) / 1024;
-    static_assert(groupCount < 1024); // do not overflow compute shader capacity
-
-    glUseProgram(m_voteComputeShader);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, initialInstancesBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cullingBuffer);
-    glUniformMatrix4fv(glGetUniformLocation(m_voteComputeShader, "u_VP"), 1, GL_FALSE, glm::value_ptr(VP));
-    glUniform1ui(glGetUniformLocation(m_voteComputeShader, "u_bladesCount"), TOTAL_BLADE_COUNT);
-    glDispatchCompute(groupCount, 1, 1);
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-    glUseProgram(m_scanComputeShader);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cullingBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, runningSumBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, indirectDrawBuffer);
-    glUniform1ui(glGetUniformLocation(m_scanComputeShader, "u_bladesCount"), TOTAL_BLADE_COUNT);
-    glDispatchCompute(groupCount/2, 1, 1);
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-    glUseProgram(m_compactComputeShader);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, initialInstancesBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cullingBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, runningSumBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_grassMesh.m_instanceVBO.getId());
-    glUniform1ui(glGetUniformLocation(m_compactComputeShader, "u_bladesCount"), TOTAL_BLADE_COUNT);
-    glDispatchCompute(groupCount, 1, 1);
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-    //constexpr size_t N = 50;
-    //float buffer[N];
-    //Renderer::InstancedMesh::InstanceData bladesBuffer[N];
-    //glBindBuffer(GL_ARRAY_BUFFER, cullingBuffer);
-    //glGetBufferSubData(GL_ARRAY_BUFFER, 0, getSSBOBaseAligment(GL_BOOL) * SSBO_ALIGNMENT_SIZE * N, buffer);
-    //glBindBuffer(GL_ARRAY_BUFFER, m_grassMesh.m_instanceVBO.getId());
-    //glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Renderer::InstancedMesh::InstanceData) * N, bladesBuffer);
-    //for (int i = 0; i < N; i++) {
-    //  std::cout << i << ": " << ((float *)bladesBuffer)[i] << " " << buffer[i] << std::endl;
-    //}
-      //std::cout << i << ": " << bladesBuffer[i].position.x << " " << buffer[i] << std::endl;
 
     float theta = 3.14f - renderCamera.getYaw();
     float c = cos(theta), s = sin(theta);
@@ -434,9 +429,7 @@ void main()
     //cmd.instanceCount = 1000;
 
     m_grassMesh.m_vao.bind();
-    //glDrawElementsInstanced(GL_TRIANGLES, m_grassMesh.m_ibo.getCount(), GL_UNSIGNED_INT, nullptr, cmd.instanceCount);
-    //((Renderer::DebugData&) Renderer::getRendererDebugData()).meshCount = cmd.instanceCount;
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectDrawBuffer);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_bigBuffer);
     glDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr);
     m_grassMesh.m_vao.unbind();
     //m_grassMesh.draw();

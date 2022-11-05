@@ -4,15 +4,15 @@
 
 layout(local_size_x = GROUP_COUNT, local_size_y = 1, local_size_z = 1) in;
 
-layout(std430, binding = 2) buffer b_totals {
+layout(std430, binding = 0) buffer b_totals {
   int totals[]; // length 2n/1024
 };
 
 void main()
 {
-  uint tid = gl_LocalInvocationID.x;
+  int tid = int(gl_LocalInvocationID.x);
 
-  // a single instance is executed, that accumulates over the results of each group
+  // a single group is executed, that accumulates over the results of each group of the first scan pass
 
   int ino = 0;
   for (int o = 1; o < GROUP_COUNT; o <<= 1) {
