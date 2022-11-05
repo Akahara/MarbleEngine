@@ -145,7 +145,7 @@ private:
   unsigned int m_compactComputeShader;
   unsigned int m_instancesBuffer, m_bigBuffer;
 
-  static constexpr unsigned int GROUP_COUNT = 16, GROUP_WORK = 1024;
+  static constexpr unsigned int GROUP_COUNT = 1024, GROUP_WORK = 1024;
   static constexpr int TOTAL_BLADE_COUNT = GROUP_COUNT * GROUP_WORK;
   int BLADES_PER_CHUNK = (int)glm::sqrt(TOTAL_BLADE_COUNT);
 
@@ -211,109 +211,6 @@ public:
     glBindBuffer(GL_ARRAY_BUFFER, m_instancesBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Renderer::InstancedMesh::InstanceData) * instances.size(), instances.data(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-    // I/ vote
-    // TODO bind uniforms for the vote pass
-    //glUseProgram(m_voteComputeShader);
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_instancesBuffer);
-    //glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, voteBuffer), sizeof(BigBuffer::voteBuffer));
-    //glDispatchCompute(GROUP_COUNT, 1, 1);
-    //glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-    int TEMPvoteBuffer[TOTAL_BLADE_COUNT];
-    for (size_t i = 0; i < TOTAL_BLADE_COUNT; i++)
-      //TEMPvoteBuffer[i] = i/GROUP_WORK;
-      TEMPvoteBuffer[i] = i % 3 == 0 ? 1 : 0;
-    glBindBuffer(GL_ARRAY_BUFFER, m_bigBuffer);
-    glBufferSubData(GL_ARRAY_BUFFER, offsetof(BigBuffer, voteBuffer), sizeof(BigBuffer::voteBuffer), TEMPvoteBuffer);
-
-    BigBuffer *bb = new BigBuffer; // TEMP
-
-    // II/ scan
-    glUseProgram(m_scan1ComputeShader);
-    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 0, m_bigBuffer, offsetof(BigBuffer, voteBuffer), sizeof(BigBuffer::voteBuffer));
-    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, scanBuffer), sizeof(BigBuffer::scanBuffer) + sizeof(BigBuffer::scanTempBuffer));
-    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 2, m_bigBuffer, offsetof(BigBuffer, totalsBuffer), sizeof(BigBuffer::totalsBuffer));
-    glDispatchCompute(GROUP_COUNT, 1, 1);
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, m_bigBuffer); glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(BigBuffer), bb);
-
-    for (size_t i = 1; i < /*GROUP_COUNT*/3; i++) {
-      for (size_t j = 0; j < GROUP_WORK; j++) {
-        std::cout << i << "|" << j << " " << bb->voteBuffer[i * GROUP_WORK + j] << " " << bb->scanBuffer[i * GROUP_WORK + j] << std::endl;
-      }
-    }
-    for (size_t i = 0; i < GROUP_COUNT; i++) {
-      std::cout << "total" << i << " " << bb->totalsBuffer[i] << std::endl;
-    }
-
-    glUseProgram(m_scan2ComputeShader);
-    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 0, m_bigBuffer, offsetof(BigBuffer, totalsBuffer), sizeof(BigBuffer::totalsBuffer) + sizeof(BigBuffer::totalsTempBuffer));
-    glDispatchCompute(1, 1, 1);
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_bigBuffer); glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(BigBuffer), bb);
-    for (size_t i = 0; i < GROUP_COUNT; i++) {
-      std::cout << "totalC" << i << " " << bb->totalsBuffer[i] << std::endl;
-    }
-
-    glUseProgram(m_scan3ComputeShader);
-    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 0, m_bigBuffer, offsetof(BigBuffer, scanBuffer), sizeof(BigBuffer::scanBuffer));
-    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, totalsBuffer), sizeof(BigBuffer::totalsBuffer));
-    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 2, m_bigBuffer, offsetof(BigBuffer, drawCommand), sizeof(BigBuffer::drawCommand));
-    glDispatchCompute(GROUP_COUNT, 1, 1);
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_bigBuffer); glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(BigBuffer), bb);
-    for (size_t i = 1; i < /*GROUP_COUNT*/3; i++) {
-      for (size_t j = 0; j < GROUP_WORK; j++) {
-        std::cout << i << "|" << j << " " << bb->voteBuffer[i * GROUP_WORK + j] << " " << bb->scanBuffer[i * GROUP_WORK + j] << std::endl;
-      }
-    }
-
-    assert(bb->drawCommand.baseInstance == 0 && bb->drawCommand.baseVertex == 0 && bb->drawCommand.firstIndex == 0);
-    std::cout << "instances " << bb->drawCommand.instanceCount << std::endl;
-
-
-    // III/ compact
-    glUseProgram(m_compactComputeShader);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_instancesBuffer);
-    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, voteBuffer), sizeof(BigBuffer::voteBuffer));
-    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 2, m_bigBuffer, offsetof(BigBuffer, scanBuffer), sizeof(BigBuffer::scanBuffer));
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_grassMesh.m_modelVBO.getId());
-    glDispatchCompute(GROUP_COUNT, 1, 1);
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-    //int *buf = new int[N], *targetBuf = new int[N];
-    //for (int i = 0; i < N; i++)
-    //  buf[i] = i;
-    //glBindBuffer(GL_ARRAY_BUFFER, cullingBuffer);
-    //glBufferData(GL_ARRAY_BUFFER, N * sizeof(int), buf, GL_DYNAMIC_DRAW);
-    //glBindBuffer(GL_ARRAY_BUFFER, runningSumBuffer);
-    //glBufferData(GL_ARRAY_BUFFER, N * sizeof(int), nullptr, GL_DYNAMIC_DRAW);
-    //glBindBuffer(GL_ARRAY_BUFFER, runningSumTempBuffer);
-    //glBufferData(GL_ARRAY_BUFFER, N * sizeof(int)*2, nullptr, GL_DYNAMIC_DRAW);
-    //glUseProgram(m_scanComputeShader);
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cullingBuffer);
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, runningSumBuffer);
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, runningSumTempBuffer);
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, indirectDrawBuffer);
-    //glUniform1ui(glGetUniformLocation(m_scanComputeShader, "u_bladesCount"), N);
-    //glDispatchCompute(1, 1, 1);
-    //glMemoryBarrier(GL_ALL_BARRIER_BITS);
-    //glBindBuffer(GL_ARRAY_BUFFER, runningSumBuffer);
-    //glGetBufferSubData(GL_ARRAY_BUFFER, 0, N * sizeof(int), targetBuf);
-    //int s = 0;
-    //for (int i = 0; i < N; i++) {
-    //  if(targetBuf[i] != s)
-    //    std::cout << i << ": got " << targetBuf[i] << " expected " << s << std::endl;
-    //  s += buf[i];
-    //}
-    //std::cout << ">" << std::endl;
-    ////for (int i = 0; i < sizeof(buf) / sizeof(buf[0]); i++)
-    ////  std::cout << i << ": " << buf[i] << std::endl;
   }
 
   static unsigned int createComputeShader(const char *sourcePath)
@@ -412,8 +309,43 @@ public:
     }
 
 
-
+    // I/ vote
     const glm::mat4 &VP = m_player.getCamera().getViewProjectionMatrix();
+    glUseProgram(m_voteComputeShader);
+    glUniformMatrix4fv(glGetUniformLocation(m_voteComputeShader, "u_VP"), 1, GL_FALSE, glm::value_ptr(VP));
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_instancesBuffer);
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, voteBuffer), sizeof(BigBuffer::voteBuffer));
+    glDispatchCompute(GROUP_COUNT, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    // II/ scan
+    glUseProgram(m_scan1ComputeShader);
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 0, m_bigBuffer, offsetof(BigBuffer, voteBuffer), sizeof(BigBuffer::voteBuffer));
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, scanBuffer), sizeof(BigBuffer::scanBuffer) + sizeof(BigBuffer::scanTempBuffer));
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 2, m_bigBuffer, offsetof(BigBuffer, totalsBuffer), sizeof(BigBuffer::totalsBuffer));
+    glDispatchCompute(GROUP_COUNT, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    glUseProgram(m_scan2ComputeShader);
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 0, m_bigBuffer, offsetof(BigBuffer, totalsBuffer), sizeof(BigBuffer::totalsBuffer) + sizeof(BigBuffer::totalsTempBuffer));
+    glDispatchCompute(1, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    glUseProgram(m_scan3ComputeShader);
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 0, m_bigBuffer, offsetof(BigBuffer, scanBuffer), sizeof(BigBuffer::scanBuffer));
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, totalsBuffer), sizeof(BigBuffer::totalsBuffer));
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 2, m_bigBuffer, offsetof(BigBuffer, drawCommand), sizeof(BigBuffer::drawCommand));
+    glDispatchCompute(GROUP_COUNT, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    // III/ compact
+    glUseProgram(m_compactComputeShader);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_instancesBuffer);
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, voteBuffer), sizeof(BigBuffer::voteBuffer));
+    glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 2, m_bigBuffer, offsetof(BigBuffer, scanBuffer), sizeof(BigBuffer::scanBuffer));
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_grassMesh.m_instanceVBO.getId());
+    glDispatchCompute(GROUP_COUNT, 1, 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
     float theta = 3.14f - renderCamera.getYaw();
     float c = cos(theta), s = sin(theta);
