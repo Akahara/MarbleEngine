@@ -31,6 +31,25 @@ inline float rand(float s)
   return fract(sin(s * 12.9898f) * 43758.5453f);
 }
 
+template<class T>
+constexpr inline bool isPowerOfTwo(T x)
+{
+  return (x & (x - 1)) == 0;
+}
+
+constexpr inline unsigned int ceilToPowerOfTwo(unsigned int x)
+{
+  // https://stackoverflow.com/questions/466204/rounding-up-to-next-power-of-2
+  x--;
+  x |= x >> 1;
+  x |= x >> 2;
+  x |= x >> 4;
+  x |= x >> 8;
+  x |= x >> 16;
+  x++;
+  return x;
+}
+
 }
 
 template<typename T, glm::qualifier Q>
