@@ -22,22 +22,38 @@ class WaterRenderer
 		READY // both texture are ok
 	};
 
+	const float WAVE_SPEED = 0.05f;
+
 private:
 
 	Renderer::FrameBufferObject m_waterRefractionFbo;
 	Renderer::FrameBufferObject m_waterReflectionFbo;
 
+
 	Renderer::Texture m_refractionTexture{ Window::getWinWidth(), Window::getWinHeight() }; // what u see under water
 	Renderer::Texture m_reflectionTexture{ Window::getWinWidth(), Window::getWinHeight() }; // what is reflected
+	Renderer::Texture m_depthTexture = Renderer::Texture::createDepthTexture( Window::getWinWidth(), Window::getWinHeight() );
 
 	Renderer::Texture m_dudvTexture = Renderer::Texture("res/textures/dudvWater.png"); //distortion
+	Renderer::Texture m_normalTexture = Renderer::Texture("res/textures/waterNormal.png"); //normal
 
 	Renderer::Shader m_waterShader = Renderer::loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/water.fs");
 
 	RendererState m_state = NOT_READY;
 
+	float m_moveFactor = 0;
+
 public:
 
+
+	void updateMoveFactor(float deltaTime) {
+
+		m_moveFactor += WAVE_SPEED * deltaTime;
+		m_moveFactor = std::fmod(m_moveFactor, 1.f);
+		m_waterShader.bind();
+		m_waterShader.setUniform1f("u_moveFactor", m_moveFactor);
+
+	}
 
 	// -------- Reflection
 
@@ -91,6 +107,7 @@ public:
 	void bindRefractionBuffer() {
 
 		m_waterRefractionFbo.setTargetTexture(m_refractionTexture);
+		m_waterRefractionFbo.setDepthTexture(m_depthTexture);
 		m_waterRefractionFbo.bind();
 		Renderer::FrameBufferObject::setViewportToTexture(m_refractionTexture);
 
@@ -111,14 +128,18 @@ public:
 		m_reflectionTexture.bind(1);
 		m_refractionTexture.bind(2);
 		m_dudvTexture.bind(3);
+		m_normalTexture.bind(4);
+		m_depthTexture.bind(5);
 		
-		m_waterShader.setUniform1i("u_RefractionTexture", 2);
+		m_waterShader.setUniform3f("u_camPos", camera.getPosition());
 		m_waterShader.setUniform1i("u_ReflectionTexture", 1);
+		m_waterShader.setUniform1i("u_RefractionTexture", 2);
 		m_waterShader.setUniform1i("u_dudvMap", 3);
+		m_waterShader.setUniform1i("u_normalMap", 4);
+		m_waterShader.setUniform1i("u_depthMap", 5);
 		
 		glDisable(GL_CULL_FACE);
 		glEnable(GL_CLIP_DISTANCE0);
-
 
 		for (WaterSource* source : waterSources) {
 

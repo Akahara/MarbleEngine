@@ -7,8 +7,8 @@ in vec3 o_normal;
 in vec3 o_pos;
 flat in float o_texId;
 in vec3 o_color;
+in vec3 o_SunPos;
 
-uniform vec3 u_SunPos = vec3(100.f);
 uniform float u_Strength = 1.25f;
 uniform int u_RenderChunks = 0;
 uniform vec3 u_cameraPos;
@@ -32,6 +32,6 @@ void main()
     } else {
         color = vec4(o_color.r, o_color.g, o_color.b, 1.f);
     }
-    color.rgb += vec3(0.09,0.09,0.09) * 0.2 + vec3(.2f, .2f, 0.f) * dot(normalize(o_normal), normalize(u_SunPos)) * u_Strength;
+    color.rgb += vec3(0.09,0.09,0.09) * 0.2 + vec3(.2f, .2f, 0.f) * dot(normalize(o_normal), normalize(o_SunPos)) * u_Strength;
     color.rgb = mix(u_fogColor, color.rgb, exp(-length(o_pos - u_cameraPos)*u_fogDamping));
 }
