@@ -119,8 +119,10 @@ namespace Renderer {
 			return m_uniformLocationCache[name];
 
 		int location = glGetUniformLocation(m_shaderID, name.data());
-		if (location == -1)
-			std::cout << "Frag shader : " << "Warning : uniform \"" << name << "\" doesn't exist ! " << std::endl;
+		if (location == -1) {
+
+			std::cout <<  "Warning : uniform \"" << name << "\" doesn't exist ! " << std::endl;
+		}
 		m_uniformLocationCache[name] = location;
 
 		return location;

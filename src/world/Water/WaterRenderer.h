@@ -30,19 +30,14 @@ private:
 	Renderer::Texture m_refractionTexture{ Window::getWinWidth(), Window::getWinHeight() }; // what u see under water
 	Renderer::Texture m_reflectionTexture{ Window::getWinWidth(), Window::getWinHeight() }; // what is reflected
 
+	Renderer::Texture m_dudvTexture = Renderer::Texture("res/textures/dudvWater.png"); //distortion
+
 	Renderer::Shader m_waterShader = Renderer::loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/water.fs");
 
 	RendererState m_state = NOT_READY;
 
 public:
 
-	void bindTextures() {
-
-		m_reflectionTexture.bind(0);
-		m_refractionTexture.bind(1);
-
-
-	}
 
 	// -------- Reflection
 
@@ -51,12 +46,13 @@ public:
 		// compute distance to ground
 
 		float distance = (cam.getPosition().y - source.getHeight()) * 2;
+		std::cout << distance << std::endl;
 
 		// place camera
 		glm::vec3 camPosition = cam.getPosition();
 		camPosition.y -= distance;
 		cam.setPosition(camPosition);
-
+		std::cout << "reflect cam"  << cam.getPosition().y << std::endl;
 		// Change view
 		cam.inversePitch();
 
@@ -110,17 +106,18 @@ public:
 	void onRenderWater(std::vector<WaterSource*> waterSources, const Renderer::Camera& camera) {
 
 
-		glDisable(GL_CULL_FACE);
-		glEnable(GL_CLIP_DISTANCE0);
 
 		m_waterShader.bind();
-		m_reflectionTexture.bind(0);
-		m_refractionTexture.bind(1);
-		/*
-		m_waterShader.setUniform1i("u_ReflectionTexture", 0);
-		m_waterShader.setUniform1i("u_RefractionTexture", 1);
-		*/
-		//Renderer::Texture::writeToFile(m_reflectionTexture, "REFLECTIONonwaterrendeer.png");
+		m_reflectionTexture.bind(1);
+		m_refractionTexture.bind(2);
+		m_dudvTexture.bind(3);
+		
+		m_waterShader.setUniform1i("u_RefractionTexture", 2);
+		m_waterShader.setUniform1i("u_ReflectionTexture", 1);
+		m_waterShader.setUniform1i("u_dudvMap", 3);
+		
+		glDisable(GL_CULL_FACE);
+		glEnable(GL_CLIP_DISTANCE0);
 
 
 		for (WaterSource* source : waterSources) {

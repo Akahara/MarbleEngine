@@ -57,9 +57,12 @@ public:
   void setProjection(const OrthographicProjection &projection);
   void setProjection(const PerspectiveProjection &projection);
   void setPosition(const glm::vec3 &position) { m_position = position; }
+  void moveCamera(const glm::vec3 &delta) { m_position += delta; }
   void setYaw(float yaw) { m_yaw = yaw; }
   void setPitch(float pitch) { m_pitch = pitch; }
-  void inversePitch() { m_pitch = -m_pitch; }
+  void inversePitch() {
+      m_pitch = -m_pitch;
+  }
   void lookAt(const glm::vec3 &target);
 
   // must be called after a position/rotation update ! Do not forget to also recalculate the ViewProjection matrix !

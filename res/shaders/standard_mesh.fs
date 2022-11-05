@@ -26,10 +26,8 @@ void main()
         int index = int(o_texId);
         vec4 rockSample = texture(u_Textures2D[0], o_uv);
         vec4 grassSample = texture(u_Textures2D[1], o_uv);
-        color = texture(u_Textures2D[6], o_uv);
-        if(index <= 1) {
         color = mix(rockSample, grassSample, smoothstep(u_grassSteepness.x, u_grassSteepness.y, o_normal.y));
-        }
+
 
     } else {
         color = vec4(o_color.r, o_color.g, o_color.b, 1.f);

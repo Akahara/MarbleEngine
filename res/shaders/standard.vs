@@ -14,13 +14,15 @@ out vec3 o_color;
 
 out vec4 o_clipspace;
 
+out vec2 o_texCoordsWater;
+
+
 uniform mat4 u_VP;
 uniform mat4 u_M;
 
+const float tiling = 6.0f;
 
 uniform vec4 u_plane = vec4(0, -1, 0, 10000);
-
-
 
 void main()
 {
@@ -36,6 +38,7 @@ void main()
 
   o_uv = i_uv;
   o_normal = i_normal;
+
 
 
   gl_Position =  o_clipspace;

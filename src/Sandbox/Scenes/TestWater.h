@@ -83,7 +83,10 @@ public:
 
         m_frustum = Renderer::Frustum::createFrustumFromCamera(m_player.getCamera() );
         m_sources.push_back(&m_waterSource);
-        m_waterSource.setSize(30.f);
+        m_waterSource.setSize(30);
+        m_waterSource.setPosition(glm::vec2{86.441});
+       
+        m_waterSource.setHeight(7.2f);
     }
 
     void step(float delta) override
@@ -118,7 +121,39 @@ public:
     {
         Renderer::Renderer::clear();
 
+
+        // Reflection
         
+
+        Renderer::getStandardMeshShader().bind();
+        Renderer::getStandardMeshShader().setUniform4f("u_plane", glm::vec4(0, 1, 0, -m_waterSource.getHeight()));
+        Renderer::getStandardMeshShader().unbind();
+
+
+
+
+        float distance = (m_player.getCamera().getPosition().y - m_waterSource.getHeight()) * 2;
+
+        // place camera
+        m_player.moveCamera({ 0, -distance, 0 });
+        m_player.inversePitch();
+        m_player.updateCamera();
+        // Change view
+
+
+        m_waterRenderer.bindReflectionBuffer();
+        renderScene();
+        /*
+*/
+        m_player.moveCamera({ 0, distance, 0 });
+        m_player.inversePitch();
+        m_player.updateCamera();
+        m_waterRenderer.unbind();
+
+        // ---
+
+        // Refraction
+
         m_waterRenderer.bindRefractionBuffer();
 
         Renderer::getStandardMeshShader().bind();
@@ -130,14 +165,8 @@ public:
 
 
 
-        m_waterRenderer.setupCameraForReflection(m_player.getCamera(), m_waterSource);
-        m_waterRenderer.bindReflectionBuffer();
-        Renderer::getStandardMeshShader().bind();
-        Renderer::getStandardMeshShader().setUniform4f("u_plane", glm::vec4(0, 1, 0, -m_waterSource.getHeight()));
-        Renderer::getStandardMeshShader().unbind();
-        renderScene();
-        m_waterRenderer.unbind();
-        m_waterRenderer.undoSetupCameraForReflection(m_player.getCamera(), m_waterSource);
+
+
 
         glDisable(GL_CLIP_DISTANCE0);
 
@@ -156,6 +185,9 @@ public:
         }
         if (ImGui::SliderFloat("Water plane pos", &m_height, 0, 100)) {
             m_waterSource.setHeight(m_height);
+        }
+        if (ImGui::Button("write text to files")) {
+            m_waterRenderer.writeTexture();
         }
     }
 };
