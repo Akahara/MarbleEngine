@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="res\shaders\grass\scan_blocks.comp" />
     <ClCompile Include="src\abstraction\ComputeShader.cpp" />
     <ClCompile Include="src\vendor\glad.c" />
     <ClCompile Include="main.cpp" />
@@ -266,6 +267,10 @@
     <None Include="res\shaders\blit.vs" />
     <None Include="res\shaders\contrast.fs" />
     <None Include="res\shaders\gammacorrection.fs" />
+    <None Include="res\shaders\grass\compact.comp" />
+    <None Include="res\shaders\grass\scan_accumulate.comp" />
+    <None Include="res\shaders\grass\scan_groups.comp" />
+    <None Include="res\shaders\grass\vote.comp" />
     <None Include="res\shaders\saturation.fs" />
     <None Include="res\shaders\shader.comp" />
     <None Include="res\shaders\shadows.fs" />
