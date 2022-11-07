@@ -13,12 +13,14 @@
 
 #include "../../World/Water/WaterSource.h"
 #include "../../World/Water/WaterRenderer.h"
+#include "../../World/Water/Water.h"
 
 
 #include "../../Utils/AABB.h"
 #include "../Scenes/TestShadows.h"
 
 #include <vector>
+#include <functional>
 
 class TestWater : public Scene {
 
@@ -43,9 +45,14 @@ private:
     int                               m_chunkSize = 16;
 
     /*  Water Stuff     */    
+    /*
     WaterRenderer m_waterRenderer;
     WaterSource m_waterSource{ 0, {0,0} };
     std::vector<WaterSource*> m_sources;
+    */
+    Water m_water;
+    std::function<void()> renderFn = [&](){ renderScene();  };
+
     glm::vec3 m_waterPos{ 0 };
     float m_height = 0;
 
@@ -82,18 +89,22 @@ public:
             m_chunkSize);
 
         m_frustum = Renderer::Frustum::createFrustumFromCamera(m_player.getCamera() );
+
+        m_water.addSource(9.2, glm::vec2{ 80,80 }, 160);
+        /*
         m_sources.push_back(&m_waterSource);
         m_waterSource.setSize(160);
         m_waterSource.setPosition(glm::vec2{80});
        
         m_waterSource.setHeight(9.2f);
+        */
     }
 
     void step(float delta) override
     {
         realTime += delta;
         m_player.step(delta);
-        m_waterRenderer.updateMoveFactor(delta);
+        m_water.updateMoveFactor(delta);
         m_frustum = Renderer::Frustum::createFrustumFromCamera(m_player.getCamera());
     }
 
@@ -119,75 +130,13 @@ public:
 
     void onRender() override
     {
-        Renderer::Renderer::clear();
-
-
-        // Reflection
-        
-
-        Renderer::getStandardMeshShader().bind();
-        Renderer::getStandardMeshShader().setUniform4f("u_plane", glm::vec4(0, 1, 0, -m_waterSource.getHeight()));
-        Renderer::getStandardMeshShader().unbind();
-
-
-
-
-        float distance = (m_player.getCamera().getPosition().y - m_waterSource.getHeight()) * 2;
-
-        // place camera
-        m_player.moveCamera({ 0, -distance, 0 });
-        m_player.inversePitch();
-        m_player.updateCamera();
-        // Change view
-
-
-        m_waterRenderer.bindReflectionBuffer();
-        renderScene();
-        /*
-*/
-        m_player.moveCamera({ 0, distance, 0 });
-        m_player.inversePitch();
-        m_player.updateCamera();
-        m_waterRenderer.unbind();
-
-        // ---
-
-        // Refraction
-
-        m_waterRenderer.bindRefractionBuffer();
-
-        Renderer::getStandardMeshShader().bind();
-        Renderer::getStandardMeshShader().setUniform4f("u_plane", glm::vec4(0, -1, 0, m_waterSource.getHeight()));
-        Renderer::getStandardMeshShader().unbind();
-
-        renderScene();
-        m_waterRenderer.unbind();
-
-
-
-
-
-
-        glDisable(GL_CLIP_DISTANCE0);
-
-        
-
-        //m_waterRenderer.writeTexture();
-        renderScene();
-        m_waterRenderer.onRenderWater(m_sources, m_player.getCamera());
+        renderFn(); // dessine le terrain
+        m_water.onRender(renderFn, m_player.getCamera()); // s'occupe de bind les fbo + dessiner dedans via renderFn() + dessiner l'eau
 
     }
 
     void onImGuiRender() override
     {
-        if (ImGui::SliderFloat2("Water plane pos", &m_waterPos.x, 0, 100)) {
-            m_waterSource.setPosition(m_waterPos);
-        }
-        if (ImGui::SliderFloat("Water plane pos", &m_height, 0, 100)) {
-            m_waterSource.setHeight(m_height);
-        }
-        if (ImGui::Button("write text to files")) {
-            m_waterRenderer.writeTexture();
-        }
+        
     }
 };

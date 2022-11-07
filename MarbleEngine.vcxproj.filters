@@ -107,6 +107,7 @@
     <ClInclude Include="src\Sandbox\Scenes\TestWater.h" />
     <ClInclude Include="src\world\Water\WaterSource.h" />
     <ClInclude Include="src\world\Water\WaterRenderer.h" />
+    <ClInclude Include="src\world\Water\Water.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
