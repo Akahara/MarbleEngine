@@ -1,7 +1,9 @@
 #version 430 core
 
-#define WORK_SIZE 1024
-#define GROUP_COUNT 16
+// {...} are replaced at runtime
+#define WORK_SIZE {WORK_SIZE}
+#define GROUP_COUNT {GROUP_COUNT}
+#define N (WORK_SIZE*GROUP_COUNT)
 
 layout(local_size_x = WORK_SIZE, local_size_y = 1, local_size_z = 1) in;
 

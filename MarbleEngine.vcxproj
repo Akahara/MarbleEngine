@@ -235,6 +235,7 @@
     <ClInclude Include="src\Utils\BoundingVolume.h" />
     <ClInclude Include="src\Utils\Mathf.h" />
     <ClInclude Include="src\Utils\MathIterators.h" />
+    <ClInclude Include="src\Utils\StringUtils.h" />
     <ClInclude Include="src\vendor\imgui\imconfig.h" />
     <ClInclude Include="src\vendor\imgui\imgui.h" />
     <ClInclude Include="src\vendor\imgui\imgui_impl_glfw.h" />

@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/component_wise.hpp>
 
 #include "../Scene.h"
 #include "../../abstraction/Renderer.h"
@@ -13,6 +14,7 @@
 #include "../../World/Player.h"
 #include "../../Utils/Mathf.h"
 #include "../../Utils/MathIterators.h"
+#include "../../Utils/StringUtils.h"
 
 namespace Renderer {
 
@@ -44,7 +46,7 @@ public:
     : m_modelVBO(vertices.data(), vertices.size() * sizeof(ModelVertex)),
     m_instanceVBO(instances.data(), instances.size() * sizeof(InstanceData)),
     m_ibo(indices.data(), indices.size()),
-    m_instanceCount(instances.size()),
+    m_instanceCount((unsigned int)instances.size()),
     m_vao()
   {
     VertexBufferLayout modelLayout;
@@ -98,22 +100,11 @@ public:
   void draw() const
   {
     m_vao.bind();
-    glDrawElementsInstanced(GL_TRIANGLES, m_ibo.getCount(), GL_UNSIGNED_INT, nullptr, m_instanceCount);
+    glDrawElementsInstanced(GL_TRIANGLES, (unsigned int)m_ibo.getCount(), GL_UNSIGNED_INT, nullptr, m_instanceCount);
     m_vao.unbind();
   }
 };
 
-}
-
-constexpr int SSBO_ALIGNMENT_SIZE = 4; // 32bits per "basic machine unit" (uint)
-
-static int getSSBOBaseAligment(GLuint type)
-{
-  switch (type) {
-  case GL_INT: return 1;
-  case GL_BOOL: return 1;
-  default: throw std::exception("Unreachable");
-  }
 }
 
 struct IndirectDrawCommand {
@@ -128,8 +119,6 @@ class TestInstancedScene : public Scene {
 private:
   static constexpr unsigned int CHUNK_COUNT_X = 4, CHUNK_COUNT_Y = 4, CHUNK_SIZE = 25;
   static constexpr float GRASS_DENSITY = 2.5f; // grass blade per square meter
-  //static constexpr int BLADES_PER_CHUNK = Mathf::ceilToPowerOfTwo((CHUNK_SIZE * CHUNK_SIZE) * (GRASS_DENSITY * GRASS_DENSITY));
-  //static constexpr int TOTAL_BLADE_COUNT = CHUNK_COUNT_X * CHUNK_COUNT_Y * BLADES_PER_CHUNK;
   Renderer::Cubemap   m_skybox;
   Player              m_player, m_roguePlayer;
   bool                m_useRoguePlayer;
@@ -145,10 +134,15 @@ private:
   unsigned int m_compactComputeShader;
   unsigned int m_instancesBuffer, m_bigBuffer;
 
-  static constexpr unsigned int GROUP_COUNT = 1024, GROUP_WORK = 1024;
+  static constexpr unsigned int GROUP_COUNT = 256, GROUP_WORK = 1024;
   static constexpr int TOTAL_BLADE_COUNT = GROUP_COUNT * GROUP_WORK;
-  int BLADES_PER_CHUNK = (int)glm::sqrt(TOTAL_BLADE_COUNT);
+  static constexpr int BLADES_PER_CHUNK = TOTAL_BLADE_COUNT / CHUNK_COUNT_X / CHUNK_COUNT_Y;
+  static_assert(BLADES_PER_CHUNK *CHUNK_COUNT_X * CHUNK_COUNT_Y == TOTAL_BLADE_COUNT);
 
+  /*
+   * This structure is never actually instantiated on the cpu be will be on the GPU, and the layout will remain the same.
+   * It contains all the data space necessary for the vote-scan&compact algorithms.
+   */
   struct BigBuffer {
     IndirectDrawCommand drawCommand; // must be the first member because BigBuffer will be used as a GL_DRAW_INDIRECT_BUFFER
     int voteBuffer[TOTAL_BLADE_COUNT];
@@ -195,7 +189,7 @@ public:
 
     std::vector<Renderer::InstancedMesh::InstanceData> instances = generateBladesInstances();
     IndirectDrawCommand filledDrawCommand{};
-    filledDrawCommand.count = m_grassMesh.m_ibo.getCount();
+    filledDrawCommand.count = (GLuint)m_grassMesh.m_ibo.getCount();
     filledDrawCommand.firstIndex = 0;
     filledDrawCommand.instanceCount = -1; // to be filled by compute shaders
     filledDrawCommand.baseInstance = 0;
@@ -219,6 +213,9 @@ public:
     std::stringstream buffer;
     buffer << vertexFile.rdbuf();
     std::string vertexCode = buffer.str();
+    Utils::replaceAll(vertexCode, "{WORK_SIZE}", std::to_string(GROUP_WORK));
+    Utils::replaceAll(vertexCode, "{GROUP_COUNT}", std::to_string(GROUP_COUNT));
+
     const char *vertexCodeCstr = vertexCode.c_str();
     unsigned int computeShader = glCreateShader(GL_COMPUTE_SHADER);
     glShaderSource(computeShader, 1, &vertexCodeCstr, NULL);
@@ -259,7 +256,6 @@ public:
   {
     std::vector<Renderer::InstancedMesh::InstanceData> instances;
     int i = 0;
-    //float s = glm::sqrt(BLADES_PER_CHUNK);
     for (int cx = 0; cx < CHUNK_COUNT_X; cx++) {
       for (int cy = 0; cy < CHUNK_COUNT_Y; cy++) {
         // generates blades for one chunk
@@ -270,7 +266,7 @@ public:
           //float bladeX = (cx + b/(int)s/(float)s) * CHUNK_SIZE;
           //float bladeZ = (cy + b%(int)s/(float)s) * CHUNK_SIZE;
           float bladeY = m_terrain.getHeight(bladeX, bladeZ);
-          float bladeHeight = 1.f + i/10000.f;
+          float bladeHeight = 1.f + Mathf::fract(r*634.532f)*.5f;
           Renderer::InstancedMesh::InstanceData blade{};
           blade.position = { bladeX, bladeY, bladeZ, bladeHeight };
           blade.colorPalette = 0.f;
@@ -310,7 +306,9 @@ public:
 
 
     // I/ vote
-    const glm::mat4 &VP = m_player.getCamera().getViewProjectionMatrix();
+    glm::mat4 V = m_player.getCamera().getViewMatrix();
+    V = glm::translate(V, m_player.getCamera().getForward() * 1.f); // move the clip camera back a bit to be sure blades that are very close to the actual camera do not get clipped
+    glm::mat4 VP = m_player.getCamera().getProjectionMatrix() * V;
     glUseProgram(m_voteComputeShader);
     glUniformMatrix4fv(glGetUniformLocation(m_voteComputeShader, "u_VP"), 1, GL_FALSE, glm::value_ptr(VP));
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_instancesBuffer);
@@ -355,16 +353,10 @@ public:
     m_grassShader.setUniformMat4f("u_VP", renderCamera.getViewProjectionMatrix());
     m_grassShader.setUniformMat2f("u_R", facingCameraRotationMatrix);
     
-    //IndirectDrawCommand cmd;
-    //glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectDrawBuffer);
-    ////glGetBufferSubData(GL_DRAW_INDIRECT_BUFFER, 0, sizeof(IndirectDrawCommand), &cmd);
-    //cmd.instanceCount = 1000;
-
     m_grassMesh.m_vao.bind();
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_bigBuffer);
     glDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr);
     m_grassMesh.m_vao.unbind();
-    //m_grassMesh.draw();
   }
 
   void onImGuiRender() override

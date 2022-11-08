@@ -1,7 +1,8 @@
 #version 430 core
 
-#define WORK_SIZE 1024
-#define GROUP_COUNT 16
+// {...} are replaced at runtime
+#define WORK_SIZE {WORK_SIZE}
+#define GROUP_COUNT {GROUP_COUNT}
 #define N (WORK_SIZE*GROUP_COUNT)
 
 layout(local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
@@ -21,8 +22,6 @@ layout(std430, binding = 1) buffer b_culled {
   int culled_instances[]; // length n
 };
 
-const float culling = 1. + .05;
-
 uniform mat4 u_VP;
 
 void main()
@@ -36,5 +35,5 @@ void main()
   vec4 proj = u_VP * vec4(visiblePt, 1);
   proj /= abs(proj.z);
   proj.xy = abs(proj.xy);
-  culled_instances[i] = (proj.x < culling && proj.y < culling && proj.z > 0) ? 1 : 0; // could use zNear and zFar, good enough for now
+  culled_instances[i] = (proj.x < 1 && proj.y < 1 && proj.z > 0) ? 1 : 0; // could use zNear and zFar, good enough for now
 }

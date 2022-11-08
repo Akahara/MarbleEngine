@@ -106,6 +106,7 @@
     <ClInclude Include="src\abstraction\compute.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestInstanced.h" />
     <ClInclude Include="src\Utils\MathIterators.h" />
+    <ClInclude Include="src\Utils\StringUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
