@@ -45,7 +45,6 @@ private:
 
     m_pipeline.sortPipeline();
     */
-    m_renderer.init();
     m_fbo.setTargetTexture(target);
     m_fbo.setViewportToTexture(target);
 
@@ -63,16 +62,13 @@ private:
 
   void onRender() override
   {
-      /*
       m_pipeline.bind();
       m_backingScene->onRender();
       m_pipeline.unbind();
       
       m_pipeline.renderPipeline();
-      */
 
-      //m_renderer.RenderBloomTexture();
-      
+      /*
       m_fbo.bind();
       m_backingScene->onRender();
       m_fbo.unbind();
@@ -80,6 +76,7 @@ private:
       Renderer::clear();
       m_backingScene->onRender();
       Renderer::renderDebugGUIQuadWithTexture(target, { 0.5, 0.5 }, { 0.5,0.5 });
+      */
 
   }
 

@@ -75,7 +75,7 @@ public:
       renderAABBDebugOutline(camera, m_visibleAABB);
 
       for (const AABB &box : m_cubes)
-        renderAABBDebugOutline(camera, box, m_sunCameraHelper.isBoxVisibleBySun(box) ? glm::vec4{1,0,0,1} : glm::vec4{1,1,0,1});
+        renderAABBDebugOutline(camera, box, m_sunCameraHelper.isBoxVisibleBySun(box) ? glm::vec4{1,0,0,1} : glm::vec4{100.f,1,0,1});
     }
 
     m_shader.bind();

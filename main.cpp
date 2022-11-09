@@ -49,7 +49,7 @@ int main()
     SceneManager::registerScene<TestComputeShader>("Compute Shader");
     SceneManager::registerScene<TestWater>("Water");
 
-    SceneManager::switchToScene(6);
+    SceneManager::switchToScene(4);
 
     //===========================================================//
 
