@@ -104,8 +104,9 @@
     <ClInclude Include="src\Sandbox\Scenes\TestComputeShader.h" />
     <ClInclude Include="src\Sandbox\Tests.h" />
     <ClInclude Include="src\abstraction\compute.h" />
-    <ClInclude Include="src\abstraction\pipeline\bloom\BloomFBO.h" />
-    <ClInclude Include="src\abstraction\pipeline\bloom\BloomRenderer.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestWater.h" />
+    <ClInclude Include="src\world\Water\WaterSource.h" />
+    <ClInclude Include="src\world\Water\WaterRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
@@ -131,7 +132,9 @@
     <None Include="res\shaders\contrast.fs" />
     <None Include="res\shaders\shader.comp" />
     <None Include="res\shaders\sharpness.fs" />
-    <None Include="res\shaders\bloom\downsampling.fs" />
-    <None Include="res\shaders\bloom\upsampling.fs" />
+    <None Include="res\shaders\water.fs" />
+    <None Include="res\shaders\water.vs" />
+    <None Include="res\shaders\debugFlatScreen.vs" />
+    <None Include="res\shaders\debugFlatScreen.fs" />
   </ItemGroup>
 </Project>

@@ -57,8 +57,12 @@ public:
   void setProjection(const OrthographicProjection &projection);
   void setProjection(const PerspectiveProjection &projection);
   void setPosition(const glm::vec3 &position) { m_position = position; }
+  void moveCamera(const glm::vec3 &delta) { m_position += delta; }
   void setYaw(float yaw) { m_yaw = yaw; }
   void setPitch(float pitch) { m_pitch = pitch; }
+  void inversePitch() {
+      m_pitch = -m_pitch;
+  }
   void lookAt(const glm::vec3 &target);
 
   // must be called after a position/rotation update ! Do not forget to also recalculate the ViewProjection matrix !
@@ -118,12 +122,25 @@ struct Frustum {
     Plan farFace;
     Plan nearFace;
 
+
+    static Frustum createFrustumFromCamera(const Camera& cam)
+
+    {
+        float aspect = cam.getProjection<PerspectiveProjection>().aspect;
+        float fovY = cam.getProjection<PerspectiveProjection>().fovy;
+        float zNear = cam.getProjection<PerspectiveProjection>().zNear;
+        float zFar = cam.getProjection<PerspectiveProjection>().zFar;
+        return createFrustumFromCamera(cam, aspect, fovY, zNear, zFar);
+
+    }
+
     static Frustum createFrustumFromCamera(
         const Camera& cam, float aspect, float fovY,
         float zNear, float zFar)
 
     {
         Frustum     frustum;
+
         const float halfVSide = zFar * tanf(fovY * .5f);
         const float halfHSide = halfVSide * aspect;
         const glm::vec3 frontMultFar = zFar * cam.getForward();

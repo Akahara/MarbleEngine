@@ -21,7 +21,7 @@ static struct DebugData {
 
 Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath);
 Mesh createCubeMesh(unsigned int texId = 0);
-Mesh createPlaneMesh();
+Mesh createPlaneMesh(unsigned int texId = 0);
 Mesh loadMeshFromFile(const fs::path &objPath);
 
 void clear();
@@ -42,6 +42,7 @@ void renderDebugCube(const glm::mat4 &VP, glm::vec3 position, glm::vec3 size={1.
 void renderDebugAxis(const glm::mat4 &VP);
 void renderAABBDebugOutline(const Camera &camera, const AABB &aabb, const glm::vec4 &color = { 1.f, 1.f, 0.f, 1.f });
 void renderDebugCameraOutline(const Camera &viewCamera, const Camera &outlinedCamera);
+void renderDebugGUIQuadWithTexture(const Camera& camera, const Texture& texture, glm::vec2 positionOnScreen, glm::vec2 size);
 
 class BlitPass {
 private:
