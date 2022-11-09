@@ -52,8 +52,10 @@ public:
         m_FBO.setTargetTexture(m_mipChain[0]->texture);
 
         // wtf does this do
+        /*
         unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0 };
         glDrawBuffers(1, attachments);
+        */
 
         m_FBO.unbind();
         m_isInit = true;

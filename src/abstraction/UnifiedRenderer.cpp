@@ -358,7 +358,7 @@ void renderDebugCameraOutline(const Camera &viewCamera, const Camera &outlinedCa
 }
 
 
-void renderDebugGUIQuadWithTexture(const Camera& camera, const Texture& texture, glm::vec2 positionOnScreen, glm::vec2 size)
+void renderDebugGUIQuadWithTexture(const Texture& texture, glm::vec2 positionOnScreen, glm::vec2 size)
 {
 
     std::vector<Vertex> vertices{

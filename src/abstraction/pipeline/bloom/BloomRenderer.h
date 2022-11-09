@@ -59,7 +59,7 @@ private:
         // Progressively downsample through the mip chain
         for (int i = 0; i < mipChain.size(); i++)
         {
-            const BloomMip& mip = *mipChain[i];
+            BloomMip& mip = *mipChain[i];
             glViewport(0, 0, mip.size.x, mip.size.y);
             m_FBO.m_FBO.setTargetTexture(mip.texture);
             m_blitdata.doBlit(mip.texture);

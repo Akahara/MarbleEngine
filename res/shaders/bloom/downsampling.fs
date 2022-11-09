@@ -11,7 +11,7 @@
 uniform sampler2D u_srcTexture;
 uniform vec2 u_srcResolution;
 
-in vec2 texCoord;
+in vec2 o_uv;
 layout (location = 0) out vec3 downsample;
 
 void main()
@@ -27,22 +27,22 @@ void main()
     // - l - m -
     // g - h - i
     // === ('e' is the current texel) ===
-    vec3 a = texture(u_srcTexture, vec2(texCoord.x - 2*x, texCoord.y + 2*y)).rgb;
-    vec3 b = texture(u_srcTexture, vec2(texCoord.x,       texCoord.y + 2*y)).rgb;
-    vec3 c = texture(u_srcTexture, vec2(texCoord.x + 2*x, texCoord.y + 2*y)).rgb;
+    vec3 a = texture(u_srcTexture, vec2(o_uv.x - 2*x, o_uv.y + 2*y)).rgb;
+    vec3 b = texture(u_srcTexture, vec2(o_uv.x,       o_uv.y + 2*y)).rgb;
+    vec3 c = texture(u_srcTexture, vec2(o_uv.x + 2*x, o_uv.y + 2*y)).rgb;
 
-    vec3 d = texture(u_srcTexture, vec2(texCoord.x - 2*x, texCoord.y)).rgb;
-    vec3 e = texture(u_srcTexture, vec2(texCoord.x,       texCoord.y)).rgb;
-    vec3 f = texture(u_srcTexture, vec2(texCoord.x + 2*x, texCoord.y)).rgb;
+    vec3 d = texture(u_srcTexture, vec2(o_uv.x - 2*x, o_uv.y)).rgb;
+    vec3 e = texture(u_srcTexture, vec2(o_uv.x,       o_uv.y)).rgb;
+    vec3 f = texture(u_srcTexture, vec2(o_uv.x + 2*x, o_uv.y)).rgb;
     
-    vec3 g = texture(u_srcTexture, vec2(texCoord.x - 2*x, texCoord.y - 2*y)).rgb;
-    vec3 h = texture(u_srcTexture, vec2(texCoord.x,       texCoord.y - 2*y)).rgb;
-    vec3 i = texture(u_srcTexture, vec2(texCoord.x + 2*x, texCoord.y - 2*y)).rgb;
+    vec3 g = texture(u_srcTexture, vec2(o_uv.x - 2*x, o_uv.y - 2*y)).rgb;
+    vec3 h = texture(u_srcTexture, vec2(o_uv.x,       o_uv.y - 2*y)).rgb;
+    vec3 i = texture(u_srcTexture, vec2(o_uv.x + 2*x, o_uv.y - 2*y)).rgb;
     
-    vec3 j = texture(u_srcTexture, vec2(texCoord.x - x, texCoord.y + y)).rgb;
-    vec3 k = texture(u_srcTexture, vec2(texCoord.x + x, texCoord.y + y)).rgb;
-    vec3 l = texture(u_srcTexture, vec2(texCoord.x - x, texCoord.y - y)).rgb;
-    vec3 m = texture(u_srcTexture, vec2(texCoord.x + x, texCoord.y - y)).rgb;
+    vec3 j = texture(u_srcTexture, vec2(o_uv.x - x, o_uv.y + y)).rgb;
+    vec3 k = texture(u_srcTexture, vec2(o_uv.x + x, o_uv.y + y)).rgb;
+    vec3 l = texture(u_srcTexture, vec2(o_uv.x - x, o_uv.y - y)).rgb;
+    vec3 m = texture(u_srcTexture, vec2(o_uv.x + x, o_uv.y - y)).rgb;
 
     // Apply weighted distribution:
     // 0.5 + 0.125 + 0.125 + 0.125 + 0.125 = 1

@@ -53,7 +53,7 @@ private:
     Renderer::Frustum     m_frustum;
 
     Renderer::Texture     m_rockTexture = Renderer::Texture("res/textures/rock.jpg");
-    Renderer::Texture     m_grassTexture = Renderer::Texture("res/textures/grass6.jpg");
+    Renderer::Texture     m_grassTexture = Renderer::Texture("res/textures/rock.jpg");
 
     //=====================================================================================================================//
 

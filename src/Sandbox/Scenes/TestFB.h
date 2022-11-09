@@ -72,11 +72,14 @@ private:
       */
 
       //m_renderer.RenderBloomTexture();
+      
       m_fbo.bind();
       m_backingScene->onRender();
       m_fbo.unbind();
 
-
+      Renderer::clear();
+      m_backingScene->onRender();
+      Renderer::renderDebugGUIQuadWithTexture(target, { 0.5, 0.5 }, { 0.5,0.5 });
 
   }
 

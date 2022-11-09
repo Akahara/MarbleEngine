@@ -10,8 +10,8 @@ uniform sampler2D u_texture;
 void main()
 {
 
-    color = texture(u_texture, o_uv);
+    color = texture(u_texture, vec2(1-o_uv.x, 1-o_uv.y));
     color.a = 1;
-    color.r += 0.2;
+    //color.r += 0.2;
 
 }

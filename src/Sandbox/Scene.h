@@ -33,4 +33,6 @@ void registerScene(const std::string &name) { registerScene(name, []() { return 
 
 void switchToScene(size_t index);
 
+
+
 }

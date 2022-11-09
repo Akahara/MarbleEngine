@@ -63,7 +63,6 @@ void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
     (type != GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR) &&
     (type != GL_DEBUG_TYPE_OTHER)
     ) {
-    __debugbreak();
 
 
     std::cerr
@@ -72,6 +71,7 @@ void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
         << " severity = " << severityName << "\n"
         << " message  = " << message
         << std::endl;
+    __debugbreak();
 
   }
 }
