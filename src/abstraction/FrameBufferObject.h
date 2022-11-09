@@ -21,7 +21,7 @@ public:
   static void unbind();
   void destroy();
 
-  void setTargetTexture(Texture &texture);
+  void setTargetTexture(const Texture &texture);
   void setDepthTexture(Texture &texture);
 
   void assertIsValid() const;

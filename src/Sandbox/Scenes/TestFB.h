@@ -5,6 +5,7 @@
 #include "../../abstraction/Renderer.h"
 #include "../../abstraction/Camera.h"
 #include "../../abstraction/pipeline/VFXPipeline.h"
+#include "../../abstraction/pipeline/Bloom.h"
 
 
 #include "../../abstraction/pipeline/Saturation.h"
@@ -22,6 +23,9 @@ private:
   Scene                      *m_backingScene;
   visualEffects::VFXPipeline  m_pipeline{ Window::getWinWidth(), Window::getWinHeight() };
   Renderer::BlitPass            m_blitData;
+  BloomRenderer m_renderer;
+  Renderer::FrameBufferObject m_fbo;
+  Renderer::Texture target{ Window::getWinWidth(), Window::getWinHeight() };
 
   public:
   TestFBScene()
@@ -33,13 +37,17 @@ private:
     m_pipeline.registerEffect<visualEffects::GammaCorrection>();
     m_pipeline.registerEffect<visualEffects::Contrast>();
     m_pipeline.registerEffect<visualEffects::Sharpness>();
-
+    /*
     m_pipeline.setShaderOfEffect(visualEffects::SaturationEffect,       "res/shaders/saturation.fs"     );
     m_pipeline.setShaderOfEffect(visualEffects::GammaCorrectionEffect,  "res/shaders/gammacorrection.fs");
     m_pipeline.setShaderOfEffect(visualEffects::ContrastEffect,         "res/shaders/contrast.fs"       );
     m_pipeline.setShaderOfEffect(visualEffects::SharpnessEffect,         "res/shaders/sharpness.fs"       );
 
     m_pipeline.sortPipeline();
+    */
+    m_renderer.init();
+    m_fbo.setTargetTexture(target);
+    m_fbo.setViewportToTexture(target);
 
   }
 
@@ -55,14 +63,20 @@ private:
 
   void onRender() override
   {
+      /*
       m_pipeline.bind();
-
       m_backingScene->onRender();
-
       m_pipeline.unbind();
-
-
+      
       m_pipeline.renderPipeline();
+      */
+
+      //m_renderer.RenderBloomTexture();
+      m_fbo.bind();
+      m_backingScene->onRender();
+      m_fbo.unbind();
+
+
 
   }
 

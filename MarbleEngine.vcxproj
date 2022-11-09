@@ -202,6 +202,8 @@
     <ClInclude Include="src\abstraction\Inputs.h" />
     <ClInclude Include="src\abstraction\Mesh.h" />
     <ClInclude Include="src\abstraction\pipeline\Bloom.h" />
+    <ClInclude Include="src\abstraction\pipeline\bloom\BloomFBO.h" />
+    <ClInclude Include="src\abstraction\pipeline\bloom\BloomRenderer.h" />
     <ClInclude Include="src\abstraction\pipeline\Contrast.h" />
     <ClInclude Include="src\abstraction\pipeline\GammaCorrection.h" />
     <ClInclude Include="src\abstraction\pipeline\Saturation.h" />
@@ -262,6 +264,8 @@
     <None Include="README.md" />
     <None Include="res\shaders\blit.fs" />
     <None Include="res\shaders\blit.vs" />
+    <None Include="res\shaders\bloom\downsampling.fs" />
+    <None Include="res\shaders\bloom\upsampling.fs" />
     <None Include="res\shaders\contrast.fs" />
     <None Include="res\shaders\gammacorrection.fs" />
     <None Include="res\shaders\saturation.fs" />
