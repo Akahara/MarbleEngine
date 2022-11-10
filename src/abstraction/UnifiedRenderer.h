@@ -6,7 +6,8 @@
 #include "Mesh.h"
 #include "Texture.h"
 #include "Camera.h"
-#include "../Utils/AABB.h"
+
+#include "../world/Light/Light.h"
 
 
 namespace Renderer {
@@ -32,6 +33,8 @@ void clearDebugData();
 const DebugData& getRendererDebugData();
 
 Shader &getStandardMeshShader();
+
+void setUniformPointLight(Light pointLight);
 
 // TODO pass cameras in debug rendering functions instead of VP matrices
 void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh& mesh, const Camera& camera);
