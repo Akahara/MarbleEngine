@@ -9,3 +9,4 @@
 #include "Scenes/TestCameras.h"
 #include "Scenes/TestComputeShader.h"
 #include "Scenes/TestWater.h"
+#include "Scenes/TestBloom.h"
