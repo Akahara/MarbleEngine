@@ -2,6 +2,8 @@
 
 using namespace Grass;
 
+// TODO profile, the current grass impl is quite slow
+
 GrassChunks::GrassChunks()
   : m_ldInstanceBuffer(0), m_hdInstanceBuffer(0), m_terrain(nullptr), m_currentCameraChunk(), m_ldGrassChunks{}, m_hdGrassChunks{}
 {
@@ -91,7 +93,6 @@ void GrassChunks::fillGrassChunkBuffer(glm::ivec2 chunkPos, InstanceData *instan
     float bladeHeight = 1.f + Mathf::fract(r * 634.532f) * .5f;
     InstanceData &blade = instanceBuffer[b];
     blade.position = { bladeX, bladeY, bladeZ, bladeHeight };
-    blade.colorPalette = 0.f;
   }
 }
 
@@ -206,10 +207,10 @@ void GrassRenderer::step(const Renderer::Camera &camera)
   m_grassChunks.step(camera);
 }
 
-void GrassRenderer::render(const Renderer::Camera &camera, const Renderer::Camera &frustumCamera)
+void GrassRenderer::render(const Renderer::Camera &camera, const Renderer::Camera &frustumCamera, float time)
 {
-  render(camera, frustumCamera, m_grassChunks.getLDInstanceBuffer(), 1);
-  render(camera, frustumCamera, m_grassChunks.getHDInstanceBuffer(), 0);
+  render(camera, frustumCamera, time, m_grassChunks.getLDInstanceBuffer(), 1);
+  render(camera, frustumCamera, time, m_grassChunks.getHDInstanceBuffer(), 0);
 }
 
 unsigned int GrassRenderer::createComputeShader(const char *sourcePath)
@@ -272,7 +273,7 @@ void GrassRenderer::generateGrassModels()
   }
 }
 
-void GrassRenderer::render(const Renderer::Camera &camera, const Renderer::Camera &frustumCamera, int instanceBuffer, int lod)
+void GrassRenderer::render(const Renderer::Camera &camera, const Renderer::Camera &frustumCamera, float time, int instanceBuffer, int lod)
 {
   // I/ vote
   glm::mat4 V = frustumCamera.getViewMatrix();
@@ -280,7 +281,7 @@ void GrassRenderer::render(const Renderer::Camera &camera, const Renderer::Camer
   glm::mat4 VP = frustumCamera.getProjectionMatrix() * V;
   glUseProgram(m_voteComputeShader);
   glUniformMatrix4fv(glGetUniformLocation(m_voteComputeShader, "u_VP"), 1, GL_FALSE, glm::value_ptr(VP));
-  glUniform1ui(glGetUniformLocation(m_voteComputeShader, "N"), BLADES_PER_CHUNK * 9); // TODO temporary 9
+  glUniform1ui(glGetUniformLocation(m_voteComputeShader, "N"), BLADES_PER_CHUNK * 9); // TODO temporary 9, change depending on the lod (depending on the chunk count), this prevents a part of ld grass from rendering
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, instanceBuffer);
   glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, voteBuffer), sizeof(BigBuffer::voteBuffer));
   glDispatchCompute(GROUP_COUNT, 1, 1);
@@ -322,6 +323,7 @@ void GrassRenderer::render(const Renderer::Camera &camera, const Renderer::Camer
   m_grassShader.bind();
   m_grassShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
   m_grassShader.setUniformMat2f("u_R", facingCameraRotationMatrix);
+  m_grassShader.setUniform1f("u_time", time);
 
   m_vao.bind();
   m_grassModels.bindBuffer(lod, m_vao);

@@ -24,6 +24,7 @@ private:
   Renderer::Texture   m_texture1;
   TerrainMeshGenerator::Terrain m_terrain;
   GrassRenderer       m_grass;
+  float               m_time;
 
 public:
   TestInstancedScene()
@@ -32,7 +33,7 @@ public:
       "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
       "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" },
       m_texture1("res/textures/rock.jpg"),
-      m_player(), m_roguePlayer(), m_useRoguePlayer(false)
+      m_player(), m_roguePlayer(), m_useRoguePlayer(false), m_time(0)
   {
     m_player.setPostion({ 125, 10, 0 });
     m_player.setRotation(3.14f*3/4.f, 0);
@@ -56,6 +57,7 @@ public:
   void step(float delta) override
   {
     m_grass.step(m_player.getCamera());
+    m_time += delta;
     Player &activePlayer = m_useRoguePlayer ? m_roguePlayer : m_player;
     activePlayer.step(delta);
   }
@@ -79,7 +81,7 @@ public:
       Renderer::renderDebugCameraOutline(renderCamera, m_player.getCamera());
     }
 
-    m_grass.render(renderCamera, m_player.getCamera());
+    m_grass.render(renderCamera, m_player.getCamera(), m_time);
   }
 
   void onImGuiRender() override

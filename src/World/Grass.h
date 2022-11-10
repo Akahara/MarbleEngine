@@ -38,15 +38,11 @@ struct GrassModelVertex {
 
 struct GrassInstance {
   glm::vec4 position;
-  float colorPalette;
-  char _padding[3 * sizeof(float)];
 
   static Renderer::VertexBufferLayout getLayout()
   {
     Renderer::VertexBufferLayout layout{};
     layout.push<float>(4);
-    layout.push<float>(1);
-    layout.push<float>(3); // padding (TODO wrong!!!)
     return layout;
   }
 };
@@ -160,13 +156,13 @@ public:
 
   void step(const Renderer::Camera &camera);
 
-  void render(const Renderer::Camera &camera) { render(camera, camera); }
-  void render(const Renderer::Camera &camera, const Renderer::Camera &frustumCamera);
+  void render(const Renderer::Camera &camera, float time) { render(camera, camera, time); }
+  void render(const Renderer::Camera &camera, const Renderer::Camera &frustumCamera, float time);
   
 private:
   static unsigned int createComputeShader(const char *sourcePath); // TODO move elsewhere
 
   void generateGrassModels();
 
-  void render(const Renderer::Camera &camera, const Renderer::Camera &frustumCamera, int instanceBuffer, int lod);
+  void render(const Renderer::Camera &camera, const Renderer::Camera &frustumCamera, float time, int instanceBuffer, int lod);
 };

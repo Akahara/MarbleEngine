@@ -10,9 +10,6 @@ layout(local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
 struct instance_data // base alignment=8
 {
   vec4 position;
-  float colorPalette;
-
-  float p1,p2,p3; // padding, not necessary here, do NOT use vec3
 };
 
 layout(std140, binding = 0) buffer i_instances {
