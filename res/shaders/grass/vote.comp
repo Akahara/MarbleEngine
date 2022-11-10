@@ -3,7 +3,7 @@
 // {...} are replaced at runtime
 #define WORK_SIZE {WORK_SIZE}
 #define GROUP_COUNT {GROUP_COUNT}
-#define N (WORK_SIZE*GROUP_COUNT)
+//#define N (WORK_SIZE*GROUP_COUNT)
 
 layout(local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
 
@@ -22,13 +22,17 @@ layout(std430, binding = 1) buffer b_culled {
   int culled_instances[]; // length n
 };
 
+uniform uint N;
+
 uniform mat4 u_VP;
 
 void main()
 {
   uint i = gl_LocalInvocationID.x + gl_WorkGroupID.x * gl_WorkGroupSize.x;
-  if(i >= N)
+  if(i >= N) {
+    culled_instances[i] = 0;
     return;
+  }
   // if the "visible point" is outside of the view frustum, the whole instance is culled
   vec3 visiblePt = instances[i].position.xyz;
   visiblePt.y += instances[i].position.w * .5;

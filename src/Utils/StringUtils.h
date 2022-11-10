@@ -4,7 +4,7 @@
 
 namespace Utils {
 
-bool replaceFirst(std::string &str, const std::string &replaced, const std::string &replacement)
+inline bool replaceFirst(std::string &str, const std::string &replaced, const std::string &replacement)
 {
   size_t foundAt = str.find(replaced);
   if (foundAt == std::string::npos)
@@ -13,7 +13,7 @@ bool replaceFirst(std::string &str, const std::string &replaced, const std::stri
   return false;
 }
 
-int replaceAll(std::string &str, const std::string &replaced, const std::string &replacement)
+inline int replaceAll(std::string &str, const std::string &replaced, const std::string &replacement)
 {
   int replacedCount = 0;
   while (replaceFirst(str, replaced, replacement))

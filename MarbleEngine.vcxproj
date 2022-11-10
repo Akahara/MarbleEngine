@@ -178,6 +178,7 @@
     <ClCompile Include="src\vendor\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_tables.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\World\Grass.cpp" />
     <ClCompile Include="src\World\Player.cpp" />
     <ClCompile Include="src\World\SunCameraHelper.cpp" />
     <ClCompile Include="src\world\TerrainGeneration\HeightMap.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="src\abstraction\FrameBufferObject.h" />
     <ClInclude Include="src\abstraction\IndexBufferObject.h" />
     <ClInclude Include="src\abstraction\Inputs.h" />
+    <ClInclude Include="src\abstraction\InstancedRenderer.h" />
     <ClInclude Include="src\abstraction\Mesh.h" />
     <ClInclude Include="src\abstraction\pipeline\Bloom.h" />
     <ClInclude Include="src\abstraction\pipeline\Contrast.h" />
@@ -248,6 +250,7 @@
     <ClInclude Include="src\vendor\imgui\stb_rect_pack.h" />
     <ClInclude Include="src\vendor\imgui\stb_textedit.h" />
     <ClInclude Include="src\vendor\imgui\stb_truetype.h" />
+    <ClInclude Include="src\World\Grass.h" />
     <ClInclude Include="src\World\Player.h" />
     <ClInclude Include="src\World\SunCameraHelper.h" />
     <ClInclude Include="src\world\TerrainGeneration\HeightMap.h" />

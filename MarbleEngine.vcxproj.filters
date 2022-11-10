@@ -36,6 +36,7 @@
     <ClCompile Include="src\world\TerrainGeneration\TreeGenerator.cpp" />
     <ClCompile Include="src\World\SunCameraHelper.cpp" />
     <ClCompile Include="src\abstraction\ComputeShader.cpp" />
+    <ClCompile Include="src\World\Grass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h" />
@@ -107,6 +108,8 @@
     <ClInclude Include="src\Sandbox\Scenes\TestInstanced.h" />
     <ClInclude Include="src\Utils\MathIterators.h" />
     <ClInclude Include="src\Utils\StringUtils.h" />
+    <ClInclude Include="src\World\Grass.h" />
+    <ClInclude Include="src\abstraction\InstancedRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />

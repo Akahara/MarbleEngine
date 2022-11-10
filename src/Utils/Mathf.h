@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <limits>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -48,6 +49,21 @@ constexpr inline unsigned int ceilToPowerOfTwo(unsigned int x)
   x |= x >> 16;
   x++;
   return x;
+}
+
+namespace Detail {
+// https://gist.github.com/alexshtf/eb5128b3e3e143187794
+double constexpr sqrtNewtonRaphson(double x, double curr, double prev)
+{
+  return curr == prev ? curr : sqrtNewtonRaphson(x, 0.5 * (curr + x / curr), curr);
+}
+}
+
+double constexpr sqrt(double x)
+{
+  return x >= 0 && x < std::numeric_limits<double>::infinity()
+	? Detail::sqrtNewtonRaphson(x, x, 0)
+	: std::numeric_limits<double>::quiet_NaN();
 }
 
 }
