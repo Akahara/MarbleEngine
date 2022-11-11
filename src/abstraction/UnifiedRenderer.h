@@ -34,7 +34,7 @@ const DebugData& getRendererDebugData();
 
 Shader &getStandardMeshShader();
 
-void setUniformPointLight(Light pointLight);
+void setUniformPointLights(const std::vector<Light>& pointLights);
 
 // TODO pass cameras in debug rendering functions instead of VP matrices
 void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh& mesh, const Camera& camera);

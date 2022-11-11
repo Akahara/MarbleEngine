@@ -381,7 +381,24 @@ void renderDebugGUIQuadWithTexture(const Texture& texture, glm::vec2 positionOnS
     gui.draw();
 
 }
+void setUniformPointLights(const std::vector<Light>& pointLights) {
 
+    s_keepAliveResources->standardMeshShader.bind();
+    for (int i = 0; i < pointLights.size(); i++) {
+        
+
+        std::stringstream ss{ std::string() };
+        ss << "u_lights[";
+        ss << i;
+        ss << "].";
+        std::string lightInShader = ss.str();
+        s_keepAliveResources->standardMeshShader.setUniform1i(lightInShader + "on", 1);
+
+
+    }
+
+
+}
 //=========================================================================================================================//
 //=========================================================================================================================//
 //=========================================================================================================================//

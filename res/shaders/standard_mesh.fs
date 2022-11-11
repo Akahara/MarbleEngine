@@ -43,7 +43,7 @@ struct PointLight  {
 
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
-PointLight u_lights[1] = {
+PointLight u_lights[2] = {
 
      {
         1,
@@ -51,9 +51,22 @@ PointLight u_lights[1] = {
         0.05f,
         0.1f,
         0.03,
-        vec3(10,0,0),
-        vec3(10,0,0),
-        vec3(10,0,0)
+        vec3(0,1,1),
+        vec3(0.2,0,0),
+        vec3(0.1,0,0)
+
+     }  ,  
+
+     
+     {
+        1,
+        vec3(-10,-10,0),
+        0.05f,
+        0.1f,
+        3.f,
+        vec3(1,0,1),
+        vec3(0.2,0,0),
+        vec3(0.1,0,0)
 
      }    
 
