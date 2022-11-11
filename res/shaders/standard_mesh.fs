@@ -43,35 +43,8 @@ struct PointLight  {
 
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
-PointLight u_lights[2] = {
-
-     {
-        1,
-        vec3(10,0,0),
-        0.05f,
-        0.1f,
-        0.03,
-        vec3(0,1,1),
-        vec3(0.2,0,0),
-        vec3(0.1,0,0)
-
-     }  ,  
-
-     
-     {
-        1,
-        vec3(-10,-10,0),
-        0.05f,
-        0.1f,
-        3.f,
-        vec3(1,0,1),
-        vec3(0.2,0,0),
-        vec3(0.1,0,0)
-
-     }    
-
-
-};
+uniform PointLight u_lights[MAX_NB_POINT_LIGHTS];
+uniform int numberOfLights = 0;
 
 //-----------------------------------------//
 
@@ -90,9 +63,8 @@ void main()
         color = vec4(o_color.r, o_color.g, o_color.b, 1.f);
     }
 
-    color.rgb += vec3(0.09,0.09,0.09) * 0.2 + vec3(.2f, .2f, 0.f) * dot(normalize(o_normal), normalize(o_SunPos)) * u_Strength;
     
-    for (int i = 0; i < MAX_NB_POINT_LIGHTS; i++) {
+    for (int i = 0; i < numberOfLights; i++) {
         PointLight light = u_lights[i];
         if (light.on == 0) continue;
     
@@ -100,8 +72,7 @@ void main()
         //color = vec4(1,1,0,1);
     }
     
-
-    
+    color.rgb += vec3(0.09,0.09,0.09) * 0.2 + vec3(.2f, .2f, 0.f) * dot(normalize(o_normal), normalize(o_SunPos)) * u_Strength;   
     color.rgb = mix(u_fogColor, color.rgb, exp(-length(o_pos - u_cameraPos)*u_fogDamping));
 }
 
