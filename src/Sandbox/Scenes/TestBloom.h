@@ -44,31 +44,7 @@ public:
             "res/skybox_dbg/skybox_top.bmp", "res/skybox_dbg/skybox_bottom.bmp"
     }
     {
-        Light light1 = Light{
-            m_lightpos,
-            m_params,
-            m_distance,
-            m_turnOn
-        };
-        
-        Light light2 = Light{
-            {10,0,0},
-            {
-                {0.5,0.5,0},
-                {0,0.5,0},
-                {0.5,0,0.5}
-            },
-            400,
-            false
-        };
        
-
-        m_lights.clear();
-        m_lights.push_back(light1);
-        m_lights.push_back(light2);
-
-
-
         Renderer::setUniformPointLights(m_lights);
     }
 
