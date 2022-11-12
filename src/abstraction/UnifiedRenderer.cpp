@@ -434,7 +434,7 @@ void BlitPass::doBlit(const Texture &renderTexture, bool bindRenderTexture/*=tru
   glDisable(GL_DEPTH_TEST);
   Renderer::clear();
   if (bindRenderTexture)
-      renderTexture.bind();
+      renderTexture.bind(0);
 
   m_shader.bind();
   //m_shader.setUniform2f("u_screenSize", (float)Window::getWinWidth(), (float)Window::getWinHeight()); // TODO remove, this uniform is only necessary because the vignette vfx is in the blit shader, which it shouldn't, it should be in a res/shaders/testfb_blit.fs shader

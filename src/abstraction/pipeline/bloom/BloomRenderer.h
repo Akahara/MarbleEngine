@@ -72,7 +72,7 @@ private:
         
         texture.bind();
         m_blitdata.getShader().setUniform2f("u_srcResolution", glm::vec2(Window::getWinWidth(), Window::getWinHeight())    );
-        m_blitdata.getShader().setUniform1i("u_srcTexture", texture.getId());
+        //m_blitdata.getShader().setUniform1i("u_texture", texture.getId());
 
         for (unsigned int bloomPass = 0; bloomPass < m_numberOfMips; bloomPass++) 
         

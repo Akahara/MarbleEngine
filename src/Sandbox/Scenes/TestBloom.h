@@ -62,19 +62,19 @@ public:
 
         {
 
-        Renderer::clear();
+            Renderer::clear();
 
-        Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera());
+            Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera());
 
-        for (const auto& light : m_lights) {
+            for (const auto& light : m_lights) {
 
-            Renderer::renderMesh(light.getPosition(), glm::vec3(3), m_cubeMesh, m_player.getCamera());
-        }
+                Renderer::renderMesh(light.getPosition(), glm::vec3(3), m_cubeMesh, m_player.getCamera());
+            }
 
-        Renderer::renderMesh({0,0,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
-        Renderer::renderMesh({10,0,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
-        Renderer::renderMesh({0,10,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
-        Renderer::renderMesh({0,0,10}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
+            Renderer::renderMesh({0,0,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
+            Renderer::renderMesh({10,0,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
+            Renderer::renderMesh({0,10,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
+            Renderer::renderMesh({0,0,10}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
 
         }
 
@@ -93,6 +93,7 @@ public:
     void onImGuiRender() override
     {
         if (ImGui::SliderFloat("Exposure", &m_exposure, 0, 5)) {
+            m_blit.getShader().bind();
             m_blit.getShader().setUniform1f("u_exposure", m_exposure);
         }
 
