@@ -210,6 +210,7 @@ void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const Came
   s_keepAliveResources->standardMeshShader.setUniformMat4f("u_M", M);
   s_keepAliveResources->standardMeshShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
   mesh.draw();
+  s_keepAliveResources->standardMeshShader.unbind();
 }
 
 void renderNormalsMesh(glm::vec3 position, glm::vec3 size, const NormalsMesh &normalsMesh, const Camera &camera, const glm::vec4 &color)

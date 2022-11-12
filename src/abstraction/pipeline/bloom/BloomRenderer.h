@@ -22,7 +22,7 @@ public:
     };
 private:
 
-    const int m_numberOfMips = 1;
+    const int m_numberOfMips = 5;
 
     Renderer::Shader m_DownsampleShader = Renderer::loadShaderFromFiles("res/shaders/blit.vs", "res/shaders/bloom/downsampling.fs");
     Renderer::Shader m_UpsampleShader   = Renderer::loadShaderFromFiles("res/shaders/blit.vs", "res/shaders/bloom/upsampling.fs");
@@ -52,77 +52,127 @@ public:
     
     }
 
-    void RenderBloomTexture(const Renderer::Texture& texture, float filterRadius) {
+    void RenderBloomTexture(const Renderer::Texture& texture, float filterRadius, bool write = false) {
 
+        m_fbo.bind();
         m_blitdata.setShader("res/shaders/bloom/downsampling.fs");
-        RenderDownsamples(texture);
+        RenderDownsamples(texture, write);
         m_blitdata.setShader("res/shaders/bloom/upsampling.fs");
-        //RenderUpsamples(filterRadius);
+        RenderUpsamples(filterRadius, write);
+        m_fbo.unbind();
+
+             
 
     }
 
 private:
 
-    void RenderDownsamples(const Renderer::Texture& texture) 
+    void RenderDownsamples(const Renderer::Texture& texture, bool write = false)
     {
-        
-        // Set the downsampling shader
-        Renderer::Shader::unbind();
+        // This seems to work, giving downsampled mips
+        // 
+        // 
+        // Set the downsampling shader         
         m_blitdata.getShader().bind();
-        
         texture.bind();
-        m_blitdata.getShader().setUniform2f("u_srcResolution", glm::vec2(Window::getWinWidth(), Window::getWinHeight())    );
-        //m_blitdata.getShader().setUniform1i("u_texture", texture.getId());
+        m_blitdata.getShader().setUniform2f("u_srcResolution", glm::vec2(Window::getWinWidth(), Window::getWinHeight()));
+        m_blitdata.getShader().setUniform1i("u_texture", 0);
 
         for (unsigned int bloomPass = 0; bloomPass < m_numberOfMips; bloomPass++) 
         
         {
             BloomMip& mip = *m_mipChain[bloomPass];
 
+
+
+
             // Set fbo target to new mips texture 
 
-            Renderer::FrameBufferObject::setViewportToTexture(mip.texture);
+            Renderer::FrameBufferObject::setViewport(mip.resolution.x, mip.resolution.y);//?
             m_fbo.setTargetTexture(mip.texture);
 
 
-            // Get the last mip textur
+            // blit
+            if (bloomPass == 0) {
 
-            m_fbo.bind();
-            m_blitdata.doBlit(texture);
-            m_fbo.unbind();
-            
+                m_blitdata.getShader().bind();
+                m_blitdata.getShader().setUniform1i("u_firstPass", 1);
+                m_blitdata.getShader().unbind();
 
-            m_blittest.doBlit(mip.texture);
-            
-            m_blitdata.getShader().bind();
-            m_blitdata.getShader().setUniform2f("u_srcResolution", mip.resolution);
-            m_blitdata.getShader().unbind();
-            /*
+                m_fbo.bind();
+                m_blitdata.doBlit(texture);
+                m_fbo.unbind();
+            }
+                       
             else {
 
+                m_blitdata.getShader().bind();
+                m_blitdata.getShader().setUniform1i("u_firstPass", 0);
+                m_blitdata.getShader().unbind();
 
                 m_fbo.bind();
                 m_blitdata.doBlit(m_mipChain.at(bloomPass-1)->texture); // get the previous mip texture
                 m_fbo.unbind();
 
             }
-            */
+
+            if (write) {
+                std::stringstream path;
+                path << "down_";
+                path << bloomPass;
+                path << ".png";
+
+                Renderer::Texture::writeToFile(mip.texture, path.str());
+            }
+
+            m_blitdata.getShader().bind();
+            m_blitdata.getShader().setUniform2f("u_srcResolution", mip.resolution);
+            m_blitdata.getShader().unbind();
+
+            mip.texture.bind();
 
         }
         
     }
 
 
-    void RenderUpsamples(float filterRadius) 
+    void RenderUpsamples(float filterRadius, bool write=false) 
     {
+        // this does not work
+
+        m_blitdata.getShader().bind();
+
+        m_blitdata.getShader().setUniform1f("u_filterRadius", filterRadius);
+        m_blitdata.getShader().setUniform1i("u_texture", 0);
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);
         glBlendEquation(GL_FUNC_ADD);
 
+        for (unsigned int bloomPass = m_mipChain.size() - 1; bloomPass > 0; bloomPass--) {
 
-        // ...
 
+            BloomMip& mip = *m_mipChain[bloomPass];
+            BloomMip& nextMip = *m_mipChain[bloomPass-1];
+
+            mip.texture.bind();
+
+            Renderer::FrameBufferObject::setViewportToTexture(nextMip.texture);
+            m_fbo.setTargetTexture(nextMip.texture);
+
+            m_blitdata.doBlit(mip.texture);
+
+            if (write) {
+
+                std::stringstream path;
+                path << "up_";
+                path << bloomPass;
+                path << ".png";
+
+                Renderer::Texture::writeToFile(nextMip.texture, path.str());
+            }
+        }
         glDisable(GL_BLEND);
+
 
     }
 

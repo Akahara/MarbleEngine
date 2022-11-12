@@ -12,11 +12,13 @@ out vec4 downsample;
 
 uniform sampler2D u_texture;
 uniform vec2 u_srcResolution = vec2(1120,630 );
+uniform int u_firstPass = 0;
 
 in vec2 o_uv;
 
 void main()
 {
+
 
     vec2 srcTexelSize = 1.0 / u_srcResolution;
     float x = srcTexelSize.x;
@@ -66,6 +68,12 @@ void main()
     downsample.rgb += (j+k+l+m)*0.125;
 
     //downsample.rgb = vec3(1,0,0);
+
+    if (u_firstPass > 0) {
+        downsample.rgb = max(vec3(0), downsample.rgb-1);
+    } 
+
     downsample.a = 1;
+
 
 }

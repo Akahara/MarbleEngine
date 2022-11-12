@@ -15,9 +15,14 @@ private:
 
     Renderer::Cubemap  m_skybox;
     Player             m_player;
-    Renderer::Mesh m_cubeMesh = Renderer::createCubeMesh();
+    Renderer::Mesh m_cubeMesh = Renderer::createCubeMesh(1);
     Renderer::FrameBufferObject m_fbo;
     Renderer::Texture m_target{ Window::getWinWidth(), Window::getWinHeight() };
+    Renderer::Texture m_depth = Renderer::Texture::createDepthTexture(Window::getWinWidth(), Window::getWinHeight());
+    bool write = false;
+
+
+
     std::vector<Light> m_lights;
     Renderer::BlitPass m_blit;
 
@@ -41,8 +46,8 @@ public:
     }
     {
         m_fbo.setTargetTexture(m_target);
+        m_fbo.setDepthTexture(m_depth);
         Renderer::setUniformPointLights(m_lights);
-        m_blit.setShader("res/shaders/bloom/hdr.fs");
     }
 
     ~TestBloomScene()
@@ -57,35 +62,35 @@ public:
     void onRender() override
     {
         Renderer::FrameBufferObject::setViewportToWindow();
-
+        
         m_fbo.bind();
 
-        {
+        Renderer::clear();
 
-            Renderer::clear();
+        Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera());
 
-            Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera());
+        for (const auto& light : m_lights) {
 
-            for (const auto& light : m_lights) {
-
-                Renderer::renderMesh(light.getPosition(), glm::vec3(3), m_cubeMesh, m_player.getCamera());
-            }
-
-            Renderer::renderMesh({0,0,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
-            Renderer::renderMesh({10,0,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
-            Renderer::renderMesh({0,10,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
-            Renderer::renderMesh({0,0,10}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
-
+            Renderer::renderMesh(light.getPosition(), glm::vec3(3), m_cubeMesh, m_player.getCamera());
         }
 
+        Renderer::renderMesh({0,0,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
+        Renderer::renderMesh({10,0,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
+        Renderer::renderMesh({0,10,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
+        Renderer::renderMesh({0,0,10}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
 
         m_fbo.unbind();
         m_blit.doBlit(m_target);
+        
+
+
 
         Renderer::Shader::unbind();
 
-        m_bloomRenderer.RenderBloomTexture(m_target, 3.f);
+        m_bloomRenderer.RenderBloomTexture(m_target, 0.005f, write);
+        if (write) write = false;
 
+        m_blit.doBlit(m_target);
 
 
     }
@@ -97,9 +102,12 @@ public:
             m_blit.getShader().setUniform1f("u_exposure", m_exposure);
         }
 
-        if (ImGui::Button("screentest")) {
+        
+
+        if (ImGui::Button("writeMips")) {
 
             Renderer::Texture::writeToFile(m_target, "og_prev.png");
+            write = true;
         }
 
         if (m_lights.size() < 12) {
