@@ -270,6 +270,7 @@
     <None Include="res\shaders\blit.fs" />
     <None Include="res\shaders\blit.vs" />
     <None Include="res\shaders\bloom\downsampling.fs" />
+    <None Include="res\shaders\bloom\hdr.fs" />
     <None Include="res\shaders\bloom\upsampling.fs" />
     <None Include="res\shaders\contrast.fs" />
     <None Include="res\shaders\debugFlatScreen.fs" />

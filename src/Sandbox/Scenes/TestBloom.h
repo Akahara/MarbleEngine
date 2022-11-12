@@ -21,6 +21,10 @@ private:
     std::vector<Light> m_lights;
     Renderer::BlitPass m_blit;
 
+    BloomRenderer m_bloomRenderer;
+
+    float m_exposure = 1.0f;
+
     bool m_lightsOn[12] =
     {
         0,0,0,
@@ -38,6 +42,7 @@ public:
     {
         m_fbo.setTargetTexture(m_target);
         Renderer::setUniformPointLights(m_lights);
+        m_blit.setShader("res/shaders/bloom/hdr.fs");
     }
 
     ~TestBloomScene()
@@ -51,7 +56,12 @@ public:
 
     void onRender() override
     {
+        Renderer::FrameBufferObject::setViewportToWindow();
+
         m_fbo.bind();
+
+        {
+
         Renderer::clear();
 
         Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera());
@@ -65,13 +75,31 @@ public:
         Renderer::renderMesh({10,0,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
         Renderer::renderMesh({0,10,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
         Renderer::renderMesh({0,0,10}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
+
+        }
+
+
         m_fbo.unbind();
         m_blit.doBlit(m_target);
+
+        Renderer::Shader::unbind();
+
+        m_bloomRenderer.RenderBloomTexture(m_target, 3.f);
+
+
 
     }
 
     void onImGuiRender() override
     {
+        if (ImGui::SliderFloat("Exposure", &m_exposure, 0, 5)) {
+            m_blit.getShader().setUniform1f("u_exposure", m_exposure);
+        }
+
+        if (ImGui::Button("screentest")) {
+
+            Renderer::Texture::writeToFile(m_target, "og_prev.png");
+        }
 
         if (m_lights.size() < 12) {
 
