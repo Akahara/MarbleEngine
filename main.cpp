@@ -50,7 +50,7 @@ int main()
     SceneManager::registerScene<TestWater>("Water");                        // 9
     SceneManager::registerScene<TestBloomScene>("Bloom");                   // 10
 
-    SceneManager::switchToScene(4);
+    SceneManager::switchToScene(10);
 
     //===========================================================//
 

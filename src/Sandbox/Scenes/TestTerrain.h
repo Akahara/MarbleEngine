@@ -47,7 +47,7 @@ private:
 
   Renderer::TestUniform m_depthTestUniform;
   Renderer::TestUniform m_grassSteepnessTestUniform;
-
+  std::vector<Light> m_lights;
 
   /* Other */
 

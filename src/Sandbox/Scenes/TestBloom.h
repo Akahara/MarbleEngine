@@ -16,19 +16,11 @@ private:
     Renderer::Cubemap  m_skybox;
     Player             m_player;
     Renderer::Mesh m_cubeMesh = Renderer::createCubeMesh();
-
+    Renderer::FrameBufferObject m_fbo;
+    Renderer::Texture m_target{ Window::getWinWidth(), Window::getWinHeight() };
     std::vector<Light> m_lights;
-    Light m_testLight;
+    Renderer::BlitPass m_blit;
 
-    Light::LightParam m_params { 
-        {0.5,0.5,0},
-        {0,0.5,0},
-        {0.5,0,0.5}
-    };
-
-    float m_distance;
-    glm::vec3 m_lightpos{ 10.f };
-    bool m_turnOn = false;
     bool m_lightsOn[12] =
     {
         0,0,0,
@@ -44,7 +36,7 @@ public:
             "res/skybox_dbg/skybox_top.bmp", "res/skybox_dbg/skybox_bottom.bmp"
     }
     {
-       
+        m_fbo.setTargetTexture(m_target);
         Renderer::setUniformPointLights(m_lights);
     }
 
@@ -59,7 +51,7 @@ public:
 
     void onRender() override
     {
-
+        m_fbo.bind();
         Renderer::clear();
 
         Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera());
@@ -73,6 +65,8 @@ public:
         Renderer::renderMesh({10,0,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
         Renderer::renderMesh({0,10,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
         Renderer::renderMesh({0,0,10}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
+        m_fbo.unbind();
+        m_blit.doBlit(m_target);
 
     }
 
@@ -113,9 +107,9 @@ public:
 
                     if (
                         ImGui::DragFloat3((std::stringstream{ "LightPosition n" } << i).str().c_str(), &pos.x, 2.f) +
-                        ImGui::SliderFloat3((std::stringstream{ "Ambiant n" } << i).str().c_str(), &params.ambiant.x, 0, 1) +
-                        ImGui::SliderFloat3((std::stringstream{"Diffuse n" } << i).str().c_str(), &params.diffuse.x, 0, 1) +
-                        ImGui::SliderFloat3((std::stringstream{"Specular n" } << i).str().c_str(), &params.specular.x, 0, 1) +
+                        ImGui::SliderFloat3((std::stringstream{ "Ambiant n" } << i).str().c_str(), &params.ambiant.x, 0, 5) +
+                        ImGui::SliderFloat3((std::stringstream{"Diffuse n" } << i).str().c_str(), &params.diffuse.x, 0, 5) +
+                        ImGui::SliderFloat3((std::stringstream{"Specular n" } << i).str().c_str(), &params.specular.x, 0, 5) +
 
                         ImGui::DragFloat((std::stringstream{ "Distance n" } << i).str().c_str(), &distance, 30.f)) {
                  

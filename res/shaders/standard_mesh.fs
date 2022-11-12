@@ -25,7 +25,7 @@ uniform vec3 u_fogDamping = vec3(.001, .001, .001);
 
 struct PointLight  {
 
-    int on; // does this work ?
+    int on; // does this work ? yes it does
 
     
 
@@ -69,7 +69,7 @@ void main()
         if (light.on == 0) continue;
     
         color.rgb += CalcPointLight(light, o_normal, o_pos, viewDir);
-        //color = vec4(1,1,0,1);
+        //color = vec4(1000,1,0,1);
     }
     
     color.rgb += vec3(0.09,0.09,0.09) * 0.2 + vec3(.2f, .2f, 0.f) * dot(normalize(o_normal), normalize(o_SunPos)) * u_Strength;   
