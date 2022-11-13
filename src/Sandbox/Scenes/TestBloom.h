@@ -25,10 +25,12 @@ private:
 
     std::vector<Light> m_lights;
     Renderer::BlitPass m_blit;
+    Renderer::BlitPass m_blitFinal;
 
     BloomRenderer m_bloomRenderer;
 
     float m_exposure = 1.0f;
+    float m_strenght = 0.05f;
 
     bool m_lightsOn[12] =
     {
@@ -48,6 +50,11 @@ public:
         m_fbo.setTargetTexture(m_target);
         m_fbo.setDepthTexture(m_depth);
         Renderer::setUniformPointLights(m_lights);
+        m_blitFinal.setShader("res/shaders/bloom/finalBloom.fs");
+        m_blitFinal.getShader().bind();
+        m_blitFinal.getShader().setUniform1i("u_sceneTexture", 0);
+        m_blitFinal.getShader().setUniform1i("u_finalBloom", 1);
+        m_blitFinal.getShader().unbind();
     }
 
     ~TestBloomScene()
@@ -80,26 +87,31 @@ public:
         Renderer::renderMesh({0,0,10}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
 
         m_fbo.unbind();
-        m_blit.doBlit(m_target);
         
 
 
-
-        Renderer::Shader::unbind();
-
         m_bloomRenderer.RenderBloomTexture(m_target, 0.005f, write);
         if (write) write = false;
-
-        m_blit.doBlit(m_target);
-
+        Renderer::Texture* finalTexture = m_bloomRenderer.getFinalBloomTexture();
+        Renderer::FrameBufferObject::setViewportToTexture(m_target);
+        m_target.bind(0);
+        finalTexture->bind(1);
+        m_blitFinal.doBlit(m_target);
 
     }
 
     void onImGuiRender() override
     {
         if (ImGui::SliderFloat("Exposure", &m_exposure, 0, 5)) {
-            m_blit.getShader().bind();
-            m_blit.getShader().setUniform1f("u_exposure", m_exposure);
+            m_blitFinal.getShader().bind();
+            m_blitFinal.getShader().setUniform1f("u_exposure", m_exposure);
+            m_blitFinal.getShader().unbind();
+        }
+
+        if (ImGui::SliderFloat("bloomStrength", &m_strenght, 0, 5)) {
+            m_blitFinal.getShader().bind();
+            m_blitFinal.getShader().setUniform1f("u_bloomStrength", m_strenght);
+            m_blitFinal.getShader().unbind();
         }
 
         
@@ -144,9 +156,9 @@ public:
 
                     if (
                         ImGui::DragFloat3((std::stringstream{ "LightPosition n" } << i).str().c_str(), &pos.x, 2.f) +
-                        ImGui::SliderFloat3((std::stringstream{ "Ambiant n" } << i).str().c_str(), &params.ambiant.x, 0, 5) +
-                        ImGui::SliderFloat3((std::stringstream{"Diffuse n" } << i).str().c_str(), &params.diffuse.x, 0, 5) +
-                        ImGui::SliderFloat3((std::stringstream{"Specular n" } << i).str().c_str(), &params.specular.x, 0, 5) +
+                        ImGui::SliderFloat3((std::stringstream{ "Ambiant n" } << i).str().c_str(), &params.ambiant.x, 0, 15) +
+                        ImGui::SliderFloat3((std::stringstream{"Diffuse n" } << i).str().c_str(), &params.diffuse.x, 0, 15) +
+                        ImGui::SliderFloat3((std::stringstream{"Specular n" } << i).str().c_str(), &params.specular.x, 0, 15) +
 
                         ImGui::DragFloat((std::stringstream{ "Distance n" } << i).str().c_str(), &distance, 30.f)) {
                  

@@ -143,5 +143,6 @@
     <None Include="res\shaders\bloom\downsampling.fs" />
     <None Include="res\shaders\bloom\upsampling.fs" />
     <None Include="res\shaders\bloom\hdr.fs" />
+    <None Include="res\shaders\bloom\finalBloom.fs" />
   </ItemGroup>
 </Project>

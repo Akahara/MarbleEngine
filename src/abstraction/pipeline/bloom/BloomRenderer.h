@@ -65,6 +65,8 @@ public:
 
     }
 
+    Renderer::Texture* getFinalBloomTexture() const { return &m_mipChain[0]->texture; }
+
 private:
 
     void RenderDownsamples(const Renderer::Texture& texture, bool write = false)
@@ -167,7 +169,7 @@ private:
 
                 std::stringstream path;
                 path << "up_";
-                path << bloomPass;
+                path << bloomPass-1;
                 path << ".png";
 
                 Renderer::Texture::writeToFile(nextMip.texture, path.str());
