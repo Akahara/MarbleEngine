@@ -149,8 +149,7 @@ Texture Texture::createDepthTexture(int width, int height)
   return Texture(rendererId, width, height);
 }
 
-// TODO move this elsewhere ?
-void Texture::writeToFile(const Texture &texture, const std::filesystem::path &path, bool isDepthTexture)
+void Texture::writeToFile(const Texture &texture, const std::filesystem::path &path)
 {
   int w, h;
   int lod = 0;
@@ -158,16 +157,9 @@ void Texture::writeToFile(const Texture &texture, const std::filesystem::path &p
   glGetTexLevelParameteriv(GL_TEXTURE_2D, lod, GL_TEXTURE_WIDTH, &w);
   glGetTexLevelParameteriv(GL_TEXTURE_2D, lod, GL_TEXTURE_HEIGHT, &h);
   char *data = new char[(size_t)w * h * 4];
-  bool success;
   std::string pathStr = path.string();
-  if (isDepthTexture) {
-	glGetTexImage(GL_TEXTURE_2D, lod, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, data);
-	success = stbi_write_png(pathStr.c_str(), w, h, 1, data, w); // TODO the depth texture cannot be saved without being linearized
-	// and also depth-linearized (.1-1000. -> 0-1)
-  } else {
-	glGetTexImage(GL_TEXTURE_2D, lod, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	success = stbi_write_png(pathStr.c_str(), w, h, 4, data, w * 4);
-  }
+  glGetTexImage(GL_TEXTURE_2D, lod, GL_RGBA, GL_UNSIGNED_BYTE, data);
+  bool success = stbi_write_png(pathStr.c_str(), w, h, 4, data, w * 4);
   delete[] data;
   if (!success)
 	throw std::exception("Could not write to file");

@@ -65,13 +65,13 @@ public:
   void onRender() override
   {
     Renderer::Renderer::clear();
-    Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera());
+    Renderer::renderCubemap(m_player.getCamera(), m_skybox);
 
     const Renderer::Camera &renderCamera = (m_useRoguePlayer ? m_roguePlayer : m_player).getCamera();
     m_texture1.bind(0);
     m_texture1.bind(1);
     for (const auto &[position, chunk] : m_terrain.getChunks()) {
-      Renderer::renderMesh(glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh(), renderCamera);
+      Renderer::renderMesh(renderCamera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
 
       if (DebugWindow::renderAABB())
         renderAABBDebugOutline(renderCamera, chunk.getMesh().getBoundingBox());

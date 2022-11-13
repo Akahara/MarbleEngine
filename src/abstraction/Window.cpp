@@ -51,18 +51,14 @@ void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
   default:                                severityName = "?";               break;
   }
   
-  // TODO filter out unimportant messages
-  
-  /*
-  
-  LAISSE COMME CA SINON JPEUX PAS LANCER
-  */
-  std::cerr
-    << "GL CALLBACK: " << sourceName << "\n"
-    << " type     = " << typeName << "\n"
-    << " severity = " << severityName << "\n"
-    << " message  = " << message
-    << std::endl;
+  if (type != GL_DEBUG_TYPE_PERFORMANCE) {
+    std::cerr
+      << "GL CALLBACK: " << sourceName << "\n"
+      << " type     = " << typeName << "\n"
+      << " severity = " << severityName << "\n"
+      << " message  = " << message
+      << std::endl;
+  }
   
   if (
     (type != GL_DEBUG_TYPE_PERFORMANCE) &&

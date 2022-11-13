@@ -34,7 +34,6 @@ int main()
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
 	Renderer::Renderer::init();
-    Renderer::CubemapRenderer::init();
     Renderer::SkyRenderer::init();
     Renderer::init();
     SceneManager::init();

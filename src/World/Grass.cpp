@@ -2,8 +2,6 @@
 
 using namespace Grass;
 
-// TODO profile, the current grass impl is quite slow
-
 GrassChunks::GrassChunks()
   : m_ldInstanceBuffer(0), m_hdInstanceBuffer(0), m_terrain(nullptr), m_currentCameraChunk(), m_ldGrassChunks{}, m_hdGrassChunks{}
 {
@@ -88,8 +86,8 @@ void GrassChunks::fillGrassChunkBuffer(glm::ivec2 chunkPos, InstanceData *instan
     float r = b + chunkPos.x * .252f + chunkPos.y * .62f;
     float bladeX = (chunkPos.x + Mathf::rand(r)) * GRASS_CHUNK_SIZE;
     float bladeZ = (chunkPos.y + Mathf::rand(-r + 2.4f)) * GRASS_CHUNK_SIZE;
-    //float bladeY = m_terrain->getHeight(bladeX, bladeZ);
-    float bladeY = m_terrain->getHeight(Mathf::positiveModulo(bladeX, CHUNK_SIZE * CHUNK_COUNT_X - 2), Mathf::positiveModulo(bladeZ, CHUNK_SIZE * CHUNK_COUNT_Y - 2));
+    //float bladeY = m_terrain->getHeight(bladeX, bladeZ); // TODO rework the terrain before reworking the grass
+    float bladeY = m_terrain->getHeight(Mathf::positiveModulo((int)bladeX, CHUNK_SIZE * CHUNK_COUNT_X - 2), Mathf::positiveModulo((int)bladeZ, CHUNK_SIZE * CHUNK_COUNT_Y - 2));
     float bladeHeight = 1.f + Mathf::fract(r * 634.532f) * .5f;
     InstanceData &blade = instanceBuffer[b];
     blade.position = { bladeX, bladeY, bladeZ, bladeHeight };
@@ -282,7 +280,7 @@ void GrassRenderer::render(const Renderer::Camera &camera, const Renderer::Camer
   glm::mat4 VP = frustumCamera.getProjectionMatrix() * V;
   glUseProgram(m_voteComputeShader);
   glUniformMatrix4fv(glGetUniformLocation(m_voteComputeShader, "u_VP"), 1, GL_FALSE, glm::value_ptr(VP));
-  glUniform1ui(glGetUniformLocation(m_voteComputeShader, "N"), lod==0 ? GrassChunks::BLADES_PER_HD_CHUNK*GrassChunks::HD_CHUNKS.size() : GrassChunks::BLADES_PER_LD_CHUNK*GrassChunks::LD_CHUNKS.size());
+  glUniform1ui(glGetUniformLocation(m_voteComputeShader, "N"), (unsigned int) (lod==0 ? GrassChunks::BLADES_PER_HD_CHUNK*GrassChunks::HD_CHUNKS.size() : GrassChunks::BLADES_PER_LD_CHUNK*GrassChunks::LD_CHUNKS.size()));
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, instanceBuffer);
   glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, voteBuffer), sizeof(BigBuffer::voteBuffer));
   glDispatchCompute(GROUP_COUNT, 1, 1);

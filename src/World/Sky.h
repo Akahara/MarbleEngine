@@ -13,7 +13,6 @@ private:
 public:
   Sky();
 
-  void step(float delta);
   void render(const Renderer::Camera &camera, float time=0.f) const;
 };
 

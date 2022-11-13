@@ -6,11 +6,11 @@
 namespace Renderer {
 
 struct IndirectDrawCommand {
-  GLuint count;
-  GLuint instanceCount;
-  GLuint firstIndex;
-  GLint  baseVertex;
-  GLuint baseInstance;
+  /*GLuint*/unsigned int count;
+  /*GLuint*/unsigned int instanceCount;
+  /*GLuint*/unsigned int firstIndex;
+  /*GLint*/ int          baseVertex;
+  /*GLuint*/unsigned int baseInstance;
 };
 
 template<class Vertex_t, size_t N>

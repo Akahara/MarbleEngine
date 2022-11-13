@@ -33,7 +33,8 @@ public:
   static Texture createTextureFromData(const float *data, int width, int height, int floatPerPixel = 4);
   static Texture createDepthTexture(int width, int height);
 
-  static void writeToFile(const Texture &texture, const std::filesystem::path &path, bool isDepthTexture = false);
+  /* Writes a texture to a .png file, depth textures aren't supported */
+  static void writeToFile(const Texture &texture, const std::filesystem::path &path);
 private:
   Texture(unsigned int rendererId, int width, int height);
 };

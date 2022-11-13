@@ -269,6 +269,8 @@
     <None Include="res\shaders\blit.fs" />
     <None Include="res\shaders\blit.vs" />
     <None Include="res\shaders\contrast.fs" />
+    <None Include="res\shaders\cubemap.fs" />
+    <None Include="res\shaders\cubemap.vs" />
     <None Include="res\shaders\gammacorrection.fs" />
     <None Include="res\shaders\grass\compact.comp" />
     <None Include="res\shaders\grass\grass.fs" />

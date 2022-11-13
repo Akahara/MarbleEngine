@@ -24,14 +24,4 @@ public:
   Cubemap &operator=(const Cubemap &) = delete;
 };
 
-
-// TODO move the renderer
-namespace CubemapRenderer {
-
-void init();
-void drawCubemap(const Cubemap &cubemap, const Camera &camera);
-void shutdown();
-
-}
-
 }

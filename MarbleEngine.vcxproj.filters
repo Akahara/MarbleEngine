@@ -142,5 +142,7 @@
     <None Include="res\shaders\grass\grass.vs" />
     <None Include="res\shaders\grass\grass.fs" />
     <None Include="res\shaders\grass\scan_blocks.comp" />
+    <None Include="res\shaders\cubemap.vs" />
+    <None Include="res\shaders\cubemap.fs" />
   </ItemGroup>
 </Project>

@@ -98,12 +98,9 @@ struct Plan {
         distanceToOrigin(glm::dot(normal, pl))
     {}
 
-    float getSDToPlan(const glm::vec3& point) const {
-
+    inline float getSDToPlan(const glm::vec3& point) const {
         return glm::dot(normal, point) - distanceToOrigin;
-
     }
-
 };
 
 // https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
@@ -118,63 +115,12 @@ struct Frustum {
     Plan farFace;
     Plan nearFace;
 
-    // TODO migrate code to .cpp file
-    static Frustum createFrustumFromCamera(
-        const Camera& cam, float aspect, float fovY,
-        float zNear, float zFar)
+    bool isOnFrustum(const AABB &boudingBox);
+    
+    static Frustum createFrustumFromCamera(const Camera &cam, float aspect, float fovY, float zNear, float zFar);
+    static Frustum createFrustumFromPerspectiveCamera(const Camera &cam);
 
-    {
-        Frustum     frustum;
-        const float halfVSide = zFar * tanf(fovY * .5f);
-        const float halfHSide = halfVSide * aspect;
-        const glm::vec3 frontMultFar = zFar * cam.getForward();
-
-
-        frustum.nearFace = { cam.getPosition() + zNear * cam.getForward(),  cam.getForward() };
-
-        frustum.farFace = { cam.getPosition() + frontMultFar, -cam.getForward() };
-        frustum.rightFace = { cam.getPosition(),
-                                glm::cross(cam.getUp(),frontMultFar + cam.getRight() * halfHSide) };
-        frustum.leftFace = { cam.getPosition(),
-                                glm::cross(frontMultFar - cam.getRight() * halfHSide, cam.getUp()) };
-        frustum.topFace = { cam.getPosition(),
-                                glm::cross(cam.getRight(), frontMultFar - cam.getUp() * halfVSide) };
-        frustum.bottomFace = { cam.getPosition(),
-                                glm::cross(frontMultFar + cam.getUp() * halfVSide, cam.getRight()) };
-
-
-        return frustum;
-    }
-
-    static bool isOnFrustum(const Frustum& frustum, const AABB& boudingBox) {
-
-
-        return (
-            isOnOrForwardPlan(frustum.leftFace, boudingBox) &&
-            isOnOrForwardPlan(frustum.rightFace, boudingBox) &&
-            isOnOrForwardPlan(frustum.topFace, boudingBox) &&
-            isOnOrForwardPlan(frustum.bottomFace, boudingBox) &&
-            isOnOrForwardPlan(frustum.nearFace, boudingBox) &&
-            isOnOrForwardPlan(frustum.farFace, boudingBox)
-            );
-
-
-
-
-    }
-
-    static bool isOnOrForwardPlan(const Plan& plan, const AABB& boundingBox)
-    {
-        // Compute the projection interval radius of b onto L(t) = b.c + t * p.n
-
-        glm::vec3 center = boundingBox.getOrigin() + (boundingBox.getSize()) / glm::vec3(2);
-        glm::vec3 e = ( boundingBox.getOrigin() +boundingBox.getSize()) - center;
-
-        const float r = e.x * std::abs(plan.normal.x) +
-            e.y * std::abs(plan.normal.y) + e.z * std::abs(plan.normal.z);
-
-        return -r <= plan.getSDToPlan(center);
-    }
+    static bool isOnOrForwardPlan(const Plan &plan, const AABB &boundingBox);
 
 };
 

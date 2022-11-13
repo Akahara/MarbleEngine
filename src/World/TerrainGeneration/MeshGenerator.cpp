@@ -79,9 +79,6 @@ static Renderer::Mesh generateChunkMesh(const HeightMap &heightmap, glm::ivec2 c
           Mathf::rand(chunkPosition.y * 12.523f),
           Mathf::rand(chunkPosition.x * 25.642f + chunkPosition.y * 53.2f),
         };
-
-        vertex.texId = 1; // TODO remove? texID from vertices
-        if (glm::dot(vertex.normal, glm::vec3{ 0.f,1.f,0.f }) > 0.3) vertex.texId = 0;
       }
     }
 

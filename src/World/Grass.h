@@ -83,8 +83,8 @@ public:
   static constexpr auto LD_CHUNKS = getLDChunks();
   static constexpr float GRASS_CHUNK_SIZE = 50;
   static constexpr float CAMERA_MOVEMENT_THRESHOLD = .2f; // the grass chunks will be regenerated when the camera moves by more than the threshold into another chunk
-  static constexpr int BLADES_PER_HD_CHUNK = Grass::MAX_BLADE_COUNT_PER_DRAWCALL / HD_CHUNKS.size();
-  static constexpr int BLADES_PER_LD_CHUNK = Grass::MAX_BLADE_COUNT_PER_DRAWCALL / LD_CHUNKS.size();
+  static constexpr int BLADES_PER_HD_CHUNK = Grass::MAX_BLADE_COUNT_PER_DRAWCALL / (int)HD_CHUNKS.size();
+  static constexpr int BLADES_PER_LD_CHUNK = Grass::MAX_BLADE_COUNT_PER_DRAWCALL / (int)LD_CHUNKS.size();
 private:
   static constexpr size_t BUFFER_HD_CHUNK_SLOT_SIZE = sizeof(InstanceData) * BLADES_PER_HD_CHUNK;
   static constexpr size_t BUFFER_LD_CHUNK_SLOT_SIZE = sizeof(InstanceData) * BLADES_PER_LD_CHUNK;

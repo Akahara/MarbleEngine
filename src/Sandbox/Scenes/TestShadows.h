@@ -70,7 +70,7 @@ public:
     m_depthTexture.bind();
 
     if (!depthPass) {
-      Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera());
+      Renderer::renderCubemap(m_player.getCamera(), m_skybox);
       renderDebugCameraOutline(camera, m_sunCameraHelper.getCamera());
       renderAABBDebugOutline(camera, m_visibleAABB);
 

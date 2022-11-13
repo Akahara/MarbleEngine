@@ -5,8 +5,6 @@
 #include "../../World/Player.h"
 #include "../../World/Sky.h"
 
-// TODO find out why loading the testSky scene after the terrain scene makes the skybox disapear but not after the framebuffer scene
-
 class TestSkyScene : public Scene {
 private:
   Player     m_player;
@@ -16,7 +14,6 @@ public:
   void step(float delta) override
   {
     m_player.step(delta);
-    m_sky.step(delta);
     m_time += delta;
   }
 
