@@ -159,7 +159,9 @@ private:
             Renderer::FrameBufferObject::setViewportToTexture(nextMip.texture);
             m_fbo.setTargetTexture(nextMip.texture);
 
+            m_fbo.bind();
             m_blitdata.doBlit(mip.texture);
+            m_fbo.unbind();
 
             if (write) {
 
