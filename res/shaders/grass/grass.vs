@@ -25,9 +25,8 @@ void main()
   vec4 vertex = vec4(im_position, 1);
   vertex.xz = u_R * vertex.xz;
   float h = ii_position.w;
-//  float h = noise(ii_position.xz*.1) * 1. + .3;
   vertex.y *= h;
-  vertex.xz += vertex.y * (cos(u_time + noise(ii_position.xz*.5 + rand(ii_position.xz)*.1))*.08+.15);
+  vertex.xz += vertex.y * (cos(u_time + (ii_position.x + ii_position.z)*.2 + rand(ii_position.xz))*.1+.15);
   vertex.xyz += ii_position.xyz;
   vertex = u_VP * vertex;
   gl_Position = vertex;

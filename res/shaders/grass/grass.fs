@@ -9,5 +9,6 @@ const vec3 bladeColor2 = vec3(.05, .8, .41);
 
 void main()
 {
+  // TODO color the grass
   color = vec4(mix(bladeColor1, bladeColor2, o_fragmentHeight), 1);
 }

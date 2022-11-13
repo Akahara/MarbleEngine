@@ -62,7 +62,7 @@ void VertexArray::addInstanceBuffer(const VertexBufferObject &ivb, const VertexB
 
   const auto &elements = instanceLayout.getElements();
   unsigned int offset = 0;
-  unsigned int attribOffset = modelLayout.getElements().size();
+  unsigned int attribOffset = (unsigned int)modelLayout.getElements().size();
 
   for (unsigned int i = 0; i < elements.size(); i++) {
 	const auto &element = elements[i];

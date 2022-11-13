@@ -16,14 +16,13 @@
 #include "../abstraction/Shader.h"
 #include "../abstraction/UnifiedRenderer.h"
 
-static constexpr unsigned int CHUNK_COUNT_X = 16, CHUNK_COUNT_Y = 16, CHUNK_SIZE = 25; // TODO this cannot be removed until the terrain is refactored
+static constexpr unsigned int CHUNK_COUNT_X = 5, CHUNK_COUNT_Y = 5, CHUNK_SIZE = 25; // TODO this cannot be removed until the terrain is refactored
                                                                                        // the terrain must be able to be sampled outside of the cached region, (ie. currently sampling at -1,-1 crashes)
 
 namespace Grass {
 
 static constexpr unsigned int GROUP_COUNT = 256, GROUP_WORK = 1024;
-static constexpr int TOTAL_BLADE_COUNT = GROUP_COUNT * GROUP_WORK;
-static constexpr int BLADES_PER_CHUNK = TOTAL_BLADE_COUNT / 9;
+static constexpr int MAX_BLADE_COUNT_PER_DRAWCALL = GROUP_COUNT * GROUP_WORK;
 
 struct GrassModelVertex {
   glm::vec3 position; // model position
@@ -79,11 +78,16 @@ class GrassChunks {
 private:
   using InstanceData = Grass::GrassInstance;
 
+public:
   static constexpr auto HD_CHUNKS = getHDChunks();
   static constexpr auto LD_CHUNKS = getLDChunks();
   static constexpr float GRASS_CHUNK_SIZE = 50;
   static constexpr float CAMERA_MOVEMENT_THRESHOLD = .2f; // the grass chunks will be regenerated when the camera moves by more than the threshold into another chunk
-  static constexpr size_t BUFFER_CHUNK_SLOT_SIZE = sizeof(InstanceData) * Grass::BLADES_PER_CHUNK;
+  static constexpr int BLADES_PER_HD_CHUNK = Grass::MAX_BLADE_COUNT_PER_DRAWCALL / HD_CHUNKS.size();
+  static constexpr int BLADES_PER_LD_CHUNK = Grass::MAX_BLADE_COUNT_PER_DRAWCALL / LD_CHUNKS.size();
+private:
+  static constexpr size_t BUFFER_HD_CHUNK_SLOT_SIZE = sizeof(InstanceData) * BLADES_PER_HD_CHUNK;
+  static constexpr size_t BUFFER_LD_CHUNK_SLOT_SIZE = sizeof(InstanceData) * BLADES_PER_LD_CHUNK;
   std::array<glm::ivec2, HD_CHUNKS.size()> m_hdGrassChunks;
   std::array<glm::ivec2, LD_CHUNKS.size()> m_ldGrassChunks;
   glm::ivec2                               m_currentCameraChunk;
@@ -114,9 +118,9 @@ public:
 private:
   void repopulateGrassChunks();
   template<size_t CC>
-  void repopulateGrassChunks(std::array<glm::ivec2, CC> &currentGrassChunks, const std::array<glm::ivec2, CC> &chunksOffsets, unsigned int instanceBuffer);
+  void repopulateGrassChunks(std::array<glm::ivec2, CC> &currentGrassChunks, const std::array<glm::ivec2, CC> &chunksOffsets, unsigned int instanceBuffer, unsigned int instanceCountPerBufferSlot);
 
-  void fillGrassChunkBuffer(glm::ivec2 chunkPos, InstanceData *instanceBuffer);
+  void fillGrassChunkBuffer(glm::ivec2 chunkPos, InstanceData *instanceBuffer, size_t instanceCount);
 };
 
 class GrassRenderer {
@@ -139,9 +143,9 @@ private:
    */
   struct BigBuffer {
     Renderer::IndirectDrawCommand drawCommand; // must be the first member because BigBuffer will be used as a GL_DRAW_INDIRECT_BUFFER
-    int voteBuffer[Grass::TOTAL_BLADE_COUNT];
-    int scanBuffer[Grass::TOTAL_BLADE_COUNT];
-    int scanTempBuffer[Grass::TOTAL_BLADE_COUNT];
+    int voteBuffer[Grass::MAX_BLADE_COUNT_PER_DRAWCALL];
+    int scanBuffer[Grass::MAX_BLADE_COUNT_PER_DRAWCALL];
+    int scanTempBuffer[Grass::MAX_BLADE_COUNT_PER_DRAWCALL];
     int totalsBuffer[Grass::GROUP_COUNT];
     int totalsTempBuffer[Grass::GROUP_COUNT];
   };

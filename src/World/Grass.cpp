@@ -14,10 +14,10 @@ GrassChunks::GrassChunks(const TerrainMeshGenerator::Terrain &terrain, glm::ivec
 {
   glGenBuffers(1, &m_hdInstanceBuffer);
   glBindBuffer(GL_ARRAY_BUFFER, m_hdInstanceBuffer);
-  glBufferData(GL_ARRAY_BUFFER, BUFFER_CHUNK_SLOT_SIZE * HD_CHUNKS.size(), nullptr, GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, BUFFER_HD_CHUNK_SLOT_SIZE * HD_CHUNKS.size(), nullptr, GL_DYNAMIC_DRAW);
   glGenBuffers(1, &m_ldInstanceBuffer);
   glBindBuffer(GL_ARRAY_BUFFER, m_ldInstanceBuffer);
-  glBufferData(GL_ARRAY_BUFFER, BUFFER_CHUNK_SLOT_SIZE * LD_CHUNKS.size(), nullptr, GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, BUFFER_LD_CHUNK_SLOT_SIZE * LD_CHUNKS.size(), nullptr, GL_DYNAMIC_DRAW);
 
   size_t i;
   InstanceData *instanceBuffer;
@@ -25,8 +25,8 @@ GrassChunks::GrassChunks(const TerrainMeshGenerator::Terrain &terrain, glm::ivec
   i = 0;
   glBindBuffer(GL_ARRAY_BUFFER, m_hdInstanceBuffer);
   for (glm::ivec2 offset : HD_CHUNKS) {
-    instanceBuffer = (InstanceData *)glMapBufferRange(GL_ARRAY_BUFFER, BUFFER_CHUNK_SLOT_SIZE * i, BUFFER_CHUNK_SLOT_SIZE, GL_MAP_WRITE_BIT);
-    fillGrassChunkBuffer(creationGrassChunk + offset, instanceBuffer);
+    instanceBuffer = (InstanceData *)glMapBufferRange(GL_ARRAY_BUFFER, BUFFER_HD_CHUNK_SLOT_SIZE * i, BUFFER_HD_CHUNK_SLOT_SIZE, GL_MAP_WRITE_BIT);
+    fillGrassChunkBuffer(creationGrassChunk + offset, instanceBuffer, BLADES_PER_HD_CHUNK);
     m_hdGrassChunks[i++] = creationGrassChunk + offset;
     glUnmapBuffer(GL_ARRAY_BUFFER);
   }
@@ -34,8 +34,8 @@ GrassChunks::GrassChunks(const TerrainMeshGenerator::Terrain &terrain, glm::ivec
   i = 0;
   glBindBuffer(GL_ARRAY_BUFFER, m_ldInstanceBuffer);
   for (glm::ivec2 offset : LD_CHUNKS) {
-    instanceBuffer = (InstanceData *)glMapBufferRange(GL_ARRAY_BUFFER, BUFFER_CHUNK_SLOT_SIZE * i, BUFFER_CHUNK_SLOT_SIZE, GL_MAP_WRITE_BIT);
-    fillGrassChunkBuffer(creationGrassChunk + offset, instanceBuffer);
+    instanceBuffer = (InstanceData *)glMapBufferRange(GL_ARRAY_BUFFER, BUFFER_LD_CHUNK_SLOT_SIZE * i, BUFFER_LD_CHUNK_SLOT_SIZE, GL_MAP_WRITE_BIT);
+    fillGrassChunkBuffer(creationGrassChunk + offset, instanceBuffer, BLADES_PER_LD_CHUNK);
     m_ldGrassChunks[i++] = creationGrassChunk + offset;
     glUnmapBuffer(GL_ARRAY_BUFFER);
   }
@@ -77,14 +77,14 @@ void GrassChunks::step(const Renderer::Camera &camera)
 
 void GrassChunks::repopulateGrassChunks()
 {
-  repopulateGrassChunks(m_hdGrassChunks, HD_CHUNKS, m_hdInstanceBuffer);
-  repopulateGrassChunks(m_ldGrassChunks, LD_CHUNKS, m_ldInstanceBuffer);
+  repopulateGrassChunks(m_hdGrassChunks, HD_CHUNKS, m_hdInstanceBuffer, BLADES_PER_HD_CHUNK);
+  repopulateGrassChunks(m_ldGrassChunks, LD_CHUNKS, m_ldInstanceBuffer, BLADES_PER_LD_CHUNK);
 }
 
-void GrassChunks::fillGrassChunkBuffer(glm::ivec2 chunkPos, InstanceData *instanceBuffer)
+void GrassChunks::fillGrassChunkBuffer(glm::ivec2 chunkPos, InstanceData *instanceBuffer, size_t instanceCount)
 {
-  constexpr size_t slotSize = sizeof(InstanceData) * BLADES_PER_CHUNK;
-  for (size_t b = 0; b < BLADES_PER_CHUNK; b++) {
+  size_t slotSize = sizeof(InstanceData) * instanceCount;
+  for (size_t b = 0; b < instanceCount; b++) {
     float r = b + chunkPos.x * .252f + chunkPos.y * .62f;
     float bladeX = (chunkPos.x + Mathf::rand(r)) * GRASS_CHUNK_SIZE;
     float bladeZ = (chunkPos.y + Mathf::rand(-r + 2.4f)) * GRASS_CHUNK_SIZE;
@@ -97,7 +97,7 @@ void GrassChunks::fillGrassChunkBuffer(glm::ivec2 chunkPos, InstanceData *instan
 }
 
 template<size_t CC>
-inline void GrassChunks::repopulateGrassChunks(std::array<glm::ivec2, CC> &currentGrassChunks, const std::array<glm::ivec2, CC> &chunksOffsets, unsigned int instanceBuffer)
+inline void GrassChunks::repopulateGrassChunks(std::array<glm::ivec2, CC> &currentGrassChunks, const std::array<glm::ivec2, CC> &chunksOffsets, unsigned int instanceBuffer, unsigned int instanceCountPerBufferSlot)
 {
   std::array<glm::ivec2, CC> newChunks{};
   size_t i = 0;
@@ -118,13 +118,14 @@ inline void GrassChunks::repopulateGrassChunks(std::array<glm::ivec2, CC> &curre
     }
   }
 
+  size_t bufferSlotSize = instanceCountPerBufferSlot * sizeof(InstanceData);
+
   // actually regenerate the gpu grass buffer
   glBindBuffer(GL_ARRAY_BUFFER, instanceBuffer);
   for (i = 0; i < CC; i++) {
-
     if (newChunkIndices[i] != -1) {
-      InstanceData *instanceBufferMemory = (InstanceData *)glMapBufferRange(GL_ARRAY_BUFFER, BUFFER_CHUNK_SLOT_SIZE * newChunkIndices[i], BUFFER_CHUNK_SLOT_SIZE, GL_MAP_WRITE_BIT);
-      fillGrassChunkBuffer(newChunks[i], instanceBufferMemory);
+      InstanceData *instanceBufferMemory = (InstanceData *)glMapBufferRange(GL_ARRAY_BUFFER, bufferSlotSize * newChunkIndices[i], bufferSlotSize, GL_MAP_WRITE_BIT);
+      fillGrassChunkBuffer(newChunks[i], instanceBufferMemory, instanceCountPerBufferSlot);
       glUnmapBuffer(GL_ARRAY_BUFFER);
     }
   }
@@ -138,7 +139,7 @@ GrassRenderer::GrassRenderer()
 GrassRenderer::GrassRenderer(const TerrainMeshGenerator::Terrain &terrain, glm::ivec2 creationGrassChunk)
   : m_grassChunks(terrain, creationGrassChunk)
 {
-  m_instanceBuffer = Renderer::VertexBufferObject(TOTAL_BLADE_COUNT * sizeof(Grass::GrassInstance));
+  m_instanceBuffer = Renderer::VertexBufferObject(MAX_BLADE_COUNT_PER_DRAWCALL * sizeof(Grass::GrassInstance));
   generateGrassModels();
   m_vao.addInstanceBuffer(m_instanceBuffer, Grass::GrassInstance::getLayout(), m_grassModels.getLayout());
 
@@ -281,11 +282,11 @@ void GrassRenderer::render(const Renderer::Camera &camera, const Renderer::Camer
   glm::mat4 VP = frustumCamera.getProjectionMatrix() * V;
   glUseProgram(m_voteComputeShader);
   glUniformMatrix4fv(glGetUniformLocation(m_voteComputeShader, "u_VP"), 1, GL_FALSE, glm::value_ptr(VP));
-  glUniform1ui(glGetUniformLocation(m_voteComputeShader, "N"), BLADES_PER_CHUNK * 9); // TODO temporary 9, change depending on the lod (depending on the chunk count), this prevents a part of ld grass from rendering
+  glUniform1ui(glGetUniformLocation(m_voteComputeShader, "N"), lod==0 ? GrassChunks::BLADES_PER_HD_CHUNK*GrassChunks::HD_CHUNKS.size() : GrassChunks::BLADES_PER_LD_CHUNK*GrassChunks::LD_CHUNKS.size());
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, instanceBuffer);
   glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, voteBuffer), sizeof(BigBuffer::voteBuffer));
   glDispatchCompute(GROUP_COUNT, 1, 1);
-  glMemoryBarrier(GL_ALL_BARRIER_BITS);
+  //glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
   // II/ scan
   glUseProgram(m_scan1ComputeShader);
@@ -293,19 +294,19 @@ void GrassRenderer::render(const Renderer::Camera &camera, const Renderer::Camer
   glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, scanBuffer), sizeof(BigBuffer::scanBuffer) + sizeof(BigBuffer::scanTempBuffer));
   glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 2, m_bigBuffer, offsetof(BigBuffer, totalsBuffer), sizeof(BigBuffer::totalsBuffer));
   glDispatchCompute(GROUP_COUNT, 1, 1);
-  glMemoryBarrier(GL_ALL_BARRIER_BITS);
+  //glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
   glUseProgram(m_scan2ComputeShader);
   glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 0, m_bigBuffer, offsetof(BigBuffer, totalsBuffer), sizeof(BigBuffer::totalsBuffer) + sizeof(BigBuffer::totalsTempBuffer));
   glDispatchCompute(1, 1, 1);
-  glMemoryBarrier(GL_ALL_BARRIER_BITS);
+  //glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
   glUseProgram(m_scan3ComputeShader);
   glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 0, m_bigBuffer, offsetof(BigBuffer, scanBuffer), sizeof(BigBuffer::scanBuffer));
   glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 1, m_bigBuffer, offsetof(BigBuffer, totalsBuffer), sizeof(BigBuffer::totalsBuffer));
   glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 2, m_bigBuffer, offsetof(BigBuffer, drawCommand), sizeof(BigBuffer::drawCommand));
   glDispatchCompute(GROUP_COUNT, 1, 1);
-  glMemoryBarrier(GL_ALL_BARRIER_BITS);
+  //glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
   // III/ compact
   glUseProgram(m_compactComputeShader);
@@ -314,7 +315,7 @@ void GrassRenderer::render(const Renderer::Camera &camera, const Renderer::Camer
   glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 2, m_bigBuffer, offsetof(BigBuffer, scanBuffer), sizeof(BigBuffer::scanBuffer));
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_instanceBuffer.getId());
   glDispatchCompute(GROUP_COUNT, 1, 1);
-  glMemoryBarrier(GL_ALL_BARRIER_BITS);
+  //glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
   float theta = 3.14f - camera.getYaw();
   float c = cos(theta), s = sin(theta);
