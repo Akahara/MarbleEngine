@@ -60,7 +60,6 @@ public:
         m_blitFinal.getShader().unbind();
 
         //===============//
-        /*
         m_pipeline.registerEffect<visualEffects::Saturation>();
         m_pipeline.registerEffect<visualEffects::GammaCorrection>();
         m_pipeline.registerEffect<visualEffects::Contrast>();
@@ -70,6 +69,7 @@ public:
         m_pipeline.setShaderOfEffect(visualEffects::GammaCorrectionEffect,  "res/shaders/gammacorrection.fs");
         m_pipeline.setShaderOfEffect(visualEffects::ContrastEffect,         "res/shaders/contrast.fs");
         m_pipeline.setShaderOfEffect(visualEffects::SharpnessEffect,        "res/shaders/sharpness.fs");
+        /*
         */
 
         m_pipeline.registerEffect<visualEffects::Bloom>();

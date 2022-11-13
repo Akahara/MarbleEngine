@@ -17,7 +17,7 @@ private:
 	BloomRenderer m_renderer;
 	Renderer::FrameBufferObject m_fboBloom;
 	Renderer::Texture m_depth = Renderer::Texture::createDepthTexture(Window::getWinWidth(), Window::getWinHeight());
-
+	
 
 	float m_filterRadius = 0.005f;
 
@@ -35,7 +35,7 @@ public:
 		m_blitFinal.setShader("res/shaders/bloom/finalBloom.fs");
 
 		m_blitFinal.getShader().bind();
-		m_blitFinal.getShader().setUniform1i("u_sceneTexture", 2);
+		m_blitFinal.getShader().setUniform1i("u_sceneTexture", 0);
 		m_blitFinal.getShader().setUniform1i("u_finalBloom", 1);
 		m_blitFinal.getShader().unbind();
 		m_fboBloom.setDepthTexture(m_depth);
@@ -44,7 +44,8 @@ public:
 
 	virtual void applyEffect(Renderer::Texture& targetTexture) override final {
 
-		m_fboBloom.setTargetTexture(targetTexture);
+		Renderer::Texture targetfinal = Renderer::Texture(Window::getWinWidth(), Window::getWinHeight());
+		m_fboBloom.setTargetTexture(targetfinal);
 
 		m_renderer.RenderBloomTexture(targetTexture, m_filterRadius, false);
 
@@ -52,15 +53,22 @@ public:
 
 		Renderer::FrameBufferObject::setViewportToTexture(targetTexture);
 
-		targetTexture.bind(2);
+		targetTexture.bind(0);
 		finalTexture->bind(1);
 
 
 		m_fboBloom.bind();
-		m_blitFinal.doBlit(targetTexture,false);
+		m_blitFinal.doBlit(targetTexture, true);
 		m_fboBloom.unbind();
 
-		//Renderer::Texture::writeToFile(targetTexture, "pls1.png");
+		//m_blitData.doBlit(m_targetfinal);
+
+
+		//Renderer::Texture::writeToFile(targetfinal, "pls1.png");
+		targetTexture = std::move(targetfinal);
+
+
+
 
 	}
 
