@@ -7,7 +7,7 @@
 
 #include "../../abstraction/pipeline/Bloom.h"
 #include "../../world/Light/Light.h"
-
+#include "../../abstraction/pipeline/VFXPipeline.h"
 
 class TestBloomScene : public Scene {
 private:
@@ -20,6 +20,9 @@ private:
     Renderer::Texture m_target{ Window::getWinWidth(), Window::getWinHeight() };
     Renderer::Texture m_depth = Renderer::Texture::createDepthTexture(Window::getWinWidth(), Window::getWinHeight());
     bool write = false;
+
+
+    visualEffects::VFXPipeline  m_pipeline{ Window::getWinWidth(), Window::getWinHeight() };
 
 
 
@@ -55,6 +58,26 @@ public:
         m_blitFinal.getShader().setUniform1i("u_sceneTexture", 0);
         m_blitFinal.getShader().setUniform1i("u_finalBloom", 1);
         m_blitFinal.getShader().unbind();
+
+        //===============//
+        /*
+        m_pipeline.registerEffect<visualEffects::Saturation>();
+        m_pipeline.registerEffect<visualEffects::GammaCorrection>();
+        m_pipeline.registerEffect<visualEffects::Contrast>();
+        m_pipeline.registerEffect<visualEffects::Sharpness>();
+
+        m_pipeline.setShaderOfEffect(visualEffects::SaturationEffect,       "res/shaders/saturation.fs");
+        m_pipeline.setShaderOfEffect(visualEffects::GammaCorrectionEffect,  "res/shaders/gammacorrection.fs");
+        m_pipeline.setShaderOfEffect(visualEffects::ContrastEffect,         "res/shaders/contrast.fs");
+        m_pipeline.setShaderOfEffect(visualEffects::SharpnessEffect,        "res/shaders/sharpness.fs");
+        */
+
+        m_pipeline.registerEffect<visualEffects::Bloom>();
+        m_pipeline.sortPipeline();
+
+
+
+
     }
 
     ~TestBloomScene()
@@ -70,7 +93,7 @@ public:
     {
         Renderer::FrameBufferObject::setViewportToWindow();
         
-        m_fbo.bind();
+        m_pipeline.bind();
 
         Renderer::clear();
 
@@ -86,40 +109,23 @@ public:
         Renderer::renderMesh({0,10,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
         Renderer::renderMesh({0,0,10}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
 
-        m_fbo.unbind();
-        
 
+        m_pipeline.unbind();
 
-        m_bloomRenderer.RenderBloomTexture(m_target, 0.005f, write);
-        if (write) write = false;
-        Renderer::Texture* finalTexture = m_bloomRenderer.getFinalBloomTexture();
-        Renderer::FrameBufferObject::setViewportToTexture(m_target);
-        m_target.bind(0);
-        finalTexture->bind(1);
-        m_blitFinal.doBlit(m_target);
+        m_pipeline.renderPipeline();
 
     }
 
     void onImGuiRender() override
     {
-        if (ImGui::SliderFloat("Exposure", &m_exposure, 0, 5)) {
-            m_blitFinal.getShader().bind();
-            m_blitFinal.getShader().setUniform1f("u_exposure", m_exposure);
-            m_blitFinal.getShader().unbind();
-        }
+        m_pipeline.onImGuiRender();
+
+  
 
         if (ImGui::SliderFloat("bloomStrength", &m_strenght, 0, 5)) {
             m_blitFinal.getShader().bind();
             m_blitFinal.getShader().setUniform1f("u_bloomStrength", m_strenght);
             m_blitFinal.getShader().unbind();
-        }
-
-        
-
-        if (ImGui::Button("writeMips")) {
-
-            Renderer::Texture::writeToFile(m_target, "og_prev.png");
-            write = true;
         }
 
         if (m_lights.size() < 12) {

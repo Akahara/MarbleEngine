@@ -18,6 +18,9 @@ namespace visualEffects {
 		Sharpness()
 			: VFX("Sharpness")
 		{
+			m_blitData.getShader().bind();
+			m_blitData.getShader().setUniform1f("u_amount", m_amout);
+			m_blitData.getShader().unbind();
 		}
 
 		virtual void onImGuiRender() override {
@@ -27,6 +30,7 @@ namespace visualEffects {
 					if (ImGui::SliderFloat("amount", &m_amout, 0.f, 1.f)) {
 						m_blitData.getShader().bind();
 						m_blitData.getShader().setUniform1f("u_amount", m_amout);
+						m_blitData.getShader().unbind();
 					}
 				}
 			}

@@ -134,7 +134,13 @@ namespace visualEffects {
 
 				if (!effect->isEnabled()) continue;
 
+				if (effect->getType() == BloomEffect) {
 
+					effect->applyEffect(m_context.originTexture);
+					std::swap(m_context.originTexture, m_context.targetTexture);
+					continue;
+
+				}
 				// Render the effect
 
 				m_context.originTexture.bind(0);
@@ -153,7 +159,7 @@ namespace visualEffects {
 				 
 				
 			}
-
+			
 			m_blitData.doBlit(m_context.originTexture);
 
 		}

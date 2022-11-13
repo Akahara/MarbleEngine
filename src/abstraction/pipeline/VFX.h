@@ -22,10 +22,10 @@ namespace visualEffects {
 
 	enum EffectType {
 		na=-1,
+		BloomEffect,
 		ContrastEffect,
 		SaturationEffect,
 		SharpnessEffect,
-		BloomEffect,
 		SBFEffect,
 		GammaCorrectionEffect,
 		TonemapperEffect

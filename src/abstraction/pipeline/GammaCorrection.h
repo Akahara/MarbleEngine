@@ -10,7 +10,7 @@ namespace visualEffects {
 
 	private:
 
-		float m_gamma;
+		float m_gamma = 2.2f;
 
 	public:
 
@@ -18,8 +18,9 @@ namespace visualEffects {
 		GammaCorrection()
 			: VFX("Gamma correction")
 		{
-			m_gamma = 2.2f;
+			m_blitData.getShader().bind();
 			m_blitData.getShader().setUniform1f("u_gamma", m_gamma);
+			m_blitData.getShader().unbind();
 		}
 
 		virtual void onImGuiRender() override {
@@ -31,6 +32,7 @@ namespace visualEffects {
 					if (ImGui::SliderFloat("Gamma", &m_gamma, 0.01f, 3.f)) {
 						m_blitData.getShader().bind();
 						m_blitData.getShader().setUniform1f("u_gamma", m_gamma);
+						m_blitData.getShader().unbind();
 					}
 
 				}
