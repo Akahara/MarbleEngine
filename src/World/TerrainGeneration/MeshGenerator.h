@@ -50,17 +50,20 @@ namespace TerrainMeshGenerator {
     class Terrain {
     private:
       HeightMap   *m_heightMap;
+      unsigned int m_chunkSize;
       std::unordered_map<glm::ivec2, Chunk> m_chunks;
     public:
       Terrain();
-      Terrain(HeightMap *heightmap);
+      Terrain(HeightMap *heightmap, unsigned int chunkSize);
       Terrain(const Terrain&) = delete;
       Terrain &operator=(const Terrain &) = delete;
       Terrain(Terrain &&moved) noexcept;
       Terrain &operator=(Terrain &&moved) noexcept;
       ~Terrain();
 
-      float getHeight(int x, int y) const { return m_heightMap->getHeight(x, y); }
+      unsigned int getChunkSize() const { return m_chunkSize; }
+      float getHeight(int x, int y) const { return m_heightMap->getHeight(x + 1, y + 1); } // beware! the heightmap has a padding of 1
+      float getHeight(float x, float y) const { return m_heightMap->getHeightLerp(x+1, y+1); }
       const HeightMap &getHeightMap() const { return *m_heightMap; }
       const std::unordered_map<glm::ivec2, Chunk> &getChunks() const { return m_chunks; }
       std::unordered_map<glm::ivec2, Chunk> &getChunks() { return m_chunks; }

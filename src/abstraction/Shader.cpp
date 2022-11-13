@@ -101,9 +101,13 @@ namespace Renderer {
 	void Shader::setUniform4f(std::string_view name, float v1, float v2, float v3, float v4) {
 		glUniform4f(getUniformLocation(name), v1, v2, v3, v4);
 	}
-
+	
 	void Shader::setUniformMat4f(std::string_view name, const glm::mat4& matrix) {
 		glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
+	}
+
+	void Shader::setUniformMat2f(std::string_view name, const glm::mat2& matrix) {
+		glUniformMatrix2fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 	
 	void Shader::setUniformMat4x3f(std::string_view name, const glm::mat4x3 &matrix) {

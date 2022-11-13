@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <limits>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -23,12 +24,46 @@ inline glm::vec3 unitVectorFromRotation(float yaw, float pitch)
 
 inline float fract(float x)
 {
-  return x - (int)x;
+  return x - floor(x);
 }
 
 inline float rand(float s)
 {
   return fract(sin(s * 12.9898f) * 43758.5453f);
+}
+
+template<class T>
+constexpr inline bool isPowerOfTwo(T x)
+{
+  return (x & (x - 1)) == 0;
+}
+
+constexpr inline unsigned int ceilToPowerOfTwo(unsigned int x)
+{
+  // https://stackoverflow.com/questions/466204/rounding-up-to-next-power-of-2
+  x--;
+  x |= x >> 1;
+  x |= x >> 2;
+  x |= x >> 4;
+  x |= x >> 8;
+  x |= x >> 16;
+  x++;
+  return x;
+}
+
+namespace Detail {
+// https://gist.github.com/alexshtf/eb5128b3e3e143187794
+double constexpr sqrtNewtonRaphson(double x, double curr, double prev)
+{
+  return curr == prev ? curr : sqrtNewtonRaphson(x, 0.5 * (curr + x / curr), curr);
+}
+}
+
+double constexpr sqrt(double x)
+{
+  return x >= 0 && x < std::numeric_limits<double>::infinity()
+	? Detail::sqrtNewtonRaphson(x, x, 0)
+	: std::numeric_limits<double>::quiet_NaN();
 }
 
 }

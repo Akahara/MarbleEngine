@@ -46,7 +46,7 @@ static struct KeepAliveResources {
 void init()
 {
   keepAliveResources = new KeepAliveResources;
-  keepAliveResources->planeMesh = Renderer::createPlaneMesh();
+  keepAliveResources->planeMesh = Renderer::createPlaneMesh(true);
 
   keepAliveResources->cloudsShader = Shader(R"glsl(
 #version 330 core
