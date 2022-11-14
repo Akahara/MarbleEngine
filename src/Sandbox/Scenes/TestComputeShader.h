@@ -8,7 +8,6 @@
 #include "../../abstraction/ComputeShader.h"
 
 #include "../../abstraction/UnifiedRenderer.h"
-#include "../../abstraction/Renderer.h"
 #include "../../abstraction/Camera.h"
 #include "../../World/Player.h"
 

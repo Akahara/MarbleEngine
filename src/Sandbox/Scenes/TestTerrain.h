@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Scene.h"
-#include "../../abstraction/Renderer.h"
 #include "../../abstraction/Cubemap.h"
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../abstraction/Mesh.h"
@@ -53,11 +52,6 @@ private:
 
   /* Other */
 
-  float test = 1;
-
-  Renderer::Mesh        m_treeMesh = Renderer::loadMeshFromFile("res/meshes/Tree.obj"); // <! CHANGER CE PUTAIN DE SOL
-  Renderer::Mesh        m_grassBlade = Renderer::loadMeshFromFile("res/meshes/blade.obj"); 
-
   struct Sun {
 
       glm::vec3 position{ 0.f };
@@ -90,13 +84,7 @@ public:
 
     regenerateTerrain();
 
-    m_frustum = Renderer::Frustum::createFrustumFromCamera(
-        m_player.getCamera(),
-        m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().aspect,
-        m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().fovy,
-        m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().zNear,
-        m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().zFar
-    );
+    m_frustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(m_player.getCamera());
 
     m_depthTestUniform = Renderer::TestUniform(&Renderer::getStandardMeshShader(), "u_fogDamping", 3, .0001f);
     m_depthTestUniform.setValue(.003f, .01f, .013f);
@@ -126,34 +114,28 @@ public:
           m_player.updateCamera();
       }
     
-      m_frustum = Renderer::Frustum::createFrustumFromCamera( // TODO #createFrustumFromCamera can retrieve the projection itself, instead of passing the 4 arguments here
-          m_player.getCamera(),
-          m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().aspect,
-          m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().fovy,
-          m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().zNear,
-          m_player.getCamera().getProjection<Renderer::PerspectiveProjection>().zFar
-      );
+      m_frustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(m_player.getCamera());
   }
 
   void onRender() override
   {
     Renderer::Camera &renderCamera = (m_isRoguePlayerActive ? m_roguePlayer : m_player).getCamera();
 
-    Renderer::Renderer::clear();
-    Renderer::CubemapRenderer::drawCubemap(m_skybox, renderCamera);
+    Renderer::clear();
+    Renderer::renderCubemap(renderCamera, m_skybox);
 
     m_rockTexture.bind(0);
     m_grassTexture.bind(1);
 
     for (const auto &[position, chunk] : m_terrain.getChunks()) {
       const AABB &chunkAABB = chunk.getMesh().getBoundingBox();
-      bool isVisible = Renderer::Frustum::isOnFrustum(m_frustum, chunkAABB);
+      bool isVisible = m_frustum.isOnFrustum(chunkAABB);
 
       if (DebugWindow::renderAABB() && (isVisible || m_isRoguePlayerActive))
         renderAABBDebugOutline(renderCamera, chunkAABB, isVisible ? glm::vec4{ 1,1,0,1 } : glm::vec4{ 1,0,0,1 });
 
       if (isVisible) {
-        Renderer::renderMesh(glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh(), renderCamera);
+        Renderer::renderMesh(renderCamera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
       }
     }
 

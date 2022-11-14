@@ -1,5 +1,7 @@
 #include "VertexArray.h"
 
+#include <glad/glad.h>
+
 namespace Renderer {
 
 VertexArray::VertexArray() {
@@ -46,8 +48,8 @@ void VertexArray::addBuffer(const VertexBufferObject& vb, const VertexBufferLayo
 	unsigned int offset = 0;
 
 	for (unsigned int i = 0; i < elements.size(); i++) {
-
 		const auto& element = elements[i];
+
 		glEnableVertexAttribArray(i);
 		glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.getStride(), *(const void**)&offset);
 
@@ -55,7 +57,27 @@ void VertexArray::addBuffer(const VertexBufferObject& vb, const VertexBufferLayo
 	}
 }
 
-void VertexArray::sendToGPU(GLsizeiptr size, const void* data) {
+void VertexArray::addInstanceBuffer(const VertexBufferObject &ivb, const VertexBufferLayout &instanceLayout, const VertexBufferLayout &modelLayout)
+{
+  bind();
+  ivb.bind();
+
+  const auto &elements = instanceLayout.getElements();
+  unsigned int offset = 0;
+  unsigned int attribOffset = (unsigned int)modelLayout.getElements().size();
+
+  for (unsigned int i = 0; i < elements.size(); i++) {
+	const auto &element = elements[i];
+
+	glEnableVertexAttribArray(i + attribOffset);
+	glVertexAttribPointer(i + attribOffset, element.count, element.type, element.normalized, instanceLayout.getStride(), *(const void **)&offset);
+	glVertexAttribDivisor(i + attribOffset, 1);
+
+	offset += element.count * VertexBufferElement::getSizeOfType(element.type);
+  }
+}
+
+void VertexArray::sendToGPU(size_t size, const void* data) {
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 }
 

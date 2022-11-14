@@ -10,6 +10,7 @@
 #include "Shader.h"
 #include "VertexArray.h"
 #include "IndexBufferObject.h"
+#include "UnifiedRenderer.h"
 
 namespace Renderer {
 
@@ -20,7 +21,7 @@ Cubemap::Cubemap(const std::string &front, const std::string &back, const std::s
   glGenTextures(1, &m_id);
   glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
 
-  std::array<const std::string *, 6> files{ &front, &back, &top, &bottom, &right, &left};
+  std::array<const std::string *, 6> files{ &front, &back, &top, &bottom, &right, &left };
 
   int width, height, nrChannels;
   for (unsigned int i = 0; i < 6; i++) {
@@ -45,114 +46,14 @@ Cubemap::~Cubemap()
 
 void Cubemap::bind() const
 {
+  glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
 }
 
 void Cubemap::unbind()
 {
+  glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
-
-
-
-namespace CubemapRenderer {
-
-static struct {
-  Shader *shader;
-  VertexArray *vao;
-} cmRenderData;
-
-static struct {
-  VertexBufferObject *vbo;
-  IndexBufferObject *ibo;
-} keepAliveResources;
-
-void init()
-{
-  cmRenderData.shader = new Shader{ 
-R"glsl(
-#version 330 core
-layout(location = 0) in vec3 i_position;
-out vec3 v_texCoords;
-uniform mat4 u_VP;
-uniform vec3 u_displacement;
-
-void main()
-{
-  v_texCoords = i_position;
-  gl_Position = u_VP * vec4(i_position + u_displacement, +1.0);
-}
-)glsl", R"glsl(
-#version 330 core
-
-out vec4 color;
-
-in vec3 v_texCoords;
-
-uniform samplerCube u_skybox;
-
-void main()
-{    
-  color = texture(u_skybox, v_texCoords);
-}
-)glsl" };
-
-  float vertices[] = {
-    -.5f, -.5f, -.5f,
-    +.5f, -.5f, -.5f,
-    +.5f, +.5f, -.5f,
-    -.5f, +.5f, -.5f,
-    -.5f, -.5f, +.5f,
-    +.5f, -.5f, +.5f,
-    +.5f, +.5f, +.5f,
-    -.5f, +.5f, +.5f,
-  };
-
-  // expand the box for it to not go outside of orthographic cameras bounding boxes
-  // (this requires all camera to have zFar be at least 25*sqrt(3) to see the full cuboid)
-  for (float &v : vertices)
-    v *= 50.f;
-
-  unsigned int indices[] = {
-    0, 1, 3, 3, 1, 2,
-    1, 5, 2, 2, 5, 6,
-    5, 4, 6, 6, 4, 7,
-    4, 0, 7, 7, 0, 3,
-    3, 2, 7, 7, 2, 6,
-    4, 5, 0, 0, 5, 1
-  };
-
-  keepAliveResources.vbo = new VertexBufferObject(vertices, sizeof(vertices));
-  keepAliveResources.ibo = new IndexBufferObject(indices, sizeof(indices) / sizeof(indices[0]));
-
-  VertexBufferLayout layout;
-  layout.push<float>(3);
-  cmRenderData.vao = new VertexArray;
-  cmRenderData.vao->addBuffer(*keepAliveResources.vbo, layout, *keepAliveResources.ibo);
-  cmRenderData.vao->unbind();
-}
-
-void drawCubemap(const Cubemap &cubemap, const Camera &camera)
-{
-  cmRenderData.vao->bind();
-  cmRenderData.shader->bind();
-  cmRenderData.shader->setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
-  cmRenderData.shader->setUniform3f("u_displacement", camera.getPosition());
-  cubemap.bind();
-
-  glDepthMask(false); // do not write to depth buffer
-  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-  glDepthMask(true);
-}
-
-void shutdown()
-{
-  delete cmRenderData.shader;
-  delete cmRenderData.vao;
-  delete keepAliveResources.ibo;
-  delete keepAliveResources.vbo;
-}
-
-} // !namespace CubemapRenderer
 
 } // !namespace Renderer

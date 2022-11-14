@@ -1,11 +1,9 @@
 #pragma once
 
 #include "../Scene.h"
-#include "../../abstraction/Renderer.h"
 #include "../../World/Player.h"
 #include "../../World/Sky.h"
-
-// TODO find out why loading the testSky scene after the terrain scene makes the skybox disapear but not after the framebuffer scene
+#include "../../abstraction/UnifiedRenderer.h"
 
 class TestSkyScene : public Scene {
 private:
@@ -16,13 +14,12 @@ public:
   void step(float delta) override
   {
     m_player.step(delta);
-    m_sky.step(delta);
     m_time += delta;
   }
 
   void onRender() override
   {
-    Renderer::Renderer::clear();
+    Renderer::clear();
     m_sky.render(m_player.getCamera(), m_time);
   }
 

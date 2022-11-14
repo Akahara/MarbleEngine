@@ -8,7 +8,6 @@
     <ClCompile Include="src\abstraction\FrameBufferObject.cpp" />
     <ClCompile Include="src\abstraction\IndexBufferObject.cpp" />
     <ClCompile Include="src\abstraction\Inputs.cpp" />
-    <ClCompile Include="src\abstraction\Renderer.cpp" />
     <ClCompile Include="src\abstraction\Shader.cpp" />
     <ClCompile Include="src\abstraction\stb_image_impl.cpp" />
     <ClCompile Include="src\abstraction\Texture.cpp" />
@@ -36,6 +35,7 @@
     <ClCompile Include="src\world\TerrainGeneration\TreeGenerator.cpp" />
     <ClCompile Include="src\World\SunCameraHelper.cpp" />
     <ClCompile Include="src\abstraction\ComputeShader.cpp" />
+    <ClCompile Include="src\World\Grass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h" />
@@ -48,7 +48,6 @@
     <ClInclude Include="src\abstraction\FrameBufferObject.h" />
     <ClInclude Include="src\abstraction\IndexBufferObject.h" />
     <ClInclude Include="src\abstraction\Inputs.h" />
-    <ClInclude Include="src\abstraction\Renderer.h" />
     <ClInclude Include="src\abstraction\Shader.h" />
     <ClInclude Include="src\abstraction\Texture.h" />
     <ClInclude Include="src\abstraction\TextureAtlas.h" />
@@ -77,7 +76,6 @@
     <ClInclude Include="src\abstraction\Mesh.h" />
     <ClInclude Include="Libraries\include\stb\stb_image_write.h" />
     <ClInclude Include="src\World\Sky.h" />
-    <ClInclude Include="src\Sandbox\Scenes\Test2D.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestTerrain.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestSky.h" />
     <ClInclude Include="src\World\TerrainGeneration\MapUtilities.h" />
@@ -104,6 +102,11 @@
     <ClInclude Include="src\Sandbox\Scenes\TestComputeShader.h" />
     <ClInclude Include="src\Sandbox\Tests.h" />
     <ClInclude Include="src\abstraction\compute.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestInstanced.h" />
+    <ClInclude Include="src\Utils\MathIterators.h" />
+    <ClInclude Include="src\Utils\StringUtils.h" />
+    <ClInclude Include="src\World\Grass.h" />
+    <ClInclude Include="src\abstraction\InstancedRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
@@ -129,5 +132,14 @@
     <None Include="res\shaders\contrast.fs" />
     <None Include="res\shaders\shader.comp" />
     <None Include="res\shaders\sharpness.fs" />
+    <None Include="res\shaders\grass\vote.comp" />
+    <None Include="res\shaders\grass\compact.comp" />
+    <None Include="res\shaders\grass\scan_groups.comp" />
+    <None Include="res\shaders\grass\scan_accumulate.comp" />
+    <None Include="res\shaders\grass\grass.vs" />
+    <None Include="res\shaders\grass\grass.fs" />
+    <None Include="res\shaders\grass\scan_blocks.comp" />
+    <None Include="res\shaders\cubemap.vs" />
+    <None Include="res\shaders\cubemap.fs" />
   </ItemGroup>
 </Project>

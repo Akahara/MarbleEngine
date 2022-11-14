@@ -23,19 +23,16 @@ Sky::Sky()
 {
 }
 
-void Sky::step(float delta)
-{
-}
-
 void Sky::render(const Renderer::Camera &camera, float time) const
 {
-  Renderer::CubemapRenderer::drawCubemap(m_skybox, camera);
+  Renderer::renderCubemap(camera, m_skybox);
   Renderer::SkyRenderer::drawSkyClouds(camera, time);
 }
 
 }
 
 
+// TODO move the sky renderer?
 namespace Renderer::SkyRenderer {
 
 static struct KeepAliveResources {
@@ -46,7 +43,7 @@ static struct KeepAliveResources {
 void init()
 {
   keepAliveResources = new KeepAliveResources;
-  keepAliveResources->planeMesh = Renderer::createPlaneMesh();
+  keepAliveResources->planeMesh = Renderer::createPlaneMesh(true);
 
   keepAliveResources->cloudsShader = Shader(R"glsl(
 #version 330 core

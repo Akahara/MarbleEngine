@@ -23,7 +23,8 @@ public:
   void destroy();
 
   void addBuffer(const VertexBufferObject &vb, const VertexBufferLayout &layout, const IndexBufferObject &ib);
-  void sendToGPU(GLsizeiptr size, const void *data);
+  void addInstanceBuffer(const VertexBufferObject &ivb, const VertexBufferLayout &instanceLayout, const VertexBufferLayout &modelLayout);
+  void sendToGPU(size_t size, const void *data);
 };
 
 }

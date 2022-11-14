@@ -4,13 +4,13 @@
 
 #include "../vendor/imgui/imgui.h"
 
-#include "../abstraction/Renderer.h"
+#include "../abstraction/UnifiedRenderer.h"
 
 class EmptyScene : public Scene {
 public:
   void step(float delta) override {}
   void onRender() override {
-    Renderer::Renderer::clear();
+    Renderer::clear();
   }
   void onImGuiRender() override {}
 };

@@ -2,7 +2,6 @@
 
 #include "../Scene.h"
 
-#include "../../abstraction/Renderer.h"
 #include "../../abstraction/Camera.h"
 #include "../../abstraction/pipeline/VFXPipeline.h"
 
@@ -11,10 +10,7 @@
 #include "../../abstraction/pipeline/GammaCorrection.h"
 #include "../../abstraction/pipeline/Contrast.h"
 
-
-#include "Test2D.h"
 #include "TestTerrain.h"
-
 
 
 class TestFBScene : public Scene {

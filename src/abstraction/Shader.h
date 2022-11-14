@@ -35,6 +35,7 @@ public:
 	void setUniform2f(std::string_view name, float v1, float v2);
 	void setUniform3f(std::string_view name, float v1, float v2, float v3);
 	void setUniform4f(std::string_view name, float v1, float v2, float v3, float v4);
+	void setUniformMat2f(std::string_view name, const glm::mat2 &matrix);
 	void setUniformMat4f(std::string_view name, const glm::mat4 &matrix);
 	void setUniformMat4x3f(std::string_view name, const glm::mat4x3 &matrix);
 	void setUniform2f(std::string_view name, glm::vec2 v) { setUniform2f(name, v.x, v.y); }

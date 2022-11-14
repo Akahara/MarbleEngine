@@ -16,9 +16,13 @@ namespace Renderer {
 static struct KeepAliveResources {
   Shader             standardMeshShader;
   Shader             standardLineShader;
+  Shader             cubemapShader;
   Shader             debugNormalsShader;
   Shader             debugCubeShader;
   Mesh               debugCubeMesh;
+  VertexArray        cubemapVAO;
+  VertexBufferObject cubemapVBO;
+  IndexBufferObject  cubemapIBO;
   VertexArray        lineVAO;
   IndexBufferObject  lineIBO;
   VertexBufferObject emptyVBO; // used by the line vao
@@ -38,33 +42,12 @@ Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentP
   return Shader{ vertexCode, fragmentCode };
 }
 
-Mesh createCubeMesh(unsigned int texId)
+Mesh createCubeMesh()
 {
-  // TODO add UVs
-  float s3 = std::sqrtf(3);
-  std::vector<Vertex> vertices{
-    // position              uv            normal            // tex id          // color
-    { { -.5f, -.5f, -.5f }, { 0.f, 0.f }, { -s3, -s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
-    { { +.5f, -.5f, -.5f }, { 1.f, 0.f }, { +s3, -s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
-    { { +.5f, +.5f, -.5f }, { 1.f, 1.f }, { +s3, +s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
-    { { -.5f, +.5f, -.5f }, { 0.f, 1.f }, { -s3, +s3, -s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
-    { { -.5f, -.5f, +.5f }, { 0.f, 1.f }, { -s3, -s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
-    { { +.5f, -.5f, +.5f }, { 1.f, 1.f }, { +s3, -s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
-    { { +.5f, +.5f, +.5f }, { 1.f, 0.f }, { +s3, +s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f}, },
-    { { -.5f, +.5f, +.5f }, { 0.f, 0.f }, { -s3, +s3, +s3 }, (float)texId, {1.0f, 1.0f, 0.0f} },
-  };
-  std::vector<unsigned int> indices{
-    0, 3, 1, 1, 3, 2,
-    1, 2, 5, 5, 2, 6,
-    5, 6, 4, 4, 6, 7,
-    4, 7, 0, 0, 7, 3,
-    3, 7, 2, 2, 7, 6,
-    4, 0, 5, 5, 0, 1
-  };
-  return Mesh(vertices, indices);
+  return loadMeshFromFile("res/meshes/cube.obj");
 }
 
-Mesh createPlaneMesh()
+Mesh createPlaneMesh(bool facingDown)
 {
   std::vector<Renderer::Vertex> vertices{
     // position             uv            normal (up)
@@ -73,9 +56,8 @@ Mesh createPlaneMesh()
     { { +.5f, 0.f, +.5f }, { 0.f, 0.f }, { 0, 1.f, 0 } },
     { { +.5f, 0.f, -.5f }, { 0.f, 1.f }, { 0, 1.f, 0 } },
   };
-  std::vector<unsigned int> indices{
-    3, 2, 0, 1,0,2
-  };
+  using i = std::initializer_list<unsigned int>;
+  std::vector<unsigned int> indices{ facingDown ? i{1,0,2, 3,2,0} : i{0,1,2, 2,3,0} };
   return Mesh(vertices, indices);
 }
 
@@ -93,19 +75,23 @@ static void skipStreamText(std::istream &stream, const char *text)
 
 Mesh loadMeshFromFile(const fs::path& objPath)
 {
-    std::ifstream modelFile{ objPath };
-    constexpr size_t bufSize = 10000;
-    char lineBuffer[bufSize];
+  std::ifstream modelFile{ objPath };
+  constexpr size_t bufSize = 10000;
+  char lineBuffer[bufSize];
 
-    std::vector<glm::vec3> positions;
-    std::vector<glm::vec3> normals;
-    std::vector<glm::vec2> uvs;
+  std::vector<glm::vec3> positions;
+  std::vector<glm::vec3> normals;
+  std::vector<glm::vec2> uvs;
 
-    uvs.emplace_back();
+  positions.push_back({ 0,0,0 });
+  normals.push_back({ 0,0,0 });
+  uvs.push_back({ 0,0 });
 
-    std::vector<std::tuple<int, int, int>> cachedVertices;
-    std::vector<unsigned int> indices;
-    std::vector<Vertex> vertices;
+  uvs.emplace_back();
+
+  std::vector<std::tuple<int, int, int>> cachedVertices;
+  std::vector<unsigned int> indices;
+  std::vector<Vertex> vertices;
 
   if (!modelFile.good())
     throw std::exception("Could not open model file");
@@ -125,7 +111,7 @@ Mesh loadMeshFromFile(const fs::path& objPath)
     ss.str(lineBuffer + space + 1);
 
     float f1, f2, f3;
-    int i1, i2, i3;
+    int i1=0, i2=0, i3=0;
     if (strstr(lineBuffer, "v ") == lineBuffer) { // vertex
       ss >> f1 >> f2 >> f3;
       positions.push_back({ f1, f2, f3 });
@@ -137,13 +123,15 @@ Mesh loadMeshFromFile(const fs::path& objPath)
       normals.push_back({ f1, f2, f3 });
     } else if (strstr(lineBuffer, "f ") == lineBuffer) { // face
       for (size_t i = 0; i < 3; i++) {
-        ss >> i1; skipStreamText(ss, "/");
-        ss >> i2; skipStreamText(ss, "/"); // TODO fix the case where no uvs are specified
-        ss >> i3;
+        ss >> i1;                      // read vertex
+        skipStreamText(ss, "/");
+        if(ss.peek() != '/') ss >> i2; // read optional uv
+        skipStreamText(ss, "/");
+        ss >> i3;                      // read normal
         std::tuple<int, int, int> cacheKey{ i1, i2, i3 };
         auto inCacheIndex = std::find(cachedVertices.begin(), cachedVertices.end(), cacheKey);
         if (inCacheIndex == cachedVertices.end()) {
-          vertices.emplace_back(positions[i1 - 1ll], uvs[i2 - 1ll], normals[i3 - 1ll]);
+          vertices.emplace_back(positions[i1], uvs[i2], normals[i3]);
           indices.push_back((unsigned int)cachedVertices.size());
           cachedVertices.push_back(cacheKey);
         } else {
@@ -170,6 +158,7 @@ void init()
 
   s_keepAliveResources->standardMeshShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_mesh.fs");
   s_keepAliveResources->standardLineShader = loadShaderFromFiles("res/shaders/standard_line.vs", "res/shaders/standard_color.fs");
+  s_keepAliveResources->cubemapShader = loadShaderFromFiles("res/shaders/cubemap.vs", "res/shaders/cubemap.fs");
   
   s_keepAliveResources->lineIBO = IndexBufferObject({ 0, 1 });
   s_keepAliveResources->lineVAO.addBuffer(s_keepAliveResources->emptyVBO, emptyLayout, s_keepAliveResources->lineIBO);
@@ -177,6 +166,40 @@ void init()
   s_keepAliveResources->debugCubeMesh = createCubeMesh();
   s_keepAliveResources->debugCubeShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_color.fs");
   s_keepAliveResources->debugNormalsShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_color.fs");
+
+  { // cubemap VAO setup
+    float vertices[] = {
+      -.5f, -.5f, -.5f,
+      +.5f, -.5f, -.5f,
+      +.5f, +.5f, -.5f,
+      -.5f, +.5f, -.5f,
+      -.5f, -.5f, +.5f,
+      +.5f, -.5f, +.5f,
+      +.5f, +.5f, +.5f,
+      -.5f, +.5f, +.5f,
+    };
+
+    // expand the box for it to not go outside of orthographic cameras bounding boxes
+    // (this requires all camera to have zFar be at least 25*sqrt(3) to see the full cuboid)
+    for (float &v : vertices)
+      v *= 50.f;
+
+    unsigned int indices[] = {
+      0, 1, 3, 3, 1, 2,
+      1, 5, 2, 2, 5, 6,
+      5, 4, 6, 6, 4, 7,
+      4, 0, 7, 7, 0, 3,
+      3, 2, 7, 7, 2, 6,
+      4, 5, 0, 0, 5, 1
+    };
+
+    s_keepAliveResources->cubemapVBO = VertexBufferObject(vertices, sizeof(vertices));
+    s_keepAliveResources->cubemapIBO = IndexBufferObject(indices, sizeof(indices) / sizeof(indices[0]));
+
+    VertexBufferLayout layout;
+    layout.push<float>(3);
+    s_keepAliveResources->cubemapVAO.addBuffer(s_keepAliveResources->cubemapVBO, layout, s_keepAliveResources->cubemapIBO);
+  }
 
   VertexArray::unbind();
 }
@@ -193,7 +216,7 @@ Shader &getStandardMeshShader()
   return s_keepAliveResources->standardMeshShader;
 }
 
-void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const Camera &camera)
+void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const Mesh &mesh)
 {
   s_debugData.meshCount++;
   s_debugData.vertexCount += mesh.getVertexCount();
@@ -209,7 +232,7 @@ void renderMesh(glm::vec3 position, glm::vec3 size, const Mesh &mesh, const Came
   mesh.draw();
 }
 
-void renderNormalsMesh(glm::vec3 position, glm::vec3 size, const NormalsMesh &normalsMesh, const Camera &camera, const glm::vec4 &color)
+void renderNormalsMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const NormalsMesh &normalsMesh, const glm::vec4 &color)
 {
   s_debugData.meshCount++;
   s_debugData.debugLines += normalsMesh.getVertexCount()/2;
@@ -224,7 +247,20 @@ void renderNormalsMesh(glm::vec3 position, glm::vec3 size, const NormalsMesh &no
   normalsMesh.draw();
 }
 
-void renderDebugLine(const glm::mat4 &VP, glm::vec3 from, glm::vec3 to, const glm::vec4 &color)
+void renderCubemap(const Camera &camera, const Cubemap &cubemap)
+{
+  s_keepAliveResources->cubemapVAO.bind();
+  s_keepAliveResources->cubemapShader.bind();
+  s_keepAliveResources->cubemapShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+  s_keepAliveResources->cubemapShader.setUniform3f("u_displacement", camera.getPosition());
+  cubemap.bind();
+
+  glDepthMask(false); // do not write to depth buffer
+  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+  glDepthMask(true);
+}
+
+void renderDebugLine(const Camera &camera, const glm::vec3 &from, const glm::vec3 &to, const glm::vec4 &color)
 {
   s_debugData.debugLines++;
   s_debugData.vertexCount += 2;
@@ -233,11 +269,11 @@ void renderDebugLine(const glm::mat4 &VP, glm::vec3 from, glm::vec3 to, const gl
   s_keepAliveResources->standardLineShader.setUniform3f("u_from", from);
   s_keepAliveResources->standardLineShader.setUniform3f("u_to", to);
   s_keepAliveResources->standardLineShader.setUniform4f("u_color", color);
-  s_keepAliveResources->standardLineShader.setUniformMat4f("u_VP", VP);
+  s_keepAliveResources->standardLineShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
   glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, nullptr);
 }
 
-void renderDebugCube(const glm::mat4 &VP, glm::vec3 position, glm::vec3 size, const glm::vec4 &color)
+void renderDebugCube(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const glm::vec4 &color)
 {
   glm::mat4 M(1.f);
   M = glm::translate(M, position);
@@ -245,15 +281,15 @@ void renderDebugCube(const glm::mat4 &VP, glm::vec3 position, glm::vec3 size, co
   s_keepAliveResources->debugCubeShader.bind();
   s_keepAliveResources->debugCubeShader.setUniform4f("u_color", color);
   s_keepAliveResources->debugCubeShader.setUniformMat4f("u_M", M);
-  s_keepAliveResources->debugCubeShader.setUniformMat4f("u_VP", VP);
+  s_keepAliveResources->debugCubeShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
   s_keepAliveResources->debugCubeMesh.draw();
 }
 
-void renderDebugAxis(const glm::mat4 &VP)
+void renderDebugAxis(const Camera &camera)
 {
-  renderDebugLine(VP, { 0, 0, 0 }, { 10, 0, 0 }, { 1.f, 0.f, 0.f, 1.f }); // x red
-  renderDebugLine(VP, { 0, 0, 0 }, { 0, 10, 0 }, { 0.f, 1.f, 0.f, 1.f }); // y green
-  renderDebugLine(VP, { 0, 0, 0 }, { 0, 0, 10 }, { 0.f, 0.f, 1.f, 1.f }); // z blue
+  renderDebugLine(camera, { 0, 0, 0 }, { 10, 0, 0 }, { 1.f, 0.f, 0.f, 1.f }); // x red
+  renderDebugLine(camera, { 0, 0, 0 }, { 0, 10, 0 }, { 0.f, 1.f, 0.f, 1.f }); // y green
+  renderDebugLine(camera, { 0, 0, 0 }, { 0, 0, 10 }, { 0.f, 0.f, 1.f, 1.f }); // z blue
 }
 
 
@@ -263,18 +299,18 @@ void renderAABBDebugOutline(const Camera &camera, const AABB &aabb, const glm::v
   glm::vec3 x = { aabb.getSize().x, 0, 0 };
   glm::vec3 y = { 0, aabb.getSize().y, 0 };
   glm::vec3 z = { 0, 0, aabb.getSize().z };
-  renderDebugLine(camera.getViewProjectionMatrix(), o, o + x, color);
-  renderDebugLine(camera.getViewProjectionMatrix(), o + y, o + x + y, color);
-  renderDebugLine(camera.getViewProjectionMatrix(), o + z, o + x + z, color);
-  renderDebugLine(camera.getViewProjectionMatrix(), o + y + z, o + x + y + z, color);
-  renderDebugLine(camera.getViewProjectionMatrix(), o, o + y, color);
-  renderDebugLine(camera.getViewProjectionMatrix(), o + x, o + y + x, color);
-  renderDebugLine(camera.getViewProjectionMatrix(), o + z, o + y + z, color);
-  renderDebugLine(camera.getViewProjectionMatrix(), o + x + z, o + y + x + z, color);
-  renderDebugLine(camera.getViewProjectionMatrix(), o, o + z, color);
-  renderDebugLine(camera.getViewProjectionMatrix(), o + x, o + z + x, color);
-  renderDebugLine(camera.getViewProjectionMatrix(), o + y, o + z + y, color);
-  renderDebugLine(camera.getViewProjectionMatrix(), o + x + y, o + z + x + y, color);
+  renderDebugLine(camera, o, o + x, color);
+  renderDebugLine(camera, o + y, o + x + y, color);
+  renderDebugLine(camera, o + z, o + x + z, color);
+  renderDebugLine(camera, o + y + z, o + x + y + z, color);
+  renderDebugLine(camera, o, o + y, color);
+  renderDebugLine(camera, o + x, o + y + x, color);
+  renderDebugLine(camera, o + z, o + y + z, color);
+  renderDebugLine(camera, o + x + z, o + y + x + z, color);
+  renderDebugLine(camera, o, o + z, color);
+  renderDebugLine(camera, o + x, o + z + x, color);
+  renderDebugLine(camera, o + y, o + z + y, color);
+  renderDebugLine(camera, o + x + y, o + z + x + y, color);
 }
 
 static void renderDebugOrthographicCameraOutline(const Camera &viewCamera, const Camera &outlinedCamera)
@@ -291,23 +327,24 @@ static void renderDebugOrthographicCameraOutline(const Camera &viewCamera, const
   glm::vec3 p3 = pos - I * proj.right - J * proj.top;
   glm::vec3 p4 = pos - I * proj.right + J * proj.top;
 
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + F * zFar, { 1.f, 0.f, .0f, 1.f }); // dir
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + Camera::UP, { 1.f, 1.f, .3f, 1.f }); // world up
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + I, { .5f, 1.f, .5f, 1.f }); // right
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + J, { 1.f, .5f, .5f, 1.f }); // up
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), p1, p1 + F * zFar, { .5f, .5f, .5f, 1.f });
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), p2, p2 + F * zFar, { .5f, .5f, .5f, 1.f });
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), p3, p3 + F * zFar, { .5f, .5f, .5f, 1.f });
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), p4, p4 + F * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera, pos, pos + F * zFar, { 1.f, 0.f, .0f, 1.f }); // dir
+  renderDebugLine(viewCamera, pos, pos + Camera::UP, { 1.f, 1.f, .3f, 1.f }); // world up
+  renderDebugLine(viewCamera, pos, pos + I, { .5f, 1.f, .5f, 1.f }); // right
+  renderDebugLine(viewCamera, pos, pos + J, { 1.f, .5f, .5f, 1.f }); // up
+  renderDebugLine(viewCamera, p1, p1 + F * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera, p2, p2 + F * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera, p3, p3 + F * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera, p4, p4 + F * zFar, { .5f, .5f, .5f, 1.f });
   for (float z = zNear; z < zFar; z += 5) {
-    renderDebugLine(viewCamera.getViewProjectionMatrix(), p1 + z * F, p2 + z * F, { .5f, .5f, .5f, 1.f });
-    renderDebugLine(viewCamera.getViewProjectionMatrix(), p2 + z * F, p3 + z * F, { .5f, .5f, .5f, 1.f });
-    renderDebugLine(viewCamera.getViewProjectionMatrix(), p3 + z * F, p4 + z * F, { .5f, .5f, .5f, 1.f });
-    renderDebugLine(viewCamera.getViewProjectionMatrix(), p4 + z * F, p1 + z * F, { .5f, .5f, .5f, 1.f });
+    renderDebugLine(viewCamera, p1 + z * F, p2 + z * F, { .5f, .5f, .5f, 1.f });
+    renderDebugLine(viewCamera, p2 + z * F, p3 + z * F, { .5f, .5f, .5f, 1.f });
+    renderDebugLine(viewCamera, p3 + z * F, p4 + z * F, { .5f, .5f, .5f, 1.f });
+    renderDebugLine(viewCamera, p4 + z * F, p1 + z * F, { .5f, .5f, .5f, 1.f });
   }
-  renderDebugCube(viewCamera.getViewProjectionMatrix(), pos, { .1f, .1f, .1f });
+  renderDebugCube(viewCamera, pos, { .1f, .1f, .1f });
 }
 
+// this is off by a very small margin, no idea why, propably not worth it to investigate
 static void renderDebugPerspectiveCameraOutline(const Camera &viewCamera, const Camera &outlinedCamera)
 {
   const PerspectiveProjection &proj = outlinedCamera.getProjection<PerspectiveProjection>();
@@ -324,25 +361,25 @@ static void renderDebugPerspectiveCameraOutline(const Camera &viewCamera, const 
   float zNear = proj.zNear;
   float zFar = proj.zFar;
 
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + F * zFar, { 1.f, 0.f, .0f, 1.f }); // dir
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + Camera::UP, { 1.f, 1.f, .3f, 1.f }); // world up
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + I, { .5f, 1.f, .5f, 1.f }); // right
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + J, { 1.f, .5f, .5f, 1.f }); // up
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + U1 * zFar, { .5f, .5f, .5f, 1.f });
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + U2 * zFar, { .5f, .5f, .5f, 1.f });
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + U3 * zFar, { .5f, .5f, .5f, 1.f });
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos, pos + U4 * zFar, { .5f, .5f, .5f, 1.f });
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U1 * zFar, pos + U2 * zFar, { .5f, .5f, .5f, 1.f });
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U2 * zFar, pos + U3 * zFar, { .5f, .5f, .5f, 1.f });
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U3 * zFar, pos + U4 * zFar, { .5f, .5f, .5f, 1.f });
-  renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U4 * zFar, pos + U1 * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera, pos, pos + F * zFar, { 1.f, 0.f, .0f, 1.f }); // dir
+  renderDebugLine(viewCamera, pos, pos + Camera::UP, { 1.f, 1.f, .3f, 1.f }); // world up
+  renderDebugLine(viewCamera, pos, pos + I, { .5f, 1.f, .5f, 1.f }); // right
+  renderDebugLine(viewCamera, pos, pos + J, { 1.f, .5f, .5f, 1.f }); // up
+  renderDebugLine(viewCamera, pos, pos + U1 * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera, pos, pos + U2 * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera, pos, pos + U3 * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera, pos, pos + U4 * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera, pos + U1 * zFar, pos + U2 * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera, pos + U2 * zFar, pos + U3 * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera, pos + U3 * zFar, pos + U4 * zFar, { .5f, .5f, .5f, 1.f });
+  renderDebugLine(viewCamera, pos + U4 * zFar, pos + U1 * zFar, { .5f, .5f, .5f, 1.f });
   for (float z = zNear; z < zFar; z += 5) {
-    renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U1 * z, pos + U2 * z, { .5f, .5f, .5f, 1.f });
-    renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U2 * z, pos + U3 * z, { .5f, .5f, .5f, 1.f });
-    renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U3 * z, pos + U4 * z, { .5f, .5f, .5f, 1.f });
-    renderDebugLine(viewCamera.getViewProjectionMatrix(), pos + U4 * z, pos + U1 * z, { .5f, .5f, .5f, 1.f });
+    renderDebugLine(viewCamera, pos + U1 * z, pos + U2 * z, { .5f, .5f, .5f, 1.f });
+    renderDebugLine(viewCamera, pos + U2 * z, pos + U3 * z, { .5f, .5f, .5f, 1.f });
+    renderDebugLine(viewCamera, pos + U3 * z, pos + U4 * z, { .5f, .5f, .5f, 1.f });
+    renderDebugLine(viewCamera, pos + U4 * z, pos + U1 * z, { .5f, .5f, .5f, 1.f });
   }
-  renderDebugCube(viewCamera.getViewProjectionMatrix(), pos, { .1f, .1f, .1f });
+  renderDebugCube(viewCamera, pos, { .1f, .1f, .1f });
 }
 
 void renderDebugCameraOutline(const Camera &viewCamera, const Camera &outlinedCamera)

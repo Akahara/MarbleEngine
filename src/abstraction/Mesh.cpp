@@ -16,7 +16,6 @@ static const VertexBufferLayout &getVertexBufferLayout()
     l.push<float>(3); // position
     l.push<float>(2); // uv
     l.push<float>(3); // normal
-    l.push<float>(1); // texID
     l.push<float>(3); // color
     return l;
   }();
@@ -105,7 +104,7 @@ NormalsMesh::NormalsMesh(const std::vector<Vertex> &vertices)
     newVertices[2*i+1].position = v.position + v.normal;
   }
   for (size_t i = 0; i < newVertices.size(); i++)
-    newIndices[i] = i;
+    newIndices[i] = (unsigned int)i;
 
   m_VBO = VertexBufferObject(newVertices.data(), sizeof(Vertex) * newVertices.size());
   m_IBO = IndexBufferObject(newIndices.data(), newIndices.size());

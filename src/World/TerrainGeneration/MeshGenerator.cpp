@@ -10,9 +10,10 @@ Terrain::Terrain()
 {
 }
 
-Terrain::Terrain(HeightMap *heightmap)
+Terrain::Terrain(HeightMap *heightmap, unsigned int chunkSize)
   : m_heightMap(heightmap),
-  m_chunks()
+  m_chunks(),
+  m_chunkSize(chunkSize)
 {
 }
 
@@ -20,6 +21,7 @@ Terrain::Terrain(Terrain &&moved) noexcept
 {
   m_heightMap = moved.m_heightMap;
   m_chunks = std::move(moved.m_chunks);
+  m_chunkSize = moved.m_chunkSize;
   moved.m_heightMap = nullptr;
 }
 
@@ -77,9 +79,6 @@ static Renderer::Mesh generateChunkMesh(const HeightMap &heightmap, glm::ivec2 c
           Mathf::rand(chunkPosition.y * 12.523f),
           Mathf::rand(chunkPosition.x * 25.642f + chunkPosition.y * 53.2f),
         };
-
-        vertex.texId = 1; // TODO remove? texID from vertices
-        if (glm::dot(vertex.normal, glm::vec3{ 0.f,1.f,0.f }) > 0.3) vertex.texId = 0;
       }
     }
 
@@ -134,7 +133,7 @@ Terrain generateTerrain(HeightMap *heightMap, unsigned int chunkCountX, unsigned
   assert(heightMap->getMapWidth() >= 3 + chunkCountX * chunkSize);
   assert(heightMap->getMapHeight() >= 3 + chunkCountY * chunkSize);
 
-  Terrain terrain(heightMap);
+  Terrain terrain(heightMap, chunkSize);
     
   for (unsigned int x = 0; x < chunkCountX; x++) {
     for (unsigned int y = 0; y < chunkCountY; y++) {

@@ -104,6 +104,12 @@ void SunCameraHelper::finishSunCameraMovement()
   m_state = HelperState::READY;
 }
 
+bool SunCameraHelper::isBoxVisibleBySun(const AABB &box) const
+{
+  ensureState<HelperState::READY>();
+  return doesAABBOverlapExtendedViewFrustum(box);
+}
+
 bool SunCameraHelper::renderImGuiControls()
   {
   if (ImGui::DragFloat2("Sun yaw&pitch", m_controlSunDir, .025f)) {
@@ -113,7 +119,31 @@ bool SunCameraHelper::renderImGuiControls()
   return false;
 }
 
-bool SunCameraHelper::doesAABBOverlapExtendedViewFrustum(const AABB &aabb)
+bool SunCameraHelper::doesAABBOverlapExtendedViewFrustum(const AABB &aabb) const
 {
-  return true; // TODO
+  // To find an intersection between an aabb and a cuboid extending to infinity in one direction is not an easy task...
+  // the cuboid is defined by the sun's far plane spanning to infinity in direction of the sun's near plane
+  // (remember that the purpose of this method is to find bounding boxes intersecting with this cuboid
+  // to "adjust" (push back) the sun's near plane)
+  
+  // we'll make an approximation: there is an intersection <=> *the bounding sphere of the aabb* intersects with the cuboid
+  BoundingSphere bs = aabb.getBoundingSphere();
+  // the sphere is invariant to rotation, so we only need to project its center
+  glm::vec3 projectedCenter = m_worldToSunProjection * bs.getCenter();
+
+  // another approximation: if the closest point of the sphere to the sun far *plane* (not rect!) is outside of the cuboid, there is no intersection
+  if (projectedCenter.z + bs.getRadius() < m_sunFarK)
+    return false;
+
+  // once the sphere is projected on the far plane a simple circle to rectangle collision detection can be used
+  float dx = glm::abs(projectedCenter.x - m_sunI);
+  float dy = glm::abs(projectedCenter.y - m_sunJ);
+
+  if (dx > m_cameraHalfWidth + bs.getRadius() || dy > m_cameraHalfHeight + bs.getRadius())
+    return false;
+  if (dx <= m_cameraHalfWidth || dy <= m_cameraHalfHeight)
+    return true;
+  float corderDistance = (dx - m_cameraHalfWidth) * (dx - m_cameraHalfWidth) + (dy - m_cameraHalfHeight) * (dy - m_cameraHalfHeight);
+
+  return corderDistance <= bs.getRadius() * bs.getRadius();
 }

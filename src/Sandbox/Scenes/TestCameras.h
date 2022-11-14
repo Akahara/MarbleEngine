@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Scene.h"
-#include "../../abstraction/Renderer.h"
 #include "../../abstraction/Cubemap.h"
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../World/Player.h"
@@ -62,11 +61,11 @@ public:
 
   void onRender() override
   {
-    Renderer::Renderer::clear();
+    Renderer::clear();
     Renderer::Camera &activeCamera = m_players[m_activePlayer].getCamera();
-    Renderer::CubemapRenderer::drawCubemap(m_skybox, activeCamera);
+    Renderer::renderCubemap(activeCamera, m_skybox);
     m_texture1.bind();
-    Renderer::renderMesh({ 0, 0, 0 }, { 1.f, 1.f, 1.f }, m_mesh1, activeCamera);
+    Renderer::renderMesh(activeCamera, { 0, 0, 0 }, { 1.f, 1.f, 1.f }, m_mesh1);
     for (size_t i = 0; i < m_players.size(); i++) {
       if(i != m_activePlayer)
         Renderer::renderDebugCameraOutline(activeCamera, m_players[i].getCamera());
