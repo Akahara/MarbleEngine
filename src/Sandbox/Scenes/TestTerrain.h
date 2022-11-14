@@ -161,15 +161,6 @@ public:
       regenerateTerrain();
     }
 
-    if (ImGui::Button("erode")) {
-        Erosion::Erode(m_terrain.getHeightMap(), 50000);
-        m_terrain = TerrainMeshGenerator::generateTerrain(
-            &m_terrain.getHeightMap(),
-            m_terrainWidthInChunks,
-            m_terrainHeightInChunks,
-            m_chunkSize)
-            ;
-    }
     ImGui::SliderFloat3("Sun position", &m_sun.position[0], -200, 200);
     ImGui::Checkbox("Fly", &m_playerIsFlying);
     ImGui::Checkbox("Render Chunks", &m_renderChunks);
