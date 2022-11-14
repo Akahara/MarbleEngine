@@ -33,12 +33,10 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(Window::getWindowHandle()), true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
-	Renderer::Renderer::init();
     Renderer::SkyRenderer::init();
     Renderer::init();
     SceneManager::init();
 
-    SceneManager::registerScene<Test2DScene>("Test");
     SceneManager::registerScene<TestTerrainScene>("Terrain");
     SceneManager::registerScene<TestSkyScene>("Sky");
     SceneManager::registerScene<TestFBScene>("Framebuffer");
@@ -48,7 +46,7 @@ int main()
     SceneManager::registerScene<TestComputeShader>("Compute Shader");
     SceneManager::registerScene<TestInstancedScene>("Instanced");
 
-    SceneManager::switchToScene(9);
+    SceneManager::switchToScene(8);
 
     //===========================================================//
 

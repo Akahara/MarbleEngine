@@ -5,10 +5,10 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "../Scene.h"
-#include "../../abstraction/Renderer.h"
 #include "../../abstraction/Cubemap.h"
 #include "../../abstraction/Window.h"
 #include "../../abstraction/UnifiedRenderer.h"
+#include "../../abstraction/FrameBufferObject.h"
 #include "../../World/Player.h"
 #include "../../World/SunCameraHelper.h"
 #include "../../Utils/Debug.h"

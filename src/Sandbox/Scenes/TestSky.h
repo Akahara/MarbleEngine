@@ -1,9 +1,9 @@
 #pragma once
 
 #include "../Scene.h"
-#include "../../abstraction/Renderer.h"
 #include "../../World/Player.h"
 #include "../../World/Sky.h"
+#include "../../abstraction/UnifiedRenderer.h"
 
 class TestSkyScene : public Scene {
 private:
@@ -19,7 +19,7 @@ public:
 
   void onRender() override
   {
-    Renderer::Renderer::clear();
+    Renderer::clear();
     m_sky.render(m_player.getCamera(), m_time);
   }
 

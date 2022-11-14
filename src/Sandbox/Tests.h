@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Scenes/Test2D.h"
 #include "Scenes/TestSky.h"
 #include "Scenes/TestTerrain.h"
 #include "Scenes/TestFB.h"

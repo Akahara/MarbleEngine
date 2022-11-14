@@ -6,7 +6,6 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "../../abstraction/UnifiedRenderer.h"
-#include "../../abstraction/Renderer.h"
 #include "../../abstraction/Camera.h"
 #include "../../World/Player.h"
 
@@ -33,7 +32,7 @@ public:
 
   void onRender() override
   {
-    Renderer::Renderer::clear();
+    Renderer::clear();
 
     glm::mat4 M(1.f);
     //M = glm::translate(M, { 0.f, 0.f, 0.f });

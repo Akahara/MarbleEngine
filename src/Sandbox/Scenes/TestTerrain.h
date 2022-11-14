@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Scene.h"
-#include "../../abstraction/Renderer.h"
 #include "../../abstraction/Cubemap.h"
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../abstraction/Mesh.h"
@@ -118,7 +117,7 @@ public:
   {
     Renderer::Camera &renderCamera = (m_isRoguePlayerActive ? m_roguePlayer : m_player).getCamera();
 
-    Renderer::Renderer::clear();
+    Renderer::clear();
     Renderer::renderCubemap(renderCamera, m_skybox);
 
     m_rockTexture.bind(0);

@@ -160,7 +160,6 @@
     <ClCompile Include="src\abstraction\IndexBufferObject.cpp" />
     <ClCompile Include="src\abstraction\Inputs.cpp" />
     <ClCompile Include="src\abstraction\Mesh.cpp" />
-    <ClCompile Include="src\abstraction\Renderer.cpp" />
     <ClCompile Include="src\abstraction\Shader.cpp" />
     <ClCompile Include="src\abstraction\stb_image_impl.cpp" />
     <ClCompile Include="src\abstraction\Texture.cpp" />
@@ -211,7 +210,6 @@
     <ClInclude Include="src\abstraction\pipeline\Tonemapper.h" />
     <ClInclude Include="src\abstraction\pipeline\VFX.h" />
     <ClInclude Include="src\abstraction\pipeline\VFXPipeline.h" />
-    <ClInclude Include="src\abstraction\Renderer.h" />
     <ClInclude Include="src\abstraction\Shader.h" />
     <ClInclude Include="Libraries\include\stb\stb_image_write.h" />
     <ClInclude Include="src\abstraction\Texture.h" />
@@ -221,7 +219,6 @@
     <ClInclude Include="src\abstraction\VertexBufferObject.h" />
     <ClInclude Include="src\abstraction\Window.h" />
     <ClInclude Include="src\Sandbox\Scene.h" />
-    <ClInclude Include="src\Sandbox\Scenes\Test2D.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestCameras.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestComputeShader.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestFB.h" />

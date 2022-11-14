@@ -6,7 +6,6 @@
 #include <glm/gtx/component_wise.hpp>
 
 #include "../Scene.h"
-#include "../../abstraction/Renderer.h"
 #include "../../abstraction/Cubemap.h"
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../World/TerrainGeneration/HeightMap.h"
@@ -64,7 +63,7 @@ public:
 
   void onRender() override
   {
-    Renderer::Renderer::clear();
+    Renderer::clear();
     Renderer::renderCubemap(m_player.getCamera(), m_skybox);
 
     const Renderer::Camera &renderCamera = (m_useRoguePlayer ? m_roguePlayer : m_player).getCamera();
