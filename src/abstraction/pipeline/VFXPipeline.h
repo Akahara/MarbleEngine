@@ -22,21 +22,10 @@ namespace visualEffects {
 
 	class VFXPipeline {
 
+		
 	private:
-
-		struct PipelineContext {
-
-			bool isTargetReady = false;
-			Renderer::FrameBufferObject fbo;
-
-			Renderer::Texture targetTexture;
-			Renderer::Texture originTexture;
-
-			Renderer::Texture depthTexture;
-
-
-
-		} m_context ;
+		
+		PipelineContext m_context ;
 
 		Renderer::BlitPass	m_blitData;
 		std::vector< VFX* > m_effects;
@@ -58,7 +47,6 @@ namespace visualEffects {
 		void setTargetTexture(Renderer::Texture&& texture) {
 				
 				m_context.targetTexture = std::move(texture);
-				m_context.isTargetReady = true;
 			
 		}
 
@@ -133,7 +121,7 @@ namespace visualEffects {
 			for (VFX* effect : m_effects) {
 
 				if (!effect->isEnabled()) continue;
-
+				/*
 				if (effect->getType() == BloomEffect) {
 
 					effect->applyEffect(m_context.originTexture);
@@ -141,8 +129,13 @@ namespace visualEffects {
 					continue;
 
 				}
+				*/
 				// Render the effect
 
+
+				effect->applyEffect(m_context);
+
+				/*
 				m_context.originTexture.bind(0);
 				m_context.fbo.setTargetTexture(m_context.targetTexture);
 			
@@ -151,6 +144,7 @@ namespace visualEffects {
 				effect->applyEffect(m_context.originTexture);
 
 				m_context.fbo.unbind();
+				*/
 
 				// Recycle textures
 				std::swap(m_context.originTexture, m_context.targetTexture);

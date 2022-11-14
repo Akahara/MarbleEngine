@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-class Renderer::Frustum;
+struct Renderer::Frustum;
 
 class WaterSource
 {

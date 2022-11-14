@@ -42,31 +42,21 @@ public:
 	}
 
 
-	virtual void applyEffect(Renderer::Texture& targetTexture) override final {
+	virtual void applyEffect(PipelineContext& context) override final {
 
-		Renderer::Texture targetfinal = Renderer::Texture(Window::getWinWidth(), Window::getWinHeight());
-		m_fboBloom.setTargetTexture(targetfinal);
+		context.fbo.setTargetTexture(context.targetTexture);
 
-		m_renderer.RenderBloomTexture(targetTexture, m_filterRadius, false);
+		m_renderer.RenderBloomTexture(context.originTexture, m_filterRadius, false);
 
 		Renderer::Texture* finalTexture = m_renderer.getFinalBloomTexture();
 
-		Renderer::FrameBufferObject::setViewportToTexture(targetTexture);
+		Renderer::FrameBufferObject::setViewportToTexture(context.targetTexture);
 
-		targetTexture.bind(0);
 		finalTexture->bind(1);
 
-
-		m_fboBloom.bind();
-		m_blitFinal.doBlit(targetTexture, true);
-		m_fboBloom.unbind();
-
-		//m_blitData.doBlit(m_targetfinal);
-
-
-		//Renderer::Texture::writeToFile(targetfinal, "pls1.png");
-		targetTexture = std::move(targetfinal);
-
+		context.fbo.bind();
+		m_blitFinal.doBlit(context.originTexture, true);
+		context.fbo.unbind();
 
 
 

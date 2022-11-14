@@ -27,8 +27,6 @@ struct PointLight  {
 
     int on; // does this work ? yes it does
 
-    
-
     vec3 position;
     
     float constant;

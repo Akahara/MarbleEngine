@@ -15,14 +15,14 @@ public:
         BloomMip(const glm::vec2& res) {
 
             resolution = res;
-            texture = Renderer::Texture(res.x, res.y);
+            texture = Renderer::Texture((unsigned int)res.x, (unsigned int)res.y);
 
         }
 
     };
 private:
 
-    const int m_numberOfMips = 5;
+    const unsigned int m_numberOfMips = 5;
 
     Renderer::Shader m_DownsampleShader = Renderer::loadShaderFromFiles("res/shaders/blit.vs", "res/shaders/bloom/downsampling.fs");
     Renderer::Shader m_UpsampleShader   = Renderer::loadShaderFromFiles("res/shaders/blit.vs", "res/shaders/bloom/upsampling.fs");
@@ -44,7 +44,7 @@ public:
 
         {
             // Generate a mip with half the resolution of the previous mip
-            float coef = std::pow(2, bloomPass+1);
+            double coef = std::pow(2, bloomPass+1);
             BloomMip* mip = new BloomMip{ glm::vec2(Window::getWinWidth() / coef, Window::getWinHeight() / coef) };
             m_mipChain.emplace_back(mip);
         }
@@ -90,7 +90,7 @@ private:
 
             // Set fbo target to new mips texture 
 
-            Renderer::FrameBufferObject::setViewport(mip.resolution.x, mip.resolution.y);//?
+            Renderer::FrameBufferObject::setViewport((unsigned int)mip.resolution.x, (unsigned int)mip.resolution.y);//?
             m_fbo.setTargetTexture(mip.texture);
 
 
@@ -140,7 +140,6 @@ private:
 
     void RenderUpsamples(float filterRadius, bool write=false) 
     {
-        // this does not work
 
         m_blitdata.getShader().bind();
 
@@ -150,7 +149,7 @@ private:
         glBlendFunc(GL_ONE, GL_ONE);
         glBlendEquation(GL_FUNC_ADD);
 
-        for (unsigned int bloomPass = m_mipChain.size() - 1; bloomPass > 0; bloomPass--) {
+        for (size_t bloomPass = m_mipChain.size() - 1; bloomPass > 0; bloomPass--) {
 
 
             BloomMip& mip = *m_mipChain[bloomPass];

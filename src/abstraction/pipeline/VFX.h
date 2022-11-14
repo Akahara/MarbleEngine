@@ -12,11 +12,27 @@
 
 #include "../../vendor/imgui/imgui.h"
 
+
+
 /* Classe mère de tous les effets */
 
 
 namespace visualEffects {
 
+
+struct PipelineContext {
+
+
+	Renderer::FrameBufferObject fbo;
+
+	Renderer::Texture targetTexture;
+	Renderer::Texture originTexture;
+
+	Renderer::Texture depthTexture;
+
+
+
+};
 
 #define EFFECT_CLASS_TYPE(type) virtual EffectType getType() const override {return EffectType::##type;}\
 
@@ -60,9 +76,13 @@ public:
 		m_shaderpath = fs.string();
 	}
 
-	virtual void applyEffect(Renderer::Texture& targetTexture) {
 
-		m_blitData.doBlit(targetTexture, false);
+	virtual void applyEffect(PipelineContext& context) {
+
+		context.fbo.setTargetTexture(context.targetTexture);
+		context.fbo.bind();
+		m_blitData.doBlit(context.originTexture);
+		context.fbo.unbind();
 
 	}
 
