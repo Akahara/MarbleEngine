@@ -7,7 +7,7 @@ GrassChunks::GrassChunks()
 {
 }
 
-GrassChunks::GrassChunks(const TerrainMeshGenerator::Terrain &terrain, glm::ivec2 creationGrassChunk)
+GrassChunks::GrassChunks(const Terrain::Terrain &terrain, glm::ivec2 creationGrassChunk)
   : m_terrain(&terrain), m_currentCameraChunk()
 {
   glGenBuffers(1, &m_hdInstanceBuffer);
@@ -134,7 +134,7 @@ GrassRenderer::GrassRenderer()
 {
 }
 
-GrassRenderer::GrassRenderer(const TerrainMeshGenerator::Terrain &terrain, glm::ivec2 creationGrassChunk)
+GrassRenderer::GrassRenderer(const Terrain::Terrain &terrain, glm::ivec2 creationGrassChunk)
   : m_grassChunks(terrain, creationGrassChunk)
 {
   m_instanceBuffer = Renderer::VertexBufferObject(MAX_BLADE_COUNT_PER_DRAWCALL * sizeof(Grass::GrassInstance));

@@ -35,7 +35,7 @@ Texture::Texture(const std::string &path)
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(localBuffer);
   } else {
-	std::cout << "\nError: Failed to load texture" << std::endl;
+	std::cout << "Error: Failed to load texture '" << path << "'" << std::endl;
 	std::cout << stbi_failure_reason() << std::endl;
 	__debugbreak();
 	stbi_image_free(localBuffer);
@@ -123,7 +123,7 @@ Texture Texture::createTextureFromData(const float *data, int width, int height,
   case 2: dataFormat = GL_RG;  	break;
   case 3: dataFormat = GL_RGB;  break;
   case 4: dataFormat = GL_RGBA; break;
-  default: assert(false);
+  default: throw std::exception("Unreachable");
   }
 
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, dataFormat, GL_FLOAT, data);

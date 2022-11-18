@@ -21,7 +21,7 @@ private:
   Player              m_player, m_roguePlayer;
   bool                m_useRoguePlayer;
   Renderer::Texture   m_texture1;
-  TerrainMeshGenerator::Terrain m_terrain;
+  Terrain::Terrain    m_terrain;
   GrassRenderer       m_grass;
   float               m_time;
 
@@ -38,11 +38,11 @@ public:
     m_player.setRotation(3.14f*3/4.f, 0);
     m_player.updateCamera();
 
-    TerrainMeshGenerator::TerrainData terrainData{};
+    Terrain::TerrainData terrainData{};
     terrainData.scale = 100.f;
     terrainData.octaves = 3;
     terrainData.seed = 0;
-    m_terrain = TerrainMeshGenerator::generateTerrain(
+    m_terrain = Terrain::generateTerrain(
       terrainData,
       CHUNK_COUNT_X, CHUNK_COUNT_Y,
       CHUNK_SIZE

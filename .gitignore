@@ -5,6 +5,7 @@
 
 # Project-specific files
 imgui.ini
+RenderDocConfig.cap
 
 # User-specific files
 *.rsuser

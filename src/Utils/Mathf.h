@@ -10,10 +10,27 @@ namespace Mathf {
 
 static constexpr float PI = glm::pi<float>();
 
-inline int positiveModulo(int i, int n) { return (i % n + n) % n; }
+inline int positiveModulo(int i, int n)
+{
+  return (i % n + n) % n;
+}
 
 template<class T, class S>
-inline T lerp(const T &a, const T &b, const S &x) { return a + (b - a) * x; }
+inline T lerp(const T &a, const T &b, const S &x)
+{
+  return a + (b - a) * x;
+}
+
+template<class T>
+inline T mix(const T &x, const T &xMin, const T &xMax, const T &newMin, const T &newMax)
+{
+  return (x - xMin) / (xMax - xMin) * (newMax - newMin) + newMin;
+}
+
+inline float inverseLerp(float xx, float yy, float value)
+{
+  return (value - xx) / (yy - xx);
+}
 
 inline glm::vec3 unitVectorFromRotation(float yaw, float pitch)
 {

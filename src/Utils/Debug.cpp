@@ -31,6 +31,8 @@ void onImGuiRender()
   Renderer::clearDebugData();
 }
 
-bool renderAABB() { return s_renderAABBs; }
+bool renderAABB() {
+  return s_renderAABBs;
+}
 
 }

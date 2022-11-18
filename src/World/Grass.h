@@ -91,13 +91,13 @@ private:
   std::array<glm::ivec2, HD_CHUNKS.size()> m_hdGrassChunks;
   std::array<glm::ivec2, LD_CHUNKS.size()> m_ldGrassChunks;
   glm::ivec2                               m_currentCameraChunk;
-  const TerrainMeshGenerator::Terrain     *m_terrain;
+  const Terrain::Terrain                  *m_terrain;
   unsigned int                             m_hdInstanceBuffer;
   unsigned int                             m_ldInstanceBuffer;
 
 public:
   GrassChunks();
-  GrassChunks(const TerrainMeshGenerator::Terrain &terrain, glm::ivec2 creationGrassChunk);
+  GrassChunks(const Terrain::Terrain &terrain, glm::ivec2 creationGrassChunk);
   GrassChunks(const GrassChunks &) = delete;
   GrassChunks &operator=(const GrassChunks &) = delete;
   GrassChunks(GrassChunks &&moved) noexcept;
@@ -151,7 +151,7 @@ private:
   };
 public:
   GrassRenderer();
-  GrassRenderer(const TerrainMeshGenerator::Terrain &terrain, glm::ivec2 creationGrassChunk);
+  GrassRenderer(const Terrain::Terrain &terrain, glm::ivec2 creationGrassChunk);
   GrassRenderer(const GrassRenderer &) = delete;
   GrassRenderer& operator=(const GrassRenderer &) = delete;
   GrassRenderer(GrassRenderer &&moved) noexcept;

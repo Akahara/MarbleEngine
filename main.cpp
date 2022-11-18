@@ -46,8 +46,7 @@ int main()
     SceneManager::registerScene<TestComputeShader>("Compute Shader");
     SceneManager::registerScene<TestInstancedScene>("Instanced");
 
-    SceneManager::switchToScene(8);
-    SceneManager::switchToScene(2);
+    SceneManager::switchToScene(1);
 
     //===========================================================//
 

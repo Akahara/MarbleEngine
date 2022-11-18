@@ -11,8 +11,6 @@
 #include "../World/Player.h"
 #include "../Utils/Mathf.h"
 #include "../abstraction/UnifiedRenderer.h"
-#include "TerrainGeneration/MapUtilities.h"
-#include "TerrainGeneration/Noise.h"
 
 namespace World {
 

@@ -1,6 +1,9 @@
 #include "HeightMap.h"
 
 #include "../../Utils/Mathf.h"
+#include "Terrain.h"
+
+namespace Terrain {
 
 HeightMap::HeightMap(unsigned int width, unsigned int height)
   : m_width(width), m_height(height)
@@ -8,6 +11,11 @@ HeightMap::HeightMap(unsigned int width, unsigned int height)
 }
 
 bool HeightMap::isInBounds(int x, int y) const
+{
+  return (x >= 0 && x < (int)m_width) && (y >= 0 && y < (int)m_height);
+}
+
+bool HeightMap::isInBounds(float x, float y) const
 {
   return (x >= 0 && x < (int)m_width) && (y >= 0 && y < (int)m_height);
 }
@@ -27,63 +35,6 @@ float HeightMap::getHeightLerp(float x, float y) const
     y - y1);
 }
 
-ConcreteHeightMap ConcreteHeightMap::normalize(const HeightMap& heightmap) {
-
-    float* values = new float[heightmap.getMapWidth() * heightmap.getMapHeight()];
-
-
-    float max = -INFINITY;
-    float min = INFINITY;
-
-    for (int y = 0; y < heightmap.getMapHeight(); y++) {
-        for (int x = 0; x < heightmap.getMapWidth(); x++) {
-
-            max = std::max(heightmap.getHeight(x, y), max);
-            min = std::min(heightmap.getHeight(x, y), min);
-
-        }
-    }
-
-    float dist = 1.f/(max - min);
-
-    for (int y = 0; y < heightmap.getMapHeight(); y++) {
-        for (int x = 0; x < heightmap.getMapWidth(); x++) {
-
-            float norm = (heightmap.getHeight(x, y) - min) * dist;
-            values[y * heightmap.getMapWidth() + x] = norm;
-
-        }
-    }
-
-    ConcreteHeightMap res = ConcreteHeightMap(heightmap.getMapWidth(), heightmap.getMapHeight(), values);
-    res.max = max;
-    return res; 
-
-
-
-}
-
-ConcreteHeightMap ConcreteHeightMap::scale(const ConcreteHeightMap& heightmap, float scale) {
-
-    int mapWidth = heightmap.getMapWidth();
-    float* values = new float[mapWidth * heightmap.getMapHeight()];
-
-
-    for (int y = 0; y < heightmap.getMapHeight(); y++) {
-        for (int x = 0; x < heightmap.getMapWidth(); x++) {
-
-            values[y* mapWidth + x] = heightmap.getHeight(x, y) * scale;
-
-        }
-    }
-
-    ConcreteHeightMap res = ConcreteHeightMap(heightmap.getMapWidth(), heightmap.getMapHeight(), values);
-    return res; 
-
-
-}
-
-//==========================================================================================================================================//
 ConcreteHeightMap::ConcreteHeightMap()
   : HeightMap(0, 0), m_heightValues(nullptr)
 {
@@ -93,7 +44,6 @@ ConcreteHeightMap::ConcreteHeightMap(unsigned int width, unsigned int height, fl
   : HeightMap(width, height), m_heightValues(heights)
 {
 }
-    
 
 ConcreteHeightMap::ConcreteHeightMap(ConcreteHeightMap &&moved) noexcept
   : HeightMap(moved.getMapWidth(), moved.getMapHeight())
@@ -129,6 +79,21 @@ ConcreteHeightMap::~ConcreteHeightMap()
   delete[] m_heightValues;
 }
 
+ConcreteHeightMap ConcreteHeightMap::extractConcreteMap(const HeightMap &from, glm::vec2 extractedOrigin, glm::vec2 extractedSize, glm::uvec2 extractionSize)
+{
+  assert(from.isInBounds(extractedOrigin.x, extractedOrigin.y));
+  assert(from.isInBounds(extractedOrigin.x + extractedSize.x, extractedOrigin.y + extractedSize.y));
+  unsigned int w = extractionSize.x;
+  unsigned int h = extractionSize.x;
+  float *heights = new float[w*h];
+  for (size_t y = 0; y < h; y++) {
+    for (size_t x = 0; x < w; x++) {
+      heights[x + y * w] = from.getHeightLerp((float)x/(w-1)*extractedSize.x + extractedOrigin.x, (float)y/(h-1)*extractedSize.y + extractedOrigin.y);
+    }
+  }
+  return ConcreteHeightMap{ w, h, heights };
+}
+
 void ConcreteHeightMap::setHeights(unsigned int width, unsigned int height, float *heights)
 {
   delete[] m_heightValues;
@@ -144,22 +109,4 @@ float ConcreteHeightMap::getHeight(int x, int y) const
   return m_heightValues[x + y * m_width];
 }
 
-const float *ConcreteHeightMap::getBackingArray() const
-{
-  return m_heightValues;
-}
-
-HeightMapView::HeightMapView(const HeightMap &originMap, const glm::ivec2 &origin, const glm::ivec2 &size)
-  : HeightMap(size.x, size.y),
-  m_originMap(&originMap),
-  m_originPoint(origin)
-{
-  assert(originMap.isInBounds(origin.x, origin.y));
-  assert(originMap.isInBounds(origin.x + size.x-1, origin.y + size.y-1));
-}
-
-float HeightMapView::getHeight(int x, int y) const
-{
-  assert(isInBounds(x, y));
-  return m_originMap->getHeight(m_originPoint.x + x, m_originPoint.y + y);
-}
+} // !namespace Terrain
