@@ -18,6 +18,9 @@ static struct KeepAliveResources {
   Shader             standardLineShader;
   Shader             cubemapShader;
   Shader             debugNormalsShader;
+
+  Shader             debugFlatScreenShader;
+
   Shader             debugCubeShader;
   Mesh               debugCubeMesh;
   VertexArray        cubemapVAO;
@@ -49,12 +52,12 @@ Mesh createCubeMesh()
 
 Mesh createPlaneMesh(bool facingDown)
 {
-  std::vector<Renderer::Vertex> vertices{
-    // position             uv            normal (up)
-    { { -.5f, 0.f, -.5f }, { 1.f, 1.f }, { 0, 1.f, 0 } },
-    { { -.5f, 0.f, +.5f }, { 1.f, 0.f }, { 0, 1.f, 0 } },
-    { { +.5f, 0.f, +.5f }, { 0.f, 0.f }, { 0, 1.f, 0 } },
-    { { +.5f, 0.f, -.5f }, { 0.f, 1.f }, { 0, 1.f, 0 } },
+  std::vector<Vertex> vertices{
+    // position             uv            normal (up)         // color
+    { { -.5f, 0.f, -.5f }, { 1.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+    { { -.5f, 0.f, +.5f }, { 1.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, 0.f, +.5f }, { 0.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, 0.f, -.5f }, { 0.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
   };
   using i = std::initializer_list<unsigned int>;
   std::vector<unsigned int> indices{ facingDown ? i{1,0,2, 3,2,0} : i{0,1,2, 2,3,0} };
@@ -166,6 +169,7 @@ void init()
   s_keepAliveResources->debugCubeMesh = createCubeMesh();
   s_keepAliveResources->debugCubeShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_color.fs");
   s_keepAliveResources->debugNormalsShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_color.fs");
+  s_keepAliveResources->debugFlatScreenShader = loadShaderFromFiles("res/shaders/debugFlatScreen.vs", "res/shaders/debugFlatScreen.fs");
 
   { // cubemap VAO setup
     float vertices[] = {
@@ -225,7 +229,6 @@ void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3
   M = glm::translate(M, position);
   M = glm::scale(M, size);
   s_keepAliveResources->standardMeshShader.bind();
-
   s_keepAliveResources->standardMeshShader.setUniform3f("u_cameraPos", camera.getPosition());
   s_keepAliveResources->standardMeshShader.setUniformMat4f("u_M", M);
   s_keepAliveResources->standardMeshShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
@@ -391,6 +394,35 @@ void renderDebugCameraOutline(const Camera &viewCamera, const Camera &outlinedCa
   }
 }
 
+
+void renderDebugGUIQuadWithTexture(const Camera& camera, const Texture& texture, glm::vec2 positionOnScreen, glm::vec2 size)
+{
+    // TODO store a plane mesh in a static variable and rotate,translate&scale at each call
+    std::vector<Vertex> vertices{
+        // position                                                          uv            normal (up)    color
+        { { positionOnScreen.x,          positionOnScreen.y,          0.f }, { 1.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+        { { positionOnScreen.x,          positionOnScreen.y + size.y, 0.f }, { 1.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+        { { positionOnScreen.x + size.x, positionOnScreen.y + size.y, 0.f }, { 0.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+        { { positionOnScreen.x + size.x, positionOnScreen.y,          0.f }, { 0.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+    };
+
+    std::vector<unsigned int> indices{
+      3, 2, 0, 1,0,2
+    };
+
+    Mesh gui{ vertices, indices };
+
+    s_keepAliveResources->debugFlatScreenShader.bind();
+    texture.bind(0);
+    s_keepAliveResources->debugFlatScreenShader.setUniform1i("u_texture", 0);
+    gui.draw();
+
+}
+
+//=========================================================================================================================//
+//=========================================================================================================================//
+//=========================================================================================================================//
+//=========================================================================================================================//
 BlitPass::BlitPass()
   : BlitPass("res/shaders/blit.fs")
 {

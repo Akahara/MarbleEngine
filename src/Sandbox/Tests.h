@@ -8,3 +8,4 @@
 #include "Scenes/TestCameras.h"
 #include "Scenes/TestComputeShader.h"
 #include "Scenes/TestInstanced.h"
+#include "Scenes/TestWater.h"

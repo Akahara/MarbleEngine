@@ -105,6 +105,9 @@
     <ClInclude Include="src\abstraction\InstancedRenderer.h" />
     <ClInclude Include="src\World\TerrainGeneration\Terrain.h" />
     <ClInclude Include="src\World\TerrainGeneration\HeightMap.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestWater.h" />
+    <ClInclude Include="src\world\Water\WaterSource.h" />
+    <ClInclude Include="src\world\Water\WaterRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
@@ -139,5 +142,9 @@
     <None Include="res\shaders\grass\scan_blocks.comp" />
     <None Include="res\shaders\cubemap.vs" />
     <None Include="res\shaders\cubemap.fs" />
+    <None Include="res\shaders\water.fs" />
+    <None Include="res\shaders\water.vs" />
+    <None Include="res\shaders\debugFlatScreen.vs" />
+    <None Include="res\shaders\debugFlatScreen.fs" />
   </ItemGroup>
 </Project>

@@ -62,6 +62,8 @@ void Player::step(float delta)
     updateCamera();
 }
 
+
+
 void Player::updateCamera()
 {
   m_camera.setPosition(m_position);

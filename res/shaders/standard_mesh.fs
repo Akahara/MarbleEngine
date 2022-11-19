@@ -7,11 +7,11 @@ in vec3 o_normal;
 in vec3 o_pos;
 in vec3 o_color;
 
-uniform vec3 u_SunPos;
-uniform float u_Strength;
-uniform int u_RenderChunks;
+uniform float u_Strength = 1.25f;
+uniform int u_RenderChunks = 0;
 uniform vec3 u_cameraPos;
-uniform vec2 u_grassSteepness;
+uniform vec3 u_SunPos = vec3(1000.f);
+uniform vec2 u_grassSteepness = vec2(0.015f);
 
 uniform sampler2D u_Textures2D[8];
 
