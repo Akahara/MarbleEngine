@@ -98,7 +98,7 @@ Frustum Frustum::createFrustumFromPerspectiveCamera(const Camera &cam)
   return createFrustumFromCamera(cam, proj.aspect, proj.fovy, proj.zNear, proj.zFar);
 }
 
-bool Frustum::isOnFrustum(const AABB &boudingBox)
+bool Frustum::isOnFrustum(const AABB &boudingBox) const
 {
   return (
     isOnOrForwardPlan(leftFace,   boudingBox) &&

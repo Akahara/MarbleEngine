@@ -119,7 +119,7 @@ struct Frustum {
     Plan farFace;
     Plan nearFace;
 
-    bool isOnFrustum(const AABB &boudingBox);
+    bool isOnFrustum(const AABB &boudingBox) const;
     
     static Frustum createFrustumFromCamera(const Camera &cam, float aspect, float fovY, float zNear, float zFar);
     static Frustum createFrustumFromPerspectiveCamera(const Camera &cam);

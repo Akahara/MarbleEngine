@@ -261,6 +261,8 @@ void renderCubemap(const Camera &camera, const Cubemap &cubemap)
   glDepthMask(false); // do not write to depth buffer
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
   glDepthMask(true);
+
+  VertexArray::unbind();
 }
 
 void renderDebugLine(const Camera &camera, const glm::vec3 &from, const glm::vec3 &to, const glm::vec4 &color)

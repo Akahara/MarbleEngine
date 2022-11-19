@@ -7,16 +7,16 @@ in vec3 o_normal;
 in vec3 o_pos;
 in vec3 o_color;
 
-uniform float u_Strength = 1.25f;
-uniform int u_RenderChunks = 0;
-uniform vec3 u_cameraPos;
-uniform vec3 u_SunPos = vec3(1000.f);
-uniform vec2 u_grassSteepness = vec2(0.015f);
-
 uniform sampler2D u_Textures2D[8];
 
+uniform float u_Strength = 1.25f;
+uniform vec3 u_SunPos = vec3(1000.f);
+uniform int  u_RenderChunks = 0;
+uniform vec2 u_grassSteepness = vec2(0.015f);
 uniform vec3 u_fogColor = vec3(.71, .86, 1.);
 uniform vec3 u_fogDamping = vec3(.001, .001, .001);
+
+uniform vec3 u_cameraPos;
 
 void main()
 {
