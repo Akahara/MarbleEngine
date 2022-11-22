@@ -41,7 +41,7 @@ Vous pouvez voir que notre pipeline contient une liste de *VFX*. Cette classe ab
 
 Pour l'instant, libre à l'utilisateur de choisir quels effets il ajoute dans sa scène parmi ceux que nous avons implémenté, et libre à lui de choisir l'ordre dans lequel il les ajoute. Mais il y a un problème.
 
-> **L'ordre d'application des effets a un important.** 
+> **L'ordre d'application des effets a une importance.** 
 
 Si j'ai un  pixel *P = (0.5 , 1 , 0 , 1)* , que je procède à une inversion des couleurs, soit *1-P*, puis que j'ajoute du bleu, on obtient *P' = (0.5, 0, 1, 1)*, alors que dans l'autre sens, on a *P'' = (0.5, 0, 0, 1)*.
 
