@@ -44,6 +44,24 @@ namespace visualEffects {
 
 		}
 
+
+		template<typename T> 
+		void addContextParam(const T& param, const std::string& name) {
+			m_context.m_params[name] =  (void*)(&param);
+		}
+		
+		/* GETS AND SETS */
+		template<typename T>
+		T& getContextParam(const std::string& key) {
+			return *(T*)m_context.m_params.at(key);
+		}
+
+		template<typename T>
+		void setContextParam(const std::string& key, const T& value) {
+			m_context.m_params[key] =(void*) & value;
+		}
+
+
 		void setTargetTexture(Renderer::Texture&& texture) {
 				
 				m_context.targetTexture = std::move(texture);
@@ -94,7 +112,7 @@ namespace visualEffects {
 		
 		void sortPipeline() {
 
-			std::array<int, 7> indicies = { -1, -1, -1, -1, -1, -1, -1 };
+			std::array<int, 9> indicies = { -1, -1, -1, -1, -1, -1, -1 ,-1,-1};
 			std::vector<VFX*> temp;
 
 			int index = 0;

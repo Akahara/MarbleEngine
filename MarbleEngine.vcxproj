@@ -204,7 +204,9 @@
     <ClInclude Include="src\abstraction\pipeline\Bloom.h" />
     <ClInclude Include="src\abstraction\pipeline\bloom\BloomFBO.h" />
     <ClInclude Include="src\abstraction\pipeline\bloom\BloomRenderer.h" />
+    <ClInclude Include="src\abstraction\pipeline\LensMask.h" />
     <ClInclude Include="src\abstraction\pipeline\Contrast.h" />
+    <ClInclude Include="src\abstraction\pipeline\DOF.h" />
     <ClInclude Include="src\abstraction\pipeline\GammaCorrection.h" />
     <ClInclude Include="src\abstraction\pipeline\Saturation.h" />
     <ClInclude Include="src\abstraction\pipeline\Sharpness.h" />
@@ -277,6 +279,7 @@
     <None Include="res\shaders\debugFlatScreen.fs" />
     <None Include="res\shaders\debugFlatScreen.vs" />
     <None Include="res\shaders\gammacorrection.fs" />
+    <None Include="res\shaders\lensmask.fs" />
     <None Include="res\shaders\saturation.fs" />
     <None Include="res\shaders\shader.comp" />
     <None Include="res\shaders\shadows.fs" />

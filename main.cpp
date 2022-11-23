@@ -39,18 +39,18 @@ int main()
     Renderer::init();
     SceneManager::init();
 
-    SceneManager::registerScene<Test2DScene>("Test");                       // 1
-    SceneManager::registerScene<TestTerrainScene>("Terrain");               // 2
-    SceneManager::registerScene<TestSkyScene>("Sky");                       // 3
-    SceneManager::registerScene<TestFBScene>("Framebuffer");                // 4
-    SceneManager::registerScene<TestShadersScene>("Shaders");               // 5
-    SceneManager::registerScene<TestShadowsScene>("Shadows");               // 6
-    SceneManager::registerScene<TestCamerasScene>("Cameras");               // 7
-    SceneManager::registerScene<TestComputeShader>("Compute Shader");       // 8
-    SceneManager::registerScene<TestWater>("Water");                        // 9
-    SceneManager::registerScene<TestBloomScene>("Bloom");                   // 10
+    SceneManager::registerScene<Test2DScene>        ("Test");                   // 1
+    SceneManager::registerScene<TestTerrainScene>   ("Terrain");                // 2
+    SceneManager::registerScene<TestSkyScene>       ("Sky");                    // 3
+    SceneManager::registerScene<TestFBScene>        ("Framebuffer");            // 4
+    SceneManager::registerScene<TestShadersScene>   ("Shaders");                // 5
+    SceneManager::registerScene<TestShadowsScene>   ("Shadows");                // 6
+    SceneManager::registerScene<TestCamerasScene>   ("Cameras");                // 7
+    SceneManager::registerScene<TestComputeShader>  ("Compute Shader");         // 8
+    SceneManager::registerScene<TestWater>          ("Water");                  // 9
+    SceneManager::registerScene<TestBloomScene>     ("Bloom");                  // 10
 
-    SceneManager::switchToScene(10);
+    SceneManager::switchToScene(2);
 
     //===========================================================//
 

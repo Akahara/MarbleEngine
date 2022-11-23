@@ -111,6 +111,8 @@
     <ClInclude Include="src\abstraction\pipeline\bloom\BloomRenderer.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestBloom.h" />
     <ClInclude Include="src\world\Light\Light.h" />
+    <ClInclude Include="src\abstraction\pipeline\DOF.h" />
+    <ClInclude Include="src\abstraction\pipeline\LensMask.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
@@ -144,5 +146,6 @@
     <None Include="res\shaders\bloom\upsampling.fs" />
     <None Include="res\shaders\bloom\hdr.fs" />
     <None Include="res\shaders\bloom\finalBloom.fs" />
+    <None Include="res\shaders\lensmask.fs" />
   </ItemGroup>
 </Project>

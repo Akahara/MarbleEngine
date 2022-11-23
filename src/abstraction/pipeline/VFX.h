@@ -29,8 +29,15 @@ struct PipelineContext {
 	Renderer::Texture originTexture;
 
 	Renderer::Texture depthTexture;
+	
+	std::map<std::string, void*> m_params;
 
+	template<typename T>
+	T& getContextParam(const std::string& key) {
+		return *(T*)m_params[key];
+	}
 
+	//std::unordered_map<>
 
 };
 
@@ -39,12 +46,14 @@ struct PipelineContext {
 	enum EffectType {
 		na=-1,
 		BloomEffect,
+		DOFEffect,
 		ContrastEffect,
 		SaturationEffect,
 		SharpnessEffect,
 		SBFEffect,
 		GammaCorrectionEffect,
-		TonemapperEffect
+		TonemapperEffect,
+		LensMaskEffect
 	} ;
 
 
@@ -67,7 +76,7 @@ public:
 	}
 	VFX(const std::string& name = "N/A")
 		: m_name(name)
-		, m_isEnabled(true)
+		, m_isEnabled(false)
 		
 	{}
 

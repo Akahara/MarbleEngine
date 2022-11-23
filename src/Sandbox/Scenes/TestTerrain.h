@@ -113,6 +113,7 @@ public:
 
   void step(float delta) override
   {
+      camera = m_player.getCamera();
       realTime += delta;
       (m_isRoguePlayerActive ? m_roguePlayer : m_player).step(delta);
       if (!m_playerIsFlying) {
