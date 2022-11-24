@@ -54,7 +54,11 @@ void SunCameraHelper::ensureCanReceiveShadows(const AABB &box)
 void SunCameraHelper::prepareSunCameraCasting()
 {
   ensureState<HelperState::RECEIVING_BOXES>();
-  assert(m_minReceivingPoint.x < m_maxReceivingPoint.x); // No receiving boxes specified
+
+  if (m_minReceivingPoint.x > m_maxReceivingPoint.x) {
+    // No receiving boxes specified, add a dummy one
+    ensureCanReceiveShadows(AABB({ 1000,1000,1000 }, { 1,1,1 }));
+  }
 
   m_sunI = (m_maxReceivingPoint.x + m_minReceivingPoint.x) * .5f;
   m_sunJ = (m_maxReceivingPoint.y + m_minReceivingPoint.y) * .5f;

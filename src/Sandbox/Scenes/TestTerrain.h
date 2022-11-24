@@ -12,6 +12,10 @@
 #include "../../Utils/AABB.h"
 #include "../Scenes/TestShadows.h"
 
+#ifndef NDEBUG
+#define NDEBUG 0
+#endif
+
 class TestTerrainScene : public Scene {
 
 
@@ -72,6 +76,7 @@ public:
     int samplers[8] = { 0,1,2,3,4,5,6,7 };
     Renderer::getStandardMeshShader().bind();
     Renderer::getStandardMeshShader().setUniform1iv("u_Textures2D", 8, samplers);
+    Renderer::getStandardMeshShader().setUniform1i("u_castShadows", 0);
 
     regenerateTerrain();
 

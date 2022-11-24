@@ -435,11 +435,11 @@ BlitPass::BlitPass(const fs::path &fragmentShaderPath)
   m_shader = loadShaderFromFiles("res/shaders/blit.vs", fragmentShaderPath);
   m_keepAliveIBO = IndexBufferObject({ 0, 2, 1, 3, 2, 0 });
   m_vao.addBuffer(m_keepAliveVBO, VertexBufferLayout{}, m_keepAliveIBO);
+  VertexArray::unbind();
 }
 
 void BlitPass::doBlit(const Texture &renderTexture, bool bindRenderTexture/*=true*/)
 {
-  glDisable(GL_DEPTH_TEST);
   Renderer::clear();
   if (bindRenderTexture)
       renderTexture.bind();
@@ -450,7 +450,6 @@ void BlitPass::doBlit(const Texture &renderTexture, bool bindRenderTexture/*=tru
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
   Texture::unbind();
   VertexArray::unbind();
-  glEnable(GL_DEPTH_TEST);
 }
 
 
