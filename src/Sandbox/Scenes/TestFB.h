@@ -14,7 +14,6 @@
 #include "../../abstraction/pipeline/Contrast.h"
 
 
-#include "Test2D.h"
 #include "TestTerrain.h"
 
 

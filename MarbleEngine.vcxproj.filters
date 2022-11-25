@@ -77,7 +77,6 @@
     <ClInclude Include="src\abstraction\Mesh.h" />
     <ClInclude Include="Libraries\include\stb\stb_image_write.h" />
     <ClInclude Include="src\World\Sky.h" />
-    <ClInclude Include="src\Sandbox\Scenes\Test2D.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestTerrain.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestSky.h" />
     <ClInclude Include="src\World\TerrainGeneration\MapUtilities.h" />
@@ -113,6 +112,7 @@
     <ClInclude Include="src\world\Light\Light.h" />
     <ClInclude Include="src\abstraction\pipeline\DOF.h" />
     <ClInclude Include="src\abstraction\pipeline\LensMask.h" />
+    <ClInclude Include="src\abstraction\pipeline\Flares.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
@@ -147,5 +147,7 @@
     <None Include="res\shaders\bloom\hdr.fs" />
     <None Include="res\shaders\bloom\finalBloom.fs" />
     <None Include="res\shaders\lensmask.fs" />
+    <None Include="res\shaders\flare.vs" />
+    <None Include="res\shaders\flare.fs" />
   </ItemGroup>
 </Project>

@@ -5,7 +5,6 @@ out vec4 color;
 in vec2 o_uv;
 
 uniform sampler2D u_mask;
-uniform sampler2D u_flare;
 
 uniform sampler2D u_texture;
 
@@ -28,8 +27,6 @@ void main()
 
     mask.a *= 0.4;
     color.rgb += mix(vec3(0), mask.rgb, mask.a * (view+1.F)/2.F);
-    color += texture(u_flare, o_uv);
-    
     //color.a = 1;
 
 }

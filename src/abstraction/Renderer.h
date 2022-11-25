@@ -25,9 +25,8 @@ public:
   static void endBatch();
   static void flush();
 
-  static void drawQuad(const glm::vec3 &position, const glm::vec2 &size, const glm::vec4 &colors);
-  static void drawQuad(const glm::vec3 &position, const glm::vec2 &size, const std::shared_ptr<Texture> &texture, const glm::vec4 &colors = { 1.0f, 1.0f, 1.0f, 1.0f });
-  static void drawQuadFromAtlas(const glm::vec3 &position, const glm::vec2 &size, const TextureAtlas &texture, int x, int y, const glm::vec4 &colors = { 1.0f,1.0f,1.0f,1.0f });
+  static void drawQuad(const glm::vec2& position, const glm::vec2& size, const Texture& texture);
+ 
 };
 
 }

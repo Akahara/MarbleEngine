@@ -17,7 +17,15 @@ public:
   ~Texture();
   Texture(Texture &&moved) noexcept;
   Texture &operator=(Texture &&moved) noexcept;
-  Texture &operator=(const Texture &) = delete;
+  Texture& operator=(const Texture& other) 
+  { 
+
+		m_RendererID = other.m_RendererID;
+		m_width = other.m_width; 
+		m_height = other.m_height;
+		return *this;
+
+  }
   Texture(const Texture &) = delete;
 
   void bind(unsigned int slot = 0) const;

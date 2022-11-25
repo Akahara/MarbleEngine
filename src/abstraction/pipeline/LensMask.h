@@ -1,5 +1,6 @@
 #pragma once
 #include "VFX.h"
+#include "Flares.h"
 
 namespace visualEffects {
 
@@ -10,14 +11,15 @@ namespace visualEffects {
 
 		float m_transparency;
 		Renderer::Texture m_mask {"res/textures/dirtmask.png"};
-		Renderer::Texture m_flare {"res/textures/flare.png"};
+		FlareManager m_fManager;
 
 	public:
 
 
 		LensMask()
-			: VFX("LensMask")
+			: VFX("LensMask"), m_transparency(0.5f)
 		{
+			m_isEnabled = true;
 			setFragmentShader("res/shaders/lensmask.fs");
 		}
 
@@ -29,7 +31,6 @@ namespace visualEffects {
 
 			context.fbo.bind();
 			m_mask.bind(1);
-			m_flare.bind(2);
 			glm::vec3 sunPos = context.getContextParam<glm::vec3>("sunPos");
 			Renderer::Camera camera = context.getContextParam<Renderer::Camera>("camera");
 
@@ -37,13 +38,14 @@ namespace visualEffects {
 
 			m_blitData.getShader().bind();
 			m_blitData.getShader().setUniform1i("u_mask", 1);
-			m_blitData.getShader().setUniform1i("u_flare", 2);
 			m_blitData.getShader().setUniform3f("u_sunPos", sunPos);
 			m_blitData.getShader().setUniform3f("u_camForward", camera.getForward());
 			glm::vec4 clip = camera.getViewProjectionMatrix() * glm::vec4(sunPos+camera.getPosition(), 1);
 			glm::vec2 screenspace = ((clip / clip.w) + 1.F) * 0.5F;
 			m_blitData.getShader().setUniform2f("u_sunScreenSpace", screenspace);
 			m_blitData.doBlit(context.originTexture);
+			m_fManager.render(screenspace, camera);
+
 
 			context.fbo.unbind();
 

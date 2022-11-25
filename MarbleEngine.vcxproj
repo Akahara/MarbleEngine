@@ -204,6 +204,7 @@
     <ClInclude Include="src\abstraction\pipeline\Bloom.h" />
     <ClInclude Include="src\abstraction\pipeline\bloom\BloomFBO.h" />
     <ClInclude Include="src\abstraction\pipeline\bloom\BloomRenderer.h" />
+    <ClInclude Include="src\abstraction\pipeline\Flares.h" />
     <ClInclude Include="src\abstraction\pipeline\LensMask.h" />
     <ClInclude Include="src\abstraction\pipeline\Contrast.h" />
     <ClInclude Include="src\abstraction\pipeline\DOF.h" />
@@ -223,7 +224,6 @@
     <ClInclude Include="src\abstraction\VertexBufferObject.h" />
     <ClInclude Include="src\abstraction\Window.h" />
     <ClInclude Include="src\Sandbox\Scene.h" />
-    <ClInclude Include="src\Sandbox\Scenes\Test2D.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestBloom.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestCameras.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestComputeShader.h" />
@@ -278,6 +278,8 @@
     <None Include="res\shaders\contrast.fs" />
     <None Include="res\shaders\debugFlatScreen.fs" />
     <None Include="res\shaders\debugFlatScreen.vs" />
+    <None Include="res\shaders\flare.fs" />
+    <None Include="res\shaders\flare.vs" />
     <None Include="res\shaders\gammacorrection.fs" />
     <None Include="res\shaders\lensmask.fs" />
     <None Include="res\shaders\saturation.fs" />

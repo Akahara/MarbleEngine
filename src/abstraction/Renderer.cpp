@@ -41,15 +41,15 @@ struct RendererData {
 
 	std::shared_ptr<Shader>					QuadShader;
 
-	std::shared_ptr<Texture>		WhiteTexture;
+	std::shared_ptr<Texture>				WhiteTexture;
 
 	unsigned int IndexCount = 0;
+	unsigned int TextureSlotIndex = 1;
 
 	Vertex* QuadBuffer = nullptr;
 	Vertex* QuadBufferPtr = nullptr;
 
-	std::array<std::shared_ptr<Texture>, MaxTextures> TextureSlots;
-	unsigned int TextureSlotIndex = 1;
+	std::array<Texture, MaxTextures> TextureSlots;
 
 	bool isBatching = false;
 
@@ -112,9 +112,6 @@ namespace Renderer {
 			{
 				int index = int(v_TexIndex);
 				color = texture(u_Textures[index], v_TexCoord) * v_Color;
-				//float sample = (color.x+color.y+color.z)/3;
-				//color = vec4(sample, sample, sample, 1);
-				color.rgb = vec3(color.r); // the perlin noise texture contains a red channel only !
 				color.a = 1;
 			};
 		)glsl";
@@ -157,11 +154,9 @@ namespace Renderer {
 		s_RendererData.QuadVA->unbind();
 
 		s_RendererData.WhiteTexture = std::make_shared<Texture>("whitePixel.png");
-		s_RendererData.TextureSlots[0] = s_RendererData.WhiteTexture;
 
-
-		GLint samplers[8] = { 0,1,2,3,4,5,6,7 };
-		s_RendererData.QuadShader->setUniform1iv("u_Textures", 8, samplers);
+		GLint samplers[12] = { 0,1,2,3,4,5,6,7,8,9,10,11};
+		s_RendererData.QuadShader->setUniform1iv("u_Textures", 12, samplers);
 		
 	}
 
@@ -171,12 +166,13 @@ namespace Renderer {
 	}
 
 	void Renderer::beginBatch(const Camera& camera) {
-
+		
 		s_RendererData.QuadShader->bind();
 		s_RendererData.QuadShader->setUniformMat4f("u_MVP", camera.getViewProjectionMatrix());
 		s_RendererData.QuadBufferPtr = s_RendererData.QuadBuffer;
 
 		s_RendererData.isBatching = true;
+		
 
 	}
 	void Renderer::endBatch() {
@@ -199,7 +195,7 @@ namespace Renderer {
 		
 		for (unsigned int i = 0; i < s_RendererData.TextureSlotIndex; i++) {
 
-			s_RendererData.TextureSlots[i]->bind(i);
+			s_RendererData.TextureSlots[i].bind(i);
 		}
 		
 		s_RendererData.QuadVA->bind();
@@ -212,54 +208,9 @@ namespace Renderer {
 
 	}
 
-	void Renderer::drawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& colors) {
+	
 
-
-		if (s_RendererData.IndexCount >= MaxIndicesCount) { // TODO query
-
-			endBatch();
-			flush();
-			s_RendererData.QuadBufferPtr = s_RendererData.QuadBuffer;
-
-		}
-
-		float textureIndex = 0.0f;
-
-		// Bottom left
-		s_RendererData.QuadBufferPtr->Position = { position.x, position.y, 0.0f }; // 2D only
-		s_RendererData.QuadBufferPtr->Color = colors;
-		s_RendererData.QuadBufferPtr->TexCoords = { 0.0f, 0.0f };
-		s_RendererData.QuadBufferPtr->TexID = textureIndex;
-		s_RendererData.QuadBufferPtr++;
-
-		// Bottom right
-		s_RendererData.QuadBufferPtr->Position = { position.x + size.x, position.y, 0.0f }; // 2D only
-		s_RendererData.QuadBufferPtr->Color = colors;
-		s_RendererData.QuadBufferPtr->TexCoords = { 0.0f, 0.0f };
-		s_RendererData.QuadBufferPtr->TexID = textureIndex;
-		s_RendererData.QuadBufferPtr++;
-
-		//top right
-		s_RendererData.QuadBufferPtr->Position = { position.x + size.x, position.y + size.y, 0.0f }; // 2D only
-		s_RendererData.QuadBufferPtr->Color = colors;
-		s_RendererData.QuadBufferPtr->TexCoords = { 0.0f, 0.0f };
-		s_RendererData.QuadBufferPtr->TexID = textureIndex;
-		s_RendererData.QuadBufferPtr++;
-
-		// top left
-		s_RendererData.QuadBufferPtr->Position = { position.x , position.y + size.y, 0.0f }; // 2D only
-		s_RendererData.QuadBufferPtr->Color = colors;
-		s_RendererData.QuadBufferPtr->TexCoords = { 0.0f, 0.0f };
-		s_RendererData.QuadBufferPtr->TexID = textureIndex;
-		s_RendererData.QuadBufferPtr++;
-
-		s_RendererData.IndexCount += 6;
-
-
-
-	}
-
-	void Renderer::drawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Texture>& texture, const glm::vec4& colors) {
+	void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, const Texture& texture) {
 
 		if (s_RendererData.IndexCount >= MaxIndicesCount || s_RendererData.TextureSlotIndex > 7) { // TODO query
 
@@ -274,7 +225,7 @@ namespace Renderer {
 		for (unsigned int i = 1; i < s_RendererData.TextureSlotIndex; i++) {
 
 
-			if (s_RendererData.TextureSlots[i]->getId() == texture->getId()) {
+			if (s_RendererData.TextureSlots[i].getId() == texture.getId()) {
 				textureIndex = (float)i;
 				break;
 			}
@@ -286,7 +237,7 @@ namespace Renderer {
 			s_RendererData.TextureSlotIndex++;
 		}
 				
-
+		glm::vec4 colors{ 1,1,1,1 };
 
 		// Bottom left
 		s_RendererData.QuadBufferPtr->Position = { position.x, position.y, 0.0f }; 
@@ -317,85 +268,9 @@ namespace Renderer {
 		s_RendererData.QuadBufferPtr++;
 
 		s_RendererData.IndexCount += 6;
-
-
-
 	}
 
-	void Renderer::drawQuadFromAtlas(const glm::vec3& position, const glm::vec2& size, const TextureAtlas& textureAtlas, int x, int y, const glm::vec4& colors /*= {1.0f,1.0f,1.0f,1.0f}*/) {
-		
-		std::shared_ptr<Texture> texture = textureAtlas.getTexture();
-
-		glm::vec2 textureCoords[] = {
-
-			{ (x * textureAtlas.getSpriteWidth()) / textureAtlas.getSheetWidth(), (y * textureAtlas.getSpriteHeight()) / textureAtlas.getSheetHeight()},
-			{ ((x + 1) * textureAtlas.getSpriteWidth()) / textureAtlas.getSheetWidth(), (y * textureAtlas.getSpriteHeight()) / textureAtlas.getSheetHeight()},
-			{ ((x + 1) * textureAtlas.getSpriteWidth()) / textureAtlas.getSheetWidth(), ((y + 1) * textureAtlas.getSpriteHeight()) / textureAtlas.getSheetHeight()},
-			{ (x * textureAtlas.getSpriteWidth()) / textureAtlas.getSheetWidth(), ((y + 1) * textureAtlas.getSpriteHeight()) / textureAtlas.getSheetHeight()}
-
-		};
-
-		if (s_RendererData.IndexCount >= MaxIndicesCount || s_RendererData.TextureSlotIndex > 7) { // TODO query
-
-			endBatch();
-			flush();
-			s_RendererData.QuadBufferPtr = s_RendererData.QuadBuffer;
-
-		}
-
-		float textureIndex = 0.0f;
-
-		for (unsigned int i = 1; i < s_RendererData.TextureSlotIndex; i++) {
-
-
-			if (s_RendererData.TextureSlots[i]->getId() == texture->getId()) {
-				textureIndex = (float)i;
-				break;
-			}
-		}
-
-		if (textureIndex == 0.0f) {
-			textureIndex = (float)s_RendererData.TextureSlotIndex;
-			s_RendererData.TextureSlots[s_RendererData.TextureSlotIndex] = texture;
-			s_RendererData.TextureSlotIndex++;
-		}
-
-
-
-		// Bottom left
-		s_RendererData.QuadBufferPtr->Position = { position.x, position.y, 0.0f };
-		s_RendererData.QuadBufferPtr->Color = colors;
-		s_RendererData.QuadBufferPtr->TexCoords = textureCoords[0];
-		s_RendererData.QuadBufferPtr->TexID = textureIndex;
-		s_RendererData.QuadBufferPtr++;
-
-		// Bottom right
-		s_RendererData.QuadBufferPtr->Position = { position.x + size.x, position.y, 0.0f };
-		s_RendererData.QuadBufferPtr->Color = colors;
-		s_RendererData.QuadBufferPtr->TexCoords = textureCoords[1];
-		s_RendererData.QuadBufferPtr->TexID = textureIndex;
-		s_RendererData.QuadBufferPtr++;
-
-		//top right
-		s_RendererData.QuadBufferPtr->Position = { position.x + size.x, position.y + size.y, 0.0f };
-		s_RendererData.QuadBufferPtr->Color = colors;
-		s_RendererData.QuadBufferPtr->TexCoords = textureCoords[2];
-		s_RendererData.QuadBufferPtr->TexID = textureIndex;
-		s_RendererData.QuadBufferPtr++;
-
-		// top left
-		s_RendererData.QuadBufferPtr->Position = { position.x , position.y + size.y, 0.0f };
-		s_RendererData.QuadBufferPtr->Color = colors;
-		s_RendererData.QuadBufferPtr->TexCoords = textureCoords[3];
-		s_RendererData.QuadBufferPtr->TexID = textureIndex;
-		s_RendererData.QuadBufferPtr++;
-
-		s_RendererData.IndexCount += 6;
-
-
-
-
-	}
+	
 
 	
 }
