@@ -278,8 +278,20 @@ void renderCubemap(const Camera &camera, const Cubemap &cubemap)
   s_keepAliveResources->cubemapShader.setUniform3f("u_displacement", camera.getPosition());
   cubemap.bind();
 
-  glDepthMask(false); // do not write to depth buffer
+  /*
+  To draw the cubemap behind every other element the depth buffer is used in a peculiar way:
+  When glClear is called, the depth buffer is cleared to 1. When elements are drawn the depth
+  buffer is written to to <1. When the cubemap is drawn the DEPTH_FUNC is changed to only draw 
+  fragments that have a depth value equal to that of the depth buffer, this way the cubemap
+  shader can output 1 and only draw where other fragments have not been drawn.
+  Note that opengl divides the screen position of the vertex shader by its w component, therefore
+  the shader should not set the screen position to 1 but rather to gl_Position.w
+  */
+
+  glDepthMask(false); // do not write to depth buffer, technically not necessary but maybe faster? TODO benchmark/profile
+  glDepthFunc(GL_EQUAL);
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+  glDepthFunc(GL_LESS);
   glDepthMask(true);
 
   VertexArray::unbind();

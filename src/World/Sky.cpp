@@ -59,6 +59,7 @@ void main()
 {
   o_uv = i_uv;
   gl_Position = u_VP * u_M * vec4(i_position, +1.0);
+  gl_Position.z = gl_Position.w; // draw behind everything else
 }
 )glsl", R"glsl(
 #version 330 core
@@ -116,6 +117,7 @@ void main()
 void drawSkyClouds(const Camera &camera, float time)
 {
   glDepthMask(false); // do not write to depth buffer
+  glDepthFunc(GL_EQUAL);
   glm::mat4 M(1.f);
   // beware! if vertices go too far outside the clip range after the vertex shader
   // transformation, some may flicker, making triangles break and the whole plane
@@ -128,6 +130,7 @@ void drawSkyClouds(const Camera &camera, float time)
   keepAliveResources->cloudsShader.setUniform1f("u_time", time);
   keepAliveResources->cloudsShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
   keepAliveResources->planeMesh.draw();
+  glDepthFunc(GL_LESS);
   glDepthMask(true);
 }
 

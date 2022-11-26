@@ -129,8 +129,6 @@ public:
     Renderer::Frustum cameraFrustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(camera);
     Renderer::clear();
 
-    m_sky.render(camera, m_realTime);
-
     for (const auto &[position, chunk] : m_terrain.getChunks()) {
       const AABB &chunkAABB = chunk.getMesh().getBoundingBox();
 
@@ -139,6 +137,8 @@ public:
 
       Renderer::renderMesh(camera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
     }
+
+    m_sky.render(camera, m_realTime);
   }
 
   void onRender() override
