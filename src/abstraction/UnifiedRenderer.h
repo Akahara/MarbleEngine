@@ -33,6 +33,8 @@ void clearDebugData();
 const DebugData& getRendererDebugData();
 
 Shader &getStandardMeshShader();
+void beginColorPass();
+void beginDepthPass();
 
 void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const Mesh& mesh);
 void renderNormalsMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const NormalsMesh &normalsMesh, const glm::vec4 &color={ 1,0,0,1 });

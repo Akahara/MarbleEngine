@@ -18,6 +18,7 @@ static struct KeepAliveResources {
   Shader             standardLineShader;
   Shader             cubemapShader;
   Shader             debugNormalsShader;
+  Shader             standardDepthPassShader;
 
   Shader             debugFlatScreenShader;
 
@@ -30,6 +31,10 @@ static struct KeepAliveResources {
   IndexBufferObject  lineIBO;
   VertexBufferObject emptyVBO; // used by the line vao
 } *s_keepAliveResources = nullptr;
+
+static struct State {
+  Shader *activeStandardShader;
+} s_state;
 
 
 Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath)
@@ -161,6 +166,7 @@ void init()
 
   s_keepAliveResources->standardMeshShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_mesh.fs");
   s_keepAliveResources->standardLineShader = loadShaderFromFiles("res/shaders/standard_line.vs", "res/shaders/standard_color.fs");
+  s_keepAliveResources->standardDepthPassShader = loadShaderFromFiles("res/shaders/depth_pass.vs", "res/shaders/depth_pass.fs");
   s_keepAliveResources->cubemapShader = loadShaderFromFiles("res/shaders/cubemap.vs", "res/shaders/cubemap.fs");
   
   s_keepAliveResources->lineIBO = IndexBufferObject({ 0, 1 });
@@ -205,6 +211,8 @@ void init()
     s_keepAliveResources->cubemapVAO.addBuffer(s_keepAliveResources->cubemapVBO, layout, s_keepAliveResources->cubemapIBO);
   }
 
+  s_state.activeStandardShader = &s_keepAliveResources->standardMeshShader;
+
   VertexArray::unbind();
 }
 
@@ -220,6 +228,18 @@ Shader &getStandardMeshShader()
   return s_keepAliveResources->standardMeshShader;
 }
 
+void beginColorPass()
+{
+  glEnable(GL_MULTISAMPLE);
+  s_state.activeStandardShader = &s_keepAliveResources->standardMeshShader;
+}
+
+void beginDepthPass()
+{
+  glDisable(GL_MULTISAMPLE);
+  s_state.activeStandardShader = &s_keepAliveResources->standardDepthPassShader;
+}
+
 void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const Mesh &mesh)
 {
   s_debugData.meshCount++;
@@ -228,10 +248,10 @@ void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3
   glm::mat4 M(1.f);
   M = glm::translate(M, position);
   M = glm::scale(M, size);
-  s_keepAliveResources->standardMeshShader.bind();
-  s_keepAliveResources->standardMeshShader.setUniform3f("u_cameraPos", camera.getPosition());
-  s_keepAliveResources->standardMeshShader.setUniformMat4f("u_M", M);
-  s_keepAliveResources->standardMeshShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+  s_state.activeStandardShader->bind();
+  s_state.activeStandardShader->setUniform3f("u_cameraPos", camera.getPosition());
+  s_state.activeStandardShader->setUniformMat4f("u_M", M);
+  s_state.activeStandardShader->setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
   mesh.draw();
 }
 

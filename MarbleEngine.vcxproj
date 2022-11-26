@@ -273,6 +273,8 @@
     <None Include="res\shaders\cubemap.vs" />
     <None Include="res\shaders\debugFlatScreen.fs" />
     <None Include="res\shaders\debugFlatScreen.vs" />
+    <None Include="res\shaders\depth_pass.fs" />
+    <None Include="res\shaders\depth_pass.vs" />
     <None Include="res\shaders\gammacorrection.fs" />
     <None Include="res\shaders\grass\compact.comp" />
     <None Include="res\shaders\grass\grass.fs" />

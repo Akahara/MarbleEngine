@@ -155,10 +155,12 @@ public:
     meshShader.setUniform1i("u_shadowMap", 5);
     Renderer::getStandardMeshShader().unbind();
 
+    Renderer::beginDepthPass();
     m_depthFBO.bind();
     m_depthFBO.setViewportToTexture(m_depthTexture);
     renderSceneDepthPass();
 
+    Renderer::beginColorPass();
     m_rockTexture.bind(0);
     m_grassTexture.bind(1);
     m_depthTexture.bind(5);

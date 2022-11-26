@@ -148,5 +148,7 @@
     <None Include="res\shaders\test_scene.vs" />
     <None Include="res\shaders\water.fs" />
     <None Include="res\shaders\water.vs" />
+    <None Include="res\shaders\depth_pass.vs" />
+    <None Include="res\shaders\depth_pass.fs" />
   </ItemGroup>
 </Project>
