@@ -2,6 +2,7 @@
 
 #include "../Scene.h"
 #include "../../World/Sky.h"
+#include "../../World/Grass.h"
 #include "../../World/SunCameraHelper.h"
 #include "../../World/TerrainGeneration/Terrain.h"
 #include "../../World/TerrainGeneration/MeshGenerator.h"
@@ -16,6 +17,7 @@ private:
   bool              m_playerIsFlying = true;
   float             m_realTime = 0;
   Terrain::Terrain  m_terrain;
+  World::TerrainGrass m_grass;
 
   Renderer::Texture m_rockTexture = Renderer::Texture("res/textures/rock.jpg");
   Renderer::Texture m_grassTexture = Renderer::Texture("res/textures/grass6.jpg");
@@ -61,26 +63,53 @@ public:
     constexpr unsigned int chunkSize = 20;
     constexpr unsigned int chunkCount = 20;
 
-    // simple terrain + erosion
-    unsigned int noiseMapSize = 3 + chunkSize * chunkCount;
-    float *noiseMap = Noise::generateNoiseMap(noiseMapSize,
-                                              noiseMapSize,
-                                              /*scale*/30,
-                                              /*octaves*/4,
-                                              /*persistence*/.5f,
-                                              /*lacunarity*/2.1f,
-                                              /*seed*/0);
-    Noise::ErosionSettings erosionSettings{};
-    Noise::erode(noiseMap, noiseMapSize, erosionSettings);
-    Noise::rescaleNoiseMap(noiseMap, noiseMapSize, noiseMapSize, 0, 1, 0, /*terrain height*/25.f);
-    Terrain::HeightMap *heightMap = new Terrain::ConcreteHeightMap(noiseMapSize, noiseMapSize, noiseMap);
-    m_terrain = Terrain::generateTerrain(heightMap, chunkCount, chunkCount, chunkSize);
+    { // simple terrain + erosion
+      unsigned int noiseMapSize = 3 + chunkSize * chunkCount;
+      float *noiseMap = Noise::generateNoiseMap(noiseMapSize,
+                                                noiseMapSize,
+                                                /*scale*/30,
+                                                /*octaves*/4,
+                                                /*persistence*/.5f,
+                                                /*lacunarity*/2.1f,
+                                                /*seed*/0);
+      Noise::ErosionSettings erosionSettings{};
+      Noise::erode(noiseMap, noiseMapSize, erosionSettings);
+      Noise::rescaleNoiseMap(noiseMap, noiseMapSize, noiseMapSize, 0, 1, 0, /*terrain height*/25.f);
+      Terrain::HeightMap *heightMap = new Terrain::ConcreteHeightMap(noiseMapSize, noiseMapSize, noiseMap);
+      m_terrain = Terrain::generateTerrain(heightMap, chunkCount, chunkCount, chunkSize);
+    }
+    
+    { // grass
+      std::vector<glm::ivec2> hdChunks, ldChunks;
+      
+      constexpr unsigned int ldRegion = 2;
+      constexpr unsigned int hdRegion = 2;
+
+      constexpr unsigned int grassChunksCount = ldRegion * 2 + hdRegion;
+      constexpr unsigned int grassChunkSize = chunkSize*chunkCount/grassChunksCount;
+      for (unsigned int x = 0; x < grassChunksCount; x++) {
+        for (unsigned int y = 0; y < grassChunksCount; y++) {
+          if (x == 0 || x == grassChunksCount - 1 || y == 0 || y == grassChunksCount - 1)
+            ldChunks.push_back({ x,y });
+          else
+            hdChunks.push_back({ x,y });
+        }
+      }
+
+      m_grass = World::TerrainGrass(std::make_unique<World::FixedGrassChunks>(
+        std::make_unique<World::TerrainGrassGenerator>(&m_terrain),
+        grassChunkSize,
+        hdChunks,
+        ldChunks
+      ));
+    }
   }
 
   void step(float delta) override
   {
     m_realTime += delta;
     m_player.step(delta);
+    m_grass.step(m_player.getCamera());
   }
 
   void repositionSunCamera(const Renderer::Frustum &visibleFrustum)
@@ -133,6 +162,8 @@ public:
 
       Renderer::renderMesh(camera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
     }
+
+    m_grass.render(camera, m_realTime);
 
     m_sky.render(camera, m_realTime);
   }
