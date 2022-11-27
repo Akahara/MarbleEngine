@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include <glm/glm.hpp>
 
 #include "Mathf.h"
@@ -14,10 +16,13 @@ private:
   glm::ivec2 m_currentPosition;
   glm::ivec2 m_currentDirection;
 public:
+  using value_type = glm::ivec2;
+  using difference_type = std::ptrdiff_t;
+
+  constexpr SpiralGridIterator()
+    : m_origin(), m_currentPosition(), m_currentDirection(0, 1) { }
   constexpr SpiralGridIterator(glm::ivec2 origin, glm::ivec2 point)
-    : m_origin(origin), m_currentPosition(point), m_currentDirection(0, 1)
-  {
-  }
+    : m_origin(origin), m_currentPosition(point), m_currentDirection(0, 1) { }
 
   constexpr glm::ivec2 operator*() const
   {
@@ -38,6 +43,8 @@ public:
     return *this;
   }
 
+  constexpr void operator++(int) { ++*this; }
+
   friend constexpr bool operator==(const SpiralGridIterator &a, const SpiralGridIterator &b) { return a.m_currentPosition == b.m_currentPosition; }
   friend constexpr bool operator!=(const SpiralGridIterator &a, const SpiralGridIterator &b) { return a.m_currentPosition != b.m_currentPosition; }
 };
@@ -50,9 +57,7 @@ private:
 
 public:
   constexpr SpiralGridIterable(glm::ivec2 origin, glm::ivec2 lastPoint, size_t cellCount)
-    : m_origin(origin), m_lastPoint(lastPoint), m_cellCount(cellCount)
-  {
-  }
+    : m_origin(origin), m_lastPoint(lastPoint), m_cellCount(cellCount) { }
 
   constexpr SpiralGridIterator begin() const { return SpiralGridIterator(m_origin, { 0,0 }); }
   constexpr SpiralGridIterator end() const { return SpiralGridIterator(m_origin, m_lastPoint); }
@@ -67,12 +72,14 @@ private:
   glm::ivec2 m_center;
   glm::ivec2 m_current;
   float      m_d, m_r;
-
 public:
+  using value_type = glm::ivec2;
+  using difference_type = std::ptrdiff_t;
+
+  constexpr CircularGridIterator()
+    : m_d(0), m_r(0), m_center(), m_current() { }
   constexpr CircularGridIterator(glm::ivec2 center, glm::ivec2 currentPosition, float r)
-    : m_center(center), m_r(r), m_current(currentPosition), m_d(0)
-  {
-  }
+    : m_center(center), m_r(r), m_current(currentPosition), m_d(0) { }
 
   constexpr glm::ivec2 operator*() const
   {
@@ -89,6 +96,8 @@ public:
     return *this;
   }
 
+  constexpr void operator++(int) { ++*this; }
+
   friend constexpr bool operator==(const CircularGridIterator &a, const CircularGridIterator &b) { return a.m_current == b.m_current; }
   friend constexpr bool operator!=(const CircularGridIterator &a, const CircularGridIterator &b) { return a.m_current != b.m_current; }
 };
@@ -97,13 +106,9 @@ class CircularGridIterable {
 private:
   glm::ivec2 m_center;
   float      m_radius;
-
 public:
   constexpr CircularGridIterable(glm::ivec2 center, float radius)
-    : m_center(center), m_radius(radius)
-  {
-    assert(radius > 0);
-  }
+    : m_center(center), m_radius(radius) { assert(radius > 0); }
 
   constexpr CircularGridIterator begin() const { return CircularGridIterator(m_center, { -m_radius, 0 }, m_radius); }
   constexpr CircularGridIterator end() const { return CircularGridIterator(m_center, { +m_radius, 0 }, m_radius); }
@@ -116,12 +121,14 @@ private:
   glm::ivec2 m_center;
   glm::ivec2 m_current;
   int        m_diameter, m_d;
-
 public:
+  using value_type = glm::ivec2;
+  using difference_type = std::ptrdiff_t;
+
+  constexpr DiamondGridIterator()
+    : m_diameter(0), m_d(0), m_current(), m_center() { }
   constexpr DiamondGridIterator(glm::ivec2 center, glm::ivec2 currentPosition, int diameter)
-    : m_center(center), m_current(currentPosition), m_diameter(diameter), m_d(0)
-  {
-  }
+    : m_center(center), m_current(currentPosition), m_diameter(diameter), m_d(0) { }
 
   constexpr glm::ivec2 operator*() const
   {
@@ -136,6 +143,11 @@ public:
       m_current.y = m_d;
     }
     return *this;
+  }
+
+  constexpr void operator++(int)
+  {
+    ++*this;
   }
 
   friend constexpr bool operator==(const DiamondGridIterator &a, const DiamondGridIterator &b) { return a.m_current == b.m_current; }
@@ -167,6 +179,10 @@ public:
  * Iterator constructors are public but should not be used directly.
  * -------------------------------------------------------------------------- */
 namespace Iterators {
+
+static_assert(std::ranges::range<SpiralGridIterable>);
+static_assert(std::ranges::range<DiamondGridIterable>);
+static_assert(std::ranges::range<CircularGridIterable>);
 
 /* --------------------------------------------------------------------------
  * Spiral iterator:
@@ -221,5 +237,19 @@ inline constexpr DiamondGridIterable iterateOverDiamond(glm::ivec2 center, int r
   return DiamondGridIterable(center, radius);
 }
 
+
+
+
+/* --------------------------------------------------------------------------
+ * Utility methods
+ * -------------------------------------------------------------------------- */
+template<class Iterable>
+inline std::vector<glm::ivec2> collect(Iterable iterable, unsigned int limit = -1)
+{
+  std::vector<glm::ivec2> collected;
+  for (auto iterator = iterable.begin(), end = iterable.end(); limit > 0 && iterator != end; limit--, iterator++)
+    collected.push_back(*iterator);
+  return collected;
+}
 
 }

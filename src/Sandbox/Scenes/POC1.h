@@ -29,12 +29,8 @@ private:
     SunCameraHelper shadowCameraHelper;
   } m_sun;
 
-  //=====================================================================================================================//
-  Renderer::BlitPass m_depthTestBlitPass; // TODO remove
-
 public:
   POC1Scene()
-    : m_depthTestBlitPass{ "res/shaders/shadows_testblitdepth.fs" }
   {
     m_player.setPostion({ 100.f, 22.F , 100.f });
     m_player.updateCamera();

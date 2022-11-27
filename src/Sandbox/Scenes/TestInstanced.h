@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ranges>
+
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -17,12 +19,15 @@
 
 class TestInstancedScene : public Scene {
 private:
+  static constexpr unsigned int CHUNK_COUNT = 5;
+  static constexpr unsigned int CHUNK_SIZE = 50;
+
   Renderer::Cubemap   m_skybox;
   Player              m_player, m_roguePlayer;
   bool                m_useRoguePlayer;
   Renderer::Texture   m_texture1;
   Terrain::Terrain    m_terrain;
-  GrassRenderer       m_grass;
+  World::TerrainGrass m_grass;
   float               m_time;
 
 public:
@@ -44,10 +49,30 @@ public:
     terrainData.seed = 0;
     m_terrain = Terrain::generateTerrain(
       terrainData,
-      CHUNK_COUNT_X, CHUNK_COUNT_Y,
+      CHUNK_COUNT, CHUNK_COUNT,
       CHUNK_SIZE
     );
-    m_grass = GrassRenderer(m_terrain, GrassChunks::positionToGrassChunk(m_player.getCamera().getPosition()));
+    
+    std::vector<glm::ivec2> hdChunks = Iterators::collect(
+      std::views::all(Iterators::iterateOverCircle({ 0,0 }, 3)) |
+      std::views::filter([this](glm::ivec2 p) { return m_terrain.getChunks().contains(p); }));
+    std::vector<glm::ivec2> ldChunks = Iterators::collect(
+      std::views::all(Iterators::iterateOverCircle({ 0,0 }, 5)) |
+      std::views::filter([this, &hdChunks](glm::ivec2 p) { return m_terrain.getChunks().contains(p) && std::find(hdChunks.begin(), hdChunks.end(), p) == hdChunks.end(); }));
+    for (glm::ivec2 a : hdChunks)
+      std::cout << a << " ";
+    std::cout << std::endl;
+    for (glm::ivec2 a : ldChunks)
+      std::cout << a << " ";
+    std::cout << std::endl;
+    m_grass = World::TerrainGrass(
+      std::make_unique<World::FixedGrassChunks>(
+        std::make_unique<World::TerrainGrassGenerator>(&m_terrain),
+        CHUNK_SIZE,
+        hdChunks,
+        ldChunks
+      )
+    );
 
     Renderer::getStandardMeshShader().bind();
     Renderer::getStandardMeshShader().setUniform1i("u_RenderChunks", 1);

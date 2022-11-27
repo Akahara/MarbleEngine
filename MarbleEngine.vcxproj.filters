@@ -49,7 +49,7 @@
     <ClInclude Include="src\abstraction\FrameBufferObject.h" />
     <ClInclude Include="src\abstraction\IndexBufferObject.h" />
     <ClInclude Include="src\abstraction\Inputs.h" />
-    <ClInclude Include="src\abstraction\InstancedRenderer.h" />
+    <ClInclude Include="src\abstraction\SpecializedRender.h" />
     <ClInclude Include="src\abstraction\Mesh.h" />
     <ClInclude Include="src\abstraction\pipeline\Bloom.h" />
     <ClInclude Include="src\abstraction\pipeline\Contrast.h" />

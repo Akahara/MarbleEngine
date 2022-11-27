@@ -15,6 +15,11 @@ inline int positiveModulo(int i, int n)
   return (i % n + n) % n;
 }
 
+inline unsigned int roundToNearestDivisor(unsigned int x, unsigned int d)
+{
+  return x / d * d;
+}
+
 template<class T, class S>
 inline T lerp(const T &a, const T &b, const S &x)
 {
