@@ -1,1 +1,4 @@
 .obsidian/
+rapport/*
+!rapport/rapport.tex
+!rapport/pdfs/*

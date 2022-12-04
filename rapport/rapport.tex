@@ -1,0 +1,207 @@
+% !TEX TS-program = pdflatex
+% !TEX encoding = UTF-8 Unicode
+
+\documentclass[11pt]{article} % use larger type; default would be 10pt
+
+\usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
+
+%%% PAGE DIMENSIONS
+\usepackage{geometry} % to change the page dimensions
+\geometry{a4paper}
+%%% PACKAGES
+\usepackage{graphicx} % support the \includegraphics command and options
+\usepackage{booktabs} % for much better looking tables
+\usepackage{array} % for better arrays (eg matrices) in maths
+\usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
+\usepackage{verbatim} % adds environment for commenting out blocks of text & for better verbatim
+\usepackage{subfig} % make it possible to include more than one captioned figure/table in a single float
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+%%% HEADERS & FOOTERS
+\usepackage{fancyhdr}
+\pagestyle{fancy} % options: empty , plain , fancy
+\renewcommand{\headrulewidth}{0pt} % customise the layout...
+\lhead{}\chead{}\rhead{}
+\lfoot{}\cfoot{\thepage}\rfoot{}
+
+%%% SECTION TITLE APPEARANCE
+\usepackage{sectsty}
+\allsectionsfont{\sffamily\mdseries\upshape}
+
+%%% ToC (table of contents) APPEARANCE
+\usepackage[nottoc,notlof,notlot]{tocbibind} % Put the bibliography in the ToC
+\usepackage[titles,subfigure]{tocloft} % Alter the style of the Table of Contents
+\renewcommand{\cftsecfont}{\rmfamily\mdseries\upshape}
+\renewcommand{\cftsecpagefont}{\rmfamily\mdseries\upshape} % No bold!
+
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}%
+\DeclarePairedDelimiter\fract{fract(}{)}
+
+%%% END Article customizations
+
+
+\title{Rapport de projet\\Génération de terrain et affichage 3D}
+\author{Van Hollebeke Joshua\\Calais Albin}
+\begin{document}
+\maketitle
+
+\section{Contexte}
+
+%% TODO intro 
+
+Notre projet consiste à créer un générateur de terrain et à afficher ce terrain d'une manière réaliste. Pour cela nous développerons des algorithmes de génération, des interfaces de dialogue avec le gpu et des systèmes d'affichage très complexes.
+
+Ce projet sera écrit en C++ pour permettre une gestion avancé de la mémoire et des performances, il facilitera aussi l'utilisation de l'api graphique OpenGL.
+Nous utiliserons plusieurs algorithmes connus et d'autres tirés de papiers de recherche, nous en concevrons et adapterons certains car notre cas d'utilisation est assez particulier.
+
+La plupart des systèmes que nous construirons existent déjà mais nous essayerons d'y apporter des améliorations.
+
+\paragraph{}
+Pour les systèmes existants, nous utiliserons la terminologie anglaise plutôt que française.
+
+\section{Conception et gestion de projet}
+
+D'un point de vue global notre projet est assez simple, il se compose seulement de deux modules de haut niveau qui utilisent chacun plusieurs modules de plus bas niveau.
+
+%% TODO uml [Generation] + [Affichage->OpenGL]
+
+\subsection{Conception structurelle}
+
+Nous avons passé un certain temps en amont sur la concéption globale de l'application. Elle ressemble à ce qu'on trouverait dans un \textit{Game Engine} moderne du type Unity ou Unreal Engine. Il existe une unique \textit{scène} - un monde - qui contient des objets qui sont affichés et mis à jours régulièrement.
+
+%% TODO uml [Generation]->[scene]->player->camera  ->terrain->chunks  ->...   ->[Renderer]
+
+La scène est construite une seule fois et le joueur y existe et peut s'y balader. La scène est globalement statique, les seuls objets qui se déplacent sont le joueur et le soleil, le reste est figé en place mais peut être animé d'autres manières.
+
+\subsection{Tests, sandbox}
+
+Ce genre de projet est très peu propice aux tests, pour s'assurer du bon fonctionnement global de l'application nous nous baserons sur des tests d'intégration seulement. Pour chaque fonctionnalité nous créerons une scène qui présentera seulement la fonctionnalité en question, de cette manière il sera très simple de vérifier le bon fonctionnement de chaque partie du système.
+
+En plus de ces scènes de test, nous créérons des scènes \textit{sandbox} qui intégreront toutes les fonctionnalités et serviront de démonstration techniques des résultats que nous obtiendrons.
+
+%% TODO liste des scènes <-> fonctionnalités
+
+\section{Génération de terrain}
+
+Pour générer notre terrain, il nous faut d'abord lister les contraintes que nous nous fixons - et celles que nous ignorons - ; nous voulons :
+\begin{itemize}
+	\item{un grand terrain}
+	\item{sans répétitions}
+	\item{assez détaillé}
+	\item{dont la hauteur change}
+\end{itemize}
+
+Nous nous restreindrons à une seule valeur de hauteur par position dans le plan, donc pas de grottes ou de surplomb. Les algorithmes classiques qui correspondent à ces critères consistent à créer une \textit{carte de hauteur} (\textit{heightmap}) et à placer des points sur une grille dont les hauteurs correspondent à celles de la carte. Il suffit ensuite de relier ces points pour avoir un terrain convainquant.
+
+%% TODO screen du mesh en wireframe
+
+Il existent d'autres méthodes pour faire ce genre de terrain (cubemarching, raymarching avec génération dynamique...) qui permettent de faire plus mais qui sont beaucoup plus gourmandes en performances et en complexité. Dans notre cas une heightmap est beaucoup plus adaptée.
+
+\subsection{Bruit de Perlin}
+
+Pour créer la heightmap il nous faut ce qu'on appelle un \textit{bruit}, une fonction dont le domaine de définition est le plan $xz$ et le domaine de valeurs est $\mathbb{R}$. Cette fonction doit être pseudo-aléatoire mais aussi continue.
+
+%% TODO img bruit blanc | bruit de perlin
+
+Les fonctions les plus communes pour une génération de ce style sont de la famille des \textit{Gradient noise} (bruit de gradient) et \textit{Value noise} (bruit de valeur).
+Un value noise est défini à partir d'un white noise de cette manière :
+
+\begin{alignat*}{3}
+	V(x,y) =f( &f(B(\floor{x},\floor{y}), &&B(\floor{x+1},\floor{y}), &&\fract{x}),\\
+			&f(B(\floor{x},\floor{y+1}), &&B(\floor{x+1},\floor{y+1}), &&\fract{x}),\\
+			&\fract{y})
+\end{alignat*}
+
+Ici $V$ est le value noise, $B$ est le white noise et $fract(x)$ est la partie fractionaire de $x$. $f$ dépend du value noise, c'est une fonction d'interpolation, la plus simple est l'interpolation linéaire\footnote{$lerp(a,b,x) = a+(b-a)*x$}.
+L'idée est d'interpoler entre des valeurs complétement aléatoires selon une grille. Le value noise permet de générer des heightmaps très simplement, mais qui laissent à désirer. Aujourd'hui il a été très largement remplacé par le bruit de Perlin, qui est un cas spécifique de gradient noise.
+
+La différence avec le value noise est qu'au lieu d'utiliser un white noise comme base, on génère à la place une grille de vecteurs unitaires et pour calculer les "$B(x,y)$" on calcule le produit scalaire du point $(x,y)$ à l'intérieur de sa cellule sur la grille avec les vecteurs unitaires :
+
+\begin{align*}
+	fx&=\floor{x} & a_{00}&=<(dx,dy), U_{fx,fy}>\\
+	fy&=\floor{y} & a_{10}&=<(dx-1,dy), U_{fx+1,fy}>\\
+	dx&=\fract{x} & a_{01}&=<(dx,1-dy), U_{fx,fy+1}>\\
+	dy&=\fract{y} & a_{11}&=<(1-dx,1-dy), U_{fx+1,fy+1}>
+\end{align*}
+\begin{alignat*}{3}
+	G(x,y) =f( &f(a_{00}, &&a_{01}, &&dx),\\
+			&f(a_{10}, &&a_{11}, &&dx), dy)
+\end{alignat*}
+
+%% TODO rajouter le lien vers l'article
+Dans son article\cite{perlinnoise}, Ken Perlin défini le \textit{Simple gradient noise} avec $f$ l'interpolation linéaire, et le bruit de perlin, avec $f$ la fonction $smoothstep$\footnote{$smoothstep(a,b,x) = 3x^2-2x^3$}.
+
+%% TODO screen du perlin noise
+
+Ces bruits sont bons pour un terrain simpliste, mais l'astuce de Ken Perlin est d'en cumuler plusieurs octaves. En jouant sur la fréquence et l'amplitude de chacune :
+\begin{align*}
+	Height(x,y) = \sum_{k=1}^{N}&Amplitude_k G(Frequency_k*(x,y))\\
+	Amplitude_k &= Persistence^k\\ 
+	Frequency_k &= Lacunarity^k
+\end{align*}
+Les paramètres qui nous restent à contrôler sont la persistance (le facteur de taille entre deux octaves), la lacunarité (le facteur de poids entre deux octaves) et le nombre d'octaves. Avec ceci on arrive à des cartes de hauteur assez réalistes :
+
+%%  TODO layered noise
+
+\subsection{Erosion}
+
+On peut rendre le bruit généré plus réaliste encore en appliquant des propriétés physiques naturelles, la première à laquelle on pense est l'érosion.
+
+L'idée est de simuler un très grand nombre de gouttes d'eau qui dévallent les pentes en arrachant du sédiment du terrain et en la relachant en aval. L'algorithme que nous utiliserons est expliqué dans la thèse de Hans Theobald Beyer\cite{erosion}.
+Dans le code cela consiste à calculer une suite de valeurs de gradient de la heightmap pour déplacer les gouttes selon la pente, et à chaque déplacement on calcule la quantité de sédiment à arracher ou déposer. Le seul bémol est que le dépot et l'érosion ne se font pas seulement à la position de la goutte, mais aussi aux alentours. Pour ne pas recalculer les différences à chaque étape de chaque goutte on fait le calcul en amont, qu'on stoque pendant toute la durée de l'algorithme. Cela peut poser certains problèmes de performance et de besoin en mémoire, l'espace mémoire nécessaire est en $O(n^2)$ avec la taille du terrain et le premier facteur du polynôme est très important.
+
+\subsection{Structure du terrain}
+
+%% classes
+
+\subsection{Variations}
+
+%% liste des facteurs sur lesquels on peut jouer
+%% génération de desert...
+
+
+\section{Affichage 3D}
+
+\subsection{OpenGL}
+
+\subsection{Shaders}
+
+\subsection{Caméras et mathématiques}
+
+%% \subsection{Batched rendering} %% seulement le terrain
+
+\subsection{Instanced rendering}
+
+\subsection{Effets spéciaux}
+
+\subsubsection{} %% ...
+
+
+\section{Algorithmes spécifiques}
+
+%% algos qu'on a développé avec plus ou moins de sources (plutot moins que plus)
+
+\subsection{Affichage de l'herbe}
+
+\subsection{Eau}
+
+
+
+\section{Résultats}
+
+%% screens
+
+
+%% \section{Performances} %% si on a encore la foi d'écrire
+
+\begin{thebibliography}{9}
+\bibitem{perlinnoise}
+Perlin, Ken. "Making Noise"
+
+\bibitem{erosion}
+Hans Theobald Beyer. "Implementation of a method for hydraulic erosion"
+\end{thebibliography}
+
+\end{document}
