@@ -17,7 +17,7 @@ struct Flare {
 
 class FlareRenderer {
 
-private :
+private:
 
 	const static int NUMBER_OF_FLARES = 9;
 	const static int INDICES_COUNT = 9 * 6;
@@ -35,8 +35,8 @@ private :
 	Renderer::IndexBufferObject m_IBO;
 
 	Renderer::Shader m_shader = Renderer::loadShaderFromFiles(
-			"res/shaders/flare.vs",
-			"res/shaders/flare.fs");
+		"res/shaders/flare.vs",
+		"res/shaders/flare.fs");
 
 	std::array<Renderer::Texture, 9> m_textureSlots;
 
@@ -85,17 +85,19 @@ public:
 		m_shader.unbind();
 
 		m_quadBuffer = new QuadVertex[NUMBER_OF_FLARES * 4];
-	
-	
+
+
 	}
 
 	~FlareRenderer() {
 		delete[] m_quadBuffer;
 	}
 
-	void renderFlares(const std::vector<Flare>& flares)
+	void renderFlares(const std::vector<Flare>& flares, float brightness)
 	{
+
 		m_shader.bind();
+		m_shader.setUniform1f("u_brightness", brightness);
 		m_quadBufferPtr = m_quadBuffer;
 
 		for (const auto& flare : flares) {
@@ -132,25 +134,26 @@ public:
 
 			m_indexCount += 6;
 
+			flare.texture.bind(textureIndex);
 
 		}
-		
+
 		GLsizeiptr size = (uint8_t*)m_quadBufferPtr - (uint8_t*)m_quadBuffer;
 
 		m_VBO.bind();
 		m_VAO.sendToGPU(size, m_quadBuffer);
 
-		for (unsigned int i = 0; i < 9; i++) {
-
-				m_textureSlots[i].bind(i);
-		}
-
 		m_VAO.bind();
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 
+		glDisable(GL_BLEND);
 		m_indexCount = 0;
 		m_textureSlotIndex = 1;
 		m_VAO.unbind();
+		m_shader.unbind();
 
 	}
 
@@ -167,13 +170,14 @@ private:
 
 public:
 
-	FlareManager() 
+	FlareManager()
 	{
 		for (int i = 1; i < 10; i++) {
 
 
 			std::stringstream ss;
 			ss << "res/textures/flare/tex" << i << ".png";
+			//ss << "res/textures/flare/tex" << i << ".png";
 			m_flares.push_back(
 				{
 				Renderer::Texture{ss.str()},
@@ -186,23 +190,66 @@ public:
 
 	}
 
-	void computeFlarePositions(const glm::vec2& screenSunPos) {
+	glm::vec2 convertToScreenSpace(const glm::vec3& worldPos, const glm::mat4& VP) {
 
-		const glm::vec2 CENTER = { 0.5f, 0.5f };
+		glm::vec4 coords{ worldPos.x, worldPos.y, worldPos.z, 1.f };
+		coords = VP * coords;
+		if (coords.w <= 0) { return { -10,-10 }; }
 
-		glm::vec2 sunToCenterDirection = CENTER - screenSunPos;
+		float x = (coords.x / (float)coords.w + 1.f) / 2.f;
+		float y = 1.f - ((coords.y / (float)coords.w + 1.f) / 2.f);
 
-		for (unsigned i = 0; i < m_flares.size(); i++)
+		return { x, y };
+
+	}
+
+	void computeFlarePositions(const glm::vec2& sunToCenter, const glm::vec2& sunCoords) {
+
+
+		for (unsigned int i = 0; i < m_flares.size(); i++)
 		{
-			m_flares[i].screenPos = CENTER; //+ sunToCenterDirection * float(i) * spacing;
+			glm::vec2 direction = sunToCenter;
+			direction *= (float)i * spacing;
+
+			glm::vec2 textureSizeIn2D = m_flares[i].texture.getSize() / glm::vec2{float(Window::getWinWidth()), float(Window::getWinHeight())};
+			glm::vec2 middleOfTexture = textureSizeIn2D / 2.F;
+
+			glm::vec2 flarePos = sunCoords - middleOfTexture + direction;
+
+
+			m_flares[i].screenPos = glm::vec2{ -(flarePos.x - 0.5f) * 2.F, (flarePos.y - 0.5f) * 2.F };
+
+
+			//m_flares[i].screenPos -= (m_flares[i].texture.getSize()) / glm::vec2{ Window::getWinWidth() * -1.f, Window::getWinHeight() };
+
+
+
 		}
+
+
+
 	}
 
 	// TODO batch render
-	void render(const glm::vec2& screenSunPos, const Renderer::Camera& camera) {
+	void render(const glm::vec3& sunWorldPos, const Renderer::Camera& camera) {
 
-		computeFlarePositions(screenSunPos);		
-		m_flareRenderer.renderFlares(m_flares);
+		glm::vec2 sunCoords = convertToScreenSpace(sunWorldPos, camera.getViewProjectionMatrix());
+
+		//if (sunCoords.x <= 0) return;
+
+		glm::vec2 sunToCenter = glm::vec2{ 0.5f, 0.5f } - sunCoords;
+		float length = 1.f - glm::length(sunToCenter);
+		float brightness = (length / 0.6f);
+
+		std::cout << "sunPos : " << sunWorldPos << " | sunCoordsOnScreen : " << sunCoords <<
+			" | brightness : " << brightness << std::endl;
+
+		if (brightness <= 0) return;
+
+		computeFlarePositions(sunToCenter, sunCoords);
+
+
+		m_flareRenderer.renderFlares(m_flares, brightness);
 	}
 
 

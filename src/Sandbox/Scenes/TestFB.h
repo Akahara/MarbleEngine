@@ -27,8 +27,9 @@ private:
   Renderer::FrameBufferObject m_fbo;
   Renderer::Texture target{ Window::getWinWidth(), Window::getWinHeight() };
   
-  glm::vec3 m_sun{10,10,10};
-  glm::vec3 m_camera{10,10,10};
+  glm::vec3 m_sun{100,100,100};
+  Renderer::Mesh m_cube = Renderer::createCubeMesh();
+
 
 
   public:
@@ -75,6 +76,7 @@ private:
       m_pipeline.setContextParam<Renderer::Camera>("camera", m_backingScene->camera);
       m_pipeline.bind();
       m_backingScene->onRender();
+      Renderer::renderMesh(m_sun, { 5,5,5 }, m_cube, m_backingScene->camera);
       m_pipeline.unbind();
       
       m_pipeline.renderPipeline();
@@ -94,12 +96,13 @@ private:
   void onImGuiRender() override 
   {
     m_backingScene->onImGuiRender();
+    glm::vec3 campos = m_backingScene->camera.getPosition();
     
     m_pipeline.onImGuiRender();
 
 
     ImGui::DragFloat3("sunPos", &m_sun.x, 1.F);
-    ImGui::DragFloat3("cameraPos", &m_camera.x, 1.F);
-    std::cout << glm::dot(glm::normalize(m_sun), glm::normalize(m_backingScene->camera.getForward())) << std::endl;
+    ImGui::Text("Player position : {%f, %f, %f}", campos.x, campos.y, campos.z );
+    //std::cout << glm::dot(glm::normalize(m_sun), glm::normalize(m_backingScene->camera.getForward())) << std::endl;
   }
 };

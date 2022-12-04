@@ -40,11 +40,12 @@ namespace visualEffects {
 			m_blitData.getShader().setUniform1i("u_mask", 1);
 			m_blitData.getShader().setUniform3f("u_sunPos", sunPos);
 			m_blitData.getShader().setUniform3f("u_camForward", camera.getForward());
+			m_blitData.getShader().setUniform3f("u_camPos", camera.getPosition());
 			glm::vec4 clip = camera.getViewProjectionMatrix() * glm::vec4(sunPos+camera.getPosition(), 1);
 			glm::vec2 screenspace = ((clip / clip.w) + 1.F) * 0.5F;
 			m_blitData.getShader().setUniform2f("u_sunScreenSpace", screenspace);
 			m_blitData.doBlit(context.originTexture);
-			m_fManager.render(screenspace, camera);
+			m_fManager.render(sunPos, camera);
 
 
 			context.fbo.unbind();

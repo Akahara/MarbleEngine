@@ -7,9 +7,11 @@ in float o_TexIndex;
 
 uniform sampler2D u_Textures[12];
 
+uniform float u_brightness = 1;
+
 void main()
 {
 	int index = int(o_TexIndex);
 	color = texture(u_Textures[index], o_TexCoord);
-	color.a = 0.5;
+	color.a *= u_brightness;
 };
