@@ -17,6 +17,8 @@
 \usepackage{subfig} % make it possible to include more than one captioned figure/table in a single float
 \usepackage{amssymb}
 \usepackage{mathtools}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 %%% HEADERS & FOOTERS
 \usepackage{fancyhdr}
@@ -154,7 +156,13 @@ Dans le code cela consiste à calculer une suite de valeurs de gradient de la he
 
 \subsection{Structure du terrain}
 
+On verra ensuite que penser à l'affichage du terrain avant de fixer sa structure est essentiel, avec une bonne structure l'affichage est plus simple et beaucoup plus performant. L'idée est que les données du terrain ne peuvent pas (ou peu) être modifiées pendant l'exécution mais qu'elle doivent pouvoir être segmentées pour n'en afficher qu'une partie.
+Pour résoudre ce problème nous divisons le terrain en parcèles (\textit{chunks}). Chaque parcelle peut être générée et affichée indépendament des autres, seul sa position suffit à savoir ce qu'elle contient.
+Avec cette division il est assez simple de faire un terrain qui se met à jour en fonction de la position du joueur, pour que les chunks proches soient toujours visible.
+
 %% classes
+
+
 
 \subsection{Variations}
 
@@ -162,21 +170,101 @@ Dans le code cela consiste à calculer une suite de valeurs de gradient de la he
 %% génération de desert...
 
 
+
+
 \section{Affichage 3D}
+
+L'affichage représente la plus grosse partie du projet, on a beau avoir un terrain immense et avec des details très fins, s'il est impossible de l'afficher le tout n'a plus grand interet.
+
+Nos contraintes principales seront de pouvoir afficher un très grand terrain, avec des performances qui permettent le déplacement en temps réel (60 images par secondes). Concrètement cela veut dire qu'afficher une image doit prendre moins de 16.6ms, ce qui peut être très difficile à respecter dans certains cas.
+
+Avec ces considérations et notre experience passée commune, nous avons choisi d'utiliser OpenGL comme interface avec le gpu (carte graphique).
 
 \subsection{OpenGL}
 
+OpenGL est une spécification qui définie des points d'entrée d'une interface cpu-gpu. Pour utiliser OpenGL nous avons besoin d'une librairie dépendante du langage de programmation ; en c++ nous utiliserons glad. Nous aurons aussi besoin de librairies pour la gestion de la fenêtre de l'application et l'interface utilisateur, nous utiliserons glfw et ImGui.
+
+\paragraph{}
+OpenGL fonctionne comme une \textit{state machine}. Chaque fonction modifie l'état interne du gpu et certaines lances des commandes à exécuter comme l'affichage de formes géométriques.
+Il est important de mentionner que les gpu modernes ne savent pas afficher autre chose que des triangles et des lignes, pour afficher un rectangle on devra se contenter de dessiner deux triangles.
+
 \subsection{Shaders}
+
+Les \textit{shaders} sont des programmes qui tournent sur le gpu plutot que sur le cpu. Nous utiliserons extensivement deux types de shaders pour l'affichage : le \textit{vertex shader} qui s'execute pour chaque sommet des triangles affichés ; et le \textit{fragment shader} qui s'execute pour chaque pixel couvert par le triangle. Des shaders classiques ressemblent à ceci :
+%% TODO vertex shader
+
+Un dernier type de shader que nous utiliserons est le \textit{compute shader}, qui ne sert pas à l'affichage mais permet de faire des calculs massivement parrallèles sur le gpu. Il nous sera utile pour gagner en performance.
+
+\paragraph{}
+Avec ces éléments définis on peut faire un schéma de la "pipeline OpenGL" :
+%% TODO schema pipeline
+
 
 \subsection{Caméras et mathématiques}
 
-%% \subsection{Batched rendering} %% seulement le terrain
+\subsection{Ombres}
+
+Nous avons implémenté deux types d'ombre : les ombres d'ambiance et les ombres portées. Les deux se combinent très facilement dans le fragment shader utilisé pour le terrain.
+\subsubsection{Ombre d'ambiance}
+Une ombre d'ambiance est l'obsurcissement des surfaces qui ne sont pas dirigées vers le soleil. Mathématiquement cela se calcule très bien à partir des normales du terrain, pour chaque pixel on calcule ce que reçoit le pixel :
+$$ S_{ambiance}=max(0, \vec{N}\cdot \vec{D}) $$
+Avec $\vec{N}$ la normale du terrain à la position du pixel, $\vec{D}$ la direction des rayons su soleil.
+%% TODO schema normales
+
+\subsubsection{Ombre portées}
+Le calcul des ombres portées et autrement plus compliqué, et se divise en plusieurs étapes
+\begin{enumerate}
+\itemsep-.5em
+\item positionner le soleil pour qu'il éclaire le moins possible
+\item afficher la scène "depuis le point de vue du soleil"
+\item afficher la scène normalement, en tenant compte de la distance des objets au soleil
+\end{enumerate}
+
+%% TODO schema ombre portées
+
+L'idée est de calculer la distance des pixels au soleil et de vérifier que cette distance est bien la plus petite à la position du pixel du point de vue du soleil, si ce n'est pas le cas cela signifie qu'un autre objet est plus proche du soleil et donc qu'il projète une ombre sur le pixel.
+\paragraph{}
+Le positionnement se fait en listant les objets qui doivent recevoir et pouvoir projeter des ombres. Tout les éléments qui ne sont pas dans le champ de vue du joueur n'ont pas à être éclairés mais ceux qui peuvent projeter des ombres sur des objets visibles doivent être pris en compte.
+%% TODO maths?
+%% TODO screen du positionnement de la sun camera
+\paragraph{}
+L'affichage de la scène depuis le point de vue du soleil utilise une caméra orthographique car tous les rayons sont perpendiculaires. La distance la plus faible est enregistrée pour chaque pixel et est utilisée ensuite. La distance enregistrée ainsi est normalisée (linéarisée dans $[0,1]$) par OpenGL. La texture qui contient ces distances est appellée \textit{depth map}(\textit{carte de profondeur}).
+
+\subsubsection{Algorithme final}
+
+On arrive à un algorithme de ce type pour déterminer la quantité de soleil que reçoit chaque pixel.
+\begin{algorithm}
+\caption{Calcul des ombres par pixel}\label{alg:cap}
+\begin{algorithmic}
+\State $P_s \gets \text{... matrice de projection monde$\rightarrow$depth map}$
+\State $DM \gets \text{... depth map 2D}$
+\State $D \gets \text{... direction des rayons du soleil}$
+\\
+\State $p \gets \text{...  position 3D du pixel}$
+\State $n \gets \text{... normale 3D à la position du pixel}$
+\\
+\State $S_{ambiant} \gets max(0, n\cdot D)$
+\State $u \gets P_s\times p$
+\State $d_{pixel} \gets u.z$
+\State $d_{nearest} \gets DM(u.xy)\times(z_{far}-z_{near})+z_{near}$
+\State $S_{casted} \gets smoothstep(-\epsilon, 0, d_{pixel}-d_{nearest})$
+\State $Q \gets S_{ambiant}*S_{casted}$
+\\
+\State $PixelColor\gets mix(SunDarkColor, SunLightColor, max(.1, Q\times SunStrength))$
+\end{algorithmic}
+\end{algorithm}
+
+On préfère utiliser la fonction $smoothstep$ et utiliser $\epsilon$ plutôt que de mettre $S_{casted}$ à $0$ ou $1$ pour éviter le crénelage du aux erreurs d'arrondis.
+
+%% TODO screen des ombres
 
 \subsection{Instanced rendering}
 
 \subsection{Effets spéciaux}
 
 \subsubsection{} %% ...
+
+
 
 
 \section{Algorithmes spécifiques}
