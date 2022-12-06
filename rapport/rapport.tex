@@ -19,6 +19,8 @@
 \usepackage{mathtools}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{graphicx}
+\graphicspath{ {./res/} }
 
 %%% HEADERS & FOOTERS
 \usepackage{fancyhdr}
@@ -220,9 +222,15 @@ Le calcul des ombres portées et autrement plus compliqué, et se divise en plus
 \item afficher la scène normalement, en tenant compte de la distance des objets au soleil
 \end{enumerate}
 
-%% TODO schema ombre portées
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.49]{ombres}
+	\caption{Schéma du fonctionnement des ombres portées}
+	\label{fig:shadows_schema}
+\end{figure}
 
-L'idée est de calculer la distance des pixels au soleil et de vérifier que cette distance est bien la plus petite à la position du pixel du point de vue du soleil, si ce n'est pas le cas cela signifie qu'un autre objet est plus proche du soleil et donc qu'il projète une ombre sur le pixel.
+L'idée est de calculer la distance des pixels au soleil et de vérifier que cette distance est bien la plus petite à la position du pixel du point de vue du soleil (en bleu et orange sur le schéma), si ce n'est pas le cas cela signifie qu'un autre objet est plus proche du soleil et donc qu'il projète une ombre sur le pixel (en vert sur le schéma).
+
 \paragraph{}
 Le positionnement se fait en listant les objets qui doivent recevoir et pouvoir projeter des ombres. Tout les éléments qui ne sont pas dans le champ de vue du joueur n'ont pas à être éclairés mais ceux qui peuvent projeter des ombres sur des objets visibles doivent être pris en compte.
 %% TODO maths?
@@ -291,5 +299,7 @@ Perlin, Ken. "Making Noise"
 \bibitem{erosion}
 Hans Theobald Beyer. "Implementation of a method for hydraulic erosion"
 \end{thebibliography}
+
+\listoffigures
 
 \end{document}
