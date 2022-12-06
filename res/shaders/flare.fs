@@ -13,5 +13,5 @@ void main()
 {
 	int index = int(o_TexIndex);
 	color = texture(u_Textures[index], o_TexCoord);
-	color.a *= u_brightness;
+	color.a *= u_brightness * 0.25f;
 };

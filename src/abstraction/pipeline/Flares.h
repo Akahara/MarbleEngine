@@ -13,6 +13,7 @@ struct Flare {
 	Renderer::Texture texture;
 	glm::vec2 screenPos;
 	int texId;
+	//int z_layer = 0;
 };
 
 class FlareRenderer {
@@ -146,9 +147,11 @@ public:
 		m_VAO.bind();
 
 		glEnable(GL_BLEND);
+		glDepthMask(GL_FALSE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 
+		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
 		m_indexCount = 0;
 		m_textureSlotIndex = 1;
@@ -212,12 +215,13 @@ public:
 			direction *= (float)i * spacing;
 
 			glm::vec2 textureSizeIn2D = m_flares[i].texture.getSize() / glm::vec2{float(Window::getWinWidth()), float(Window::getWinHeight())};
-			glm::vec2 middleOfTexture = textureSizeIn2D / 2.F;
+			glm::vec2 middleOfTexture = (textureSizeIn2D)/2.f;
 
 			glm::vec2 flarePos = sunCoords - middleOfTexture + direction;
 
 
-			m_flares[i].screenPos = glm::vec2{ -(flarePos.x - 0.5f) * 2.F, (flarePos.y - 0.5f) * 2.F };
+			m_flares[i].screenPos = glm::vec2{ (flarePos.x - 0.5f) * 2.F, (flarePos.y - 0.5f) * 2.F };
+
 
 
 			//m_flares[i].screenPos -= (m_flares[i].texture.getSize()) / glm::vec2{ Window::getWinWidth() * -1.f, Window::getWinHeight() };
@@ -235,14 +239,13 @@ public:
 
 		glm::vec2 sunCoords = convertToScreenSpace(sunWorldPos, camera.getViewProjectionMatrix());
 
-		//if (sunCoords.x <= 0) return;
-
 		glm::vec2 sunToCenter = glm::vec2{ 0.5f, 0.5f } - sunCoords;
 		float length = 1.f - glm::length(sunToCenter);
 		float brightness = (length / 0.6f);
-
+		/*
 		std::cout << "sunPos : " << sunWorldPos << " | sunCoordsOnScreen : " << sunCoords <<
 			" | brightness : " << brightness << std::endl;
+		*/
 
 		if (brightness <= 0) return;
 
