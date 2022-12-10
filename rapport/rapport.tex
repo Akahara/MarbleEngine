@@ -20,6 +20,8 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{graphicx}
+\usepackage{makecell}
+\usepackage{url}
 \graphicspath{ {./res/} }
 
 %%% HEADERS & FOOTERS
@@ -42,6 +44,16 @@
 \DeclarePairedDelimiter\abs{\lvert}{\rvert}%
 \DeclarePairedDelimiter\floor{\lfloor}{\rfloor}%
 \DeclarePairedDelimiter\fract{fract(}{)}
+
+\renewcommand{\listfigurename}{Index des illustrations}
+
+% Custom ParFor (parallel for) command in algorithms
+\algblock{ParFor}{EndParFor}
+\algnewcommand\algorithmicparfor{\textbf{parfor}}
+\algnewcommand\algorithmicpardo{\textbf{do}}
+\algnewcommand\algorithmicendparfor{\textbf{end\ parfor}}
+\algrenewtext{ParFor}[1]{\algorithmicparfor\ #1\ \algorithmicpardo}
+\algrenewtext{EndParFor}{\algorithmicendparfor}
 
 %%% END Article customizations
 
@@ -97,17 +109,28 @@ Pour générer notre terrain, il nous faut d'abord lister les contraintes que no
 	\item{dont la hauteur change}
 \end{itemize}
 
-Nous nous restreindrons à une seule valeur de hauteur par position dans le plan, donc pas de grottes ou de surplomb. Les algorithmes classiques qui correspondent à ces critères consistent à créer une \textit{carte de hauteur} (\textit{heightmap}) et à placer des points sur une grille dont les hauteurs correspondent à celles de la carte. Il suffit ensuite de relier ces points pour avoir un terrain convainquant.
+Nous nous restreindrons à une seule valeur de hauteur par position dans le plan, donc pas de grottes ou de surplomb. Les algorithmes classiques qui correspondent à ces critères consistent à créer une \textit{carte de hauteur} (\textit{heightmap}) et à placer des points sur une grille dont les hauteurs correspondent à celles de la carte. Il suffit ensuite de relier ces points pour avoir un terrain convainquant comme illustré par la figure \ref{fig:wireframe_terrain}.
 
-%% TODO screen du mesh en wireframe
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.49]{terrain_wireframe}
+	\caption{Un squelette de terrain fait à partir d'une grille sculptée} %% TODO trouver le bon mot pour "displaced" plutot que sculptée
+	\label{fig:wireframe_terrain}
+\end{figure}
 
 Il existent d'autres méthodes pour faire ce genre de terrain (cubemarching, raymarching avec génération dynamique...) qui permettent de faire plus mais qui sont beaucoup plus gourmandes en performances et en complexité. Dans notre cas une heightmap est beaucoup plus adaptée.
 
 \subsection{Bruit de Perlin}
 
-Pour créer la heightmap il nous faut ce qu'on appelle un \textit{bruit}, une fonction dont le domaine de définition est le plan $xz$ et le domaine de valeurs est $\mathbb{R}$. Cette fonction doit être pseudo-aléatoire mais aussi continue.
+Pour créer la heightmap il nous faut ce qu'on appelle un \textit{bruit}, une fonction dont le domaine de définition est le plan $xz$ et le domaine de valeurs est $\mathbb{R}$. Cette fonction doit être pseudo-aléatoire mais deterministe. La plus simple est le \textit{white noise} qui est "complètement aléatoire"\footnote{On utilisera le générateur de nombre pseudo-aléatoires de C++ pour attribuer une valeur à chaque point du plan $\mathbb{Z}^2$.}. On s'interessera plutôt aux fonctions de bruit continues sur $\mathbb{R}^2$.
 
-%% TODO img bruit blanc | bruit de perlin
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.49]{white_noise}
+	\includegraphics[scale=.49]{perlin_noise}
+	\caption{White noise et Perlin noise}
+	\label{fig:noises}
+\end{figure}
 
 Les fonctions les plus communes pour une génération de ce style sont de la famille des \textit{Gradient noise} (bruit de gradient) et \textit{Value noise} (bruit de valeur).
 Un value noise est défini à partir d'un white noise de cette manière :
@@ -134,10 +157,7 @@ La différence avec le value noise est qu'au lieu d'utiliser un white noise comm
 			&f(a_{10}, &&a_{11}, &&dx), dy)
 \end{alignat*}
 
-%% TODO rajouter le lien vers l'article
 Dans son article\cite{perlinnoise}, Ken Perlin défini le \textit{Simple gradient noise} avec $f$ l'interpolation linéaire, et le bruit de perlin, avec $f$ la fonction $smoothstep$\footnote{$smoothstep(a,b,x) = 3x^2-2x^3$}.
-
-%% TODO screen du perlin noise
 
 Ces bruits sont bons pour un terrain simpliste, mais l'astuce de Ken Perlin est d'en cumuler plusieurs octaves. En jouant sur la fréquence et l'amplitude de chacune :
 \begin{align*}
@@ -145,7 +165,16 @@ Ces bruits sont bons pour un terrain simpliste, mais l'astuce de Ken Perlin est 
 	Amplitude_k &= Persistence^k\\ 
 	Frequency_k &= Lacunarity^k
 \end{align*}
-Les paramètres qui nous restent à contrôler sont la persistance (le facteur de taille entre deux octaves), la lacunarité (le facteur de poids entre deux octaves) et le nombre d'octaves. Avec ceci on arrive à des cartes de hauteur assez réalistes :
+Les paramètres qui nous restent à contrôler sont la persistance (le facteur de taille entre deux octaves), la lacunarité (le facteur de poids entre deux octaves) et le nombre d'octaves. Avec ceci on arrive à des cartes de hauteur assez réalistes, comme illustré en figure \ref{fig:layered_noise}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.3]{perlin_1_octave}
+	\includegraphics[scale=.3]{perlin_2_octaves}
+	\includegraphics[scale=.3]{perlin_4_octaves}
+	\caption{1, 2 et 4 octaves du Perlin noise}
+	\label{fig:layered_noise}
+\end{figure}
 
 %%  TODO layered noise
 
@@ -210,8 +239,14 @@ Nous avons implémenté deux types d'ombre : les ombres d'ambiance et les ombres
 \subsubsection{Ombre d'ambiance}
 Une ombre d'ambiance est l'obsurcissement des surfaces qui ne sont pas dirigées vers le soleil. Mathématiquement cela se calcule très bien à partir des normales du terrain, pour chaque pixel on calcule ce que reçoit le pixel :
 $$ S_{ambiance}=max(0, \vec{N}\cdot \vec{D}) $$
-Avec $\vec{N}$ la normale du terrain à la position du pixel, $\vec{D}$ la direction des rayons su soleil.
-%% TODO schema normales
+Avec $\vec{N}$ la normale du terrain à la position du pixel, $\vec{D}$ la direction des rayons su soleil comme illustré dans la figure \ref{fig:ambiant_shadows_schema}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.49]{ombres_ambiantes}
+	\caption{Schéma du fonctionnement des ombres ambiantes}
+	\label{fig:ambiant_shadows_schema}
+\end{figure}
 
 \subsubsection{Ombre portées}
 Le calcul des ombres portées et autrement plus compliqué, et se divise en plusieurs étapes
@@ -229,7 +264,7 @@ Le calcul des ombres portées et autrement plus compliqué, et se divise en plus
 	\label{fig:shadows_schema}
 \end{figure}
 
-L'idée est de calculer la distance des pixels au soleil et de vérifier que cette distance est bien la plus petite à la position du pixel du point de vue du soleil (en bleu et orange sur le schéma), si ce n'est pas le cas cela signifie qu'un autre objet est plus proche du soleil et donc qu'il projète une ombre sur le pixel (en vert sur le schéma).
+L'idée est de calculer la distance des pixels au soleil et de vérifier que cette distance est bien la plus petite à la position du pixel du point de vue du soleil (en bleu et orange sur la figure \ref{fig:shadows_schema}), si ce n'est pas le cas cela signifie qu'un autre objet est plus proche du soleil et donc qu'il projète une ombre sur le pixel (en vert sur le schéma).
 
 \paragraph{}
 Le positionnement se fait en listant les objets qui doivent recevoir et pouvoir projeter des ombres. Tout les éléments qui ne sont pas dans le champ de vue du joueur n'ont pas à être éclairés mais ceux qui peuvent projeter des ombres sur des objets visibles doivent être pris en compte.
@@ -240,9 +275,9 @@ L'affichage de la scène depuis le point de vue du soleil utilise une caméra or
 
 \subsubsection{Algorithme final}
 
-On arrive à un algorithme de ce type pour déterminer la quantité de soleil que reçoit chaque pixel.
+Après que la depth map ai été calculée, on arrive à un algorithme de ce type pour déterminer la quantité de soleil que reçoit chaque pixel.
 \begin{algorithm}
-\caption{Calcul des ombres par pixel}\label{alg:cap}
+\caption{Calcul des ombres par pixel}
 \begin{algorithmic}
 \State $P_s \gets \text{... matrice de projection monde$\rightarrow$depth map}$
 \State $DM \gets \text{... depth map 2D}$
@@ -267,6 +302,35 @@ On préfère utiliser la fonction $smoothstep$ et utiliser $\epsilon$ plutôt qu
 %% TODO screen des ombres
 
 \subsection{Instanced rendering}
+\label{section:instanced_rendering}
+
+En plus du terrain en lui même, nous avons choisi d'afficher quelques objets en plus. Et par "quelques" il faut entendre plusieurs millions. Nous nous sommes donné le but d'afficher des brins d'herbe, nous reviendrons sur les algorithmes d'optimisation mis en place mais avant de pouvoir en discuter il est important de comprendre \textit{comment} OpenGL gère l'affichage.
+\paragraph{}
+Pour afficher un objet simple (un cube par exemple) il nous faut 4 structures de données sur le gpu : un \textit{Vertex Buffer}, qui contient les données de chaque sommet du cube ; un \textit{Index Buffer}, qui définit les triangles à partir des sommets ; un shader et un \textit{Vertex Array} que nous passerons sous silence car ils n'influencent pas les données.
+
+Une manière très naïve d'afficher un très grand nombre d'éléments est de construire un Vertex Buffer (VB) et un Index Buffer (IB) par objet. Le soucis est qu'à l'affichage il nous faudra changer le contexte OpenGL (modifier les VB/IB actifs) pour chaque élément, ce qui ralentit considérablement le tout\footnote{Le vrai problème vient du nombre d'appels à des fonctions d'affichage, il est possible d'afficher beaucoups d'éléments d'un coup mais seulement si le contexte n'a pas à changer}.
+Si les objets sont identiques on peut n'utilser qu'un seul IB, mais ce n'est pas suffisant.
+
+\paragraph{}
+Une manière déjà plus intéressante est de construire un unique VB qui contient tout les sommets de tout les éléments et un IB qui contient les triangles constitués de ces sommets, cela améliore déjà considérablement les performances. Cette méthode est appellée \textit{batch rendering}.
+Cette méthode possède cependant un désavantage majeur, il est quasiment impossible de n'afficher qu'une partie des éléments. Pour le terrain par exemple nous n'affichons que les chunks visibles par la caméra, le batch rendering n'est donc pas adapté. On préferera faire des chunks de grande taille pour diminuer le nombre de changement de contextes même si cela diminue l'éfficacité de n'afficher que les chunks visibles.
+
+\paragraph{}
+Dans notre cas on peut encore faire mieux, tout nos éléments sont identiques mis à part leurs position dans le monde, on peut donc utiliser un seul VB et IB qui contiennent les données d'un unique brin d'herbe et le dessiner autant de fois que nécessaire à des positions différentes. Mais pour ne pas avoir à modifier le contexte OpenGL il faut que ces données d'instances soient présentes sur le gpu. On créé donc un \textit{instance buffer} qui contient la position de chaque brin d'herbe. Cette méthode s'appelle l'\textit{instanced rendering}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.4]{grass_vbibib}
+	\caption{Structures présentes sur le gpu en instanced rendering}
+	\label{fig:grass_vbibib}
+\end{figure}
+
+\subsubsection{Profilage}
+Avec l'instanced rendering on peut afficher plusieurs centaines de milliers de triangles sans trop impacter les performances, mais ce n'est pas suffistant pour les quelques millions que nous nous sommes fixé, nous reviendrons sur les deux optimisations majeures dans la section \ref{section:grass_rendering}.
+\paragraph{}
+ Pour vérifier que notre implémentation est déjà meilleure que la naïve on peut comparer le temps mit avec les deux méthodes. Le profilage doit se faire avec des outils adaptés et non pas depuis C++ car le gpu et le cpu ont des fils d'execution très différents.
+
+%% TODO screen des benchmarks
 
 \subsection{Effets spéciaux}
 
@@ -280,6 +344,57 @@ On préfère utiliser la fonction $smoothstep$ et utiliser $\epsilon$ plutôt qu
 %% algos qu'on a développé avec plus ou moins de sources (plutot moins que plus)
 
 \subsection{Affichage de l'herbe}
+\label{section:grass_rendering}
+
+Nous avons déjà abordé l'instanced rendering dans la section \ref{section:instanced_rendering}. Néanmoins pour afficher plusieurs millions de brins d'herbe d'autres techniques sont nécessaires. On peut déjà imaginer afficher deux modèles différents, un en haute résolution (7 ou 8 triangles) et un en basse résolution (1 triangle) qui sera utilisé pour les brins d'herbes loin de la caméra. On peut aussi n'afficher que les brins d'herbe visible ; on ne peut pas replacer les brins d'herbe en permanence car l'envoi de données du cpu au gpu est lent, mais on peut dire au gpu de filtrer les brins d'herbe qui ne sont pas visible pour qu'ils ne fassent pas partie de la prochaine commande d'affichage.
+
+\paragraph{}
+La méthode que nous utiliserons pour filtrer les brins d'herbe visibles est inspirée de la vidéo d'Acerola\cite{grass_rendering}. L'idée est de maintenir deux instance buffers : le complet, qui contient tous les brins d'herbe et n'est mit à jours que lorsque le joueur se déplace beaucoup pour qu'il soit toujours au milieu de la zone couverte de brins d'herbe ; et un deuxième qui contient seulement les brins d'herbe visible et est mit à jours à chaque frame. L'algorithme s'appelle le scan and compact, une version parrallèle est l'algorithme \ref{alg:scan_and_compact}.
+
+\begin{algorithm}
+\caption{Scan and compact}\label{alg:scan_and_compact}
+\begin{algorithmic}
+\State $I \gets \text{... instance buffer complet}$
+\State $N \gets |I|$
+\\
+\State $V \gets \{0\}^N$ \Comment{Vote buffer}
+\State $S \gets \{0\}^N$ \Comment{Scan buffer}
+\State $B \gets \{nil\}^N$ \Comment{Compact buffer}
+\State $M \gets 0$ \Comment{nombre total d'instances visibles}
+\\
+\ParFor{$i\gets 1, N$}
+	\State $V_i \gets vote(I_i)$ \Comment{Vote, $V_i$ vaudra 1 ssi l'instance est visible}
+\EndParFor
+\State $S,M\gets Scan(V)$\Comment{Scan du vote buffer, cad $S_i\gets\sum_{k=1}^i V_k$}
+\ParFor{$i\gets 1,N$}
+	\If{$V_i=1$}
+		\State $B_{S_i}\gets I_i$\Comment{Compact, les instances visibles remplissent $B$}
+	\EndIf
+\EndParFor
+\end{algorithmic}
+\end{algorithm}
+
+L'avantage du gpu est que les calculs sont massivement parrallélisables. Nous avions vu l'algorithme de scan l'année dernière en CUDA en cours. Nous n'avons pas pu récuperer l'algorithme car OpenGL permet seulement de synchroniser les threads d'un groupe et pas les groupes entre eux et nous sommes limités en nombre de threads/groupes. En terme moins technique cela signifie que l'algorithme de scan doit se diviser en trois parties parrallèles.
+
+\paragraph{}
+En étant limité à $N=1024$ threads/groupe et $G=1024$ groupes, l'algorithme que nous proposons est limité à $G\times N=1'048'576$ brins d'herbe, et peut facilement être étendu à $G\times N^M$ en répétant $M$ fois les étapes 2 puis 3.
+
+\begin{tabular}{|l|l|l|}
+	\hline
+	 & $\makecell{Threads\times\\ Groupes}$ & action\\
+	\hline
+	1. scan/block & $N\times  G$ & \makecell[l]{On scanne sur $V_i$ chaque block de $N$ brins\\ d'herbe, le total de chaque block est\\ stoqué dans $A_i$}\\
+	\hline
+	2. scan/group & $G\times 1$ & \makecell[l]{On scanne sur $A_i$ les sommes de chaque\\ block, le total est stoqué dans $M$}\\
+	\hline
+	3. accumulation & $N\times G$ & \makecell[l]{On ajoute à chaque valeur de chaque block\\ (les $V_i$) la somme des sommes des\\ blocks précédents (les nouveaux $A_i$)}\\
+	\hline
+\end{tabular}
+
+\paragraph{}
+On peut ensuite afficher $M$ brins d'herbe.
+
+%% TODO screen de l'herbe
 
 \subsection{Eau}
 
@@ -298,6 +413,9 @@ Perlin, Ken. "Making Noise"
 
 \bibitem{erosion}
 Hans Theobald Beyer. "Implementation of a method for hydraulic erosion"
+
+\bibitem{grass_rendering}
+Acerola, "What I Did To Optimize My Game's Grass", \url{https://youtu.be/PNvlqsXdQic}
 \end{thebibliography}
 
 \listoffigures
