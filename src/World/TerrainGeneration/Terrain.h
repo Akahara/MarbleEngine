@@ -44,6 +44,7 @@ public:
   unsigned int getChunkSize() const { return m_chunkSize; }
   float getHeight(int x, int y) const { return m_heightMap->getHeight(x + 1, y + 1); } // beware! the heightmap has a padding of 1
   float getHeight(float x, float y) const { return m_heightMap->getHeightLerp(x + 1, y + 1); }
+  bool isInSamplableRegion(float x, float y) const { return m_heightMap->isInBounds(x + 1, y + 1) && m_heightMap->isInBounds(x + 2, y + 2); }
   const HeightMap &getHeightMap() const { return *m_heightMap; }
   const std::unordered_map<glm::ivec2, Chunk> &getChunks() const { return m_chunks; }
   std::unordered_map<glm::ivec2, Chunk> &getChunks() { return m_chunks; }

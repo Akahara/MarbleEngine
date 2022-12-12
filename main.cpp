@@ -47,8 +47,9 @@ int main()
     SceneManager::registerScene<TestInstancedScene>("Instanced");
     SceneManager::registerScene<TestWater>("Water");
     SceneManager::registerScene<POC1Scene>("POC 1");
+    SceneManager::registerScene<POC2Scene>("POC 2");
 
-    SceneManager::switchToScene(8);
+    SceneManager::switchToScene(11);
 
     //===========================================================//
 

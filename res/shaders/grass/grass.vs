@@ -22,6 +22,7 @@ float noise(vec2 n) {
 void main()
 {
   o_fragmentHeight = im_position.y;
+  o_colorPalette = ii_position.w;
   vec4 vertex = vec4(im_position, 1);
   vertex.xz = u_R * vertex.xz;
   float h = ii_position.w;

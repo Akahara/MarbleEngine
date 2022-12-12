@@ -11,3 +11,4 @@
 #include "Scenes/TestWater.h"
 
 #include "Scenes/POC1.h"
+#include "Scenes/POC2.h"

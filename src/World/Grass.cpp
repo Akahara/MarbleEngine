@@ -337,7 +337,7 @@ void GrassRenderer::generateGrassModels()
     std::vector<unsigned int> ldBladeIndices;
     ldBladeVertices.push_back({ {-l, 0, 0} });
     ldBladeVertices.push_back({ {+l, 0, 0} });
-    ldBladeVertices.push_back({ {0, t, 0} });
+    ldBladeVertices.push_back({ {0, t*1.1f, 0} });
     ldBladeIndices.push_back(0); ldBladeIndices.push_back(2); ldBladeIndices.push_back(1);
 
     m_grassModels.emplaceBuffer(1, ldBladeVertices, ldBladeIndices);

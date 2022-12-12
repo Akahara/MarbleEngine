@@ -9,7 +9,7 @@ namespace Noise {
 
 float* generateNoiseMap(int mapWidth, int mapHeight, float scale, int octaves, float persistance, float lacunarity, int s) 
 {
-	assert(scale > 0);
+	assert(scale > 0); // TODO the scale parameter does not make much sense if the noise values are inverse-lerped back to 0..1
 	assert(mapWidth > 0);
 	assert(mapHeight > 0);
 	float* noiseMap = new float[mapWidth * mapHeight]();

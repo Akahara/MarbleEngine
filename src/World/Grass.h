@@ -15,7 +15,7 @@ namespace World {
 
 /* Settings for the scan&compact compute shader algorithm, dictates how many grass blades can be renderered */
 struct GrassRenderSettings {
-  static constexpr unsigned int GROUP_COUNT = 256;
+  static constexpr unsigned int GROUP_COUNT = 512;
   static constexpr unsigned int GROUP_WORK = 512;
 
   static constexpr unsigned int MAX_BLADE_COUNT_PER_DRAWCALL = GROUP_COUNT * GROUP_WORK;

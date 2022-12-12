@@ -203,7 +203,7 @@ public:
       ImGui::SliderFloat("Initial water volume", &settings.initialWaterVolume, 0, 3) +
       ImGui::SliderFloat("Initial speed", &settings.initialSpeed, 0, 3) +
       ImGui::SliderInt("Max droplet lifetime", &settings.maxDropletLifetime, 1, 100) +
-      ImGui::DragInt("Droplet count", (int*)&settings.dropletCount, 0, 1E9);
+      ImGui::DragInt("Droplet count", (int*)&settings.dropletCount, 0, (int)1E9);
   }
 
   void onImGuiRender() override
