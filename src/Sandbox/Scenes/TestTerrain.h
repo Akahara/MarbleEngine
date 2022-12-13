@@ -114,6 +114,7 @@ public:
                                                 m_terrainData.scale,
                                                 m_terrainData.octaves,
                                                 m_terrainData.persistence,
+                                                m_terrainData.initialFrequency,
                                                 m_terrainData.lacunarity,
                                                 m_terrainData.seed);
       if(m_isErosionEnabled)

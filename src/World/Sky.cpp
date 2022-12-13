@@ -21,10 +21,11 @@ Sky::Sky()
 {
 }
 
-void Sky::render(const Renderer::Camera &camera, float time) const
+void Sky::render(const Renderer::Camera &camera, float time, bool withClouds) const
 {
   Renderer::renderCubemap(camera, m_skybox);
-  Renderer::SkyRenderer::drawSkyClouds(camera, time);
+  if(withClouds)
+    Renderer::SkyRenderer::drawSkyClouds(camera, time);
 }
 
 }

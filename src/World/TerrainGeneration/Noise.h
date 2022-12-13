@@ -5,7 +5,7 @@
 
 namespace Noise {
 
-float *generateNoiseMap(int mapWidth, int mapHeight, float scale, int octaves, float persistance, float lacunarity, int seed);
+float *generateNoiseMap(int mapWidth, int mapHeight, float scale, int octaves, float persistance, float initialFrequency, float lacunarity, int seed);
 float *loadNoiseMapFromFile(const char *path, unsigned int *o_width, unsigned int *o_height);
 void rescaleNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHeight, float currentMin, float currentMax, float newMin, float newMax);
 

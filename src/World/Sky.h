@@ -13,7 +13,7 @@ private:
 public:
   Sky();
 
-  void render(const Renderer::Camera &camera, float time=0.f) const;
+  void render(const Renderer::Camera &camera, float time=0.f, bool withClouds=true) const;
 };
 
 }

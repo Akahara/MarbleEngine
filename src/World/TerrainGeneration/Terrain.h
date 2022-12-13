@@ -54,9 +54,10 @@ public:
 struct TerrainData {
   float scale = 27.6f;
   float terrainHeight = 20.f;
-  int   octaves = 4;          // Number of times we add a new frequency to the heightmap
-  float persistence = 0.3f;   // How impactfull an octave is relative to the previous one
-  float lacunarity = 3.18f;   // How scaled an octave is relative to the previous one
+  int   octaves = 4;            // Number of times we add a new frequency to the heightmap
+  float persistence = 0.3f;     // How impactfull an octave is relative to the previous one
+  float initialFrequency = 1.f; // The impactfullness of the first octave
+  float lacunarity = 3.18f;     // How scaled an octave is relative to the previous one
   int   seed = 5;
 };
 

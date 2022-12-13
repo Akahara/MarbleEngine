@@ -37,7 +37,7 @@ public:
     Renderer::Shader &meshShader = Renderer::getStandardMeshShader();
     meshShader.bind();
     meshShader.setUniform1iv("u_Textures2D", 8, samplers);
-    meshShader.setUniform1i("u_castShadows", 1);
+    meshShader.setUniform1i("u_castShadows", 0);
     meshShader.setUniform1i("u_RenderChunks", 0);
     meshShader.setUniform1f("u_Strength", 1.25f);
     meshShader.setUniform3f("u_fogDamping", .003f, .005f, .007f);
@@ -52,13 +52,14 @@ public:
                                                 /*scale*/30,
                                                 /*octaves*/4,
                                                 /*persistence*/.5f,
+                                                /*frequency*/1.f,
                                                 /*lacunarity*/2.1f,
                                                 /*seed*/0);
       Noise::rescaleNoiseMap(noiseMap, noiseMapSize, noiseMapSize, 0, 1, 0, /*height*/5);
       Terrain::ConcreteHeightMap *heightMap = new Terrain::ConcreteHeightMap(noiseMapSize, noiseMapSize, noiseMap);
       // make the terrain plunge toward the middle, so that more can be seen from far away
-      for (int i = 0; i < noiseMapSize; i++) {
-        for (int j = 0; j < noiseMapSize; j++) {
+      for (int i = 0; i < (int)noiseMapSize; i++) {
+        for (int j = 0; j < (int)noiseMapSize; j++) {
           float dx = glm::abs(i - noiseMapSize / 2.f);
           float dy = glm::abs(j - noiseMapSize / 2.f);
           heightMap->setHeightAt(i, j, heightMap->getHeight(i, j) + glm::max(dx, dy)/(noiseMapSize/2.f)*10.f);

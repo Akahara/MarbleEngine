@@ -111,6 +111,7 @@
     <ClInclude Include="src\World\TerrainGeneration\Terrain.h" />
     <ClInclude Include="src\Sandbox\Scenes\POC1.h" />
     <ClInclude Include="src\Sandbox\Scenes\POC2.h" />
+    <ClInclude Include="src\Sandbox\Scenes\POC3.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />

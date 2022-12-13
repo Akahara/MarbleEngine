@@ -12,3 +12,4 @@
 
 #include "Scenes/POC1.h"
 #include "Scenes/POC2.h"
+#include "Scenes/POC3.h"

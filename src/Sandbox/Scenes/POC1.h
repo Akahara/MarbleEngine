@@ -68,6 +68,7 @@ public:
                                                 /*scale*/30,
                                                 /*octaves*/4,
                                                 /*persistence*/.5f,
+                                                /*frequency*/1.f,
                                                 /*lacunarity*/2.1f,
                                                 /*seed*/0);
       Noise::ErosionSettings erosionSettings{};

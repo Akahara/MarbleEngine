@@ -7,7 +7,7 @@
 
 namespace Noise {
 
-float* generateNoiseMap(int mapWidth, int mapHeight, float scale, int octaves, float persistance, float lacunarity, int s) 
+float* generateNoiseMap(int mapWidth, int mapHeight, float scale, int octaves, float persistance, float initialFrequency, float lacunarity, int s) 
 {
 	assert(scale > 0); // TODO the scale parameter does not make much sense if the noise values are inverse-lerped back to 0..1
 	assert(mapWidth > 0);
@@ -21,7 +21,7 @@ float* generateNoiseMap(int mapWidth, int mapHeight, float scale, int octaves, f
 	float minNoiseHeight = std::numeric_limits<float>::max();
 
 	float amplitude = 1;
-	float frequency = 1;
+	float frequency = initialFrequency;
 	for (int o = 0; o < octaves; o++) {
 		for (int y = 0; y < mapHeight; y++) {
 			for (int x = 0; x < mapWidth; x++) {
@@ -170,6 +170,7 @@ static glm::vec3 computeHeightGradientOfCell(float *map, unsigned int mapSize, f
   return { gradientX, gradientY, height };
 }
 
+// TODO add the source of the erosion algorithm
 void erode(float *map, unsigned int mapSize, const ErosionSettings &settings)
 {
   std::vector<std::vector<int>> erosionBrushIndices;

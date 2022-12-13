@@ -76,6 +76,7 @@ Terrain generateTerrain(TerrainData terrainData, unsigned int chunkCountX, unsig
                                             terrainData.scale,
                                             terrainData.octaves,
                                             terrainData.persistence,
+                                            terrainData.initialFrequency,
                                             terrainData.lacunarity,
                                             terrainData.seed);
   for (unsigned int i = 0; i < noiseMapWidth * noiseMapHeight; i++)
