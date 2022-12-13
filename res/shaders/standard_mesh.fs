@@ -23,12 +23,29 @@ uniform mat4x3 u_shadowMapProj;      // a projection from world coordinates to s
 
 uniform vec3 u_cameraPos;
 
+// #define MESA_SCENE
+
+#ifdef MESA_SCENE
+const vec3 mesa_colors[5] = vec3[5](
+    vec3(0.725, 0.455, 0.102),
+    vec3(0.949, 0.639, 0.369),
+    vec3(0.941, 0.482, 0.412),
+    vec3(0.867, 0.720, 0.698),
+    vec3(0.867, 0.630, 0.325)
+);
+#endif
+
 float unnormalizeOrthoDepth(float depth) {
     return depth*(u_shadowMapOrthoZRange.y-u_shadowMapOrthoZRange.x) + u_shadowMapOrthoZRange.x;
 }
 
 void main()
 {
+#ifdef MESA_SCENE
+    // for the mesa scene, a simple texture sample does not sufice
+    color = mix(texture(u_Textures2D[0], o_uv), vec4(mesa_colors[int(floor(o_pos.y*.5))%5], 1), .7);
+#else
+    // regular texture sample
     if (u_RenderChunks==0) {
         vec4 rockSample = texture(u_Textures2D[0], o_uv);
         vec4 grassSample = texture(u_Textures2D[1], o_uv);
@@ -36,6 +53,7 @@ void main()
     } else {
         color = vec4(o_color, 1.f);
     }
+#endif
 
     // normal only (works well with eroded terrain)
     //color.rgb = mix(vec3(0.282, 0.294, 0.294), vec3(0.894, 0.824, 0.667), dot(normalize(o_normal), normalize(u_SunPos)));

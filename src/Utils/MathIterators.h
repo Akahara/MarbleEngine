@@ -197,9 +197,9 @@ inline constexpr SpiralGridIterable iterateOverSquare(glm::ivec2 center, int squ
 {
   assert(squareSize > 0);
   if (squareSize % 2 == 0)
-    return SpiralGridIterable(center, { squareSize / 2, -squareSize / 2 }, squareSize * squareSize);
+    return SpiralGridIterable(center, { squareSize / 2, -squareSize / 2 }, (size_t)squareSize * squareSize);
   else
-    return SpiralGridIterable(center, { -squareSize / 2, squareSize / 2 + 1 }, squareSize * squareSize);
+    return SpiralGridIterable(center, { -squareSize / 2, squareSize / 2 + 1 }, (size_t)squareSize * squareSize);
 }
 
 /* --------------------------------------------------------------------------

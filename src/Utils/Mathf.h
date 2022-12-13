@@ -37,6 +37,32 @@ inline float inverseLerp(float xx, float yy, float value)
   return (value - xx) / (yy - xx);
 }
 
+/* The smoothstep function (x->3x^2-2x^3), x should be in range 0..1 */
+inline float smoothstep(float x)
+{
+  return x * x * (3 - 2 * x);
+}
+
+/* floor(x) but if |x-round(x)|<d/2 then ~floor(x)+smoothstep(x)
+ * The idea is to smooth out discontinuities in the floor function.
+ * If d<0 or d>.5 the results are undefined.
+ */
+inline float smoothFloor(float x, float d=.1f)
+{
+  float t = glm::fract(x+d/2.f) / d;
+  float tt = glm::floor(x-d/2.f);
+  return t < 1 ? tt + smoothstep(t) : tt;
+}
+
+/* floor(x) but if fract(x)>1-d then ~floor(x)+smoothstep(x)
+ * Identical to smoothFloor but preserves values of floor(x) for integer values of x.
+ * (ie. smoothFloorLate(0)=0 wheras smoothfloor(0)=-.5)
+ */
+inline float smoothFloorLate(float x, float d=.1f)
+{
+  return smoothFloor(x-d/2.f, d);
+}
+
 inline glm::vec3 unitVectorFromRotation(float yaw, float pitch)
 {
   float cy = cos(yaw),   sy = sin(yaw);
