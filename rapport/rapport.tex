@@ -63,7 +63,7 @@
 \begin{document}
 \maketitle
 
-\section{Contexte}
+\section{Avant propos}
 
 %% TODO intro 
 
@@ -109,14 +109,16 @@ Pour générer notre terrain, il nous faut d'abord lister les contraintes que no
 	\item{dont la hauteur change}
 \end{itemize}
 
-Nous nous restreindrons à une seule valeur de hauteur par position dans le plan, donc pas de grottes ou de surplomb. Les algorithmes classiques qui correspondent à ces critères consistent à créer une \textit{carte de hauteur} (\textit{heightmap}) et à placer des points sur une grille dont les hauteurs correspondent à celles de la carte. Il suffit ensuite de relier ces points pour avoir un terrain convainquant comme illustré par la figure \ref{fig:wireframe_terrain}.
+Nous nous restreindrons à une seule valeur de hauteur par position dans le plan, donc pas de grottes ou de surplomb. Les algorithmes classiques qui correspondent à ces critères consistent à créer une \textit{carte de hauteur} (\textit{heightmap}) et à placer des points sur une grille dont les hauteurs correspondent à celles de la carte. Il suffit ensuite de relier ces points pour avoir un terrain convainquant comme illustré par la figure \ref{fig:wireframe_terrain}. L'objet généré s'appelle un \textit{Mesh}.
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=.49]{terrain_wireframe}
-	\caption{Un squelette de terrain fait à partir d'une grille sculptée} %% TODO trouver le bon mot pour "displaced" plutot que sculptée
+	\caption{Un mesh de terrain fait à partir d'une grille élevée}
 	\label{fig:wireframe_terrain}
 \end{figure}
+
+Ici on a relié les points par des segments mais de manière générale on dessinera des triangles pleins.
 
 Il existent d'autres méthodes pour faire ce genre de terrain (cubemarching, raymarching avec génération dynamique...) qui permettent de faire plus mais qui sont beaucoup plus gourmandes en performances et en complexité. Dans notre cas une heightmap est beaucoup plus adaptée.
 
@@ -165,7 +167,7 @@ Ces bruits sont bons pour un terrain simpliste, mais l'astuce de Ken Perlin est 
 	Amplitude_k &= Persistence^k\\ 
 	Frequency_k &= Lacunarity^k
 \end{align*}
-Les paramètres qui nous restent à contrôler sont la persistance (le facteur de taille entre deux octaves), la lacunarité (le facteur de poids entre deux octaves) et le nombre d'octaves. Avec ceci on arrive à des cartes de hauteur assez réalistes, comme illustré en figure \ref{fig:layered_noise}.
+Les paramètres qui nous restent à contrôler sont la persistance (le facteur de taille entre deux octaves), la lacunarité (le facteur de poids entre deux octaves) et le nombre d'octaves. Avec ceci on arrive à des cartes de hauteur assez réalistes, comme illustré en figure \ref{fig:layered_noise}. À noter que dans certains cas on préfèrera définir les amplitudes et fréquences par octave sans utiliser de persitance ou lacunarité.
 
 \begin{figure}[h]
 	\centering
@@ -176,7 +178,8 @@ Les paramètres qui nous restent à contrôler sont la persistance (le facteur d
 	\label{fig:layered_noise}
 \end{figure}
 
-%%  TODO layered noise
+\subsubsection{Nuages}
+Dans ce projet la première utilisation des fonctions de bruit est la génération du terrain, mais leurs utilités ne s'arrêtent pas ici. Une autre application évidente est la génération de nuages, on peut agrandir une de ces images, la placer au dessus du joueur et utiliser le niveau de blanc comme un niveau de transparence pour avoir des nuages très facilement. On peut même faire se déplacer les nuages en ajoutant un facteur $+Displacement_{k}$ à chaque octave avant d'appliquer $G$, en utilisant des facteurs plus importants pour les hautes octaves on obtient vite une animation de vent convaincante.
 
 \subsection{Erosion}
 
@@ -184,6 +187,8 @@ On peut rendre le bruit généré plus réaliste encore en appliquant des propri
 
 L'idée est de simuler un très grand nombre de gouttes d'eau qui dévallent les pentes en arrachant du sédiment du terrain et en la relachant en aval. L'algorithme que nous utiliserons est expliqué dans la thèse de Hans Theobald Beyer\cite{erosion}.
 Dans le code cela consiste à calculer une suite de valeurs de gradient de la heightmap pour déplacer les gouttes selon la pente, et à chaque déplacement on calcule la quantité de sédiment à arracher ou déposer. Le seul bémol est que le dépot et l'érosion ne se font pas seulement à la position de la goutte, mais aussi aux alentours. Pour ne pas recalculer les différences à chaque étape de chaque goutte on fait le calcul en amont, qu'on stoque pendant toute la durée de l'algorithme. Cela peut poser certains problèmes de performance et de besoin en mémoire, l'espace mémoire nécessaire est en $O(n^2)$ avec la taille du terrain et le premier facteur du polynôme est très important.
+
+%% TODO screen de l'érosion
 
 \subsection{Structure du terrain}
 
@@ -196,11 +201,17 @@ Avec cette division il est assez simple de faire un terrain qui se met à jour e
 
 
 \subsection{Variations}
+%% TODO définir "mesh" plus haut
+Avant de générer le mesh du terrain on peut modifier la heightmap pour obtenir différents résultats, on peut même ne pas utiliser les fonctions de bruit et la générer completement différemment.
 
-%% liste des facteurs sur lesquels on peut jouer
-%% génération de desert...
+\begin{itemize}
+	\item{À partir d'un bruit de Perlin de paramètres $N=2$ $Amplitude=[1, .5]$ $Frequency=[.3, .15]$ et en appliquant $h\rightarrow H-\abs{2x-H}$ on obtient un terrain qui ressemble aux dunes d'un desert.}
+	\item{Dans une de nos scènes de démonstration nous appliquons $(x,y)\rightarrow Perlin(x,y)+\frac{S}{8}(\abs{x-\frac{S}{2}}+\abs{y-\frac{S}{2}})$ pour abaisser le terrain au centre sans que ce soit trop visible, simplement pour qu'à un bout de la carte on puisse voir d'avantage.}
+	\item{On peut récupérer des cartes de hauteur de zones géographiques existantes (on en trouve sur internet\footnote{\url{https://tangrams.github.io/heightmapper}}).}
+	\item{Avec un peu plus d'effort on peut créer des plateaux et arriver à une génération ressemblant aux Mesa}
+\end{itemize}
 
-
+%% TODO illustration des variations
 
 
 \section{Affichage 3D}
@@ -222,7 +233,14 @@ Il est important de mentionner que les gpu modernes ne savent pas afficher autre
 \subsection{Shaders}
 
 Les \textit{shaders} sont des programmes qui tournent sur le gpu plutot que sur le cpu. Nous utiliserons extensivement deux types de shaders pour l'affichage : le \textit{vertex shader} qui s'execute pour chaque sommet des triangles affichés ; et le \textit{fragment shader} qui s'execute pour chaque pixel couvert par le triangle. Des shaders classiques ressemblent à ceci :
-%% TODO vertex shader
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.2]{vertex_sample}
+	\includegraphics[scale=.2]{fragment_sample}
+	\caption{Exemple de Vertex Shader et Fragment Shader}
+	\label{fig:vs_fs_shaders}
+\end{figure}
 
 Un dernier type de shader que nous utiliserons est le \textit{compute shader}, qui ne sert pas à l'affichage mais permet de faire des calculs massivement parrallèles sur le gpu. Il nous sera utile pour gagner en performance.
 
@@ -346,10 +364,10 @@ Avec l'instanced rendering on peut afficher plusieurs centaines de milliers de t
 \subsection{Affichage de l'herbe}
 \label{section:grass_rendering}
 
-Nous avons déjà abordé l'instanced rendering dans la section \ref{section:instanced_rendering}. Néanmoins pour afficher plusieurs millions de brins d'herbe d'autres techniques sont nécessaires. On peut déjà imaginer afficher deux modèles différents, un en haute résolution (7 ou 8 triangles) et un en basse résolution (1 triangle) qui sera utilisé pour les brins d'herbes loin de la caméra. On peut aussi n'afficher que les brins d'herbe visible ; on ne peut pas replacer les brins d'herbe en permanence car l'envoi de données du cpu au gpu est lent, mais on peut dire au gpu de filtrer les brins d'herbe qui ne sont pas visible pour qu'ils ne fassent pas partie de la prochaine commande d'affichage.
+Nous avons déjà abordé l'instanced rendering dans la section \ref{section:instanced_rendering}. Néanmoins pour afficher plusieurs millions de brins d'herbe d'autres techniques sont nécessaires. On peut déjà imaginer afficher deux modèles différents, un en haute résolution (\textit{HD}) de 7 ou 8 triangles et un en basse résolution d'un seul triangle (\textit{LD}) qui sera utilisé pour les brins d'herbes loin de la caméra. On peut aussi n'afficher que les brins d'herbe visible ; on ne peut pas replacer les brins d'herbe en permanence car l'envoi de données du cpu au gpu est lent, mais on peut dire au gpu de filtrer les brins d'herbe qui ne sont pas visible pour qu'ils ne fassent pas partie de la prochaine commande d'affichage.
 
 \paragraph{}
-La méthode que nous utiliserons pour filtrer les brins d'herbe visibles est inspirée de la vidéo d'Acerola\cite{grass_rendering}. L'idée est de maintenir deux instance buffers : le complet, qui contient tous les brins d'herbe et n'est mit à jours que lorsque le joueur se déplace beaucoup pour qu'il soit toujours au milieu de la zone couverte de brins d'herbe ; et un deuxième qui contient seulement les brins d'herbe visible et est mit à jours à chaque frame. L'algorithme s'appelle le scan and compact, une version parrallèle est l'algorithme \ref{alg:scan_and_compact}.
+La méthode que nous utiliserons pour filtrer les brins d'herbe visibles est inspirée de la vidéo d'Acerola\cite{grass_rendering}. L'idée est de maintenir deux instance buffers : le complet, qui contient tous les brins d'herbe et n'est mit à jours que lorsque le joueur se déplace beaucoup pour qu'il soit toujours au milieu de la zone couverte de brins d'herbe ; et un deuxième qui contient seulement les brins d'herbe visible et est mit à jours à chaque frame. L'algorithme s'appelle le scan and compact, une version parrallèle est l'algorithme \ref{alg:scan_and_compact}. Une connaissance préalable du calcul sur gpu est préférable pour comprendre cette section, expliquer le fonctionnement d'une carte graphique n'est pas du ressort de ce rapport.
 
 \begin{algorithm}
 \caption{Scan and compact}\label{alg:scan_and_compact}
@@ -374,12 +392,12 @@ La méthode que nous utiliserons pour filtrer les brins d'herbe visibles est ins
 \end{algorithmic}
 \end{algorithm}
 
-L'avantage du gpu est que les calculs sont massivement parrallélisables. Nous avions vu l'algorithme de scan l'année dernière en CUDA en cours. Nous n'avons pas pu récuperer l'algorithme car OpenGL permet seulement de synchroniser les threads d'un groupe et pas les groupes entre eux et nous sommes limités en nombre de threads/groupes. En terme moins technique cela signifie que l'algorithme de scan doit se diviser en trois parties parrallèles.
+L'avantage du gpu est que les calculs sont massivement parrallélisables. Nous avions vu l'algorithme de scan l'année dernière en CUDA en cours. Nous n'avons pas pu récuperer l'algorithme car OpenGL permet seulement de synchroniser les threads d'un groupe et pas les groupes entre eux et nous sommes limités en nombre de threads/groupes. Concretement cela implique que l'algorithme de scan doit se diviser en trois parties parallèles. Notre implémentation est inspirée du livre GPU Gems\cite{scan_algorithm}.
 
 \paragraph{}
 En étant limité à $N=1024$ threads/groupe et $G=1024$ groupes, l'algorithme que nous proposons est limité à $G\times N=1'048'576$ brins d'herbe, et peut facilement être étendu à $G\times N^M$ en répétant $M$ fois les étapes 2 puis 3.
 
-\begin{tabular}{|l|l|l|}
+\begin{tabular}{|l|c|l|}
 	\hline
 	 & $\makecell{Threads\times\\ Groupes}$ & action\\
 	\hline
@@ -392,20 +410,62 @@ En étant limité à $N=1024$ threads/groupe et $G=1024$ groupes, l'algorithme q
 \end{tabular}
 
 \paragraph{}
-On peut ensuite afficher $M$ brins d'herbe.
+%% TODO lien vers le screen de l'algo
+\paragraph{}
+On peut ensuite afficher $M$ brins d'herbe. Pour arriver aux plusieurs millions promis nous executons cet algorithme sur *deux* buffers, l'un sera affiché avec un modèle HD et le second avec un modèle LD. Il s'agit ensuite de modifier les deux instance buffers pour que les chunks proches de la caméra contiennent toujours des instances. On divise donc les deux instance buffers pour que chaque "case" contienne les instances d'un chunk. Il suffit de regénérer les cases des chunks qui changent de niveau de définition comme illustré en figure \ref{fig:grass_instance_buffers}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.6]{grass_instance_buffers}
+	\caption{Les deux instance buffers de l'herbe}
+	\label{fig:grass_instance_buffers}
+\end{figure}
 
 %% TODO screen de l'herbe
 
 \subsection{Eau}
 
+%% TODO subsection.eau
 
 
 \section{Résultats}
 
 %% screens
 
+\section{Pistes d'améliorations}
 
-%% \section{Performances} %% si on a encore la foi d'écrire
+Notre travail peut s'utiliser tel quel, mais le projet pourrait être poursuivit sur de nombreux axes de développement. Nous en aborderons ici quelques uns qui nous ont parru important pendant le développement.
+
+\subsection{Tessellation}
+
+Le concept de \textit{tessellation} est propre à l'affichage de meshs complexes. L'idée est de répartir les vertex plus densément là où les détails sont plus importants et d'en économiser là où les détails sont moindres. Dans notre cas les vertex sont tous espacés également selon le plan $xz$ mais dès lors que les différences de niveau sont grandes on voit des artefacts apparaitre. Un exemple de tessellation appliquée à un mesh de la terre peut être trouvé en figure \ref{fig:tessellation_example}.
+\par
+On peut aussi utiliser la tessellation de manière dynamique, en diminuant la résolution des meshs qui sont loins de la caméra. Nous l'avons fait dans une moindre mesure avec l'herbe, mais l'appliquer au terrain serait très bénéfique. Ne serait-ce que pour afficher du terrain beaucoup plus lointain.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.4]{tessellation}
+	\caption{Exemple de tessellation, les vertex sont plus denses dans les zones detailées\cite{tessellation}}
+	\label{fig:tessellation_example}
+\end{figure}
+
+\subsection{Terrain}
+
+Nous nous sommes focalisé sur la génération du relief du terrain, mais il reste beaucoup à faire pour créer un monde réaliste. Nous avons traité de l'eau et de l'herbe car ils représentaient des défis interessants mais rajouter des "\textit{features}" (arbres, batiments, etc...) Rajouter un système de gestion de ces features permormant n'est pas une mince affaire. Dans un premier temps on pourra se contenter de placer quelques modèles d'arbre dans le monde, dans un second temps on pourra les générer algorithmiquement, les animer et même concevoir un \textit{Entity Component System}\footnote{Un ECS est un système où chaque "objet" est un lien entre plusieurs composantes (physique, affichage...), chaque composante est stoquée avec les autres du même type, la hierarchie structurelle est très différente. Il est particulierement adapté au jeu vidéo.} si les performances l'exigent.
+
+\par
+Un problème que nous avons rencontré est l'application des textures. Nous sommes passé très vite sur le sujet mais chaque vertex possède des coordonnées \textit{uv} qui définissent la position du vertex sur une texture, notre problème vient du fait que les uvs sont calculés en fonction de la position $xz$ du vertex et ne tiennent pas compte de la hauteur. Sur des terrains très escarpés on a des artefacts importants qu'il est difficile de corriger.
+
+\par
+Une autre piste d'amélioration est la création de nuages réalistes. Nous nous sommes contenté d'utiliser astucieusement le perlin noise mais des techniques plus modernes à base de perlin noise 3D existent\footnote{SimonDev, "How Big Budget AAA Games Render Clouds", \url{https://youtu.be/Qj_tK_mdRcA}}. Avec ceci réalisé il serait facile d'ajouter de la brume dans des canyons par exemple.
+
+\subsection{Physique}
+
+Notre projet concernait seulement la génération et l'affichage, mais on peut voir facilement en quoi un moteur physique l'améliorerait. Nous avons déjà le calcul des normales et la séparation en chunks qui faciliteraient l'ajout d'un moteur physique mais le gros du travail reste à faire. Dans certaines scènes nous avons tout de même fait en sorte de simuler le déplacement du joueur sur le terrain mais notre méthode consiste seulement à replacer le joueur à une certaine distance au dessus du mesh, il n'y a pas de réaction physique - le joueur peut gravir des montagnes au même rythme qu'il marche dans les plaines -.
+
+\subsection{Esthetiques différentes}
+%% Cartoon? on y a pensé pendant le dev
+
 
 \begin{thebibliography}{9}
 \bibitem{perlinnoise}
@@ -416,6 +476,12 @@ Hans Theobald Beyer. "Implementation of a method for hydraulic erosion"
 
 \bibitem{grass_rendering}
 Acerola, "What I Did To Optimize My Game's Grass", \url{https://youtu.be/PNvlqsXdQic}
+
+\bibitem{scan_algorithm}
+GPU Gems 3, "Chapter 39. Parallel Prefix Sum (Scan) with CUDA", \url{https://developer.nvidia.com/gpugems/gpugems3/part-vi-gpu-computing/chapter-39-parallel-prefix-sum-scan-cuda}
+
+\bibitem{tessellation}
+Sebastian Lague, "Trying to Improve My Geography Game with More Real-World Data", \url{https://youtu.be/UXD97l7ZT0w?t=989}
 \end{thebibliography}
 
 \listoffigures
