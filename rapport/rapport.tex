@@ -23,6 +23,8 @@
 \usepackage{makecell}
 \usepackage{url}
 \usepackage{hyperref}
+\usepackage{wrapfig}
+\usepackage{sidecap}
 \graphicspath{ {./res/} }
 
 %%% HEADERS & FOOTERS
@@ -206,7 +208,13 @@ On peut rendre le bruit généré plus réaliste encore en appliquant des propri
 L'idée est de simuler un très grand nombre de gouttes d'eau qui dévallent les pentes en arrachant du sédiment du terrain et en la relachant en aval. L'algorithme que nous utiliserons est expliqué dans la thèse de Hans Theobald Beyer\cite{erosion}.
 Dans le code cela consiste à calculer une suite de valeurs de gradient de la heightmap pour déplacer les gouttes selon la pente, et à chaque déplacement on calcule la quantité de sédiment à arracher ou déposer. Le seul bémol est que le dépot et l'érosion ne se font pas seulement à la position de la goutte, mais aussi aux alentours. Pour ne pas recalculer les différences à chaque étape de chaque goutte on fait le calcul en amont, qu'on stoque pendant toute la durée de l'algorithme. Cela peut poser certains problèmes de performance et de besoin en mémoire, l'espace mémoire nécessaire est en $O(n^2)$ avec la taille du terrain et le premier facteur du polynôme est très important.
 
-%% TODO screen de l'érosion
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.4]{erosion_before}
+	\includegraphics[scale=.4]{erosion_after}
+	\caption{Comparaison avant/après application de l'érosion}
+	\label{fig:erosion_comparison}
+\end{figure}
 
 \subsection{Structure du terrain}
 
@@ -311,7 +319,7 @@ Pour finir on retient trois matrices de projection :
 	\item{$P$ ("projection") qui projète du monde au viewport}
 \end{itemize}
 
-Ce modèle en trois matrices est celui le plus utilisé. Il suffit de donner $P'=PVM$ au Vertex Shader et lui laisser transformer chaque vertex. On notera d'ailleur qu'il suffit d'inverser $P'$ pour projeter des positions à l'écran à des positions dans le monde, on peut par exemple savoir où - dans le monde - l'utilisateur pointe lorsqu'il clique à l'écran\footnote{Le calcul est un peu plus compliqué, on passe de $\mathbb{R}^2$ à $\mathbb{R}^3$, il faut tirer un rayon depuis la position de la caméra en direction du point qu'on vient de calculer à partir de $P'^{-1}$ et trouver la première intersection avec un objet du monde.}.
+Ce modèle en trois matrices est le plus utilisé. Il suffit de donner $P'=PVM$ au Vertex Shader et lui laisser transformer chaque vertex. On notera d'ailleur qu'il suffit d'inverser $P'$ pour projeter des positions à l'écran à des positions dans le monde, on peut par exemple savoir où - dans le monde - l'utilisateur pointe lorsqu'il clique à l'écran\footnote{Le calcul est un peu plus compliqué, on passe de $\mathbb{R}^2$ à $\mathbb{R}^3$, il faut tirer un rayon depuis la position de la caméra en direction du point qu'on vient de calculer à partir de $P'^{-1}$ et trouver la première intersection avec un objet du monde.}.
 
 %% TODO schéma repères + caméra
 
@@ -320,9 +328,14 @@ Ce modèle en trois matrices est celui le plus utilisé. Il suffit de donner $P'
 
 Pour afficher le ciel il existe un objet assez spécifique qui s'appelle \textit{cubemap}. L'idée est d'afficher autour du joueur une texture de ciel, on pourrait théoriquement le faire en affichant une sphère - c'est ce qui serait le plus naturel - mais puisque nous sommes restreint à dessiner des triangles cela impliquerait de dessiner un \textit{très} grand nombre de triangles. On utilise donc une cubemap, qui est une projection d'une texture sphérique sur un cube, on peut ensuite afficher un cube plutôt qu'une sphère autour du joueur. Le calcul de projection inverse est fait directement par OpenGL.
 
-Une optimisation qu'on retrouve à plusieurs autres moments est d'afficher ce ciel \textit{après} avoir affiché tout le reste, cela ne semble pas naturel mais en affichant seulement là où rien d'autre n'a été affiché on est sûr de ne pas dessiner des pixels inutiles.
+Une optimisation qu'on retrouve à plusieurs autres moments est d'afficher ce ciel \textit{après} avoir affiché tout le reste, cela ne semble pas naturel mais en affichant seulement là où rien d'autre n'a été affiché on est sûr de ne pas dessiner des pixels inutiles. Le résultat est apparent en figure \ref{fig:sky_depth_test}.
 
-%% TODO screen de renderDoc avec la region dessinée
+\begin{SCfigure}
+	\centering
+	\caption[Zone dessinée en ordonnant les affichages]{Zone dessinée en ordonnant les affichages\\La region dessinée (le ciel) ne couvre qu'une partie de l'écran, c'est autant de travail de moins pour le gpu}
+	\includegraphics[scale=.45]{sky_depth_test}
+	\label{fig:sky_depth_test}
+\end{SCfigure}
 
 \subsection{Ombres}
 
@@ -360,38 +373,62 @@ L'idée est de calculer la distance des pixels au soleil et de vérifier que cet
 
 \paragraph{}
 Le positionnement se fait en listant les objets qui doivent recevoir et pouvoir projeter des ombres. Tout les éléments qui ne sont pas dans le champ de vue du joueur n'ont pas à être éclairés mais ceux qui peuvent projeter des ombres sur des objets visibles doivent être pris en compte.
-%% TODO maths?
-%% TODO screen du positionnement de la sun camera
+
+\begin{SCfigure}
+	\centering
+	\caption[Capture du positionnement de la caméra "soleil"]{Capture du positionnement de la caméra "soleil"\\Le trait rouge est la direction des rayons du soleil ; le plus grand pavé jaune est la zone visible par le joueur ; le pavé gris est la zone couverte par le champ de vision du soleil et les autres pavés sont en jaune s'ils n'influencent pas la position du soleil ou en rouge s'ils sont succeptibles de projeter une ombre sur la zone visible.}
+	\includegraphics[scale=.49]{casted_shadows}
+	\label{fig:sun_camera_position}
+	\vspace{-10pt}
+\end{SCfigure}
+
 \paragraph{}
-L'affichage de la scène depuis le point de vue du soleil utilise une caméra orthographique car tous les rayons sont perpendiculaires. La distance la plus faible est enregistrée pour chaque pixel et est utilisée ensuite. La distance enregistrée ainsi est normalisée (linéarisée dans $[0,1]$) par OpenGL. La texture qui contient ces distances est appellée \textit{depth map}(\textit{carte de profondeur}).
+L'affichage de la scène depuis le point de vue du soleil utilise une caméra orthographique car tous les rayons sont perpendiculaires. La distance la plus faible est enregistrée pour chaque pixel et est utilisée ensuite. La distance enregistrée ainsi est normalisée (linéarisée dans $[0,1]$) par OpenGL. La texture qui contient ces distances est appellée \textit{depth map} (\textit{carte de profondeur}).
+
+\begin{SCfigure}
+	\centering
+	\caption[Depth map]{Depth map\\Les zones blanches sont loins de la caméra, les zones foncées sont plus proche. Les valeurs réelles de distance dépendent de la configuration de la caméra.}
+	\fbox{\includegraphics[scale=.25]{depth_map}}
+	\label{fig:sun_depth_map}
+	\vspace{-10pt}
+\end{SCfigure}
+
+Le calcul du positionnement de la caméra du soleil est la partie la plus compliquée de cet algorithme, nous ne le détaillerons pas ici mais le code peut être trouvé dans le fichier \code{SunCameraHelper.cpp}. Il s'agit surtout de projections de de calcul de \textit{bounding boxes} et \textit{bounding spheres}.
 
 \subsubsection{Algorithme final}
 
-Après que la depth map ai été calculée, on arrive à un algorithme de ce type pour déterminer la quantité de soleil que reçoit chaque pixel.
+Après que la depth map ai été calculée, on arrive à l'algorithme \ref{alg:shadows} pour calculer la quantité de soleil que reçoit chaque pixel.
 \begin{algorithm}
 \caption{Calcul des ombres par pixel}
+\label{alg:shadows}
 \begin{algorithmic}
 \State $P_s \gets \text{... matrice de projection monde$\rightarrow$depth map}$
 \State $DM \gets \text{... depth map 2D}$
-\State $D \gets \text{... direction des rayons du soleil}$
+\State $\vec{D} \gets \text{... direction des rayons du soleil}$
 \\
-\State $p \gets \text{...  position 3D du pixel}$
-\State $n \gets \text{... normale 3D à la position du pixel}$
+\State $\vec{p} \gets \text{...  position 3D du pixel}$
+\State $\vec{n} \gets \text{... normale 3D à la position du pixel}$
 \\
-\State $S_{ambiant} \gets max(0, n\cdot D)$
-\State $u \gets P_s\times p$
-\State $d_{pixel} \gets u.z$
-\State $d_{nearest} \gets DM(u.xy)\times(z_{far}-z_{near})+z_{near}$
+\State $S_{ambiant} \gets max(0, \vec{n}\cdot \vec{D})$
+\State $\vec{u} \gets P_s\times\vec{p}$
+\State $d_{pixel} \gets \vec{u}.z$
+\State $d_{nearest} \gets DM(\vec{u}.xy)\times(z_{far}-z_{near})+z_{near}$
 \State $S_{casted} \gets smoothstep(-\epsilon, 0, d_{pixel}-d_{nearest})$
-\State $Q \gets S_{ambiant}*S_{casted}$
+\State $Q \gets S_{ambiant}\times S_{casted}$
 \\
 \State $PixelColor\gets mix(SunDarkColor, SunLightColor, max(.1, Q\times SunStrength))$
 \end{algorithmic}
 \end{algorithm}
 
-On préfère utiliser la fonction $smoothstep$ et utiliser $\epsilon$ plutôt que de mettre $S_{casted}$ à $0$ ou $1$ pour éviter le crénelage du aux erreurs d'arrondis.
+On préfère utiliser la fonction $smoothstep$ et utiliser $\epsilon$ plutôt que de mettre $S_{casted}$ à $0$ ou $1$ pour éviter le crénelage du aux erreurs d'arrondis. Le résultat de ces algorithmes peut être vu en figure \ref{fig:shadows}.
 
-%% TODO screen des ombres
+\begin{SCfigure}
+	\centering
+	\caption[Capture des ombres]{Capture des ombres\\Il reste quelques soucis de crénelage, il existe des solutions (\textit{multisampling}) mais puisque notre cas d'utilisation est d'afficher la silouete du terrain le crénelage n'est pas très génant.}
+	\includegraphics[scale=.45]{shadows}
+	\label{fig:shadows}
+	\vspace{-10pt}
+\end{SCfigure}
 
 \subsection{Instanced rendering}
 \label{sec:instanced_rendering}
@@ -420,9 +457,17 @@ Dans notre cas on peut encore faire mieux, tout nos éléments sont identiques m
 \subsubsection{Profilage}
 Avec l'instanced rendering on peut afficher plusieurs centaines de milliers de triangles sans trop impacter les performances, mais ce n'est pas suffistant pour les quelques millions que nous nous sommes fixé, nous reviendrons sur les deux optimisations majeures dans la section \ref{section:grass_rendering}.
 \paragraph{}
- Pour vérifier que notre implémentation est déjà meilleure que la naïve on peut comparer le temps mit avec les deux méthodes. Le profilage doit se faire avec des outils adaptés et non pas depuis C++ car le gpu et le cpu ont des fils d'execution très différents.
+ Pour vérifier que notre implémentation est déjà meilleure que la naïve on peut comparer le temps mit avec les deux méthodes. Le profilage doit se faire avec des outils adaptés et non pas depuis C++ car le gpu et le cpu ont des fils d'execution très différent\footnote{Nous utiliserons RenderDoc (\url{https://renderdoc.org/}) car il offre le plus d'outils compatibles avec OpenGL.}.
 
-%% TODO screen des benchmarks
+\begin{wrapfigure}{R}{0.3\textwidth}
+	\begin{center}
+		\includegraphics[scale=.4]{profiling}
+	\end{center}
+	\caption{Session de profiling avec RenderDoc}
+	\label{fig:profiling}
+\end{wrapfigure}
+
+Le profilage répertorie l'enssemble des appels aux fonctions d'affichage (\code{glDrawXX}), les appels aux compute shaders (\code{glDispatchCompute}) et tous les appels de changement d'états (\code{glBindBuffer}, \code{glBindTexture}, \code{glUniformXX}... ces appels ont été masqués sur la figure \ref{fig:profiling} car leurs temps d'exécution est négligeable). Le temps d'exécution pour chaque fonction indiqué en $\mu$s et le temps total ne doit pas dépasser $10^6/60=16.\overline{6}\mu\text{s}$.
 
 \subsection{Effets spéciaux}
 
@@ -486,7 +531,8 @@ En étant limité à $N=1024$ threads/groupe et $G=1024$ groupes, l'algorithme q
 \end{tabular}
 
 \paragraph{}
-%% TODO lien vers le screen de l'algo
+Le code de ces algorithmes peut être trouvé dans les fichiers sous \code{res/shaders/grass/}. Le code qui les invoque se trouve dans \code{src/World/Grass.cpp}.
+
 \paragraph{}
 On peut ensuite afficher $M$ brins d'herbe. Pour arriver aux plusieurs millions promis nous executons cet algorithme sur *deux* buffers, l'un sera affiché avec un modèle HD et le second avec un modèle LD. Il s'agit ensuite de modifier les deux instance buffers pour que les chunks proches de la caméra contiennent toujours des instances. On divise donc les deux instance buffers pour que chaque "case" contienne les instances d'un chunk. Il suffit de regénérer les cases des chunks qui changent de niveau de définition comme illustré en figure \ref{fig:grass_instance_buffers}.
 
@@ -497,11 +543,18 @@ On peut ensuite afficher $M$ brins d'herbe. Pour arriver aux plusieurs millions 
 	\label{fig:grass_instance_buffers}
 \end{figure}
 
-%% TODO screen de l'herbe
+Il est à noter que les chunks de l'herbe ne correspondent pas aux chunks du terrain, les deux n'ont pas les mêmes contraintes ce qui fait que généralement les chunks de l'herbe sont beaucoup plus grands. Aussi, même si nous avons implémenté la génération continue de l'herbe, nous n'avons pas fait de même pour le terrain ; cette partie du projet serait facilement réalisable mais n'entrait pas dans nos priorités. Le résultat de ces algorithmes peut être observé en figure \ref{fig:grass}.
+
+\begin{SCfigure}
+	\centering
+	\caption[Capture de l'herbe]{Capture de l'herbe\\Les brins d'herbe sont très gros ici, le résultat plus est satisfaisant au loin. L'herbe est animée (le vent la déplace). Il y a environ 1M3 brins d'herbe, et 6M triangles.}
+	\includegraphics[scale=.35]{grass}
+	\label{fig:grass}
+\end{SCfigure}
 
 \subsection{Eau}
 
-%% TODO subsection.eau
+%% TODO section eau
 
 
 \section{Résultats}
