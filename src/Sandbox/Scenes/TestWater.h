@@ -104,7 +104,6 @@ public:
         m_grassTexture.bind(1);
 
         for (const auto& [position, chunk] : m_terrain.getChunks()) {
-
             const AABB& chunkAABB = chunk.getMesh().getBoundingBox();
 
             bool isVisible = m_frustum.isOnFrustum(chunkAABB);
@@ -143,8 +142,6 @@ public:
 
         m_waterRenderer.bindReflectionBuffer();
         renderScene();
-        /*
-*/
         m_player.moveCamera({ 0, distance, 0 });
         m_player.inversePitch();
         m_player.updateCamera();
@@ -163,14 +160,6 @@ public:
         renderScene();
         m_waterRenderer.unbind();
 
-
-
-
-
-
-        glDisable(GL_CLIP_DISTANCE0);
-
-        
 
         //m_waterRenderer.writeTexture();
         renderScene();
