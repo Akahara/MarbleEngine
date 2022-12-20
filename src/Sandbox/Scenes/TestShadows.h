@@ -159,4 +159,5 @@ public:
       m_cubes.push_back(AABB(p, s));
     }
   }
+  CAMERA_IS_PLAYER();
 };

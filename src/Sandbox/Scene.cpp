@@ -13,6 +13,9 @@ public:
     Renderer::clear();
   }
   void onImGuiRender() override {}
+  
+
+  virtual Renderer::Camera& getCamera() override { throw std::exception("No camera has been set up for this scene"); }
 };
 
 namespace SceneManager {

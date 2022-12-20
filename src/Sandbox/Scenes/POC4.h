@@ -97,4 +97,6 @@ public:
   void onImGuiRender() override
   {
   }
+
+  CAMERA_IS_PLAYER();
 };

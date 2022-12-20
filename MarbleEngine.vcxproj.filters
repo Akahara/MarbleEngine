@@ -113,6 +113,10 @@
     <ClInclude Include="src\Sandbox\Scenes\POC2.h" />
     <ClInclude Include="src\Sandbox\Scenes\POC3.h" />
     <ClInclude Include="src\Sandbox\Scenes\POC4.h" />
+    <ClInclude Include="src\world\Light\Light.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestBloom.h" />
+    <ClInclude Include="src\abstraction\pipeline\Flares.h" />
+    <ClInclude Include="src\abstraction\pipeline\LensMask.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
@@ -153,5 +157,8 @@
     <None Include="res\shaders\water.vs" />
     <None Include="res\shaders\depth_pass.vs" />
     <None Include="res\shaders\depth_pass.fs" />
+    <None Include="res\shaders\flare.vs" />
+    <None Include="res\shaders\flare.fs" />
+    <None Include="res\shaders\lensmask.fs" />
   </ItemGroup>
 </Project>

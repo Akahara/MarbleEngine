@@ -2,9 +2,10 @@
 
 #include "../Scene.h"
 
-#include "../../abstraction/Renderer.h"
+#include "../../abstraction/UnifiedRenderer.h"
 #include "../../abstraction/Camera.h"
-
+#include "../../World/Player.h"
+#include "../../world/Sky.h"
 #include "../../abstraction/pipeline/Bloom.h"
 #include "../../world/Light/Light.h"
 #include "../../abstraction/pipeline/VFXPipeline.h"
@@ -13,13 +14,15 @@ class TestBloomScene : public Scene {
 private:
 
 
-    Renderer::Cubemap  m_skybox;
     Player             m_player;
-    Renderer::Mesh m_cubeMesh = Renderer::createCubeMesh(1);
+    Renderer::Mesh m_cubeMesh = Renderer::createCubeMesh();
     Renderer::FrameBufferObject m_fbo;
     Renderer::Texture m_target{ Window::getWinWidth(), Window::getWinHeight() };
     Renderer::Texture m_depth = Renderer::Texture::createDepthTexture(Window::getWinWidth(), Window::getWinHeight());
     bool write = false;
+
+
+    World::Sky        m_sky;
 
 
     visualEffects::VFXPipeline  m_pipeline{ Window::getWinWidth(), Window::getWinHeight() };
@@ -35,6 +38,8 @@ private:
     float m_exposure = 1.0f;
     float m_strenght = 0.05f;
 
+    float m_realtime = 0;
+
     bool m_lightsOn[12] =
     {
         0,0,0,
@@ -44,11 +49,7 @@ private:
     };
 
 public:
-    TestBloomScene() : m_skybox {
-        "res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
-            "res/skybox_dbg/skybox_left.bmp", "res/skybox_dbg/skybox_right.bmp",
-            "res/skybox_dbg/skybox_top.bmp", "res/skybox_dbg/skybox_bottom.bmp"
-    }
+    TestBloomScene()
     {
         m_fbo.setTargetTexture(m_target);
         m_fbo.setDepthTexture(m_depth);
@@ -75,9 +76,6 @@ public:
         m_pipeline.registerEffect<visualEffects::Bloom>();
         m_pipeline.sortPipeline();
 
-
-
-
     }
 
     ~TestBloomScene()
@@ -87,27 +85,32 @@ public:
     void step(float delta) override
     {
         m_player.step(delta);
+        m_realtime += delta;
     }
 
     void onRender() override
     {
+
+        const Renderer::Camera& camera = m_player.getCamera();
         Renderer::FrameBufferObject::setViewportToWindow();
+
         
         m_pipeline.bind();
 
         Renderer::clear();
 
-        Renderer::CubemapRenderer::drawCubemap(m_skybox, m_player.getCamera());
 
         for (const auto& light : m_lights) {
 
-            Renderer::renderMesh(light.getPosition(), glm::vec3(3), m_cubeMesh, m_player.getCamera());
+            Renderer::renderMesh(camera, light.getPosition(), glm::vec3(3), m_cubeMesh);
         }
 
-        Renderer::renderMesh({0,0,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
-        Renderer::renderMesh({10,0,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
-        Renderer::renderMesh({0,10,0}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
-        Renderer::renderMesh({0,0,10}, glm::vec3(3), m_cubeMesh, m_player.getCamera());
+        Renderer::renderMesh(camera, {0,0,0}, glm::vec3(3), m_cubeMesh);
+        Renderer::renderMesh(camera, {10,0,0}, glm::vec3(3), m_cubeMesh);
+        Renderer::renderMesh(camera, {0,10,0}, glm::vec3(3), m_cubeMesh);
+        Renderer::renderMesh(camera, {0,0,10}, glm::vec3(3), m_cubeMesh);
+
+        m_sky.render(camera, m_realtime);
 
 
         m_pipeline.unbind();
@@ -187,4 +190,6 @@ public:
         }
 
     }
+
+    CAMERA_IS_PLAYER();
 };

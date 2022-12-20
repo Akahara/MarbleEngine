@@ -182,4 +182,6 @@ public:
             m_waterRenderer.writeTexture();
         }
     }
+
+    CAMERA_IS_PLAYER();
 };

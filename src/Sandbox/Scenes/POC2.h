@@ -30,7 +30,7 @@ private:
 
   Renderer::Texture     m_grassTexture = Renderer::Texture("res/textures/grass6.jpg");
 
-  Renderer::Mesh      m_lowPolyTreeMesh = Renderer::loadMeshFromFile("res/meshes/lowtree.obj");
+  //Renderer::Mesh      m_lowPolyTreeMesh = Renderer::loadMeshFromFile("res/meshes/lowtree.obj");
 
   struct Tree {
 
@@ -128,7 +128,7 @@ public:
 
                  glm::vec3{ x, m_terrain.getHeight(x, z) - 2.F, z },
                 glm::vec3(size),
-                &m_lowPolyTreeMesh
+                nullptr
 
             };
 
@@ -169,12 +169,14 @@ public:
       Renderer::renderMesh(camera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
 
       m_grassTexture.bind(0);
+      /*
       for (auto& t : m_trees) {
           if (!cameraFrustum.isOnFrustum(m_lowPolyTreeMesh.getBoundingBoxInstance(t.position, t.size))) {
               continue;
           }
           t.render(camera);
       }
+      */
 
 
     }
@@ -190,4 +192,7 @@ public:
       glm::vec3 pos = m_player.getPosition();
       ImGui::Text("x : %f | y : %f | z : %f\n", pos.x, pos.y, pos.z);
   }
+
+  CAMERA_IS_PLAYER();
+
 };

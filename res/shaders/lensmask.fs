@@ -12,8 +12,7 @@ uniform vec3 u_sunPos=vec3(10,10,10);
 uniform vec3 u_camForward= vec3(10,10,10);
 uniform vec3 u_camPos= vec3(10,10,10);
 
-
-uniform vec2 u_sunScreenSpace;
+uniform vec2 u_sunScreenSpace=vec2(0,0);
 
 void main()
 {

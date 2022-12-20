@@ -37,6 +37,7 @@ int main()
     Renderer::init();
     SceneManager::init();
 
+    
     SceneManager::registerScene<TestTerrainScene>("Terrain");
     SceneManager::registerScene<TestSkyScene>("Sky");
     SceneManager::registerScene<TestFBScene>("Framebuffer");
@@ -45,13 +46,15 @@ int main()
     SceneManager::registerScene<TestCamerasScene>("Cameras");
     SceneManager::registerScene<TestComputeShader>("Compute Shader");
     SceneManager::registerScene<TestInstancedScene>("Instanced");
+    SceneManager::registerScene<TestBloomScene>("Bloom");
     SceneManager::registerScene<TestWater>("Water");
     SceneManager::registerScene<POC1Scene>("POC 1");
     SceneManager::registerScene<POC2Scene>("POC 2");
     SceneManager::registerScene<POC3Scene>("POC 3");
     SceneManager::registerScene<POC4Scene>("POC 4");
+    
 
-    SceneManager::switchToScene(9);
+    SceneManager::switchToScene(3);
 
     //===========================================================//
 

@@ -199,6 +199,8 @@
     <ClInclude Include="src\abstraction\FrameBufferObject.h" />
     <ClInclude Include="src\abstraction\IndexBufferObject.h" />
     <ClInclude Include="src\abstraction\Inputs.h" />
+    <ClInclude Include="src\abstraction\pipeline\Flares.h" />
+    <ClInclude Include="src\abstraction\pipeline\LensMask.h" />
     <ClInclude Include="src\abstraction\SpecializedRender.h" />
     <ClInclude Include="src\abstraction\Mesh.h" />
     <ClInclude Include="src\abstraction\pipeline\Bloom.h" />
@@ -222,6 +224,7 @@
     <ClInclude Include="src\Sandbox\Scenes\POC2.h" />
     <ClInclude Include="src\Sandbox\Scenes\POC3.h" />
     <ClInclude Include="src\Sandbox\Scenes\POC4.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestBloom.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestCameras.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestComputeShader.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestFB.h" />
@@ -252,6 +255,7 @@
     <ClInclude Include="src\vendor\imgui\stb_textedit.h" />
     <ClInclude Include="src\vendor\imgui\stb_truetype.h" />
     <ClInclude Include="src\World\Grass.h" />
+    <ClInclude Include="src\world\Light\Light.h" />
     <ClInclude Include="src\World\Player.h" />
     <ClInclude Include="src\World\SunCameraHelper.h" />
     <ClInclude Include="src\World\TerrainGeneration\HeightMap.h" />
@@ -278,6 +282,8 @@
     <None Include="res\shaders\debugFlatScreen.vs" />
     <None Include="res\shaders\depth_pass.fs" />
     <None Include="res\shaders\depth_pass.vs" />
+    <None Include="res\shaders\flare.fs" />
+    <None Include="res\shaders\flare.vs" />
     <None Include="res\shaders\gammacorrection.fs" />
     <None Include="res\shaders\grass\compact.comp" />
     <None Include="res\shaders\grass\grass.fs" />
@@ -286,6 +292,7 @@
     <None Include="res\shaders\grass\scan_blocks.comp" />
     <None Include="res\shaders\grass\scan_groups.comp" />
     <None Include="res\shaders\grass\vote.comp" />
+    <None Include="res\shaders\lensmask.fs" />
     <None Include="res\shaders\saturation.fs" />
     <None Include="res\shaders\shader.comp" />
     <None Include="res\shaders\shadows.fs" />

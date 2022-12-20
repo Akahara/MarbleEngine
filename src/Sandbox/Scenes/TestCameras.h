@@ -76,4 +76,6 @@ public:
   {
     ImGui::SliderInt("active player", &m_activePlayer, 0, (int)m_players.size()-1);
   }
+
+  CAMERA_NOT_DEFINED();
 };

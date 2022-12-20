@@ -139,30 +139,9 @@ namespace visualEffects {
 			for (VFX* effect : m_effects) {
 
 				if (!effect->isEnabled()) continue;
-				/*
-				if (effect->getType() == BloomEffect) {
-
-					effect->applyEffect(m_context.originTexture);
-					std::swap(m_context.originTexture, m_context.targetTexture);
-					continue;
-
-				}
-				*/
-				// Render the effect
 
 
 				effect->applyEffect(m_context);
-
-				/*
-				m_context.originTexture.bind(0);
-				m_context.fbo.setTargetTexture(m_context.targetTexture);
-			
-				m_context.fbo.bind();
-
-				effect->applyEffect(m_context.originTexture);
-
-				m_context.fbo.unbind();
-				*/
 
 				// Recycle textures
 				std::swap(m_context.originTexture, m_context.targetTexture);

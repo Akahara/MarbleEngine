@@ -13,7 +13,6 @@ struct Flare {
 	Renderer::Texture texture;
 	glm::vec2 screenPos;
 	int texId;
-	//int z_layer = 0;
 };
 
 class FlareRenderer {
@@ -242,10 +241,7 @@ public:
 		glm::vec2 sunToCenter = glm::vec2{ 0.5f, 0.5f } - sunCoords;
 		float length = 1.f - glm::length(sunToCenter);
 		float brightness = (length / 0.6f);
-		/*
-		std::cout << "sunPos : " << sunWorldPos << " | sunCoordsOnScreen : " << sunCoords <<
-			" | brightness : " << brightness << std::endl;
-		*/
+		
 
 		if (brightness <= 0) return;
 

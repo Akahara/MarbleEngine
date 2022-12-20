@@ -57,4 +57,6 @@ public:
     {
 
     }
+
+    CAMERA_NOT_DEFINED();
 };

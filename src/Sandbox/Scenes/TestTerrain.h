@@ -135,6 +135,7 @@ public:
           m_player.setPostion(pos);
           m_player.updateCamera();
       }
+
     
       m_frustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(m_player.getCamera());
   }
@@ -239,4 +240,6 @@ public:
     m_fogDampingTestUniform.renderImGui();
     m_grassSteepnessTestUniform.renderImGui();
   }
+
+  CAMERA_IS_PLAYER();
 };

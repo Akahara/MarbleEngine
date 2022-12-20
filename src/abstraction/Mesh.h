@@ -15,7 +15,6 @@ namespace Renderer {
 		glm::vec3 position;
 		glm::vec2 uv;
 		glm::vec3 normal;
-		float texId = 0;
 		glm::vec3 color = {1.0f, 0.f, 0.f};
 	};
 

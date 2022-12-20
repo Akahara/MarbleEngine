@@ -1,7 +1,5 @@
 #version 330 core
 
-#define MAX_NB_POINT_LIGHTS 12
-
 out vec4 color;
 
 in vec2 o_uv;
@@ -25,18 +23,8 @@ uniform mat4x3 u_shadowMapProj;      // a projection from world coordinates to s
 
 uniform vec3 u_cameraPos;
 
-// #define MESA_SCENE
-
-#ifdef MESA_SCENE
-const vec3 mesa_colors[5] = vec3[5](
-    vec3(0.725, 0.455, 0.102),
-    vec3(0.949, 0.639, 0.369),
-    vec3(0.941, 0.482, 0.412),
-    vec3(0.867, 0.720, 0.698),
-    vec3(0.867, 0.630, 0.325)
-);
-#endif
-
+/////////////////////////////////////////////////////////////
+#define MAX_NB_POINT_LIGHTS 12
 
 struct PointLight  {
 
@@ -59,7 +47,19 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 uniform PointLight u_lights[MAX_NB_POINT_LIGHTS];
 uniform int numberOfLights = 0;
 
-//-----------------------------------------//
+///////////////////////////////////////////////////////////////
+
+// #define MESA_SCENE
+
+#ifdef MESA_SCENE
+const vec3 mesa_colors[5] = vec3[5](
+    vec3(0.725, 0.455, 0.102),
+    vec3(0.949, 0.639, 0.369),
+    vec3(0.941, 0.482, 0.412),
+    vec3(0.867, 0.720, 0.698),
+    vec3(0.867, 0.630, 0.325)
+);
+#endif
 
 float unnormalizeOrthoDepth(float depth) {
     return depth*(u_shadowMapOrthoZRange.y-u_shadowMapOrthoZRange.x) + u_shadowMapOrthoZRange.x;
@@ -72,8 +72,6 @@ void main()
     color = mix(texture(u_Textures2D[0], o_uv), vec4(mesa_colors[int(floor(o_pos.y*.5))%5], 1), .7);
 #else
     // regular texture sample
-    vec3 viewDir = normalize(u_cameraPos - o_pos);
-
     if (u_RenderChunks==0) {
         vec4 rockSample = texture(u_Textures2D[0], o_uv);
         vec4 grassSample = texture(u_Textures2D[1], o_uv);
@@ -100,23 +98,32 @@ void main()
             sunLight *= smoothstep(-0.1, 0., closestDistanceToSun - shadowMapPos.z);
         }
     }
+    // apply shadows
+    color.rgb *= mix(vec3(0.09,0.09,0.09), vec3(1., 1., .8), max(.1, sunLight*u_Strength));
 
-    
+    // apply lights
+    vec3 viewDir = normalize(u_cameraPos - o_pos);
     for (int i = 0; i < numberOfLights; i++) {
         PointLight light = u_lights[i];
         if (light.on == 0) continue;
     
         color.rgb += CalcPointLight(light, o_normal, o_pos, viewDir);
-        //color = vec4(1000,1,0,1);
     }
-    
-    color.rgb += vec3(0.09,0.09,0.09) * 0.2 + vec3(.2f, .2f, 0.f) * dot(normalize(o_normal), normalize(o_SunPos)) * u_Strength;   
+
+    // apply distance fog
     color.rgb = mix(u_fogColor, color.rgb, exp(-length(o_pos - u_cameraPos)*u_fogDamping));
 }
 
-//-----------------------------------------//
 
 
+
+
+
+
+
+
+
+////////////////////////////////////////////////////
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);

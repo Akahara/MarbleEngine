@@ -50,4 +50,6 @@ public:
     }
     ImGui::End();
   }
+
+  CAMERA_IS_PLAYER();
 };

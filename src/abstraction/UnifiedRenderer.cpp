@@ -11,6 +11,8 @@
 #include "Camera.h"
 #include "Mesh.h"
 
+#include "../world/Light/Light.h"
+
 namespace Renderer {
 
 static struct KeepAliveResources {
