@@ -37,7 +37,7 @@ private:
   bool                  m_isErosionEnabled = NDEBUG; // disable erosion by default when running in debug mode (because it's way too slow)
   Noise::ErosionSettings m_erosionSettings;
   unsigned int          m_terrainSizeInChunks = 20;
-  int                   m_chunkSize = 20;
+  int                   m_chunkSize = 10;
 
     /* Rendering stuff */
   Renderer::Frustum     m_frustum;
@@ -62,9 +62,9 @@ private:
 public:
   TestTerrainScene()
     : m_skybox{
-      "res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
-      "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
-      "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" }
+      "res/skybox/skybox_front.bmp", "res/skybox/skybox_back.bmp",
+      "res/skybox/skybox_left.bmp",  "res/skybox/skybox_right.bmp",
+      "res/skybox/skybox_top.bmp",   "res/skybox/skybox_bottom.bmp" }
   {
     m_rockTexture.bind(0);
     m_grassTexture.bind(1);

@@ -15,9 +15,9 @@
 namespace World {
 
 Sky::Sky()
-  : m_skybox("res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
-             "res/skybox_dbg/skybox_left.bmp", "res/skybox_dbg/skybox_right.bmp",
-             "res/skybox_dbg/skybox_top.bmp", "res/skybox_dbg/skybox_bottom.bmp")
+  : m_skybox("res/skybox/skybox_front.bmp", "res/skybox/skybox_back.bmp",
+             "res/skybox/skybox_left.bmp",  "res/skybox/skybox_right.bmp",
+             "res/skybox/skybox_top.bmp",   "res/skybox/skybox_bottom.bmp")
 {
 }
 
