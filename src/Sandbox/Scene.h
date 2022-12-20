@@ -5,6 +5,7 @@
 
 #include "../Utils/Debug.h"
 #include "../vendor/imgui/imgui.h"
+#include "../abstraction/Camera.h"
 
 class Scene {
 public:
@@ -13,6 +14,10 @@ public:
   virtual void step(float delta) = 0; // OnUpdate
   virtual void onRender() = 0;
   virtual void onImGuiRender() = 0;
+
+  Renderer::Camera camera; // THIS IS UTERLLY SHITTY DONT DO THIS ! :D
+
+
 };
 
 //typedef Scene *(*SceneProvider)();
@@ -32,5 +37,7 @@ template<class T>
 void registerScene(const std::string &name) { registerScene(name, []() { return new T; }); }
 
 void switchToScene(size_t index);
+
+
 
 }

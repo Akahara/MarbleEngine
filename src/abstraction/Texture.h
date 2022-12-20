@@ -4,6 +4,8 @@
 #include <string>
 #include <filesystem>
 
+#include <glm/vec2.hpp>
+
 namespace Renderer {
 
 class Texture {
@@ -17,7 +19,15 @@ public:
   ~Texture();
   Texture(Texture &&moved) noexcept;
   Texture &operator=(Texture &&moved) noexcept;
-  Texture &operator=(const Texture &) = delete;
+  Texture& operator=(const Texture& other) 
+  { 
+
+		m_RendererID = other.m_RendererID;
+		m_width = other.m_width; 
+		m_height = other.m_height;
+		return *this;
+
+  }
   Texture(const Texture &) = delete;
 
   void bind(unsigned int slot = 0) const;
@@ -28,6 +38,7 @@ public:
 
   inline int getWidth() const { return m_width; }
   inline int getHeight() const { return m_height; }
+  inline glm::vec2 getSize() const { return { m_width, m_height }; };
   inline unsigned int getId() const { return m_RendererID; } // unsafe
 
   static Texture createTextureFromData(const float *data, int width, int height, int floatPerPixel = 4);

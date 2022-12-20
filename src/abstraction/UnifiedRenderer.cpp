@@ -253,6 +253,7 @@ void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3
   s_state.activeStandardShader->setUniformMat4f("u_M", M);
   s_state.activeStandardShader->setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
   mesh.draw();
+  s_keepAliveResources->standardMeshShader.unbind();
 }
 
 void renderNormalsMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const NormalsMesh &normalsMesh, const glm::vec4 &color)
@@ -429,7 +430,7 @@ void renderDebugCameraOutline(const Camera &viewCamera, const Camera &outlinedCa
 }
 
 
-void renderDebugGUIQuadWithTexture(const Camera& camera, const Texture& texture, glm::vec2 positionOnScreen, glm::vec2 size)
+void renderDebugGUIQuadWithTexture(const Texture& texture, glm::vec2 positionOnScreen, glm::vec2 size)
 {
     // TODO store a plane mesh in a static variable and rotate,translate&scale at each call
     std::vector<Vertex> vertices{
@@ -452,7 +453,38 @@ void renderDebugGUIQuadWithTexture(const Camera& camera, const Texture& texture,
     gui.draw();
 
 }
+void setUniformPointLights(const std::vector<Light>& pointLights) {
 
+    s_keepAliveResources->standardMeshShader.bind();
+    s_keepAliveResources->standardMeshShader.setUniform1i("numberOfLights", pointLights.size());
+
+
+    for (int i = 0; i < pointLights.size(); i++) {
+        
+        const Light& light = pointLights.at(i);
+
+        std::stringstream ss{ std::string() };
+        ss << "u_lights[";
+        ss << i;
+        ss << "].";
+        std::string lightInShader = ss.str();
+        s_keepAliveResources->standardMeshShader.setUniform1i(lightInShader + "on", light.isOn());
+
+        s_keepAliveResources->standardMeshShader.setUniform3f(lightInShader + "position", light.getPosition());
+
+        s_keepAliveResources->standardMeshShader.setUniform1f(lightInShader + "constant", light.getCoefs().constant);
+        s_keepAliveResources->standardMeshShader.setUniform1f(lightInShader + "linear", light.getCoefs().linear);
+        s_keepAliveResources->standardMeshShader.setUniform1f(lightInShader + "quadratic", light.getCoefs().quadratic);
+
+        s_keepAliveResources->standardMeshShader.setUniform3f(lightInShader + "ambient", light.getParams().ambiant);
+        s_keepAliveResources->standardMeshShader.setUniform3f(lightInShader + "diffuse", light.getParams().diffuse);
+        s_keepAliveResources->standardMeshShader.setUniform3f(lightInShader + "specular", light.getParams().specular);
+
+    }
+
+
+
+}
 //=========================================================================================================================//
 //=========================================================================================================================//
 //=========================================================================================================================//
@@ -474,12 +506,13 @@ void BlitPass::doBlit(const Texture &renderTexture, bool bindRenderTexture/*=tru
 {
   Renderer::clear();
   if (bindRenderTexture)
-      renderTexture.bind();
+      renderTexture.bind(0);
 
   m_shader.bind();
   //m_shader.setUniform2f("u_screenSize", (float)Window::getWinWidth(), (float)Window::getWinHeight()); // TODO remove, this uniform is only necessary because the vignette vfx is in the blit shader, which it shouldn't, it should be in a res/shaders/testfb_blit.fs shader
   m_vao.bind();
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+  m_shader.unbind();
   Texture::unbind();
   VertexArray::unbind();
 }

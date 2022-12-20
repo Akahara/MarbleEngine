@@ -3,8 +3,6 @@
 
 namespace visualEffects {
 
-
-
 	class Contrast : public VFX
 	{
 
@@ -19,7 +17,10 @@ namespace visualEffects {
 			: VFX("Contrast")
 		{
 			m_shift = 0.f;
+
+			m_blitData.getShader().bind();
 			m_blitData.getShader().setUniform1f("u_contrastShift", m_shift);
+			m_blitData.getShader().unbind();
 		}
 
 		virtual void onImGuiRender() override {
@@ -35,6 +36,7 @@ namespace visualEffects {
 			}
 
 		}
+
 		EFFECT_CLASS_TYPE(ContrastEffect);
 
 

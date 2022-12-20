@@ -143,9 +143,10 @@ public:
 
 		glEnable(GL_CULL_FACE);
 
-
-		Renderer::renderDebugGUIQuadWithTexture(camera, m_refractionTexture, { -0.75f, -0.75f }, { 0.5f, 0.5f });
-		Renderer::renderDebugGUIQuadWithTexture(camera, m_reflectionTexture, { +0.25f, -0.75f }, { 0.5f, 0.5f });
+		/*
+		Renderer::renderDebugGUIQuadWithTexture(m_refractionTexture, { -0.75f, -0.75f }, { 0.5f, 0.5f });
+		Renderer::renderDebugGUIQuadWithTexture(m_reflectionTexture, { +0.25f, -0.75f }, { 0.5f, 0.5f });
+		*/
 
 	}
 

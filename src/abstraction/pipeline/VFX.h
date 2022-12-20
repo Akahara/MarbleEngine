@@ -12,23 +12,48 @@
 
 #include "../../vendor/imgui/imgui.h"
 
+
+
 /* Classe mère de tous les effets */
 
 
 namespace visualEffects {
 
 
+struct PipelineContext {
+
+
+	Renderer::FrameBufferObject fbo;
+
+	Renderer::Texture targetTexture;
+	Renderer::Texture originTexture;
+
+	Renderer::Texture depthTexture;
+	
+	std::map<std::string, void*> m_params;
+
+	template<typename T>
+	T& getContextParam(const std::string& key) {
+		return *(T*)m_params[key];
+	}
+
+	//std::unordered_map<>
+
+};
+
 #define EFFECT_CLASS_TYPE(type) virtual EffectType getType() const override {return EffectType::##type;}\
 
 	enum EffectType {
 		na=-1,
+		BloomEffect,
+		DOFEffect,
 		ContrastEffect,
 		SaturationEffect,
 		SharpnessEffect,
-		BloomEffect,
 		SBFEffect,
 		GammaCorrectionEffect,
-		TonemapperEffect
+		TonemapperEffect,
+		LensMaskEffect
 	} ;
 
 
@@ -51,7 +76,7 @@ public:
 	}
 	VFX(const std::string& name = "N/A")
 		: m_name(name)
-		, m_isEnabled(true)
+		, m_isEnabled(false)
 		
 	{}
 
@@ -60,9 +85,13 @@ public:
 		m_shaderpath = fs.string();
 	}
 
-	virtual void applyEffect(Renderer::Texture& targetTexture) {
 
-		m_blitData.doBlit(targetTexture, false);
+	virtual void applyEffect(PipelineContext& context) {
+
+		context.fbo.setTargetTexture(context.targetTexture);
+		context.fbo.bind();
+		m_blitData.doBlit(context.originTexture);
+		context.fbo.unbind();
 
 	}
 
