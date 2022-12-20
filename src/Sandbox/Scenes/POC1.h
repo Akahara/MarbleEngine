@@ -23,6 +23,7 @@ private:
   Renderer::FrameBufferObject m_depthFBO;
   Renderer::Texture m_depthTexture;
 
+
   struct Sun {
     Renderer::Camera camera;
     float strength = 1.25f;
@@ -53,6 +54,7 @@ public:
     m_depthFBO.setDepthTexture(m_depthTexture);
 
     generateTerrain();
+
   }
 
   void generateTerrain()
@@ -83,6 +85,7 @@ public:
   {
     m_realTime += delta;
     m_player.step(delta);
+
   }
 
   void repositionSunCamera(const Renderer::Frustum &visibleFrustum)

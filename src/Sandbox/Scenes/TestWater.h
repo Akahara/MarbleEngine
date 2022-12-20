@@ -26,7 +26,6 @@ private:
     //=====================================================================================================================//
 
       /* Basic scene stuff */
-    Renderer::Cubemap m_skybox;
     Player            m_player;
     bool              m_playerIsFlying = true;
     float             realTime = 0;
@@ -47,6 +46,10 @@ private:
     glm::vec3 m_waterPos{ 0 };
     float m_height = 0;
 
+    World::Sky        m_sky;
+
+    float             m_realTime = 0;
+
     /* Rendering stuff */
     Renderer::Frustum     m_frustum;
 
@@ -57,10 +60,6 @@ private:
 
 public:
     TestWater()
-        : m_skybox{
-          "res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
-          "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
-          "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" }
     {
         m_rockTexture.bind(0);
         m_grassTexture.bind(1);
@@ -89,7 +88,8 @@ public:
 
     void step(float delta) override
     {
-        realTime += delta;
+
+        m_realTime += delta;
         m_player.step(delta);
         m_waterRenderer.updateMoveFactor(delta);
         m_frustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(m_player.getCamera());
@@ -97,8 +97,8 @@ public:
 
     void renderScene() {
 
+        Renderer::Camera& camera = m_player.getCamera();
         Renderer::clear();
-        Renderer::renderCubemap(m_player.getCamera(), m_skybox);
 
         m_rockTexture.bind(0);
         m_grassTexture.bind(1);
@@ -110,9 +110,11 @@ public:
             bool isVisible = m_frustum.isOnFrustum(chunkAABB);
 
             if (isVisible) {
-                Renderer::renderMesh(m_player.getCamera(), glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
+                Renderer::renderMesh(camera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
             }
         }
+
+        m_sky.render(camera, m_realTime);
     }
 
     void onRender() override
@@ -173,6 +175,9 @@ public:
         //m_waterRenderer.writeTexture();
         renderScene();
         m_waterRenderer.onRenderWater(m_sources, m_player.getCamera());
+
+
+        m_sky.render(m_player.getCamera(), m_realTime);
 
     }
 

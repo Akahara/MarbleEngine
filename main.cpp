@@ -51,7 +51,7 @@ int main()
     SceneManager::registerScene<POC3Scene>("POC 3");
     SceneManager::registerScene<POC4Scene>("POC 4");
 
-    SceneManager::switchToScene(13);
+    SceneManager::switchToScene(9);
 
     //===========================================================//
 

@@ -15,12 +15,6 @@
 
 class WaterRenderer
 {
-	// make sur that the state is ready for rendring
-	enum RendererState {
-		NOT_READY, // if both texture arent initialised and bound has not been called
-		BOUND, // idk
-		READY // both texture are ok
-	};
 
 	const float WAVE_SPEED = 0.05f;
 
@@ -39,7 +33,6 @@ private:
 
 	Renderer::Shader m_waterShader = Renderer::loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/water.fs");
 
-	RendererState m_state = NOT_READY;
 
 	float m_moveFactor = 0;
 
@@ -156,9 +149,6 @@ public:
 
 	}
 
-	// todo finish
-	template<RendererState T>
-	void isInState() { assert(m_state == T); }
 
 	void writeTexture() {
 
