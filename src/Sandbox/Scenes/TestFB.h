@@ -11,6 +11,7 @@
 #include "../../abstraction/pipeline/GammaCorrection.h"
 #include "../../abstraction/pipeline/LensMask.h"
 #include "../../abstraction/pipeline/Contrast.h"
+#include "../../abstraction/pipeline/Flares.h"
 
 
 #include "TestTerrain.h"
@@ -21,21 +22,19 @@ class TestFBScene : public Scene {
 private:
   Scene                      *m_backingScene;
   visualEffects::VFXPipeline  m_pipeline{ Window::getWinWidth(), Window::getWinHeight() };
-  Renderer::BlitPass            m_blitData;
-  BloomRenderer m_renderer;
+  Renderer::BlitPass          m_blitData;
+  BloomRenderer               m_renderer;
   Renderer::FrameBufferObject m_fbo;
-  Renderer::Texture target{ Window::getWinWidth(), Window::getWinHeight() };
+  Renderer::Texture           target{ Window::getWinWidth(), Window::getWinHeight() };
   
-  glm::vec3 m_sun{100,100,100};
-  Renderer::Mesh m_cube = Renderer::createCubeMesh();
+  glm::vec3                   m_sun{100,100,100};
+  Renderer::Mesh              m_cube = Renderer::createCubeMesh();
 
-
-
-  public:
+public:
   TestFBScene()
   {
     m_backingScene = new TestTerrainScene;
-    
+
     m_pipeline.registerEffect<visualEffects::LensMask>();
     
     m_pipeline.addContextParam<glm::vec3>({ 10,10,10 }, "sunPos");
@@ -63,12 +62,10 @@ private:
       m_pipeline.setContextParam<Renderer::Camera>("camera", m_backingScene->getCamera());
       m_pipeline.bind();
       m_backingScene->onRender();
-      Renderer::renderMesh(m_backingScene->getCamera(), m_sun, { 5,5,5 },m_cube);
+      Renderer::renderMesh(m_backingScene->getCamera(), m_sun, { 5,5,5 }, m_cube);
       m_pipeline.unbind();
       
       m_pipeline.renderPipeline();
-
-
   }
 
   void onImGuiRender() override 

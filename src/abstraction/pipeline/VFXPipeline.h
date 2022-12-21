@@ -107,12 +107,12 @@ namespace visualEffects {
 
 
 		/*
-		Sorts the effect list according to the defined order in VFH.h
+		Sorts the effect list according to the defined order in VFX.h
 		*/ 
 		
 		void sortPipeline() {
 
-			std::array<int, 9> indicies = { -1, -1, -1, -1, -1, -1, -1 ,-1,-1};
+			std::array<int, 9> indicies = { -1, -1, -1, -1, -1, -1, -1 ,-1, -1};
 			std::vector<VFX*> temp;
 
 			int index = 0;

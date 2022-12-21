@@ -147,11 +147,13 @@ public:
 
 		glEnable(GL_BLEND);
 		glDepthMask(GL_FALSE);
+		glDisable(GL_DEPTH_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
-
 		glDepthMask(GL_TRUE);
+		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
+
 		m_indexCount = 0;
 		m_textureSlotIndex = 1;
 		m_VAO.unbind();
