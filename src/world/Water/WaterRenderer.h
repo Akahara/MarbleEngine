@@ -113,7 +113,7 @@ public:
 
 
 	/* TO BE CALLED AFTER BINDING THE VFX PIPELINE AND THE SCENE HAS BEEN RENDERED IN THE WATER FBO*/
-	void onRenderWater(std::vector<WaterSource*> waterSources, const Renderer::Camera& camera) {
+	void onRenderWater(const std::vector<WaterSource*>& waterSources, const Renderer::Camera& camera) {
 
 		m_waterShader.bind();
 		m_reflectionTexture.bind(1);
@@ -132,17 +132,14 @@ public:
 		glDisable(GL_CULL_FACE);
 		glEnable(GL_CLIP_DISTANCE0);
 
-		for (WaterSource* source : waterSources) {
+		for (const WaterSource* source : waterSources) {
 			drawWaterSource(*source, camera);
 		}
 
 		glDisable(GL_CLIP_DISTANCE0);
 		glEnable(GL_CULL_FACE);
+		m_waterShader.unbind();
 
-		/*
-		Renderer::renderDebugGUIQuadWithTexture(m_refractionTexture, { -0.75f, -0.75f }, { 0.5f, 0.5f });
-		Renderer::renderDebugGUIQuadWithTexture(m_reflectionTexture, { +0.25f, -0.75f }, { 0.5f, 0.5f });
-		*/
 
 	}
 

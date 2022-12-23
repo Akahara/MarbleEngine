@@ -9,6 +9,7 @@
 #include "../../World/TerrainGeneration/Noise.h"
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../abstraction/FrameBufferObject.h"
+#include "../../abstraction/pipeline/VFXPipeline.h"
 
 class POC3Scene : public Scene {
 private:
@@ -17,6 +18,18 @@ private:
   Renderer::Texture   m_sandTexture = Renderer::Texture("res/textures/sand.jpg");
   World::Sky          m_sky;
   float               m_realTime;
+
+
+  visualEffects::VFXPipeline m_pipeline{ Window::getWinWidth(), Window::getWinHeight() };
+  glm::vec3 m_sun{ 100,100,100 };
+
+  World::Water m_water;
+  struct WaterData {
+      float level = 9.2f;
+      glm::vec2 position{ 80,80 };
+      float size = 160.f;
+  } m_waterData;
+
 
   // TODO improve the desert scene
   // - another skybox
@@ -41,6 +54,26 @@ public:
     meshShader.setUniform2f("u_grassSteepness", 2.f, 2.2f); // disable grass
     Renderer::Shader::unbind();
 
+
+    // VFX stuff
+    {
+
+        m_pipeline.registerEffect<visualEffects::LensMask>();
+        m_pipeline.registerEffect<visualEffects::Bloom>();
+        m_pipeline.registerEffect<visualEffects::Contrast>();
+        m_pipeline.registerEffect<visualEffects::Saturation>();
+        m_pipeline.registerEffect<visualEffects::Sharpness>();
+        m_pipeline.registerEffect<visualEffects::GammaCorrection>();
+
+        m_pipeline.sortPipeline();
+
+
+        m_pipeline.addContextParam<glm::vec3>({ 10,10,10 }, "sunPos");
+        m_pipeline.addContextParam<glm::vec3>({ 10,10,10 }, "cameraPos");
+        m_pipeline.addContextParam<Renderer::Camera>(getCamera(), "camera");
+    }
+
+
     { // terrain
       constexpr unsigned int chunkSize = 20, chunkCount = 20;
       constexpr float height = 15;
@@ -63,6 +96,10 @@ public:
       }
       m_terrain = Terrain::generateTerrain(heightMap, chunkCount, chunkCount, chunkSize);
     }
+
+
+
+    m_water.addSource();
   }
 
   void step(float realDelta) override
@@ -74,30 +111,61 @@ public:
     m_player.setPostion(playerPos);
     m_player.updateCamera();
     m_realTime += realDelta;
+    m_water.updateMoveFactor(realDelta);
+  }
+
+
+  void renderScene() 
+  {
+
+      Renderer::clear();
+
+      Renderer::Camera& camera = m_player.getCamera();
+      Renderer::Frustum cameraFrustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(camera);
+
+      m_sandTexture.bind(0);
+      for (const auto& [position, chunk] : m_terrain.getChunks()) {
+          const AABB& chunkAABB = chunk.getMesh().getBoundingBox();
+
+          if (!cameraFrustum.isOnFrustum(chunkAABB))
+              continue;
+
+          Renderer::renderMesh(camera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
+      }
+
+      m_sky.render(camera, m_realTime, false);
   }
 
   void onRender() override
   {
-    Renderer::clear();
+    m_pipeline.setContextParam<glm::vec3>("sunPos", m_sun);
+    m_pipeline.setContextParam<glm::vec3>("cameraPos", getCamera().getForward());
+    m_pipeline.setContextParam<Renderer::Camera>("camera", getCamera());
+    m_pipeline.bind();
 
-    Renderer::Camera &camera = m_player.getCamera();
-    Renderer::Frustum cameraFrustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(camera);
+    m_water.onRender([this]() -> void { renderScene(); }, getCamera());
 
-    m_sandTexture.bind(0);
-    for (const auto &[position, chunk] : m_terrain.getChunks()) {
-      const AABB &chunkAABB = chunk.getMesh().getBoundingBox();
 
-      if (!cameraFrustum.isOnFrustum(chunkAABB))
-        continue;
-
-      Renderer::renderMesh(camera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
-    }
-
-    m_sky.render(camera, m_realTime, false);
+    m_pipeline.unbind();
+    m_pipeline.renderPipeline();
+      /*
+    m_water.onRender([this]() -> void { renderScene(); }, getCamera());
+      */
   }
 
   void onImGuiRender() override
   {
+      if (
+          ImGui::DragFloat("WaterLevel", &m_waterData.level, 0.5f) ||
+          ImGui::DragFloat2("Water Position", &m_waterData.position.x, 1.f) ||
+          ImGui::DragFloat("WaterSize", &m_waterData.size, 1.f))
+      {
+          m_water.getSourceAt(0)->setHeight(m_waterData.level);
+          m_water.getSourceAt(0)->setPosition(m_waterData.position);
+          m_water.getSourceAt(0)->setSize(m_waterData.size);
+      }
+
+      m_pipeline.onImGuiRender();
   }
 
   CAMERA_IS_PLAYER();

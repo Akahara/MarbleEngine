@@ -16,11 +16,14 @@ namespace visualEffects {
 		Contrast()
 			: VFX("Contrast")
 		{
+			setFragmentShader("res/shaders/contrast.fs");
 			m_shift = 0.f;
 
 			m_blitData.getShader().bind();
 			m_blitData.getShader().setUniform1f("u_contrastShift", m_shift);
 			m_blitData.getShader().unbind();
+
+
 		}
 
 		virtual void onImGuiRender() override {

@@ -18,6 +18,8 @@ namespace visualEffects {
 		Sharpness()
 			: VFX("Sharpness")
 		{
+
+			setFragmentShader("res/shaders/sharpness.fs");
 			m_blitData.getShader().bind();
 			m_blitData.getShader().setUniform1f("u_amount", m_amout);
 			m_blitData.getShader().unbind();

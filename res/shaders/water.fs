@@ -22,8 +22,8 @@ in vec3 o_toCameraVector;
 
 const float waveStrength = 0.04;
 const vec3 waterNormal = vec3(0.f,1.f,0.f);
-const vec3 sunColor = vec3(1,1,1) ;
-const float shineDamper = 20.0f;
+const vec3 sunColor = vec3(1,1,0.5) ;
+const float shineDamper = 15.0f;
 const float reflectivity = 0.5f;
 
 
@@ -81,7 +81,7 @@ void main()
 
     vec4 texReflec = texture(u_ReflectionTexture, reflect);
     vec4 texRefrac = texture(u_RefractionTexture, refract);
-    texRefrac = mix(texRefrac, murkyColor, clamp(waterDepth/5000.f, 0.0, 1.0));
+    texRefrac = mix(texRefrac, vec4(1,1,0,1), clamp(waterDepth/200.f, 0.0, 1.0)); // color deepness thing
 
     vec4 normalMapColour = texture(u_normalMap, distortedTexCoords);
     vec3 normal = vec3(normalMapColour.r * 2.0 - 1.0, normalMapColour.b * 3.0, normalMapColour.g *2.0 - 1.0);

@@ -117,6 +117,7 @@
     <ClInclude Include="src\Sandbox\Scenes\TestBloom.h" />
     <ClInclude Include="src\abstraction\pipeline\Flares.h" />
     <ClInclude Include="src\abstraction\pipeline\LensMask.h" />
+    <ClInclude Include="src\world\Water\Water.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />

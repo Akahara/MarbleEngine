@@ -19,6 +19,8 @@ namespace visualEffects {
 		Saturation()
 			: VFX("Saturation")
 		{
+
+			setFragmentShader("res/shaders/saturation.fs");
 			m_saturation = 1.2f;
 
 			m_blitData.getShader().bind();

@@ -17,11 +17,11 @@
 
 class TestShadowsScene : public Scene {
 private:
-  Renderer::Cubemap  m_skybox;
   Player             m_player;
   Renderer::Mesh     m_mesh1;
   Renderer::Mesh     m_cubeMesh;
   Renderer::Shader   m_shader;
+  World::Sky        m_sky;
 
   SunCameraHelper    m_sunCameraHelper;
   AABB               m_visibleAABB = AABB::make_aabb({ -2, -.25f, -4 }, { 9, 3, 4 });
@@ -33,12 +33,9 @@ private:
   Renderer::BlitPass m_depthTestBlitPass;
   bool               m_dbgDrawDepthBuffer = false;
   bool               m_animateSun = false;
+  float     m_realdelta = 0;
 public:
-  TestShadowsScene()
-    : m_skybox{
-      "res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
-      "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
-      "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" },
+  TestShadowsScene() : 
     m_mesh1(Renderer::loadMeshFromFile("res/meshes/floor.obj")),
     m_cubeMesh(Renderer::createCubeMesh()),
     m_shader(Renderer::loadShaderFromFiles("res/shaders/shadows.vs", "res/shaders/shadows.fs")),
@@ -56,6 +53,7 @@ public:
   void step(float delta) override
   {
     m_player.step(delta);
+    m_realdelta += delta;
 
     if (m_animateSun) {
       static float time = 0;
@@ -70,7 +68,6 @@ public:
     m_depthTexture.bind();
 
     if (!depthPass) {
-      Renderer::renderCubemap(m_player.getCamera(), m_skybox);
       renderDebugCameraOutline(camera, m_sunCameraHelper.getCamera());
       renderAABBDebugOutline(camera, m_visibleAABB);
 
@@ -131,6 +128,7 @@ public:
     } else {
       renderScene(m_player.getCamera(), false);
     }
+    m_sky.render(getCamera(), m_realdelta);
   }
 
   void onImGuiRender() override

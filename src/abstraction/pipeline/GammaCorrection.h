@@ -18,6 +18,8 @@ namespace visualEffects {
 		GammaCorrection()
 			: VFX("Gamma correction")
 		{
+
+			setFragmentShader("res/shaders/gammacorrection.fs");
 			m_blitData.getShader().bind();
 			m_blitData.getShader().setUniform1f("u_gamma", m_gamma);
 			m_blitData.getShader().unbind();

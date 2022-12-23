@@ -19,8 +19,8 @@ namespace visualEffects {
 		LensMask()
 			: VFX("LensMask"), m_transparency(0.5f)
 		{
-			m_isEnabled = true;
 			setFragmentShader("res/shaders/lensmask.fs");
+			m_isEnabled = true;
 		}
 
 		virtual void applyEffect(PipelineContext& context) override {

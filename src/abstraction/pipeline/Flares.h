@@ -146,10 +146,12 @@ public:
 		m_VAO.bind();
 
 		glEnable(GL_BLEND);
+		glDisable(GL_DEPTH_TEST);
 		glDepthMask(GL_FALSE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 
+		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
 		m_indexCount = 0;

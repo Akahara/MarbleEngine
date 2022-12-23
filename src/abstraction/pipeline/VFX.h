@@ -69,6 +69,7 @@ protected:
 	std::string					m_shaderpath; // debugging purposes
 
 
+
 public:
 
 	VFX() : m_isEnabled(false) {

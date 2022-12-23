@@ -38,6 +38,7 @@ public:
 		m_blitFinal.getShader().setUniform1i("u_sceneTexture", 0);
 		m_blitFinal.getShader().setUniform1i("u_finalBloom", 1);
 		m_blitFinal.getShader().unbind();
+
 		m_fboBloom.setDepthTexture(m_depth);
 	}
 
