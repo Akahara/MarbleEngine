@@ -9,12 +9,8 @@
 class EmptyScene : public Scene {
 public:
   void step(float delta) override {}
-  void onRender() override {
-    Renderer::clear();
-  }
+  void onRender() override { Renderer::clear(); }
   void onImGuiRender() override {}
-  
-
   virtual Renderer::Camera& getCamera() override { throw std::exception("No camera has been set up for this scene"); }
 };
 
