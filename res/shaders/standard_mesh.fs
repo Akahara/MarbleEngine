@@ -17,6 +17,11 @@ uniform vec3 u_fogColor = vec3(.71, .86, 1.);
 uniform vec3 u_fogDamping = vec3(.001, .001, .001);
 uniform bool u_castShadows = false;
 
+// This tells what texture slot is the normal texture of the index-Texture
+uniform int u_NormalsTextureSlot[8] = { 
+-1, -1, -1, -1, -1, -1, -1, -1
+}; 
+
 uniform sampler2D u_shadowMap;       // the depth map, "from the sun's point of view"
 uniform vec2 u_shadowMapOrthoZRange; // = (zNear, zFar) in the orthographic projection that generated the shadow map
 uniform mat4x3 u_shadowMapProj;      // a projection from world coordinates to shadow map coordinates (xy are UVs and z is the distance to the sun)
@@ -49,7 +54,7 @@ uniform int numberOfLights = 0;
 
 ///////////////////////////////////////////////////////////////
 
-// #define MESA_SCENE
+//#define MESA_SCENE
 
 #ifdef MESA_SCENE
 const vec3 mesa_colors[5] = vec3[5](
@@ -87,7 +92,14 @@ void main()
 
     float sunLight = 1;
     // direct sun light
-    sunLight *= max(0, dot(normalize(o_normal), normalize(u_SunPos)));
+    vec3 normal = o_normal;
+    if (u_NormalsTextureSlot[0] != -1) {
+        int index_normal_slot = u_NormalsTextureSlot[0];
+        vec4 sn = texture(u_Textures2D[index_normal_slot],o_uv);
+        normal = normal * sn.rgb;
+    }
+
+    sunLight *= max(0, dot(normalize(normal), normalize(u_SunPos)));
     // cast shadows, see TestShadows
     if(u_castShadows) {
         vec3 shadowMapPos = u_shadowMapProj * vec4(o_pos, 1);
@@ -107,7 +119,7 @@ void main()
         PointLight light = u_lights[i];
         if (light.on == 0) continue;
     
-        color.rgb += CalcPointLight(light, o_normal, o_pos, viewDir);
+        color.rgb += CalcPointLight(light, normal, o_pos, viewDir);
     }
 
     // apply distance fog

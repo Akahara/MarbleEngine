@@ -15,13 +15,17 @@ class POC3Scene : public Scene {
 private:
   Player              m_player;
   Terrain::Terrain    m_terrain;
-  Renderer::Texture   m_sandTexture = Renderer::Texture("res/textures/sand.jpg");
+  Renderer::Texture   m_sandTexture = Renderer::Texture("res/textures/sand1.jpg");
+  Renderer::Texture   m_sandTexture_normal = Renderer::Texture("res/textures/sand1_normal.jpg");
   World::Sky          m_sky;
   float               m_realTime;
 
 
   visualEffects::VFXPipeline m_pipeline{ Window::getWinWidth(), Window::getWinHeight() };
-  glm::vec3 m_sun{ 100,100,100 };
+  glm::vec3 m_sun{ 1000,1000,1000 };
+
+
+
 
   World::Water m_water;
   struct WaterData {
@@ -30,6 +34,7 @@ private:
       float size = 160.f;
   } m_waterData;
 
+  int normalslot = 1;
 
   // TODO improve the desert scene
   // - another skybox
@@ -43,8 +48,10 @@ public:
     m_player.updateCamera();
 
     int samplers[8] = { 0,1,2,3,4,5,6,7 };
+    int normals_samplers[8] = { normalslot,-1,-1,-1,-1,-1,-1,-1};
     Renderer::Shader &meshShader = Renderer::getStandardMeshShader();
     meshShader.bind();
+    meshShader.setUniform1iv("u_NormalsTextureSlot", 8, normals_samplers);
     meshShader.setUniform1iv("u_Textures2D", 8, samplers);
     meshShader.setUniform1i("u_castShadows", 0);
     meshShader.setUniform1i("u_RenderChunks", 0);
@@ -52,6 +59,8 @@ public:
     meshShader.setUniform3f("u_fogDamping", .005f, .005f, .007f);
     meshShader.setUniform3f("u_fogColor", 1.000f, 0.944f, 0.102f);
     meshShader.setUniform2f("u_grassSteepness", 2.f, 2.2f); // disable grass
+
+
     Renderer::Shader::unbind();
 
 
@@ -68,7 +77,7 @@ public:
         m_pipeline.sortPipeline();
 
 
-        m_pipeline.addContextParam<glm::vec3>({ 10,10,10 }, "sunPos");
+        m_pipeline.addContextParam<glm::vec3>({ 1000,1000,1000 }, "sunPos");
         m_pipeline.addContextParam<glm::vec3>({ 10,10,10 }, "cameraPos");
         m_pipeline.addContextParam<Renderer::Camera>(getCamera(), "camera");
     }
@@ -124,6 +133,7 @@ public:
       Renderer::Frustum cameraFrustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(camera);
 
       m_sandTexture.bind(0);
+      m_sandTexture_normal.bind(1);
       for (const auto& [position, chunk] : m_terrain.getChunks()) {
           const AABB& chunkAABB = chunk.getMesh().getBoundingBox();
 
@@ -164,6 +174,15 @@ public:
           m_water.getSourceAt(0)->setPosition(m_waterData.position);
           m_water.getSourceAt(0)->setSize(m_waterData.size);
       }
+
+      if (ImGui::Button("Turn on/off normal map")) {
+          normalslot *= -1;
+          int normals_samplers[8] = { normalslot,-1,-1,-1,-1,-1,-1,-1 };
+          Renderer::Shader& meshShader = Renderer::getStandardMeshShader();
+          meshShader.bind();
+          meshShader.setUniform1iv("u_NormalsTextureSlot", 8, normals_samplers);
+      }
+      ImGui::Text("%d", normalslot);
 
       m_pipeline.onImGuiRender();
   }
