@@ -85,15 +85,23 @@ Pour les systèmes existants, nous utiliserons la terminologie anglaise plutôt 
 
 D'un point de vue global notre projet est assez simple, il se compose seulement de deux modules de haut niveau qui utilisent chacun plusieurs modules de plus bas niveau.
 
-%% TODO uml [Generation] + [Affichage->OpenGL]
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.6]{overview_uml}
+	\caption{Diagramme de classes : composantes principales du projet}
+\end{figure}
 
 \subsection{Conception structurelle}
 
 Nous avons passé un certain temps en amont sur la concéption globale de l'application. Elle ressemble à ce qu'on trouverait dans un \textit{Game Engine} moderne du type Unity ou Unreal Engine. Il existe une unique \textit{scène} - un monde - qui contient des objets qui sont affichés et mis à jours régulièrement.
 
-%% TODO uml [Generation]->[scene]->player->camera  ->terrain->chunks  ->...   ->[Renderer]
-
 La scène est construite une seule fois et le joueur y existe et peut s'y balader. La scène est globalement statique, les seuls objets qui se déplacent sont le joueur et le soleil, le reste est figé en place mais peut être animé d'autres manières.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.49]{detailed_structure_uml}
+	\caption{Diagramme de classes : composantes détaillées}
+\end{figure}
 
 \subsection{Tests, sandbox}
 
@@ -538,9 +546,15 @@ On peut ensuite afficher $M$ brins d'herbe. Pour arriver aux plusieurs millions 
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[scale=.6]{grass_instance_buffers}
+	\includegraphics[scale=.49]{grass_instance_buffers}
 	\caption{Les deux instance buffers de l'herbe}
 	\label{fig:grass_instance_buffers}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.49]{grass_uml}
+	\caption{Diagramme de classes : composantes du système de l'herbe}
 \end{figure}
 
 Il est à noter que les chunks de l'herbe ne correspondent pas aux chunks du terrain, les deux n'ont pas les mêmes contraintes ce qui fait que généralement les chunks de l'herbe sont beaucoup plus grands. Aussi, même si nous avons implémenté la génération continue de l'herbe, nous n'avons pas fait de même pour le terrain ; cette partie du projet serait facilement réalisable mais n'entrait pas dans nos priorités. Le résultat de ces algorithmes peut être observé en figure \ref{fig:grass}.
@@ -551,6 +565,9 @@ Il est à noter que les chunks de l'herbe ne correspondent pas aux chunks du ter
 	\includegraphics[scale=.35]{grass}
 	\label{fig:grass}
 \end{SCfigure}
+
+\paragraph{}
+Il est assez difficile de se représenter la quantité de travail à fournir pour afficher tout cela ; si on oublie la partie "filtre" en moyenne pour 2M brins d'herbes à afficher (1M HD et 1M LD) on a $10^6\times3\times7 + 10^6\times3\times1=24\times10^6$ appels du vertex shader. Tel qu'il est écrit le vertex shader calcule deux multiplications de matrices par appel\footnote{en réalité il fait aussi plusieurs calculs trigonométriques et bien plus d'additions/multiplications, sans compter les déplacements de valeurs en mémoire...}, pour environ 20 multiplications. Au total, le gpu doit traiter (beaucoup) plus de 500M multiplications par frame, et tout cela en moins de 16.6$\mu$s ! Avec les optimisations que nous avons apporté dans le cas idéal (quand aucun brin d'herbe n'est dans le champ de la caméra) chaque brin d'herbe est traité en un seul calcul, mais l'algorithme possède un coût incompressible non négligeable. On se rend bien compte de la difficulté que représente l'affichage d'autant d'objets. Ce serait complètement impossible sans gpu.
 
 \subsection{Eau}
 
