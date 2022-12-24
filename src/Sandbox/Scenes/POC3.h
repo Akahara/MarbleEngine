@@ -17,15 +17,23 @@ private:
   Terrain::Terrain    m_terrain;
   Renderer::Texture   m_sandTexture = Renderer::Texture("res/textures/sand1.jpg");
   Renderer::Texture   m_sandTexture_normal = Renderer::Texture("res/textures/sand1_normal.jpg");
-  World::Sky          m_sky;
+  World::Sky          m_sky{World::Sky::SkyboxesType::SAND};
   float               m_realTime;
+
+
+  std::vector<Light> m_lights;
+
+  bool m_lightsOn[12] =
+  {
+      0,0,0,
+      0,0,0,
+      0,0,0,
+      0,0,0
+  };
 
 
   visualEffects::VFXPipeline m_pipeline{ Window::getWinWidth(), Window::getWinHeight() };
   glm::vec3 m_sun{ 1000,1000,1000 };
-
-
-
 
   World::Water m_water;
   struct WaterData {
@@ -37,9 +45,9 @@ private:
   int normalslot = 1;
 
   // TODO improve the desert scene
-  // - another skybox
+  // - another skybox DONE
   // - tweak the fog color/for damping
-  // - cleaner texture
+  // - cleaner texture DONE
 
 public:
   POC3Scene()
@@ -47,21 +55,27 @@ public:
     m_player.setPostion({ 100.f, 22.F , 100.f });
     m_player.updateCamera();
 
-    int samplers[8] = { 0,1,2,3,4,5,6,7 };
-    int normals_samplers[8] = { normalslot,-1,-1,-1,-1,-1,-1,-1};
-    Renderer::Shader &meshShader = Renderer::getStandardMeshShader();
-    meshShader.bind();
-    meshShader.setUniform1iv("u_NormalsTextureSlot", 8, normals_samplers);
-    meshShader.setUniform1iv("u_Textures2D", 8, samplers);
-    meshShader.setUniform1i("u_castShadows", 0);
-    meshShader.setUniform1i("u_RenderChunks", 0);
-    meshShader.setUniform1f("u_Strength", 1.25f);
-    meshShader.setUniform3f("u_fogDamping", .005f, .005f, .007f);
-    meshShader.setUniform3f("u_fogColor", 1.000f, 0.944f, 0.102f);
-    meshShader.setUniform2f("u_grassSteepness", 2.f, 2.2f); // disable grass
+    // Uniforms stuff
+    {
+
+        int samplers[8] = { 0,1,2,3,4,5,6,7 };
+        int normals_samplers[8] = { normalslot,-1,-1,-1,-1,-1,-1,-1};
+        Renderer::Shader &meshShader = Renderer::getStandardMeshShader();
+        meshShader.bind();
+        meshShader.setUniform1iv("u_NormalsTextureSlot", 8, normals_samplers);
+        meshShader.setUniform1iv("u_Textures2D", 8, samplers);
+        meshShader.setUniform1i("u_castShadows", 0);
+        meshShader.setUniform1i("u_RenderChunks", 0);
+        meshShader.setUniform1f("u_Strength", 1.25f);
+        meshShader.setUniform3f("u_fogDamping", .005f, .005f, .007f);
+        meshShader.setUniform3f("u_fogColor", 1.000f, 0.944f, 0.102f);
+        meshShader.setUniform2f("u_grassSteepness", 2.f, 2.2f); // disable grass
+        Renderer::setUniformPointLights(m_lights);
+
+        Renderer::Shader::unbind();
 
 
-    Renderer::Shader::unbind();
+    }
 
 
     // VFX stuff
@@ -82,8 +96,8 @@ public:
         m_pipeline.addContextParam<Renderer::Camera>(getCamera(), "camera");
     }
 
-
-    { // terrain
+    // Terrain Stuff
+    { 
       constexpr unsigned int chunkSize = 20, chunkCount = 20;
       constexpr float height = 15;
       unsigned int noiseMapSize = 3 + chunkSize * chunkCount;
@@ -106,8 +120,7 @@ public:
       m_terrain = Terrain::generateTerrain(heightMap, chunkCount, chunkCount, chunkSize);
     }
 
-
-
+    // Water stuff
     m_water.addSource();
   }
 
@@ -122,7 +135,6 @@ public:
     m_realTime += realDelta;
     m_water.updateMoveFactor(realDelta);
   }
-
 
   void renderScene() 
   {
@@ -143,7 +155,7 @@ public:
           Renderer::renderMesh(camera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
       }
 
-      m_sky.render(camera, m_realTime, false);
+      m_sky.render(camera, m_realTime, true);
   }
 
   void onRender() override
@@ -185,6 +197,69 @@ public:
       ImGui::Text("%d", normalslot);
 
       m_pipeline.onImGuiRender();
+
+      {
+         
+
+          if (m_lights.size() < 12) {
+
+              if (ImGui::Button("Generate a light"))
+              {
+                  m_lights.push_back({});
+              }
+
+          }
+
+          for (unsigned int i = 0; i < m_lights.size(); i++) {
+
+              Light& light = m_lights.at(i);
+
+              if (ImGui::Checkbox((std::stringstream{ "Switch n" } << i).str().c_str(), &m_lightsOn[i])) {
+
+                  m_lights.at(i).setOn(m_lightsOn[i]);
+                  Renderer::setUniformPointLights(m_lights);
+              }
+
+              if (m_lights.at(i).isOn()) {
+
+
+
+                  glm::vec3 pos = light.getPosition();
+                  Light::LightParam params = light.getParams();
+                  float distance = light.getDistance();
+
+                  std::stringstream ss{ std::string() };
+                  ss << "Light " << i + 1;
+
+                  if (ImGui::CollapsingHeader(ss.str().c_str())) {
+
+                      if (
+                          ImGui::DragFloat3((std::stringstream{ "LightPosition n" } << i).str().c_str(), &pos.x, 2.f) +
+                          ImGui::SliderFloat3((std::stringstream{ "Ambiant n" } << i).str().c_str(), &params.ambiant.x, 0, 15) +
+                          ImGui::SliderFloat3((std::stringstream{ "Diffuse n" } << i).str().c_str(), &params.diffuse.x, 0, 15) +
+                          ImGui::SliderFloat3((std::stringstream{ "Specular n" } << i).str().c_str(), &params.specular.x, 0, 15) +
+
+                          ImGui::DragFloat((std::stringstream{ "Distance n" } << i).str().c_str(), &distance, 30.f)) {
+
+                          Light l = Light{
+                               pos,
+                               params,
+                               distance,
+                               m_lightsOn[i]
+                          };
+                          m_lights.at(i) = l;
+
+                          Renderer::setUniformPointLights(m_lights);
+
+                      }
+
+                  }
+              }
+
+
+          }
+
+      }
   }
 
   CAMERA_IS_PLAYER();

@@ -32,7 +32,6 @@ private:
     Renderer::FrameBufferObject     m_fbo;
 
     Renderer::BlitPass              m_blitdata; //draw in the texture
-    Renderer::BlitPass              m_blittest; //draw in the texture
 
 public:
     BloomRenderer() 
