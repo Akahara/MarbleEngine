@@ -20,16 +20,8 @@ public:
   // After moving the player #updateCamera() should be called
   void setPostion(const glm::vec3 &position) { m_position = position; }
   void setRotation(float yaw, float pitch) { m_yaw = yaw; m_pitch = pitch; }
-  void inversePitch() { 
-	  m_pitch = -m_pitch;
-  }
-
-
-  void moveCamera(const glm::vec3& delta) {
-	  m_camera.setPosition(m_camera.getPosition() + delta); 
-	  m_position += delta;
-  }
-
+  void inversePitch() { m_pitch = -m_pitch; }
+  void moveCamera(const glm::vec3& delta) { m_camera.setPosition(m_camera.getPosition() + delta); m_position += delta; }
 
   void updateCamera();
 private:

@@ -10,19 +10,19 @@
 namespace Renderer {
 
 Texture::Texture()
-  : m_RendererID(0), m_width(0), m_height(0)
+  : m_rendererID(0), m_width(0), m_height(0)
 {
 }
 
 Texture::Texture(const std::string &path)
-  : m_RendererID(0), m_width(0), m_height(0)
+  : m_rendererID(0), m_width(0), m_height(0)
 {
   stbi_set_flip_vertically_on_load(1);
 
   unsigned char *localBuffer = stbi_load(path.c_str(), &m_width, &m_height, nullptr, 4);
 
-  glGenTextures(1, &m_RendererID);
-  glBindTexture(GL_TEXTURE_2D, m_RendererID);
+  glGenTextures(1, &m_rendererID);
+  glBindTexture(GL_TEXTURE_2D, m_rendererID);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -45,8 +45,8 @@ Texture::Texture(const std::string &path)
 Texture::Texture(unsigned int width, unsigned int height)
   : m_width(width), m_height(height)
 {
-  glGenTextures(1, &m_RendererID);
-  glBindTexture(GL_TEXTURE_2D, m_RendererID);
+  glGenTextures(1, &m_rendererID);
+  glBindTexture(GL_TEXTURE_2D, m_rendererID);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -58,7 +58,7 @@ Texture::Texture(unsigned int width, unsigned int height)
 }
 
 Texture::Texture(unsigned int rendererId, int width, int height)
-  : m_RendererID(rendererId), m_width(width), m_height(height)
+  : m_rendererID(rendererId), m_width(width), m_height(height)
 {
 }
 
@@ -69,10 +69,10 @@ Texture::~Texture()
 
 Texture::Texture(Texture &&moved) noexcept
 {
-  m_RendererID = moved.m_RendererID;
+  m_rendererID = moved.m_rendererID;
   m_width = moved.m_width;
   m_height = moved.m_height;
-  moved.m_RendererID = 0;
+  moved.m_rendererID = 0;
   moved.m_width = 0;
   moved.m_height = 0;
 }
@@ -86,14 +86,14 @@ Texture &Texture::operator=(Texture &&moved) noexcept
 
 void Texture::destroy()
 {
-  glDeleteTextures(1, &m_RendererID);
-  m_RendererID = 0;
+  glDeleteTextures(1, &m_rendererID);
+  m_rendererID = 0;
 }
 
 void Texture::bind(unsigned int slot /* = 0*/) const
 {
   glActiveTexture(GL_TEXTURE0 + slot);
-  glBindTexture(GL_TEXTURE_2D, m_RendererID);
+  glBindTexture(GL_TEXTURE_2D, m_rendererID);
 
 }
 void Texture::unbind(unsigned int slot /* = 0*/)
@@ -153,7 +153,7 @@ void Texture::writeToFile(const Texture &texture, const std::filesystem::path &p
 {
   int w, h;
   int lod = 0;
-  glBindTexture(GL_TEXTURE_2D, texture.m_RendererID);
+  glBindTexture(GL_TEXTURE_2D, texture.m_rendererID);
   glGetTexLevelParameteriv(GL_TEXTURE_2D, lod, GL_TEXTURE_WIDTH, &w);
   glGetTexLevelParameteriv(GL_TEXTURE_2D, lod, GL_TEXTURE_HEIGHT, &h);
   char *data = new char[(size_t)w * h * 4];

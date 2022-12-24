@@ -35,8 +35,7 @@ public:
 
 	bool isInBounds(const glm::vec3& point) const
 	{
-		return
-			(glm::distance(point, m_center) < glm::distance(m_center, m_center + glm::vec3(m_radius)));
+		return glm::distance(point, m_center) < glm::distance(m_center, m_center + glm::vec3(m_radius));
 	}
 
 

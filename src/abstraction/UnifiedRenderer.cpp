@@ -6,12 +6,14 @@
 
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <glad/glad.h>
 
 #include "Window.h"
 #include "Camera.h"
 #include "Mesh.h"
 
-#include "../world/Light/Light.h"
+#include "../world/Light/Light.h" // TODO move light.h to the abstraction package
+                                  // abstraction should not depend on world, the inverse is possible
 
 namespace Renderer {
 
@@ -233,12 +235,14 @@ Shader &getStandardMeshShader()
 void beginColorPass()
 {
   glEnable(GL_MULTISAMPLE);
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   s_state.activeStandardShader = &s_keepAliveResources->standardMeshShader;
 }
 
 void beginDepthPass()
 {
   glDisable(GL_MULTISAMPLE);
+  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);  // do not draw color during a depth pass
   s_state.activeStandardShader = &s_keepAliveResources->standardDepthPassShader;
 }
 
@@ -453,16 +457,14 @@ void renderDebugGUIQuadWithTexture(const Texture& texture, glm::vec2 positionOnS
     texture.bind(0);
     s_keepAliveResources->debugFlatScreenShader.setUniform1i("u_texture", 0);
     gui.draw();
-
 }
-void setUniformPointLights(const std::vector<Light>& pointLights) {
 
+void setUniformPointLights(const std::vector<Light>& pointLights)
+{
     s_keepAliveResources->standardMeshShader.bind();
-    s_keepAliveResources->standardMeshShader.setUniform1i("numberOfLights", pointLights.size());
-
+    s_keepAliveResources->standardMeshShader.setUniform1i("numberOfLights", (int)pointLights.size());
 
     for (int i = 0; i < pointLights.size(); i++) {
-        
         const Light& light = pointLights.at(i);
 
         std::stringstream ss{ std::string() };
@@ -481,12 +483,9 @@ void setUniformPointLights(const std::vector<Light>& pointLights) {
         s_keepAliveResources->standardMeshShader.setUniform3f(lightInShader + "ambient", light.getParams().ambiant);
         s_keepAliveResources->standardMeshShader.setUniform3f(lightInShader + "diffuse", light.getParams().diffuse);
         s_keepAliveResources->standardMeshShader.setUniform3f(lightInShader + "specular", light.getParams().specular);
-
     }
-
-
-
 }
+
 //=========================================================================================================================//
 //=========================================================================================================================//
 //=========================================================================================================================//
@@ -511,7 +510,6 @@ void BlitPass::doBlit(const Texture &renderTexture, bool bindRenderTexture/*=tru
       renderTexture.bind();
 
   m_shader.bind();
-  //m_shader.setUniform2f("u_screenSize", (float)Window::getWinWidth(), (float)Window::getWinHeight()); // TODO remove, this uniform is only necessary because the vignette vfx is in the blit shader, which it shouldn't, it should be in a res/shaders/testfb_blit.fs shader
   m_vao.bind();
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
   m_shader.unbind();
@@ -519,15 +517,14 @@ void BlitPass::doBlit(const Texture &renderTexture, bool bindRenderTexture/*=tru
   VertexArray::unbind();
 }
 
-
 void clearDebugData() {
-    s_debugData.meshCount = 0;
-    s_debugData.vertexCount = 0;
-    s_debugData.debugLines = 0;
+  s_debugData.meshCount = 0;
+  s_debugData.vertexCount = 0;
+  s_debugData.debugLines = 0;
 }
 
 const DebugData& getRendererDebugData() {
-    return s_debugData;
+  return s_debugData;
 }
 
 }

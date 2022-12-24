@@ -1,9 +1,11 @@
 #include "Debug.h"
 
-#include <glad/glad.h>
 #include <string>
 #include <iostream>
 #include <sstream>
+
+#include <glad/glad.h>
+
 #include "../vendor/imgui/imgui.h"
 #include "../abstraction/UnifiedRenderer.h"
 

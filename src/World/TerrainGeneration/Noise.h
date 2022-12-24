@@ -10,6 +10,8 @@ float *loadNoiseMapFromFile(const char *path, unsigned int *o_width, unsigned in
 void rescaleNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHeight, float currentMin, float currentMax, float newMin, float newMax);
 
 // TODO comment individual erosion settings
+// TODO move the TerrainSettings struct in noise.h
+// TerrainSettings is responsible for the heightmap generation, not the terrain generation itself
 struct ErosionSettings {
   int erosionRadius = 6;
   float inertia = .05f;             // At zero, water will instantly change direction to flow downhill. At 1, water will never change direction. 

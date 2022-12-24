@@ -2,7 +2,6 @@
 
 #include <ranges>
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/component_wise.hpp>
@@ -33,9 +32,9 @@ private:
 public:
   TestInstancedScene()
     : m_skybox{
-      "res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
-      "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
-      "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" },
+      "res/skybox/skybox_front.bmp", "res/skybox/skybox_back.bmp",
+      "res/skybox/skybox_left.bmp",  "res/skybox/skybox_right.bmp",
+      "res/skybox/skybox_top.bmp",   "res/skybox/skybox_bottom.bmp" },
       m_texture1("res/textures/rock.jpg"),
       m_player(), m_roguePlayer(), m_useRoguePlayer(false), m_time(0)
   {
@@ -53,18 +52,14 @@ public:
       CHUNK_SIZE
     );
     
+    // generate HD and LD chunk positions
+    // they must be in terrain bounds and an LD chunk cannot overlap an HD chunk
     std::vector<glm::ivec2> hdChunks = Iterators::collect(
       std::views::all(Iterators::iterateOverCircle({ 0,0 }, 3)) |
       std::views::filter([this](glm::ivec2 p) { return m_terrain.getChunks().contains(p); }));
     std::vector<glm::ivec2> ldChunks = Iterators::collect(
       std::views::all(Iterators::iterateOverCircle({ 0,0 }, 5)) |
       std::views::filter([this, &hdChunks](glm::ivec2 p) { return m_terrain.getChunks().contains(p) && std::find(hdChunks.begin(), hdChunks.end(), p) == hdChunks.end(); }));
-    for (glm::ivec2 a : hdChunks)
-      std::cout << a << " ";
-    std::cout << std::endl;
-    for (glm::ivec2 a : ldChunks)
-      std::cout << a << " ";
-    std::cout << std::endl;
     m_grass = World::TerrainGrass(
       std::make_unique<World::FixedGrassChunks>(
         std::make_unique<World::TerrainGrassGenerator>(&m_terrain),
@@ -123,5 +118,5 @@ public:
     ImGui::End();
   }
 
-  CAMERA_IS_PLAYER();
+  CAMERA_IS_PLAYER(m_player);
 };

@@ -1,33 +1,29 @@
 #pragma once
 
 #include <vector>
-#include <glm/glm.hpp>
 #include <array>
 #include <sstream>
-#include "../Texture.h"
 
+#include <glm/glm.hpp>
+
+#include "../Texture.h"
 #include "../UnifiedRenderer.h"
 
 struct Flare {
-
 	Renderer::Texture texture;
 	glm::vec2 screenPos;
 	int texId;
 };
 
 class FlareRenderer {
-
 private:
-
 	const static int NUMBER_OF_FLARES = 9;
 	const static int INDICES_COUNT = 9 * 6;
 
 	struct QuadVertex {
-
 		glm::vec3 Position;
 		glm::vec2 TexCoords;
 		float	  TexID;
-
 	};
 
 	Renderer::VertexArray m_VAO;
@@ -40,22 +36,18 @@ private:
 
 	std::array<Renderer::Texture, 9> m_textureSlots;
 
-
 	QuadVertex* m_quadBuffer = nullptr;
 	QuadVertex* m_quadBufferPtr = nullptr;
 	unsigned int m_indexCount = 0;
 	unsigned int m_textureSlotIndex = 1;
 
-
 public:
-
 	FlareRenderer()
 	{
 		unsigned int indices[INDICES_COUNT];
 		unsigned int offset = 0;
 
 		for (int i = 0; i < INDICES_COUNT; i += 6) {
-
 			indices[i + 0] = 0 + offset;
 			indices[i + 1] = 1 + offset;
 			indices[i + 2] = 2 + offset;
@@ -85,17 +77,15 @@ public:
 		m_shader.unbind();
 
 		m_quadBuffer = new QuadVertex[NUMBER_OF_FLARES * 4];
-
-
 	}
 
-	~FlareRenderer() {
+	~FlareRenderer()
+	{
 		delete[] m_quadBuffer;
 	}
 
 	void renderFlares(const std::vector<Flare>& flares, float brightness)
 	{
-
 		m_shader.bind();
 		m_shader.setUniform1f("u_brightness", brightness);
 		m_quadBufferPtr = m_quadBuffer;
@@ -105,37 +95,37 @@ public:
 			// add flare to buffer
 
 			glm::vec2 position = flare.screenPos;
-			float textureIndex = flare.texId;
+			int textureIndex = flare.texId;
+			float textureIndexAsFloat = (float)textureIndex; // avoids compilation warnings...
 			glm::vec2 size = { 1,1 };
 
 			// Bottom left
 			m_quadBufferPtr->Position = { position.x, position.y, 0.0f };
 			m_quadBufferPtr->TexCoords = { 0.0f, 0.0f };
-			m_quadBufferPtr->TexID = textureIndex;
+			m_quadBufferPtr->TexID = textureIndexAsFloat;
 			m_quadBufferPtr++;
 
 			// Bottom right
 			m_quadBufferPtr->Position = { position.x + size.x, position.y, 0.0f };
 			m_quadBufferPtr->TexCoords = { 1.0f, 0.0f };
-			m_quadBufferPtr->TexID = textureIndex;
+			m_quadBufferPtr->TexID = textureIndexAsFloat;
 			m_quadBufferPtr++;
 
 			//top right
 			m_quadBufferPtr->Position = { position.x + size.x, position.y + size.y, 0.0f };
 			m_quadBufferPtr->TexCoords = { 1.0f, 1.0f };
-			m_quadBufferPtr->TexID = textureIndex;
+			m_quadBufferPtr->TexID = textureIndexAsFloat;
 			m_quadBufferPtr++;
 
 			// top left
 			m_quadBufferPtr->Position = { position.x , position.y + size.y, 0.0f };
 			m_quadBufferPtr->TexCoords = { 0.0f, 1.0f };
-			m_quadBufferPtr->TexID = textureIndex;
+			m_quadBufferPtr->TexID = textureIndexAsFloat;
 			m_quadBufferPtr++;
 
 			m_indexCount += 6;
 
 			flare.texture.bind(textureIndex);
-
 		}
 
 		GLsizeiptr size = (uint8_t*)m_quadBufferPtr - (uint8_t*)m_quadBuffer;
@@ -160,42 +150,31 @@ public:
 		m_shader.unbind();
 
 	}
-
-
 };
+
 class FlareManager {
-
 private:
-
+	static constexpr float SPACING = .6f;
 	std::vector<Flare> m_flares;
-	float spacing = 0.6f;
 
 	FlareRenderer m_flareRenderer;
 
 public:
-
 	FlareManager()
 	{
 		for (int i = 1; i < 10; i++) {
-
-
 			std::stringstream ss;
 			ss << "res/textures/flare/tex" << i << ".png";
-			//ss << "res/textures/flare/tex" << i << ".png";
-			m_flares.push_back(
-				{
+			m_flares.push_back({
 				Renderer::Texture{ss.str()},
-				{0,0}, i
-				}
-			);
-
+				{0,0},
+				i
+			});
 		}
-
-
 	}
 
-	glm::vec2 convertToScreenSpace(const glm::vec3& worldPos, const glm::mat4& VP) {
-
+	glm::vec2 convertToScreenSpace(const glm::vec3& worldPos, const glm::mat4& VP)
+	{
 		glm::vec4 coords{ worldPos.x, worldPos.y, worldPos.z, 1.f };
 		coords = VP * coords;
 		if (coords.w <= 0) { return { -10,-10 }; }
@@ -204,16 +183,13 @@ public:
 		float y = 1.f - ((coords.y / (float)coords.w + 1.f) / 2.f);
 
 		return { x, y };
-
 	}
 
-	void computeFlarePositions(const glm::vec2& sunToCenter, const glm::vec2& sunCoords) {
-
-
-		for (unsigned int i = 0; i < m_flares.size(); i++)
-		{
+	void computeFlarePositions(const glm::vec2& sunToCenter, const glm::vec2& sunCoords)
+	{
+		for (unsigned int i = 0; i < m_flares.size(); i++) {
 			glm::vec2 direction = sunToCenter;
-			direction *= (float)i * spacing;
+			direction *= (float)i * SPACING;
 
 			glm::vec2 textureSizeIn2D = m_flares[i].texture.getSize() / glm::vec2{float(Window::getWinWidth()), float(Window::getWinHeight())};
 			glm::vec2 middleOfTexture = (textureSizeIn2D)/2.f;
@@ -222,17 +198,7 @@ public:
 
 
 			m_flares[i].screenPos = glm::vec2{ (flarePos.x - 0.5f) * 2.F, (flarePos.y - 0.5f) * 2.F };
-
-
-
-			//m_flares[i].screenPos -= (m_flares[i].texture.getSize()) / glm::vec2{ Window::getWinWidth() * -1.f, Window::getWinHeight() };
-
-
-
 		}
-
-
-
 	}
 
 	// TODO batch render
@@ -243,17 +209,13 @@ public:
 		glm::vec2 sunToCenter = glm::vec2{ 0.5f, 0.5f } - sunCoords;
 		float length = 1.f - glm::length(sunToCenter);
 		float brightness = (length / 0.6f);
-		
 
 		if (brightness <= 0) return;
 
 		computeFlarePositions(sunToCenter, sunCoords);
 
-
 		m_flareRenderer.renderFlares(m_flares, brightness);
 	}
-
-
 };
 
 

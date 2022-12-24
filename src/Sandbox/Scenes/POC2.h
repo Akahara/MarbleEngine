@@ -25,25 +25,23 @@ private:
   World::TerrainGrass m_grass;
   Terrain::Terrain    m_terrain;
   World::Sky          m_sky;
-  World::Water      m_water;
+  World::Water        m_water;
   float               m_realTime;
 
-
-  Renderer::Texture     m_grassTexture = Renderer::Texture("res/textures/grass6.jpg");
+  Renderer::Texture   m_grassTexture = Renderer::Texture("res/textures/grass6.jpg");
 
   Renderer::Mesh      m_lowPolyTreeMesh = Renderer::loadMeshFromFile("res/meshes/lowtree.obj");
 
   struct Tree {
+    glm::vec3 position;
+    glm::vec3 size;
+    Renderer::Mesh* mesh;
 
-      glm::vec3 position;
-      glm::vec3 size;
-      Renderer::Mesh* mesh;
-
-      void render(const Renderer::Camera& camera) {
-          Renderer::renderMesh(camera, position, size, *mesh);
-      }
-
+    void render(const Renderer::Camera& camera) {
+      Renderer::renderMesh(camera, position, size, *mesh);
+    }
   };
+
   std::vector<Tree> m_trees;
 
 public:
@@ -110,35 +108,24 @@ public:
       ));
     }
 
-
+    // spawn trees
     for (int i = 0; i < 20; i++) {
+      float x, z;
+      x = (float)(rand() % (3 + CHUNKS::SIZE * CHUNKS::COUNT));
+      z = (float)(rand() % (3 + CHUNKS::SIZE * CHUNKS::COUNT));
 
+      if (m_terrain.isInSamplableRegion(x, z)) {
+        float size = (float)(rand() % 10 + 4);
 
-        float x, z;
-        x = rand() % (3 + CHUNKS::SIZE * CHUNKS::COUNT);
-        z = rand() %( 3 + CHUNKS::SIZE * CHUNKS::COUNT);
+        Tree tree{
+          glm::vec3{ x, m_terrain.getHeight(x, z) - 2.F, z },
+          glm::vec3(size),
+          &m_lowPolyTreeMesh
+        };
 
-
-
-
-        if (m_terrain.isInSamplableRegion(x, z)) {
-
-            float size = rand() % 10 + 4;
-
-            Tree tree{
-
-                 glm::vec3{ x, m_terrain.getHeight(x, z) - 2.F, z },
-                glm::vec3(size),
-                &m_lowPolyTreeMesh
-
-            };
-
-            m_trees.push_back(tree);
-
-        }
+        m_trees.push_back(tree);
+      }
     }
-
-
   }
 
   void step(float realDelta) override
@@ -177,12 +164,7 @@ public:
           }
           t.render(camera);
       }
-      
-
-
     }
-
-
 
     m_grass.render(camera, m_realTime);
     m_sky.render(camera, m_realTime);
@@ -194,6 +176,6 @@ public:
       ImGui::Text("x : %f | y : %f | z : %f\n", pos.x, pos.y, pos.z);
   }
 
-  CAMERA_IS_PLAYER();
+  CAMERA_IS_PLAYER(m_player);
 
 };

@@ -41,7 +41,6 @@ void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3
 void renderNormalsMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const NormalsMesh &normalsMesh, const glm::vec4 &color={ 1,0,0,1 });
 void renderCubemap(const Camera &camera, const Cubemap &cubemap);
 void renderDebugLine(const Camera &camera, const glm::vec3 &from, const glm::vec3 &to, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});
-void renderDebugPlane(const Camera &camera, const glm::vec3 &normal, float point, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});
 void renderDebugCube(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size={1.f, 1.f, 1.f}, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});
 void renderDebugAxis(const Camera &camera);
 void renderAABBDebugOutline(const Camera &camera, const AABB &aabb, const glm::vec4 &color = { 1.f, 1.f, 0.f, 1.f });
@@ -50,7 +49,7 @@ void renderDebugGUIQuadWithTexture(const Texture& texture, glm::vec2 positionOnS
 
 void setUniformPointLights(const std::vector<Light>& pointLights);
 
-class BlitPass {
+class BlitPass { // TODO move BlitPass to its own class
 private:
   IndexBufferObject  m_keepAliveIBO;
   VertexBufferObject m_keepAliveVBO;
@@ -64,12 +63,11 @@ public:
   BlitPass &operator=(const BlitPass &) = delete;
 
   Shader &getShader() { return m_shader; }
-  void setShader(const fs::path& fs) {
-          m_shader = loadShaderFromFiles("res/shaders/blit.vs", fs);
+  void setShader(const fs::path& fs) { m_shader = loadShaderFromFiles("res/shaders/blit.vs", fs); }
 
-  }
-
-  void doBlit(const Texture &renderTexture, bool bindRenderTexture=true);
+  void doBlit(const Texture &renderTexture, bool bindRenderTexture=true); // TODO these parameters are confusing
+                                                                          // if the caller needs a texture to be bound it can bind it itself
+                                                                          // these two parameters should be removed for clarity
 };
 
 }

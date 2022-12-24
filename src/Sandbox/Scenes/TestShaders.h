@@ -35,8 +35,6 @@ public:
     Renderer::clear();
 
     glm::mat4 M(1.f);
-    //M = glm::translate(M, { 0.f, 0.f, 0.f });
-    //M = glm::scale(M, { 1.f, 1.f, 1.f });
     m_shader.bind();
     m_shader.setUniformMat4f("u_M", M);
     m_shader.setUniformMat4f("u_VP", m_player.getCamera().getViewProjectionMatrix());
@@ -51,5 +49,5 @@ public:
     ImGui::End();
   }
 
-  CAMERA_IS_PLAYER();
+  CAMERA_IS_PLAYER(m_player);
 };

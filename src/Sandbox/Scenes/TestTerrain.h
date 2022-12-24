@@ -28,16 +28,16 @@ private:
   Player            m_player;
   bool              m_playerIsFlying = true;
   float             realTime = 0;
-  Player            m_roguePlayer; // another player used to better visualize frustum culling
+  Player            m_roguePlayer;      // another player used to better visualize frustum culling
   bool              m_isRoguePlayerActive = false;
 
     /* Terrain generation stuff */
-  Terrain::Terrain      m_terrain;      // holds heightmap and chunksize
-  Terrain::TerrainData  m_terrainData;  // < This holds default and nice configuration for the terrain
-  bool                  m_isErosionEnabled = NDEBUG; // disable erosion by default when running in debug mode (because it's way too slow)
+  Terrain::Terrain       m_terrain;      // holds heightmap and chunksize
+  Terrain::TerrainData   m_terrainData;  // < This holds default and nice configuration for the terrain
+  bool                   m_isErosionEnabled = NDEBUG; // disable erosion by default when running in debug mode (because it's way too slow)
   Noise::ErosionSettings m_erosionSettings;
-  unsigned int          m_terrainSizeInChunks = 20;
-  int                   m_chunkSize = 10;
+  unsigned int           m_terrainSizeInChunks = 20;
+  int                    m_chunkSize = 10;
 
     /* Rendering stuff */
   Renderer::Frustum     m_frustum;
@@ -135,7 +135,6 @@ public:
           m_player.setPostion(pos);
           m_player.updateCamera();
       }
-
     
       m_frustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(m_player.getCamera());
   }
@@ -211,7 +210,7 @@ public:
   void onImGuiRender() override
   {
     if (ImGui::CollapsingHeader("Terrain Settings")) {
-      bool regenerate = false;
+      int regenerate = 0;
 
       regenerate += ImGui::SliderInt("Size (in chunks)", (int *)&m_terrainSizeInChunks, 1, 100);
       regenerate += ImGui::SliderInt("Chunk size", &m_chunkSize, 1, 128);
@@ -241,5 +240,5 @@ public:
     m_grassSteepnessTestUniform.renderImGui();
   }
 
-  CAMERA_IS_PLAYER();
+  CAMERA_IS_PLAYER(m_player);
 };

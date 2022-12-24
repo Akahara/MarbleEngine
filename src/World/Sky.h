@@ -10,19 +10,16 @@ namespace World {
 class Sky {
 private:
   std::unique_ptr<Renderer::Cubemap> m_skybox; // this has no default constructor but we need late init
-public:
 
-	enum SkyboxesType {
-		DEFAULT,
-		SAND
-	};
+public:
+  enum SkyboxesType {
+	DEFAULT,
+	SAND
+  };
 
   Sky(const SkyboxesType& style = DEFAULT);
   
   void render(const Renderer::Camera &camera, float time=0.f, bool withClouds=true) const;
-
-
-
 };
 
 }

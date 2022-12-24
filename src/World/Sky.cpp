@@ -1,6 +1,7 @@
 #include "Sky.h"
 
 #include <glm/glm.hpp>
+#include <glad/glad.h>
 #include "../vendor/imgui/imgui.h"
 
 #include "../abstraction/Shader.h"
@@ -15,43 +16,30 @@
 namespace World {
 
 Sky::Sky(const SkyboxesType& type)
-  //: m_skybox("res/skybox/skybox_front.bmp", "res/skybox/skybox_back.bmp",
-  //           "res/skybox/skybox_left.bmp",  "res/skybox/skybox_right.bmp",
-  //           "res/skybox/skybox_top.bmp",   "res/skybox/skybox_bottom.bmp")
-// m_skybox("res/skybox/desert_debug/front.bmp", "res/skybox/desert_debug/back.bmp",
-//		"res/skybox/desert_debug/left.bmp", "res/skybox/desert_debug/right.bmp",
-//		"res/skybox/desert_debug/top.bmp", "res/skybox/desert_debug/bottom.bmp")
 {
-	std::string EXTENSION = ".bmp";
+  std::string EXTENSION = ".bmp";
 	
-	std::stringstream path;
-	path << "res/skybox/";
+  std::stringstream path;
+  path << "res/skybox/";
 
-	switch (type) {
+  switch (type) {
+  case SAND: path << "desert_debug/"; break;
+  default:   path << "default/";      break;
+  }
 
-		case SAND:
-			path << "desert_debug/";
-			break;
-		default:
-			path << "default/";
-			break;
-	}
+  std::string finalPath = path.str();
+  std::string filesName[] = {
+	finalPath + "front"  + EXTENSION,
+	finalPath + "back"	 + EXTENSION,
+	finalPath + "left"	 + EXTENSION,
+	finalPath + "right"  + EXTENSION,
+	finalPath + "top"    + EXTENSION,
+	finalPath + "bottom" + EXTENSION
+  };
 
-	std::string finalPath = path.str();
-	std::string filesName[] = {
-		finalPath + "front"  + EXTENSION,
-		finalPath + "back"	 + EXTENSION,
-		finalPath + "left"	 + EXTENSION,
-		finalPath + "right"  + EXTENSION,
-		finalPath + "top"    + EXTENSION,
-		finalPath + "bottom" + EXTENSION
-	};
-
-	m_skybox = std::make_unique<Renderer::Cubemap>(filesName[0], filesName[1], filesName[2],
-		filesName[3], filesName[4], filesName[5]);
-
-
-
+  m_skybox = std::make_unique<Renderer::Cubemap>(
+	filesName[0], filesName[1], filesName[2],
+	filesName[3], filesName[4], filesName[5]);
 }
 
 void Sky::render(const Renderer::Camera &camera, float time, bool withClouds) const

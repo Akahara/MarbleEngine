@@ -3,12 +3,8 @@
 #include <glm/glm.hpp>
 #include <unordered_map>
 
-
-
 static std::unordered_map<float, glm::vec3> s_mapDistValues =
 {
-
-
 	//https://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
 
 	//distance	   constant        linear			 quad
@@ -44,76 +40,58 @@ static std::vector<float> s_keys = {
 
 
 template <typename T>
-T closest(std::vector<T> const& vec, T value) {
-
+T closest(std::vector<T> const& vec, T value)
+{
 	T closest = INFINITY;
 	T res = vec.at(0);
 	for (const T& val : vec) {
-
 		if ( std::abs(value - val) < closest) {
-
 			closest = std::abs(value - val);
 			res = val;
-
 		}
-
 	}
+
 	return res;
 }
 
 class Light {
-
 public:
-
 	struct LightParam {
-
 		glm::vec3 ambiant;
 		glm::vec3 diffuse;
 		glm::vec3 specular;
-
 	};
 
-
 private:
-
 	struct LightCoefs {
-
-
-		float	constant	= 0;
-		float	linear		= 0;
-		float	quadratic	= 0;
+		float constant  = 0;
+		float linear    = 0;
+		float quadratic = 0;
 
 		LightCoefs() {}
 		LightCoefs(const glm::vec3& val) {
-			constant =	val.x;
-			linear =	val.y;
+			constant  = val.x;
+			linear    = val.y;
 			quadratic = val.z;
-
 		}
-
 	};
 
-	glm::vec3	m_position;
+	glm::vec3  m_position;
 
-	LightParam	m_params;
+	LightParam m_params;
 	LightCoefs m_coefficients;
 
-	float m_distance;
+	float      m_distance;
+	bool       m_isOn;
 
-	void computeLightCoefs(float distance) {
-
+	void computeLightCoefs(float distance)
+	{
 		float closestDistanceValue = closest<float>(s_keys, distance);
 		m_coefficients = s_mapDistValues.at(closestDistanceValue);
 		m_distance = closestDistanceValue;
-
 	}
 
-	
-	bool		m_isOn;
-
-
 public:
-
 	Light() : m_position(0)
 			, m_params{ {0,0,0},{0,0,0},{0,0,0} }
 			, m_isOn(false)
@@ -125,59 +103,32 @@ public:
 		const glm::vec3& diffuse,
 		const glm::vec3& specular,
 		float distance = 30,
-		bool isOn = true) {
-
+		bool isOn = true) 
+	{
 		m_params = { ambiant, diffuse, specular };
 		m_position = position;
 		m_isOn = isOn;
 		computeLightCoefs(distance);
-
 	}
 
 	Light(const glm::vec3& position,
 		const LightParam& params,
 		float distance = 30,
-		bool isOn = true) {
-
+		bool isOn = true) 
+	{
 		m_params = params;
 		m_position = position;
 		m_isOn = isOn;
 		computeLightCoefs(distance);
-
 	}
 
+	const LightParam& getParams() const { return m_params; }
+	LightCoefs getCoefs() const { return m_coefficients; }
+	glm::vec3 getPosition() const { return m_position; }
 
-
-
-
-	const LightParam& getParams()	const 	{ return m_params; }
-	LightCoefs getCoefs()			const { return m_coefficients; }
-	glm::vec3 getPosition() const	{ return m_position; }
-
-
-	void setPosition(const glm::vec3& pos) {
-
-		m_position = pos;
-
-	}
-
-	void setDistance(float distance) {
-
-		computeLightCoefs(distance);
-
-	}
-
+	void setPosition(const glm::vec3& pos) { m_position = pos; }
+	void setDistance(float distance) { computeLightCoefs(distance); }
 	float getDistance() const { return m_distance; }
-
 	bool isOn() const { return m_isOn; }
-
-
-
-	void setOn(bool isOn = true) {
-		m_isOn = isOn;
-	}
-
-
-
-
+	void setOn(bool isOn = true) { m_isOn = isOn; }
 };

@@ -21,7 +21,7 @@ private:
   Renderer::Mesh     m_mesh1;
   Renderer::Mesh     m_cubeMesh;
   Renderer::Shader   m_shader;
-  World::Sky        m_sky;
+  World::Sky         m_sky;
 
   SunCameraHelper    m_sunCameraHelper;
   AABB               m_visibleAABB = AABB::make_aabb({ -2, -.25f, -4 }, { 9, 3, 4 });
@@ -33,7 +33,7 @@ private:
   Renderer::BlitPass m_depthTestBlitPass;
   bool               m_dbgDrawDepthBuffer = false;
   bool               m_animateSun = false;
-  float     m_realdelta = 0;
+  float              m_realTime = 0;
 public:
   TestShadowsScene() : 
     m_mesh1(Renderer::loadMeshFromFile("res/meshes/floor.obj")),
@@ -53,7 +53,7 @@ public:
   void step(float delta) override
   {
     m_player.step(delta);
-    m_realdelta += delta;
+    m_realTime += delta;
 
     if (m_animateSun) {
       static float time = 0;
@@ -116,9 +116,9 @@ public:
     m_depthFBO.bind();
     m_depthFBO.setViewportToTexture(m_depthTexture);
     Renderer::clear();
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // do not draw color during a depth pass
+    Renderer::beginDepthPass();
     renderScene(m_sunCameraHelper.getCamera(), true);
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    Renderer::beginColorPass();
     Renderer::FrameBufferObject::unbind();
     m_depthFBO.setViewportToWindow();
 
@@ -128,7 +128,7 @@ public:
     } else {
       renderScene(m_player.getCamera(), false);
     }
-    m_sky.render(getCamera(), m_realdelta);
+    m_sky.render(getCamera(), m_realTime);
   }
 
   void onImGuiRender() override
@@ -157,5 +157,6 @@ public:
       m_cubes.push_back(AABB(p, s));
     }
   }
-  CAMERA_IS_PLAYER();
+
+  CAMERA_IS_PLAYER(m_player);
 };

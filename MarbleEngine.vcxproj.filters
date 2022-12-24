@@ -35,6 +35,9 @@
     <ClCompile Include="src\world\TerrainGeneration\Noise.cpp" />
     <ClCompile Include="src\World\Sky.cpp" />
     <ClCompile Include="src\World\TerrainGeneration\Terrain.cpp" />
+    <ClCompile Include="src\World\Water\Water.cpp" />
+    <ClCompile Include="src\World\Water\WaterRenderer.cpp" />
+    <ClCompile Include="src\World\Water\WaterSource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h" />
@@ -43,7 +46,6 @@
     <ClInclude Include="Libraries\include\KHR\khrplatform.h" />
     <ClInclude Include="src\abstraction\BufferObject.h" />
     <ClInclude Include="src\abstraction\Camera.h" />
-    <ClInclude Include="src\abstraction\compute.h" />
     <ClInclude Include="src\abstraction\ComputeShader.h" />
     <ClInclude Include="src\abstraction\Cubemap.h" />
     <ClInclude Include="src\abstraction\FrameBufferObject.h" />
@@ -56,7 +58,6 @@
     <ClInclude Include="src\abstraction\pipeline\GammaCorrection.h" />
     <ClInclude Include="src\abstraction\pipeline\Saturation.h" />
     <ClInclude Include="src\abstraction\pipeline\Sharpness.h" />
-    <ClInclude Include="src\abstraction\pipeline\Tonemapper.h" />
     <ClInclude Include="src\abstraction\pipeline\VFX.h" />
     <ClInclude Include="src\abstraction\pipeline\VFXPipeline.h" />
     <ClInclude Include="src\abstraction\Shader.h" />
@@ -118,6 +119,7 @@
     <ClInclude Include="src\abstraction\pipeline\Flares.h" />
     <ClInclude Include="src\abstraction\pipeline\LensMask.h" />
     <ClInclude Include="src\world\Water\Water.h" />
+    <ClInclude Include="src\Sandbox\Scenes\DemoScene.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />

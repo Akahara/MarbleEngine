@@ -20,11 +20,11 @@ namespace Renderer {
 
 class Mesh {
 private:
-  VertexBufferObject	m_VBO;
-  IndexBufferObject		m_IBO;
-  VertexArray			m_VAO;
-  unsigned int			m_verticesCount;
-  AABB					m_boudingBox;
+  VertexBufferObject m_VBO;
+  IndexBufferObject  m_IBO;
+  VertexArray        m_VAO;
+  unsigned int       m_verticesCount;
+  AABB               m_boudingBox;
 
 public:
   Mesh();
@@ -45,10 +45,10 @@ public:
 
 class NormalsMesh {
 private:
-  VertexBufferObject	m_VBO;
-  IndexBufferObject		m_IBO;
-  VertexArray			m_VAO;
-  unsigned int			m_verticesCount;
+  VertexBufferObject m_VBO;
+  IndexBufferObject  m_IBO;
+  VertexArray        m_VAO;
+  unsigned int       m_verticesCount;
 
 public:
   NormalsMesh();

@@ -15,9 +15,9 @@ private:
 public:
   TestCamerasScene()
     : m_skybox{
-      "res/skybox_dbg/skybox_front.bmp", "res/skybox_dbg/skybox_back.bmp",
-      "res/skybox_dbg/skybox_left.bmp",  "res/skybox_dbg/skybox_right.bmp",
-      "res/skybox_dbg/skybox_top.bmp",   "res/skybox_dbg/skybox_bottom.bmp" },
+      "res/skybox/skybox_front.bmp", "res/skybox/skybox_back.bmp",
+      "res/skybox/skybox_left.bmp",  "res/skybox/skybox_right.bmp",
+      "res/skybox/skybox_top.bmp",   "res/skybox/skybox_bottom.bmp" },
     m_mesh1(Renderer::loadMeshFromFile("res/meshes/house.obj")),
     m_players{},
     m_texture1("res/textures/rock.jpg"),

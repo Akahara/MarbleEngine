@@ -5,8 +5,8 @@
 namespace Renderer {
 
 VertexArray::VertexArray() {
-	glGenVertexArrays(1, &m_RendererID);
-	glBindVertexArray(m_RendererID);
+  glGenVertexArrays(1, &m_RendererID);
+  glBindVertexArray(m_RendererID);
 }
 
 VertexArray::~VertexArray() {
@@ -40,21 +40,21 @@ void VertexArray::destroy()
 }
 
 void VertexArray::addBuffer(const VertexBufferObject& vb, const VertexBufferLayout& layout, const IndexBufferObject &ib) {
-	bind();
-	vb.bind();
-	ib.bind();
+  bind();
+  vb.bind();
+  ib.bind();
 
-	const auto& elements = layout.getElements();
-	unsigned int offset = 0;
+  const auto& elements = layout.getElements();
+  unsigned int offset = 0;
 
-	for (unsigned int i = 0; i < elements.size(); i++) {
-		const auto& element = elements[i];
+  for (unsigned int i = 0; i < elements.size(); i++) {
+	const auto& element = elements[i];
 
-		glEnableVertexAttribArray(i);
-		glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.getStride(), *(const void**)&offset);
-
-		offset += element.count * VertexBufferElement::getSizeOfType(element.type);
-	}
+	glEnableVertexAttribArray(i);
+	glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.getStride(), *(const void**)&offset);
+		
+	offset += element.count * VertexBufferElement::getSizeOfType(element.type);
+  }
 }
 
 void VertexArray::addInstanceBuffer(const VertexBufferObject &ivb, const VertexBufferLayout &instanceLayout, const VertexBufferLayout &modelLayout)
@@ -78,7 +78,7 @@ void VertexArray::addInstanceBuffer(const VertexBufferObject &ivb, const VertexB
 }
 
 void VertexArray::sendToGPU(size_t size, const void* data) {
-	glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+  glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 }
 
 }

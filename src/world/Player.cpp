@@ -10,11 +10,10 @@
 static constexpr glm::vec3 UP{ 0, 1, 0 };
 
 Player::Player()
-  :
-  m_camera(),
-  m_yaw(0),
-  m_pitch(0),
-  m_position(0, 0, 0)
+  : m_camera(),
+    m_yaw(0),
+    m_pitch(0),
+    m_position(0, 0, 0)
 {
   m_camera.setProjection(Renderer::PerspectiveProjection{ Mathf::PI / 3.f, 16.f / 9.f });
   // default position
@@ -61,8 +60,6 @@ void Player::step(float delta)
   if(motion != glm::vec3(0) || rotationMotion != glm::vec2(0))
     updateCamera();
 }
-
-
 
 void Player::updateCamera()
 {

@@ -20,7 +20,6 @@ public:
   void bind() const override;
   void unbind() const override;
   void destroy() override;
-
 };
 
 struct VertexBufferElement {

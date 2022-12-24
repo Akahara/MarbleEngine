@@ -175,7 +175,7 @@ public:
 /* --------------------------------------------------------------------------
  * Iterators, generally useful to replace for(xy) loops.
  * General usage:
- *   for(gml::ivec2 p : Iterators::iterateOverSquare({ 0,0 }, 2);
+ *   for(gml::ivec2 p : Iterators::iterateOverSquare({ 0,0 }, 2));
  * Iterator constructors are public but should not be used directly.
  * -------------------------------------------------------------------------- */
 namespace Iterators {
@@ -226,7 +226,7 @@ inline constexpr CircularGridIterable iterateOverCircle(glm::ivec2 center, float
  * Diamond iterator:
  *   .
  *  ...
- * ......
+ * .....
  *  ...
  *   .
  * Ordered from left to right, top to bottom, use to cover a diamond but do not

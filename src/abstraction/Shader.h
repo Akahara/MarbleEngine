@@ -1,11 +1,11 @@
 #pragma once
 
-#include <glad/glad.h>
 #include <string>
 #include <unordered_map>
 #include <string_view>
-#include <glm/glm.hpp>
 #include <vector>
+
+#include <glm/glm.hpp>
 
 namespace Renderer {
 
@@ -14,9 +14,6 @@ class Shader
 private:
 	unsigned int m_shaderID;
 	std::unordered_map<std::string_view, int> m_uniformLocationCache;
-
-	std::string m_fsPath;
-
 
 public:
 	Shader() : m_shaderID(0) {}
@@ -41,10 +38,9 @@ public:
 	void setUniform2f(std::string_view name, glm::vec2 v) { setUniform2f(name, v.x, v.y); }
 	void setUniform3f(std::string_view name, glm::vec3 v) { setUniform3f(name, v.x, v.y, v.z); }
 	void setUniform4f(std::string_view name, glm::vec4 v) { setUniform4f(name, v.x, v.y, v.z, v.w); }
-	void setUniform1iv(std::string_view name, unsigned int count, const GLint* data);
+	void setUniform1iv(std::string_view name, unsigned int count, const int* data);
 	// Unsafe
 	inline unsigned int getId() { return m_shaderID; }
-	inline std::string getFragPath() const { return m_fsPath; }
 
 private:
 	int getUniformLocation(std::string_view name);

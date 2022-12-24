@@ -22,7 +22,7 @@ in vec3 o_toCameraVector;
 
 const float waveStrength = 0.04;
 const vec3 waterNormal = vec3(0.f,1.f,0.f);
-const vec3 sunColor = vec3(1,1,0.5) ;
+const vec3 sunColor = vec3(1,1,0.5);
 const float shineDamper = 15.0f;
 const float reflectivity = 0.5f;
 
@@ -44,7 +44,7 @@ vec3 rgb2hsv(vec3 c)
     return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 }
 
-vec4 murkyColor = vec4(rgb2hsv(  vec3(0.0,255-77,255-44)   ), 0.0) ;
+vec4 murkyColor = vec4(rgb2hsv(vec3(0.0,255-77,255-44)), 0.0);
 
 void main() 
 {
@@ -98,6 +98,6 @@ void main()
     color = mix(texRefrac, texReflec, 1 - fresnel);
 
 
-    color = mix(color, vec4(0.0, 0.3, 0.5, 1.0), 0.2) + vec4(specularHighlights,0.0)  ;
+    color = mix(color, vec4(0.0, 0.3, 0.5, 1.0), 0.2) + vec4(specularHighlights,0.0);
     color.a = clamp(waterDepth/5.0f, 0.f, 1.f);
 }

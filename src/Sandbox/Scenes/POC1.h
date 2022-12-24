@@ -29,7 +29,7 @@ private:
       float level = 9.2f;
       glm::vec2 position{80,80};
       float size = 160.f;
-  } m_waterData ;
+  } m_waterData;
 
   struct Sun {
     Renderer::Camera camera;
@@ -63,7 +63,6 @@ public:
     generateTerrain();
 
     m_water.addSource();
-
   }
 
   void generateTerrain()
@@ -95,7 +94,6 @@ public:
     m_realTime += delta;
     m_player.step(delta);
     m_water.updateMoveFactor(delta);
-
   }
 
   void repositionSunCamera(const Renderer::Frustum &visibleFrustum)
@@ -179,24 +177,21 @@ public:
     Renderer::FrameBufferObject::unbind();
     Renderer::FrameBufferObject::setViewportToWindow();
     renderScene();
-
-
   }
 
   void onImGuiRender() override
   {
-      if (
-          ImGui::DragFloat("WaterLevel", &m_waterData.level, 0.5f) ||
-          ImGui::DragFloat2("Water Position", &m_waterData.position.x, 1.f) ||
-          ImGui::DragFloat("WaterSize", &m_waterData.size, 1.f) ) 
-      {
-          m_water.getSourceAt(0)->setHeight(m_waterData.level);
-          m_water.getSourceAt(0)->setPosition(m_waterData.position);
-          m_water.getSourceAt(0)->setSize(m_waterData.size);
-      }
+    int refresh = 0;
+    refresh += ImGui::DragFloat("WaterLevel", &m_waterData.level, 0.5f);
+    refresh += ImGui::DragFloat2("Water Position", &m_waterData.position.x, 1.f);
+    refresh += ImGui::DragFloat("WaterSize", &m_waterData.size, 1.f);
+    if (refresh) {
+      m_water.getSourceAt(0)->setHeight(m_waterData.level);
+      m_water.getSourceAt(0)->setPosition(m_waterData.position);
+      m_water.getSourceAt(0)->setSize(m_waterData.size);
+    }
   }
 
-  CAMERA_IS_PLAYER();
-
+  CAMERA_IS_PLAYER(m_player);
 
 };

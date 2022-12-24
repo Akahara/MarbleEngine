@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -125,7 +124,6 @@ struct Frustum {
     static Frustum createFrustumFromPerspectiveCamera(const Camera &cam);
 
     static bool isOnOrForwardPlan(const Plan &plan, const AABB &boundingBox);
-
 };
 
 }

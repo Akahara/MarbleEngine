@@ -4,7 +4,6 @@
 
 namespace Renderer {
 
-
     VertexBufferObject::VertexBufferObject(const void *vertices, size_t size) {
         glGenBuffers(1, &m_renderID);
         glBindBuffer(GL_ARRAY_BUFFER, m_renderID);
@@ -92,10 +91,4 @@ namespace Renderer {
       m_stride += VertexBufferElement::getSizeOfType(GL_UNSIGNED_INT) * count;
     }
 
-    //template<>
-    //void VertexBufferLayout::push<unsigned char *>(unsigned int count)
-    //{
-    //  m_elements.push_back({ GL_UNSIGNED_BYTE, count, GL_TRUE });
-    //  m_stride += VertexBufferElement::getSizeOfType(GL_UNSIGNED_BYTE) * count;
-    //}
 }

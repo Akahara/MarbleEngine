@@ -127,14 +127,6 @@ void main()
 }
 
 
-
-
-
-
-
-
-
-
 ////////////////////////////////////////////////////
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
@@ -149,9 +141,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float attenuation = 1.0 / (light.constant + light.linear * distance + 
   			     light.quadratic * (distance * distance));    
     // combine results
-    vec3 ambient  = light.ambient ;
-    vec3 diffuse  = light.diffuse ; 
-    vec3 specular = light.specular ;
+    vec3 ambient  = light.ambient;
+    vec3 diffuse  = light.diffuse; 
+    vec3 specular = light.specular;
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;

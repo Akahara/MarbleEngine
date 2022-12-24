@@ -7,11 +7,8 @@
 
 namespace Renderer {
 
-FBOStack* FBOStack::m_instance = nullptr;
-
-
 FrameBufferObject::FrameBufferObject()
-  : m_depthBufferID(0)
+  : m_depth(nullptr), m_target(nullptr), m_viewPort({ 0,0 })
 {
   glGenFramebuffers(1, &m_renderID);
 }
@@ -29,42 +26,38 @@ FrameBufferObject &FrameBufferObject::operator=(FrameBufferObject &&moved) noexc
 }
 
 FrameBufferObject::FrameBufferObject(FrameBufferObject &&moved) noexcept
+  : m_depth(nullptr), m_target(nullptr), m_viewPort({0,0})
 {
   m_renderID = moved.m_renderID;
-  m_depthBufferID = moved.m_depthBufferID;
   moved.m_renderID = 0;
-  moved.m_depthBufferID = 0;
 }
 
 void FrameBufferObject::bind() const
 {
   glBindFramebuffer(GL_FRAMEBUFFER, m_renderID);
-  FBOStack::getInstance()->pushFBO(this);
+  FBOStack::getInstance().pushFBO(this);
 }
 
 void FrameBufferObject::bindCached() const
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, m_renderID);
+  glBindFramebuffer(GL_FRAMEBUFFER, m_renderID);
 }
 
 void FrameBufferObject::unbind()
 {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  FBOStack::getInstance()->popFBO();
+  FBOStack::getInstance().popFBO();
   
 }
 
 void FrameBufferObject::destroy()
 {
   glDeleteFramebuffers(1, &m_renderID);
-  glDeleteTextures(1, &m_depthBufferID);
   m_renderID = 0;
-  m_depthBufferID = 0;
 }
 
 void FrameBufferObject::setTargetTexture(Texture &texture, unsigned int slot/*=0*/)
 {
-
   bind();
 
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.getId(), 0);
@@ -104,27 +97,41 @@ void FrameBufferObject::setViewportToTexture(const Texture &texture)
 
 void FrameBufferObject::setViewportToTargetTexture()
 {
-	glViewport(0, 0, m_viewPort.width, m_viewPort.height);
+  glViewport(0, 0, m_viewPort.width, m_viewPort.height);
 }
-
 
 void FrameBufferObject::setViewportToWindow()
 {
   glViewport(0, 0, Window::getWinWidth(), Window::getWinHeight());
 }
 
-float FrameBufferObject::getViewportHeight() const 
+
+void FBOStack::pushFBO(const FrameBufferObject *fbo)
 {
-	return m_viewPort.height;
+  m_stack.push(fbo);
 }
 
-float FrameBufferObject::getViewportWidth() const
+void FBOStack::popFBO()
 {
-	return m_viewPort.width;
+  m_stack.pop();
+
+  if (m_stack.empty()) {
+	FrameBufferObject::setViewportToWindow();
+	return;
+  }
+
+  unsigned int width, height;
+  width  = m_stack.top()->getViewportWidth();
+  height = m_stack.top()->getViewportHeight();
+
+  m_stack.top()->bindCached(); // bind without pushing to the stack
+  FrameBufferObject::setViewport(width, height);
 }
 
-
-
-
+void FBOStack::resetStack()
+{
+  while (!m_stack.empty())
+	m_stack.pop();
+}
 
 }
