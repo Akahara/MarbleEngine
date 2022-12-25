@@ -6,6 +6,7 @@ in vec2 o_uv;
 in vec3 o_normal;
 in vec3 o_pos;
 in vec3 o_color;
+flat in int o_texId;
 
 uniform sampler2D u_Textures2D[8];
 
@@ -16,6 +17,8 @@ uniform vec2 u_grassSteepness = vec2(0.015f);
 uniform vec3 u_fogColor = vec3(.71, .86, 1.);
 uniform vec3 u_fogDamping = vec3(.001, .001, .001);
 uniform bool u_castShadows = false;
+uniform bool u_isTerrain = false; // somehow fix this, this is not a great solution but it works
+
 
 // This tells what texture slot is the normal texture of the index-Texture
 uniform int u_NormalsTextureSlot[8] = { 
@@ -77,24 +80,50 @@ void main()
     color = mix(texture(u_Textures2D[0], o_uv), vec4(mesa_colors[int(floor(o_pos.y*.5))%5], 1), .7);
 #else
     // regular texture sample
-    if (u_RenderChunks==0) {
-        vec4 rockSample = texture(u_Textures2D[0], o_uv);
-        vec4 grassSample = texture(u_Textures2D[1], o_uv);
-        color = mix(rockSample, grassSample, smoothstep(u_grassSteepness.x, u_grassSteepness.y, o_normal.y));
-    } else {
-        color = vec4(o_color, 1.f);
+    if (u_isTerrain) {
+        if (u_RenderChunks==0) {
+            vec4 rockSample = texture(u_Textures2D[0], o_uv);
+            vec4 grassSample = texture(u_Textures2D[1], o_uv);
+            color = mix(rockSample, grassSample, smoothstep(u_grassSteepness.x, u_grassSteepness.y, o_normal.y));
+        } else {
+            color = vec4(o_color, 1.f);
+        } 
     }
 #endif
 
     // normal only (works well with eroded terrain)
     //color.rgb = mix(vec3(0.282, 0.294, 0.294), vec3(0.894, 0.824, 0.667), dot(normalize(o_normal), normalize(u_SunPos)));
 
+    if (!u_isTerrain) {
+        color = texture(u_Textures2D[o_texId], o_uv);
+        if (o_texId == 0) {
+        
+            color = vec4(1,0,0,1);
+        
+        }
 
+        if (o_texId ==1) {
+        
+            color = vec4(0,1,0,1);
+        
+        }
+        if (o_texId == 2) {
+        
+            color = vec4(1,0,0,1);
+        
+        }
+        if (o_texId == 3) {
+        
+            color = vec4(1,0,0,1);
+        
+        }
+
+    }
     float sunLight = 1;
-    // direct sun light
+    // direct sun light + normal map if defined, TODO clean this 
     vec3 normal = o_normal;
-    if (u_NormalsTextureSlot[0] != -1) {
-        int index_normal_slot = u_NormalsTextureSlot[0];
+    if (u_NormalsTextureSlot[o_texId] != -1) {
+        int index_normal_slot = u_NormalsTextureSlot[o_texId];
         vec4 sn = texture(u_Textures2D[index_normal_slot],o_uv);
         normal = normal * sn.rgb;
     }

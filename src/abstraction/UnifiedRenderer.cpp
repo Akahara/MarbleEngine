@@ -181,6 +181,7 @@ Mesh loadMeshFromFile(const fs::path& objPath)
         std::string material_name;
         ss >> material_name;
         materials_slots.push_back(material_name);
+        currentTextureSlot++;
 
     } else { // unrecognized line
 

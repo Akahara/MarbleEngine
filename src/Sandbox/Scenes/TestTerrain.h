@@ -77,6 +77,7 @@ public:
     Renderer::getStandardMeshShader().bind();
     Renderer::getStandardMeshShader().setUniform1iv("u_Textures2D", 8, samplers);
     Renderer::getStandardMeshShader().setUniform1i("u_castShadows", 0);
+    Renderer::getStandardMeshShader().setUniform1i("u_isTerrain", 1);
 
     regenerateTerrain();
 
@@ -87,6 +88,16 @@ public:
     m_fogDampingTestUniform.setValue(0, 0, .001f);
     m_grassSteepnessTestUniform = Renderer::TestUniform(&Renderer::getStandardMeshShader(), "u_grassSteepness", 2, .01f);
     m_grassSteepnessTestUniform.setValue(.79f, 1.f);
+
+  }
+
+  ~TestTerrainScene() {
+
+      Renderer::getStandardMeshShader().bind();
+      Renderer::getStandardMeshShader().setUniform1i("u_isTerrain", 0);
+      Renderer::getStandardMeshShader().unbind();
+
+
   }
 
   void regenerateTerrain()

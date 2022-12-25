@@ -17,7 +17,7 @@ private:
      Player m_player;
      World::Sky m_sky;
 
-     Renderer::Mesh m_mesh = Renderer::loadMeshFromFile("res/meshes/untitled.obj");
+     Renderer::Mesh m_mesh = Renderer::loadMeshFromFile("res/meshes/what.obj");
      //Renderer::Mesh m_cube = Renderer::createCubeMesh();
 
      float m_realtime = 0;

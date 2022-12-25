@@ -50,6 +50,7 @@ public:
     meshShader.bind();
     meshShader.setUniform1iv("u_Textures2D", 8, samplers);
     meshShader.setUniform1i("u_castShadows", 1);
+    meshShader.setUniform1i("u_isTerrain", 1);
     meshShader.setUniform1i("u_RenderChunks", 0);
     meshShader.setUniform1f("u_Strength", m_sun.strength);
     meshShader.setUniform3f("u_fogDamping", .003f, .005f, .007f);
@@ -63,6 +64,15 @@ public:
     generateTerrain();
 
     m_water.addSource();
+  }
+
+  ~POC1Scene() {
+
+      Renderer::Shader& meshShader = Renderer::getStandardMeshShader();
+      meshShader.bind();
+      meshShader.setUniform1i("u_castShadows", 1);
+      meshShader.unbind();
+
   }
 
   void generateTerrain()
