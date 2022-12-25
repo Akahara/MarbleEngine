@@ -115,6 +115,7 @@ Mesh loadMeshFromFile(const fs::path& objPath)
 
 
   std::vector<std::tuple<int, int, int>> cachedVertices;
+  unsigned int previousCachedVertices = 0;
   std::vector<unsigned int> indices;
   std::vector<Vertex> vertices;
 
@@ -140,14 +141,16 @@ Mesh loadMeshFromFile(const fs::path& objPath)
     if (strstr(lineBuffer, "v ") == lineBuffer) { // vertex
       ss >> f1 >> f2 >> f3;
       positions.push_back({ f1, f2, f3 });
+
     } else if (strstr(lineBuffer, "vt ") == lineBuffer) { // texture coordinate
       ss >> f1 >> f2;
       uvs.push_back({ f1, f2 });
+
     } else if (strstr(lineBuffer, "vn ") == lineBuffer) { // normal
       ss >> f1 >> f2 >> f3;
       normals.push_back({ f1, f2, f3 });
-    }
-    else if (strstr(lineBuffer, "f ") == lineBuffer) { // face
+
+    } else if (strstr(lineBuffer, "f ") == lineBuffer) { // face
         for (size_t i = 0; i < 3; i++) {
             ss >> i1;                      // read vertex
             skipStreamText(ss, "/");
@@ -158,30 +161,24 @@ Mesh loadMeshFromFile(const fs::path& objPath)
             auto inCacheIndex = std::find(cachedVertices.begin(), cachedVertices.end(), cacheKey);
             if (inCacheIndex == cachedVertices.end()) {
                 vertices.emplace_back(Vertex{ positions[i1], uvs[i2], normals[i3], {1,0,0}, (float)currentTextureSlot });
-                indices.push_back((unsigned int)cachedVertices.size());
+                indices.push_back(previousCachedVertices + (unsigned int)cachedVertices.size());
                 cachedVertices.push_back(cacheKey);
-            }
-            else {
-                indices.push_back((unsigned int)(inCacheIndex - cachedVertices.begin()));
+            } else {
+                indices.push_back(previousCachedVertices + (unsigned int)(inCacheIndex - cachedVertices.begin()));
             }
         }
-    } 
 
-    else if (strstr(lineBuffer, "mtllib ") == lineBuffer)  {
-
+    } else if (strstr(lineBuffer, "mtllib ") == lineBuffer)  {
         ss >>  mtllib ;
         std::cout << "Using material libraire : " + mtllib << std::endl;
 
-
-    }
-    
-    
-    else if (strstr(lineBuffer, "usemtl ") == lineBuffer)  {
-
+    } else if (strstr(lineBuffer, "usemtl ") == lineBuffer)  {
         std::string material_name;
         ss >> material_name;
         materials_slots.push_back(material_name);
         currentTextureSlot++;
+        previousCachedVertices = vertices.size();
+        cachedVertices.clear();
 
     } else { // unrecognized line
 
