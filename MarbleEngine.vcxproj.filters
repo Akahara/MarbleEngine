@@ -120,6 +120,7 @@
     <ClInclude Include="src\abstraction\pipeline\LensMask.h" />
     <ClInclude Include="src\world\Water\Water.h" />
     <ClInclude Include="src\Sandbox\Scenes\DemoScene.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestAtlas.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />

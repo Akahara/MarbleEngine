@@ -47,6 +47,7 @@ int main()
     SceneManager::registerScene<TestComputeShader>("Compute Shader");
     SceneManager::registerScene<TestInstancedScene>("Instanced");
     SceneManager::registerScene<TestBloomScene>("Bloom");
+    SceneManager::registerScene<TestAtlas>("Atlas");
     SceneManager::registerScene<TestWater>("Water");
     SceneManager::registerScene<POC1Scene>("POC 1");
     SceneManager::registerScene<POC2Scene>("POC 2");
@@ -54,7 +55,7 @@ int main()
     SceneManager::registerScene<POC4Scene>("POC 4");
     
 
-    SceneManager::switchToScene(13);
+    SceneManager::switchToScene(10);
 
     //===========================================================//
 

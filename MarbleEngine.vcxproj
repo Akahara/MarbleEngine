@@ -226,6 +226,7 @@
     <ClInclude Include="src\Sandbox\Scenes\POC2.h" />
     <ClInclude Include="src\Sandbox\Scenes\POC3.h" />
     <ClInclude Include="src\Sandbox\Scenes\POC4.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestAtlas.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestBloom.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestCameras.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestComputeShader.h" />

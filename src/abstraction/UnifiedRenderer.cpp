@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <memory>
 
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -87,6 +88,8 @@ static void skipStreamText(std::istream &stream, const char *text)
 
 Mesh loadMeshFromFile(const fs::path& objPath)
 {
+
+    // TODO : read the MTL file, and try to find the correct filename for the materials
   std::ifstream modelFile{ objPath };
   constexpr size_t bufSize = 10000;
   char lineBuffer[bufSize];
@@ -94,12 +97,22 @@ Mesh loadMeshFromFile(const fs::path& objPath)
   std::vector<glm::vec3> positions;
   std::vector<glm::vec3> normals;
   std::vector<glm::vec2> uvs;
+  std::unordered_map<int, std::shared_ptr<Texture>> slotsTextures = {
+      {0, std::make_shared<Texture>("res/textures/no_texture.png") }
+  };
+
+  std::unordered_map<std::string, std::string> cacheMatFile;
+  std::vector<std::string> materials_slots;
+
+  int currentTextureSlot = 0;
+  std::string mtllib;
 
   positions.push_back({ 0,0,0 });
   normals.push_back({ 0,0,0 });
   uvs.push_back({ 0,0 });
 
   uvs.emplace_back();
+
 
   std::vector<std::tuple<int, int, int>> cachedVertices;
   std::vector<unsigned int> indices;
@@ -133,29 +146,126 @@ Mesh loadMeshFromFile(const fs::path& objPath)
     } else if (strstr(lineBuffer, "vn ") == lineBuffer) { // normal
       ss >> f1 >> f2 >> f3;
       normals.push_back({ f1, f2, f3 });
-    } else if (strstr(lineBuffer, "f ") == lineBuffer) { // face
-      for (size_t i = 0; i < 3; i++) {
-        ss >> i1;                      // read vertex
-        skipStreamText(ss, "/");
-        if(ss.peek() != '/') ss >> i2; // read optional uv
-        skipStreamText(ss, "/");
-        ss >> i3;                      // read normal
-        std::tuple<int, int, int> cacheKey{ i1, i2, i3 };
-        auto inCacheIndex = std::find(cachedVertices.begin(), cachedVertices.end(), cacheKey);
-        if (inCacheIndex == cachedVertices.end()) {
-          vertices.emplace_back(positions[i1], uvs[i2], normals[i3]);
-          indices.push_back((unsigned int)cachedVertices.size());
-          cachedVertices.push_back(cacheKey);
-        } else {
-          indices.push_back((unsigned int)(inCacheIndex - cachedVertices.begin()));
+    }
+    else if (strstr(lineBuffer, "f ") == lineBuffer) { // face
+        for (size_t i = 0; i < 3; i++) {
+            ss >> i1;                      // read vertex
+            skipStreamText(ss, "/");
+            if (ss.peek() != '/') ss >> i2; // read optional uv
+            skipStreamText(ss, "/");
+            ss >> i3;                      // read normal
+            std::tuple<int, int, int> cacheKey{ i1, i2, i3 };
+            auto inCacheIndex = std::find(cachedVertices.begin(), cachedVertices.end(), cacheKey);
+            if (inCacheIndex == cachedVertices.end()) {
+                vertices.emplace_back(Vertex{ positions[i1], uvs[i2], normals[i3], {1,0,0}, (float)currentTextureSlot });
+                indices.push_back((unsigned int)cachedVertices.size());
+                cachedVertices.push_back(cacheKey);
+            }
+            else {
+                indices.push_back((unsigned int)(inCacheIndex - cachedVertices.begin()));
+            }
         }
-      }
+    } 
+
+    else if (strstr(lineBuffer, "mtllib ") == lineBuffer)  {
+
+        ss >>  mtllib ;
+        std::cout << "Using material libraire : " + mtllib << std::endl;
+
+
+    }
+    
+    
+    else if (strstr(lineBuffer, "usemtl ") == lineBuffer)  {
+
+        std::string material_name;
+        ss >> material_name;
+        materials_slots.push_back(material_name);
+
     } else { // unrecognized line
+
       continue;
     }
   }
 
-  return Mesh(vertices, indices);
+  /* Tetxure loading */ 
+
+  if (!mtllib.empty()) {
+
+      std::string matlib_path = objPath.string().substr(0, objPath.string().find_last_of("/")+1) + mtllib;
+      std::ifstream matfile{ matlib_path };
+      char buf[bufSize];
+      std::string cachedMaterialName;
+
+      // This map stores a key Material and the texture file attached to it (in the mtl file)
+      std::unordered_map<std::string, std::string> material_texturefilepath_map;
+
+      /* Read the file and compute the hashmap accordingly */
+      while (matfile.good()) {
+
+          matfile.getline(buf, bufSize);
+          if (buf[0] == '#')
+              continue;
+          int space = 0;
+          while (buf[space] != '\0' && buf[space] != ' ')
+              space++;
+          if (buf[space] == '\0')
+              continue;
+          std::stringstream ss;
+          ss.str(buf + space + 1);
+          if (strstr(buf, "newmtl ") == buf) {
+              
+              ss >> cachedMaterialName;
+          }
+          else if (strstr(buf, "map_Kd ") == buf) {
+
+              std::string textureFileName;
+              ss >> textureFileName;
+
+         
+              std::string file_path = "res/textures/" + textureFileName;
+
+              std::cout << "Material : " + cachedMaterialName + " uses texture : " + textureFileName << std::endl;
+              
+              material_texturefilepath_map[cachedMaterialName] = file_path;
+
+
+          }
+
+      }
+
+
+      // Loop through the materials found in the obj file, and produce ptr to textures for each material
+      for (int i = 0; i < materials_slots.size(); i++) {
+
+          const std::string& material_name = materials_slots[i];
+            
+          std::shared_ptr<Texture> computed;
+
+          std::string texturePath;
+          if (!material_texturefilepath_map.contains(material_name)) {
+
+              std::cout << "Warning : texture \" " << material_name << " \" has no texture in " + mtllib + " file !" << std::endl;
+              computed = std::make_shared<Texture>("res/textures/no_texture.png");
+              continue;
+          } 
+          struct stat buffer;
+          texturePath = material_texturefilepath_map[material_name];;
+          if ((stat(texturePath.c_str(), &buffer) != 0)) {
+              std::cout << "Warning : Texture \" " << texturePath << " \" was not found ! " << std::endl;
+              computed = std::make_shared<Texture>("res/textures/no_texture.png");
+          }
+          else {
+              computed = std::make_shared<Texture>(texturePath);
+          }
+
+
+          slotsTextures[i] = computed;
+      }
+
+  }
+
+  return Mesh(vertices, indices, slotsTextures);
 }
 
 void clear()
@@ -217,6 +327,10 @@ void init()
 
   s_state.activeStandardShader = &s_keepAliveResources->standardMeshShader;
 
+  int samplers[8] = { 0,1,2,3,4,5,6,7 };
+  s_state.activeStandardShader->bind();
+  s_state.activeStandardShader->setUniform1iv("u_Textures2D", 8, samplers);
+  s_state.activeStandardShader->unbind();
   VertexArray::unbind();
 }
 
