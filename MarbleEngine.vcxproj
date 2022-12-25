@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\world\Props\PropsManager.cpp" />
     <ClCompile Include="src\abstraction\ComputeShader.cpp" />
     <ClCompile Include="src\vendor\glad.c" />
     <ClCompile Include="main.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="Libraries\include\GLFW\glfw3.h" />
     <ClInclude Include="Libraries\include\GLFW\glfw3native.h" />
     <ClInclude Include="Libraries\include\KHR\khrplatform.h" />
+    <ClInclude Include="src\world\Props\PropsManager.h" />
     <ClInclude Include="src\abstraction\BufferObject.h" />
     <ClInclude Include="src\abstraction\Camera.h" />
     <ClInclude Include="src\abstraction\ComputeShader.h" />
@@ -259,6 +261,7 @@
     <ClInclude Include="src\vendor\imgui\stb_truetype.h" />
     <ClInclude Include="src\World\Grass.h" />
     <ClInclude Include="src\world\Light\Light.h" />
+    <ClInclude Include="src\world\Light\LightManager.h" />
     <ClInclude Include="src\World\Player.h" />
     <ClInclude Include="src\World\SunCameraHelper.h" />
     <ClInclude Include="src\World\TerrainGeneration\HeightMap.h" />

@@ -3,6 +3,7 @@
 #include "../Scene.h"
 #include "../../World/Sky.h"
 #include "../../World/Grass.h"
+#include "../../World/Props/PropsManager.h"
 #include "../../World/SunCameraHelper.h"
 #include "../../World/TerrainGeneration/Terrain.h"
 #include "../../World/TerrainGeneration/MeshGenerator.h"
@@ -17,22 +18,20 @@ private:
   Terrain::Terrain    m_terrain;
   Renderer::Texture   m_sandTexture = Renderer::Texture("res/textures/sand1.jpg");
   Renderer::Texture   m_sandTexture_normal = Renderer::Texture("res/textures/sand1_normal.jpg");
+  std::shared_ptr<Renderer::Texture>   m_rockTexture = std::make_shared<Renderer::Texture>("res/textures/rock.jpg");
   World::Sky          m_sky{World::Sky::SkyboxesType::SAND};
   float               m_realTime;
 
-  std::vector<Light> m_lights;
+  World::LightRenderer m_light;
 
-  bool m_lightsOn[12] =
-  {
-      0,0,0,
-      0,0,0,
-      0,0,0,
-      0,0,0
-  };
-
+  std::shared_ptr<Renderer::Mesh> m_rock = std::make_shared < Renderer::Mesh >(Renderer::loadMeshFromFile("res/meshes/Rock_9.obj"));
+  std::shared_ptr<Renderer::Mesh> m_arch = std::make_shared < Renderer::Mesh >(Renderer::loadMeshFromFile("res/meshes/SmallArch_Obj.obj"));
 
   visualEffects::VFXPipeline m_pipeline{ Window::getWinWidth(), Window::getWinHeight() };
   glm::vec3 m_sun{ 1000,1000,1000 };
+
+
+  World::PropsManager m_props;
 
   World::Water m_water;
   struct WaterData {
@@ -68,10 +67,13 @@ public:
       meshShader.setUniform3f("u_fogDamping", .005f, .005f, .007f);
       meshShader.setUniform3f("u_fogColor", 1.000f, 0.944f, 0.102f);
       meshShader.setUniform2f("u_grassSteepness", 2.f, 2.2f); // disable grass
-      Renderer::setUniformPointLights(m_lights);
 
       Renderer::Shader::unbind();
     }
+
+    m_rock->bindTextureToSlot(m_rockTexture, 0);
+      m_props.feed(m_rock, glm::vec3{ 30,5,20 }, glm::vec3{ 0.1 });
+      m_props.feed(m_arch, glm::vec3{ -20,5,40 }, glm::vec3{ 1 });
 
     // VFX stuff
     {
@@ -147,7 +149,8 @@ public:
       Renderer::renderMesh(camera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
     }
 
-    m_sky.render(camera, m_realTime, true);
+    m_props.render(camera);
+    m_sky.render(camera, m_realTime, false);
   }
 
   void onRender() override
@@ -184,50 +187,10 @@ public:
     ImGui::Text("%d", normalslot);
 
     m_pipeline.onImGuiRender();
+    m_light.onImguiRender();
+    m_props.onImGuiRender();
 
-    { // light controls
-      if (ImGui::Button("Generate a light") && m_lights.size() < 12)
-        m_lights.push_back({});
-
-      for (unsigned int i = 0; i < m_lights.size(); i++) {
-        Light& light = m_lights.at(i);
-
-        if (ImGui::Checkbox((std::stringstream{ "Switch n" } << i).str().c_str(), &m_lightsOn[i])) {
-          m_lights.at(i).setOn(m_lightsOn[i]);
-          Renderer::setUniformPointLights(m_lights);
-        }
-
-        if (!m_lights.at(i).isOn())
-          continue;
-
-        glm::vec3 pos = light.getPosition();
-        Light::LightParam params = light.getParams();
-        float distance = light.getDistance();
-
-        std::stringstream ss{ std::string() };
-        ss << "Light " << i + 1;
-
-        if (!ImGui::CollapsingHeader(ss.str().c_str()))
-          continue;
-
-        if (ImGui::DragFloat3((std::stringstream{ "LightPosition n" } << i).str().c_str(), &pos.x, 2.f) +
-            ImGui::SliderFloat3((std::stringstream{ "Ambiant n" } << i).str().c_str(), &params.ambiant.x, 0, 15) +
-            ImGui::SliderFloat3((std::stringstream{ "Diffuse n" } << i).str().c_str(), &params.diffuse.x, 0, 15) +
-            ImGui::SliderFloat3((std::stringstream{ "Specular n" } << i).str().c_str(), &params.specular.x, 0, 15) +
-            ImGui::DragFloat((std::stringstream{ "Distance n" } << i).str().c_str(), &distance, 30.f)) {
-
-          Light l = Light{
-            pos,
-            params,
-            distance,
-            m_lightsOn[i]
-          };
-          m_lights.at(i) = l;
-
-          Renderer::setUniformPointLights(m_lights);
-        }
-      }
-    }
+    
   }
 
   CAMERA_IS_PLAYER(m_player);

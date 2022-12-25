@@ -104,7 +104,7 @@ Mesh loadMeshFromFile(const fs::path& objPath)
   std::unordered_map<std::string, std::string> cacheMatFile;
   std::vector<std::string> materials_slots;
 
-  int currentTextureSlot = 0;
+  int currentTextureSlot = -1;
   std::string mtllib;
 
   positions.push_back({ 0,0,0 });
@@ -177,6 +177,7 @@ Mesh loadMeshFromFile(const fs::path& objPath)
         ss >> material_name;
         materials_slots.push_back(material_name);
         currentTextureSlot++;
+
         previousCachedVertices = vertices.size();
         cachedVertices.clear();
 
@@ -243,14 +244,14 @@ Mesh loadMeshFromFile(const fs::path& objPath)
           std::string texturePath;
           if (!material_texturefilepath_map.contains(material_name)) {
 
-              std::cout << "Warning : texture \" " << material_name << " \" has no texture in " + mtllib + " file !" << std::endl;
+              std::cout << " === Warning : texture \" " << material_name << " \" has no texture in " + mtllib + " file !" << std::endl;
               computed = std::make_shared<Texture>("res/textures/no_texture.png");
               continue;
           } 
           struct stat buffer;
           texturePath = material_texturefilepath_map[material_name];;
           if ((stat(texturePath.c_str(), &buffer) != 0)) {
-              std::cout << "Warning : Texture \" " << texturePath << " \" was not found ! " << std::endl;
+              std::cout << " === Warning : Texture \" " << texturePath << " \" was not found ! " << std::endl;
               computed = std::make_shared<Texture>("res/textures/no_texture.png");
           }
           else {

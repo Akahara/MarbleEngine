@@ -93,11 +93,11 @@ void main()
     vec3 reflectedLight = computeReflection(normalize(o_fromLightVector), normal);
 	float specular = max(dot(reflectedLight, viewVector), 0.0);
 	specular = pow(specular, shineDamper);
-	vec3 specularHighlights = sunColor * specular * reflectivity * clamp(waterDepth/5.0f, 0.f, 1.f);
+	vec3 specularHighlights = sunColor * specular * reflectivity * clamp(waterDepth/10.0f, 0.f, 1.f);
 
     color = mix(texRefrac, texReflec, 1 - fresnel);
 
 
     color = mix(color, vec4(0.0, 0.3, 0.5, 1.0), 0.2) + vec4(specularHighlights,0.0);
-    color.a = clamp(waterDepth/5.0f, 0.f, 1.f);
+    color.a = clamp(waterDepth/50.0f, 0.f, 1.f);
 }

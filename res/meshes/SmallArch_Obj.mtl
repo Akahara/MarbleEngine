@@ -1,0 +1,11 @@
+# Created with Anim8or 1.00
+# Object "Arch Small":
+
+newmtl Arch_Small___Base
+Ka 0.106 0.106 0.106
+Kd 0.553 0.553 0.553
+Ks 0.812 0.812 0.812
+Ns 752.6
+map_Kd ArchSmall_Base-Diffuse.png
+map_Ks ArchSmall_Base-Specular.png
+

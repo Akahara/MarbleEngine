@@ -21,12 +21,13 @@ private:
 
   Renderer::Texture m_refractionTexture{ Window::getWinWidth(), Window::getWinHeight() }; // what u see under water
   Renderer::Texture m_reflectionTexture{ Window::getWinWidth(), Window::getWinHeight() }; // what is reflected
-  Renderer::Texture m_depthTexture = Renderer::Texture::createDepthTexture( Window::getWinWidth(), Window::getWinHeight() );
 
   Renderer::Texture m_dudvTexture = Renderer::Texture("res/textures/dudvWater.png"); //distortion
   Renderer::Texture m_normalTexture = Renderer::Texture("res/textures/waterNormal.png"); //normal
 
   Renderer::Shader m_waterShader = Renderer::loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/water.fs");
+  Renderer::Texture m_depthTexture = Renderer::Texture::createDepthTexture( Window::getWinWidth(), Window::getWinHeight() );
+  // somehow the depth texture of the water is broken
 
   float m_moveFactor = 0;
 

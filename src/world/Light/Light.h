@@ -3,6 +3,9 @@
 #include <glm/glm.hpp>
 #include <unordered_map>
 
+#include "../../abstraction/UnifiedRenderer.h"
+
+
 static std::unordered_map<float, glm::vec3> s_mapDistValues =
 {
 	//https://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation

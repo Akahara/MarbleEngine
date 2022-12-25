@@ -75,6 +75,13 @@ Mesh &Mesh::operator=(Mesh &&moved) noexcept
   return *this;
 }
 
+void Mesh::bindTextureToSlot(const std::shared_ptr<Texture>& texture, int slot) {
+
+
+    m_SlotTextures[slot] = texture;
+}
+
+
 void Mesh::draw() const
 {
   m_VAO.bind();

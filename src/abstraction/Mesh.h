@@ -47,6 +47,8 @@ public:
   const AABB &getBoundingBox() const { return m_boudingBox; }
   AABB getBoundingBoxInstance(glm::vec3 instancePosition, glm::vec3 instanceSize) const;
 
+  void bindTextureToSlot(const std::shared_ptr<Texture>& texture, int slot = 0);
+
   void draw() const;
 };
 

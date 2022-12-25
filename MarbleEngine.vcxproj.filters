@@ -38,6 +38,7 @@
     <ClCompile Include="src\World\Water\Water.cpp" />
     <ClCompile Include="src\World\Water\WaterRenderer.cpp" />
     <ClCompile Include="src\World\Water\WaterSource.cpp" />
+    <ClCompile Include="src\world\Props\PropsManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h" />
@@ -121,6 +122,8 @@
     <ClInclude Include="src\world\Water\Water.h" />
     <ClInclude Include="src\Sandbox\Scenes\DemoScene.h" />
     <ClInclude Include="src\Sandbox\Scenes\TestAtlas.h" />
+    <ClInclude Include="src\world\Light\LightManager.h" />
+    <ClInclude Include="src\world\Props\PropsManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
