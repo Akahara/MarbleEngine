@@ -96,28 +96,6 @@ void main()
 
     if (!u_isTerrain) {
         color = texture(u_Textures2D[o_texId], o_uv);
-        if (o_texId == 0) {
-        
-            color = vec4(1,0,0,1);
-        
-        }
-
-        if (o_texId ==1) {
-        
-            color = vec4(0,1,0,1);
-        
-        }
-        if (o_texId == 2) {
-        
-            color = vec4(1,0,0,1);
-        
-        }
-        if (o_texId == 3) {
-        
-            color = vec4(1,0,0,1);
-        
-        }
-
     }
     float sunLight = 1;
     // direct sun light + normal map if defined, TODO clean this 
