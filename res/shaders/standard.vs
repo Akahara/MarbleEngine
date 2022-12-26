@@ -29,6 +29,7 @@ uniform vec4 u_plane = vec4(0, -1, 0, 10000);
 void main()
 {
   vec4 worldPos = u_M * vec4(i_position, +1.0);
+  gl_ClipDistance[0] = dot(worldPos, u_plane);
   vec4 screenSpacePos = u_VP * worldPos;
 
   o_pos = worldPos.xyz;
@@ -41,7 +42,6 @@ void main()
   o_SunPos = u_SunPos;
   o_fromLightVector = o_pos - u_SunPos;
   o_clipspace = screenSpacePos;
-  gl_ClipDistance[0] = dot(worldPos, u_plane);
 
   gl_Position = screenSpacePos;
   

@@ -2,6 +2,16 @@
 
 #include <glad/glad.h>
 
+WaterRenderer::WaterRenderer() {
+
+
+	m_waterReflectionFbo.setTargetTexture(m_reflectionTexture);
+
+	m_waterRefractionFbo.setTargetTexture(m_refractionTexture);
+	m_waterRefractionFbo.setDepthTexture(m_depthTexture);
+
+}
+
 void WaterRenderer::updateMoveFactor(float deltaTime)
 {
   m_moveFactor += WAVE_SPEED * deltaTime;
@@ -39,22 +49,18 @@ void WaterRenderer::undoSetupCameraForReflection(Renderer::Camera &cam, const Wa
 
 void WaterRenderer::bindReflectionBuffer()
 {
-  m_waterReflectionFbo.setTargetTexture(m_reflectionTexture);
   m_waterReflectionFbo.bind();
   Renderer::FrameBufferObject::setViewportToTexture(m_reflectionTexture);
 }
 
 void WaterRenderer::bindRefractionBuffer()
 {
-  m_waterRefractionFbo.setTargetTexture(m_refractionTexture);
-  m_waterRefractionFbo.setDepthTexture(m_depthTexture);
   m_waterRefractionFbo.bind();
   Renderer::FrameBufferObject::setViewportToTexture(m_refractionTexture);
 }
 
 void WaterRenderer::unbind()
 {
-  //Renderer::getStandardMeshShader().setUniform1i()
   Renderer::FrameBufferObject::unbind();
 }
 
@@ -74,16 +80,12 @@ void WaterRenderer::onRenderWater(const std::vector<WaterSource *> &waterSources
   m_waterShader.setUniform1i("u_normalMap", 4);
   m_waterShader.setUniform1i("u_depthMap", 5);
 
-  glDisable(GL_CULL_FACE);
-  glEnable(GL_CLIP_DISTANCE0);
 
   for (const WaterSource *source : waterSources) {
 	drawWaterSource(*source, camera);
   }
 
-  glDisable(GL_CLIP_DISTANCE0);
-  glEnable(GL_CULL_FACE);
-  m_waterShader.unbind();
+
 }
 
 void WaterRenderer::drawWaterSource(const WaterSource &source, const Renderer::Camera &camera)
@@ -95,12 +97,14 @@ void WaterRenderer::drawWaterSource(const WaterSource &source, const Renderer::C
   m_waterShader.bind();
   m_waterShader.setUniformMat4f("u_M", M);
   m_waterShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
-
   source.draw();
+  m_waterShader.unbind();
 }
 
-void WaterRenderer::writeTexture()
+void WaterRenderer::showDebugTextures()
 {
-  Renderer::Texture::writeToFile(m_reflectionTexture, "reflection.png");
-  Renderer::Texture::writeToFile(m_refractionTexture, "refraction.png");
+
+  Renderer::renderDebugGUIQuadWithTexture(m_reflectionTexture, { -0.75, -0.75 }, { 0.5, 0.5 });
+  Renderer::renderDebugGUIQuadWithTexture(m_refractionTexture, { 0.25, -0.75 }, { 0.5, 0.5 });
+
 }

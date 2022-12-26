@@ -150,32 +150,28 @@ public:
     }
 
     m_props.render(camera);
-    m_sky.render(camera, m_realTime, false);
+   // m_sky.render(camera, m_realTime, false);
   }
 
   void onRender() override
   {
+      /*
     m_pipeline.setContextParam<glm::vec3>("sunPos", m_sun);
     m_pipeline.setContextParam<glm::vec3>("cameraPos", getCamera().getForward());
     m_pipeline.setContextParam<Renderer::Camera>("camera", getCamera());
     m_pipeline.bind();
 
-    m_water.onRender([this]() -> void { renderScene(); }, getCamera());
 
+    renderScene();
     m_pipeline.unbind();
     m_pipeline.renderPipeline();
+      */
+    m_water.onRender([this]() -> void { renderScene(); }, getCamera());
   }
 
   void onImGuiRender() override
   {
-    if (ImGui::DragFloat("WaterLevel", &m_waterData.level, 0.5f) +
-        ImGui::DragFloat2("Water Position", &m_waterData.position.x, 1.f) +
-        ImGui::DragFloat("WaterSize", &m_waterData.size, 1.f))
-    {
-        m_water.getSourceAt(0)->setHeight(m_waterData.level);
-        m_water.getSourceAt(0)->setPosition(m_waterData.position);
-        m_water.getSourceAt(0)->setSize(m_waterData.size);
-    }
+  
 
     if (ImGui::Button("Turn on/off normal map")) {
         normalslot *= -1;

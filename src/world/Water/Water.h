@@ -8,6 +8,7 @@
 
 #include "../../abstraction/Camera.h"
 #include "../../abstraction/UnifiedRenderer.h"
+#include "../../vendor/imgui/imgui.h"
 
 namespace World {
 
@@ -29,6 +30,10 @@ public:
   void updateMoveFactor(float deltaTime) { m_renderer.updateMoveFactor(deltaTime); }
 
   void onRender(const std::function<void()> &renderFn, Renderer::Camera &camera);
+
+  void onImguiRender() {
+
+  }
 };
 
 }

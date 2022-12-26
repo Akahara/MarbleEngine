@@ -54,7 +54,6 @@ public:
 class FBOStack {
 private:
 	std::stack<const FrameBufferObject*> m_stack;
-	Renderer::BlitPass m_blit;
 
 	// singleton stuff
 	FBOStack(const FBOStack &) = delete;

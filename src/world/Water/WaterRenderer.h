@@ -33,6 +33,8 @@ private:
 
 public:
 
+	WaterRenderer();
+
   void updateMoveFactor(float deltaTime);
 
   // -------- Reflection
@@ -54,6 +56,6 @@ public:
   void drawWaterSource(const WaterSource &source, const Renderer::Camera &camera);
 
   // Debug method, writes the rendered reflection and refraction textures to files
-  void writeTexture();
+  void showDebugTextures();
 };
 
