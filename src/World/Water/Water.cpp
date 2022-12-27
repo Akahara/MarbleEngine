@@ -50,6 +50,7 @@ void World::Water::onRender(const std::function<void()> &renderFn, Renderer::Cam
 
   glEnable(GL_CLIP_DISTANCE0); // L'eau ne marchait plus à cause de ca qui avait disparu
   m_renderer.bindReflectionBuffer();
+  Renderer::clear();
   renderFn();
   m_renderer.unbind();
 
@@ -70,6 +71,7 @@ void World::Water::onRender(const std::function<void()> &renderFn, Renderer::Cam
   glEnable(GL_CLIP_DISTANCE0);
 
   m_renderer.bindRefractionBuffer();
+  Renderer::clear();
   renderFn();
   m_renderer.unbind();
 

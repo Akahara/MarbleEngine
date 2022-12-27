@@ -408,9 +408,8 @@ void renderCubemap(const Camera &camera, const Cubemap &cubemap)
   the shader should not set the screen position to 1 but rather to gl_Position.w
   */
 
-  glDepthMask(false); // do not write to depth buffer, technically not necessary but maybe faster? TODO benchmark/profile
+  glDepthMask(false); // do not write to depth buffer, technically not necessary
   glDepthFunc(GL_EQUAL);
-  glDisable(GL_CLIP_DISTANCE0);
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
   glDepthFunc(GL_LESS);
   glDepthMask(true);

@@ -4,9 +4,8 @@
 
 WaterRenderer::WaterRenderer() {
 
-
 	m_waterReflectionFbo.setTargetTexture(m_reflectionTexture);
-
+	m_waterReflectionFbo.setDepthTexture(m_depthTexture);
 	m_waterRefractionFbo.setTargetTexture(m_refractionTexture);
 	m_waterRefractionFbo.setDepthTexture(m_depthTexture);
 

@@ -33,7 +33,7 @@ private:
 
   World::PropsManager m_props;
 
-  bool rendersky = false;
+  bool rendersky = true;
 
   World::Water m_water;
   struct WaterData {
