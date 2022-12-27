@@ -84,6 +84,7 @@ public:
       Noise::ErosionSettings erosionSettings{};
       Noise::erode(noiseMap, noiseMapSize, erosionSettings);
       Noise::rescaleNoiseMap(noiseMap, noiseMapSize, noiseMapSize, 0, 1, 0, /*terrain height*/25.f);
+      Noise::outlineNoiseMap(noiseMap, noiseMapSize, noiseMapSize, -5, 2);
       Terrain::HeightMap *heightMap = new Terrain::ConcreteHeightMap(noiseMapSize, noiseMapSize, noiseMap);
       m_terrain = Terrain::generateTerrain(heightMap, chunkCount, chunkCount, chunkSize);
     }
@@ -118,7 +119,6 @@ public:
 
   void renderSceneDepthPass()
   {
-    // TODO use an empty shader to make the shadow map
     Renderer::Camera &camera = m_sun.camera;
     Renderer::clear();
 

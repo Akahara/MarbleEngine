@@ -89,6 +89,22 @@ void rescaleNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHei
   }
 }
 
+void outlineNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHeight, float outlineHeight, int outlineSize)
+{
+  for (int x = 0; x < mapWidth; x++) {
+	for (int y = 0; y < outlineSize; y++) {
+	  noiseMap[y * mapWidth + x] = outlineHeight;
+	  noiseMap[(mapHeight-y-1) * mapWidth + x] = outlineHeight;
+	}
+  }
+  for (int y = 0; y < mapHeight; y++) {
+	for (int x = 0; x < outlineSize; x++) {
+	  noiseMap[y * mapWidth + x] = outlineHeight;
+	  noiseMap[y * mapWidth + (mapWidth-x-1)] = outlineHeight;
+	}
+  }
+}
+
 static void initializeErosionBrush(int mapSize, int erosionRadius, std::vector<std::vector<int>> &brushIndices, std::vector<std::vector<float>> &brushWeights)
 {
   brushIndices = std::vector<std::vector<int>>(mapSize * mapSize);
