@@ -44,9 +44,8 @@ Sky::Sky(const SkyboxesType& type)
 
 void Sky::render(const Renderer::Camera &camera, float time, bool withClouds) const
 {
-  Renderer::renderCubemap(camera, *m_skybox);
-  if(withClouds)
-    Renderer::SkyRenderer::drawSkyClouds(camera, time);
+	Renderer::renderCubemap(camera, *m_skybox);
+	if(withClouds) Renderer::SkyRenderer::drawSkyClouds(camera, time);
 }
 
 }

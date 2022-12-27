@@ -33,6 +33,8 @@ private:
 
   World::PropsManager m_props;
 
+  bool rendersky = false;
+
   World::Water m_water;
   struct WaterData {
       float level = 9.2f;
@@ -150,7 +152,7 @@ public:
     }
 
     m_props.render(camera);
-   // m_sky.render(camera, m_realTime, false);
+    if (rendersky) m_sky.render(camera, m_realTime, false);
   }
 
   void onRender() override
@@ -172,7 +174,7 @@ public:
   void onImGuiRender() override
   {
   
-
+      ImGui::Checkbox("render sky", &rendersky);
     if (ImGui::Button("Turn on/off normal map")) {
         normalslot *= -1;
         int normals_samplers[8] = { normalslot,-1,-1,-1,-1,-1,-1,-1 };

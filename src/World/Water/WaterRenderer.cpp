@@ -80,7 +80,6 @@ void WaterRenderer::onRenderWater(const std::vector<WaterSource *> &waterSources
   m_waterShader.setUniform1i("u_normalMap", 4);
   m_waterShader.setUniform1i("u_depthMap", 5);
 
-
   for (const WaterSource *source : waterSources) {
 	drawWaterSource(*source, camera);
   }

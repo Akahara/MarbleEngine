@@ -410,11 +410,13 @@ void renderCubemap(const Camera &camera, const Cubemap &cubemap)
 
   glDepthMask(false); // do not write to depth buffer, technically not necessary but maybe faster? TODO benchmark/profile
   glDepthFunc(GL_EQUAL);
+  glDisable(GL_CLIP_DISTANCE0);
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
   glDepthFunc(GL_LESS);
   glDepthMask(true);
 
   VertexArray::unbind();
+  s_keepAliveResources->cubemapShader.unbind();
 }
 
 void renderDebugLine(const Camera &camera, const glm::vec3 &from, const glm::vec3 &to, const glm::vec4 &color)
