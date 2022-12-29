@@ -163,5 +163,18 @@
     <None Include="res\shaders\flare.vs" />
     <None Include="res\shaders\flare.fs" />
     <None Include="res\shaders\lensmask.fs" />
+    <None Include="res\shaders\mesh_parts\base.fs" />
+    <None Include="res\shaders\mesh_parts\color_terrain.fs" />
+    <None Include="res\shaders\mesh_parts\color_mesa.fs" />
+    <None Include="res\shaders\mesh_parts\color_fromnormals.fs" />
+    <None Include="res\shaders\mesh_parts\shadows_normal.fs" />
+    <None Include="res\shaders\mesh_parts\shadows_casted.fs" />
+    <None Include="res\shaders\mesh_parts\lights_none.fs" />
+    <None Include="res\shaders\mesh_parts\lights_pointlights.fs" />
+    <None Include="res\shaders\mesh_parts\final_none.fs" />
+    <None Include="res\shaders\mesh_parts\final_fog.fs" />
+    <None Include="res\shaders\mesh_parts\color_singletexture.fs" />
+    <None Include="res\shaders\mesh_parts\normal_none.fs" />
+    <None Include="res\shaders\mesh_parts\normal_normalmap.fs" />
   </ItemGroup>
 </Project>

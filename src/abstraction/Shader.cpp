@@ -213,4 +213,62 @@ namespace Renderer {
 	  }
 	}
 
+	Shader ShaderFactory::build() const
+	{
+	  int shaderID = glCreateProgram();
+	  for(int partID : m_parts)
+		glAttachShader(shaderID, partID);
+	  glLinkProgram(shaderID);
+	  return Shader(shaderID);
+	}
+
+	void ShaderFactory::addPart(const std::string &source, int glType)
+	{
+	  GLuint partID = glCreateShader(glType);
+	  const char *csource = source.c_str();
+	  glShaderSource(partID, 1, &csource, NULL);
+	  glCompileShader(partID);
+	  m_parts.push_back(partID);
+	}
+
+	ShaderFactory::~ShaderFactory()
+	{
+	  for (int partID : m_parts)
+		glDeleteShader(partID);
+	}
+
+	static std::string readFile(const fs::path &path)
+	{
+	  std::ifstream file{ path };
+	  if (!file.good())
+		throw std::exception("Could not load a shader file");
+	  std::stringstream buffer;
+	  buffer << file.rdbuf();
+	  return buffer.str();
+	}
+
+	ShaderFactory &ShaderFactory::addFragment(const std::string &source)
+	{
+	  addPart(source, GL_FRAGMENT_SHADER);
+	  return *this;
+	}
+
+	ShaderFactory &ShaderFactory::addVertex(const std::string &source)
+	{
+	  addPart(source, GL_VERTEX_SHADER);
+	  return *this;
+	}
+
+	ShaderFactory &ShaderFactory::addFileFragment(const fs::path &path)
+	{
+	  addFragment(readFile(m_pathPrefix / path));
+	  return *this;
+	}
+
+	ShaderFactory &ShaderFactory::addFileVertex(const fs::path &path)
+	{
+	  addVertex(readFile(m_pathPrefix / path));
+	  return *this;
+	}
+
 };

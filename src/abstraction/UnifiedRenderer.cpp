@@ -225,6 +225,13 @@ void shutdown()
   delete s_keepAliveResources;
 }
 
+Shader &rebuildStandardMeshShader(const ShaderFactory &builder)
+{
+  if (s_keepAliveResources == nullptr)
+    throw std::exception("Cannot fetch resources while the renderer is uninitialized");
+  return s_keepAliveResources->standardMeshShader = builder.build();
+}
+
 Shader &getStandardMeshShader()
 {
   if (s_keepAliveResources == nullptr)

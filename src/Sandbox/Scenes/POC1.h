@@ -46,11 +46,18 @@ public:
     m_sun.camera.recalculateViewProjectionMatrix();
 
     int samplers[8] = { 0,1,2,3,4,5,6,7 };
-    Renderer::Shader &meshShader = Renderer::getStandardMeshShader();
+    Renderer::Shader &meshShader = Renderer::rebuildStandardMeshShader(Renderer::ShaderFactory()
+      .prefix("res/shaders/")
+      .addFileVertex("standard.vs")
+      .prefix("mesh_parts/")
+      .addFileFragment("base.fs")
+      .addFileFragment("color_terrain.fs")
+      .addFileFragment("lights_none.fs")
+      .addFileFragment("final_fog.fs")
+      .addFileFragment("shadows_casted.fs")
+      .addFileFragment("normal_none.fs"));
     meshShader.bind();
     meshShader.setUniform1iv("u_Textures2D", 8, samplers);
-    meshShader.setUniform1i("u_castShadows", 1);
-    meshShader.setUniform1i("u_RenderChunks", 0);
     meshShader.setUniform1f("u_Strength", m_sun.strength);
     meshShader.setUniform3f("u_fogDamping", .003f, .005f, .007f);
     meshShader.setUniform3f("u_fogColor", .71f, .86f, 1.f);

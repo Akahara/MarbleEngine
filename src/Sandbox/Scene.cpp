@@ -34,6 +34,19 @@ void shutdown()
 
 void switchToScene(size_t sceneIndex)
 {
+  // restore the default mesh shader for scenes that do not overwrite it
+  // this also has the effect of reseting uniforms
+  Renderer::rebuildStandardMeshShader(Renderer::ShaderFactory()
+    .prefix("res/shaders/")
+    .addFileVertex("standard.vs")
+    .prefix("mesh_parts/")
+    .addFileFragment("base.fs")
+    .addFileFragment("color_terrain.fs")
+    .addFileFragment("lights_none.fs")
+    .addFileFragment("final_fog.fs")
+    .addFileFragment("shadows_normal.fs")
+    .addFileFragment("normal_none.fs"));
+
   delete s_activeScene;
   auto &[name, provider] = s_availableScenes[sceneIndex];
   s_activeScene = provider();

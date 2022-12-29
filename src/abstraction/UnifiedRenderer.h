@@ -33,6 +33,7 @@ void shutdown();
 void clearDebugData();
 const DebugData& getRendererDebugData();
 
+Shader &rebuildStandardMeshShader(const ShaderFactory &builder);
 Shader &getStandardMeshShader();
 void beginColorPass();
 void beginDepthPass();

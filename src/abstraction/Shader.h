@@ -4,10 +4,13 @@
 #include <unordered_map>
 #include <string_view>
 #include <vector>
+#include <filesystem>
 
 #include <glm/glm.hpp>
 
 namespace Renderer {
+
+namespace fs = std::filesystem;
 
 class Shader
 {
@@ -44,6 +47,9 @@ public:
 
 private:
 	int getUniformLocation(std::string_view name);
+
+	explicit Shader(int shaderID) : m_shaderID(shaderID) {}
+	friend class ShaderFactory;
 };
 
 
@@ -110,6 +116,30 @@ public:
   void reloadShaders();
 private:
   void collectTestUniforms(Shader *shader, const std::vector<TestUniform> &previousUniforms);
+};
+
+class ShaderFactory {
+private:
+  std::vector<int> m_parts;
+  fs::path m_pathPrefix;
+
+public:
+  ShaderFactory() = default;
+  ~ShaderFactory();
+  ShaderFactory(const ShaderFactory &) = delete;
+  ShaderFactory &operator=(const ShaderFactory &) = delete;
+
+  ShaderFactory &prefix(fs::path prefix) { m_pathPrefix /= prefix; return *this; }
+
+  ShaderFactory &addFragment(const std::string &source);
+  ShaderFactory &addVertex(const std::string &source);
+  ShaderFactory &addFileFragment(const fs::path &path);
+  ShaderFactory &addFileVertex(const fs::path &path);
+
+  Shader build() const;
+
+private:
+  void addPart(const std::string &source, int glType);
 };
 
 }

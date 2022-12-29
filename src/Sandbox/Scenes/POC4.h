@@ -29,21 +29,25 @@ private:
 public:
   POC4Scene()
   {
-    std::cout << "Do not forget to add #define MESA_SCENE in the standard mesh shader!" << std::endl;
-
     m_player.setPostion({ 100.f, 22.F , 100.f });
     m_player.updateCamera();
 
+    Renderer::Shader &meshShader = Renderer::rebuildStandardMeshShader(Renderer::ShaderFactory()
+      .prefix("res/shaders/")
+      .addFileVertex("standard.vs")
+      .prefix("mesh_parts/")
+      .addFileFragment("base.fs")
+      .addFileFragment("color_mesa.fs")
+      .addFileFragment("lights_none.fs")
+      .addFileFragment("final_fog.fs")
+      .addFileFragment("shadows_casted.fs")
+      .addFileFragment("normal_none.fs"));
     int samplers[8] = { 0,1,2,3,4,5,6,7 };
-    Renderer::Shader &meshShader = Renderer::getStandardMeshShader();
     meshShader.bind();
     meshShader.setUniform1iv("u_Textures2D", 8, samplers);
-    meshShader.setUniform1i("u_castShadows", 1);
-    meshShader.setUniform1i("u_RenderChunks", 0);
     meshShader.setUniform1f("u_Strength", 1.25f);
     meshShader.setUniform3f("u_fogDamping", .005f, .005f, .007f);
     meshShader.setUniform3f("u_fogColor", 1.000f, 0.944f, 0.102f);
-    meshShader.setUniform2f("u_grassSteepness", 2.f, 2.2f); // disable grass
     Renderer::Shader::unbind();
 
     m_depthTexture = Renderer::Texture::createDepthTexture(1600 * 16 / 9, 1600);
