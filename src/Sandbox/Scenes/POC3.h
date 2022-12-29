@@ -152,7 +152,7 @@ public:
       Renderer::renderMesh(camera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
     }
 
-    m_sky.render(camera, m_realTime, true);
+    m_sky.render(camera, m_realTime);
   }
 
   void onRender() override

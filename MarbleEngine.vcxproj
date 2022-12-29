@@ -278,6 +278,8 @@
     <None Include="README.md" />
     <None Include="res\shaders\blit.fs" />
     <None Include="res\shaders\blit.vs" />
+    <None Include="res\shaders\clouds.fs" />
+    <None Include="res\shaders\clouds.vs" />
     <None Include="res\shaders\contrast.fs" />
     <None Include="res\shaders\cubemap.fs" />
     <None Include="res\shaders\cubemap.vs" />

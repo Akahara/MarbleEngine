@@ -135,15 +135,14 @@ public:
 
 		m_VAO.bind();
 
-		glEnable(GL_BLEND);
 		glDisable(GL_DEPTH_TEST);
 		glDepthMask(GL_FALSE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
-
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
-		glDisable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		m_indexCount = 0;
 		m_textureSlotIndex = 1;
 		m_VAO.unbind();

@@ -176,5 +176,7 @@
     <None Include="res\shaders\mesh_parts\color_singletexture.fs" />
     <None Include="res\shaders\mesh_parts\normal_none.fs" />
     <None Include="res\shaders\mesh_parts\normal_normalmap.fs" />
+    <None Include="res\shaders\clouds.vs" />
+    <None Include="res\shaders\clouds.fs" />
   </ItemGroup>
 </Project>
