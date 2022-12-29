@@ -9,21 +9,31 @@
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../abstraction/FrameBufferObject.h"
 
+#include "../../abstraction/pipeline/VFXPipeline.h"
+
 class POC1Scene : public Scene {
 private:
-  World::Sky        m_sky;
+  World::Sky        m_sky{World::Sky::SkyboxesType::SNOW};
   Player            m_player;
   bool              m_playerIsFlying = true;
   float             m_realTime = 0;
   Terrain::Terrain  m_terrain;
 
+  //Renderer::Texture m_rockTexture = Renderer::Texture("res/textures/rock.jpg");
   Renderer::Texture m_rockTexture = Renderer::Texture("res/textures/rock.jpg");
-  Renderer::Texture m_grassTexture = Renderer::Texture("res/textures/grass6.jpg");
+  //Renderer::Texture m_grassTexture = Renderer::Texture("res/textures/rock.jpg");
+  Renderer::Texture m_snowTexture = Renderer::Texture("res/textures/snow_c.jpg");
+  Renderer::Texture m_snowTexture_normal = Renderer::Texture("res/textures/snow_n.jpg");
+
+  visualEffects::VFXPipeline m_pipeline;
+
 
   Renderer::FrameBufferObject m_depthFBO;
   Renderer::Texture m_depthTexture;
 
   World::Water      m_water;
+
+  float m_terrain_height = 80.F;
 
   struct WaterData {
       float level = 9.2f;
@@ -53,8 +63,8 @@ public:
     meshShader.setUniform1i("u_isTerrain", 1);
     meshShader.setUniform1i("u_RenderChunks", 0);
     meshShader.setUniform1f("u_Strength", m_sun.strength);
-    meshShader.setUniform3f("u_fogDamping", .003f, .005f, .007f);
-    meshShader.setUniform3f("u_fogColor", .71f, .86f, 1.f);
+    meshShader.setUniform3f("u_fogDamping", .001f, .001f, .001f);
+    meshShader.setUniform3f("u_fogColor", 1.f, 1.f, 1.f);
     meshShader.setUniform2f("u_grassSteepness", .79f, 1.f);
     Renderer::Shader::unbind();
 
@@ -64,6 +74,11 @@ public:
     generateTerrain();
 
     m_water.addSource();
+
+    m_pipeline.registerEffect<visualEffects::LensMask>();
+    m_pipeline.registerEffect<visualEffects::GammaCorrection>();
+    m_pipeline.registerEffect<visualEffects::Bloom>();
+    m_pipeline.sortPipeline();
   }
 
   ~POC1Scene() {
@@ -93,7 +108,7 @@ public:
                                                 /*seed*/0);
       Noise::ErosionSettings erosionSettings{};
       Noise::erode(noiseMap, noiseMapSize, erosionSettings);
-      Noise::rescaleNoiseMap(noiseMap, noiseMapSize, noiseMapSize, 0, 1, 0, /*terrain height*/25.f);
+      Noise::rescaleNoiseMap(noiseMap, noiseMapSize, noiseMapSize, 0, 1, 0, /*terrain height*/m_terrain_height);
       Terrain::HeightMap *heightMap = new Terrain::ConcreteHeightMap(noiseMapSize, noiseMapSize, noiseMap);
       m_terrain = Terrain::generateTerrain(heightMap, chunkCount, chunkCount, chunkSize);
     }
@@ -104,6 +119,9 @@ public:
     m_realTime += delta;
     m_player.step(delta);
     m_water.updateMoveFactor(delta);
+    m_pipeline.setContextParam<glm::vec3>("sunPos", m_sun.camera.getPosition());
+    m_pipeline.setContextParam<glm::vec3>("cameraPos", getCamera().getForward());
+    m_pipeline.setContextParam<Renderer::Camera>("camera", getCamera());
   }
 
   void repositionSunCamera(const Renderer::Frustum &visibleFrustum)
@@ -144,21 +162,21 @@ public:
 
   void renderScene()
   {
-    Renderer::clear();
+      Renderer::clear();
 
-    Renderer::Camera &camera = m_player.getCamera();
-    Renderer::Frustum cameraFrustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(camera);
+      Renderer::Camera& camera = m_player.getCamera();
+      Renderer::Frustum cameraFrustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(camera);
 
-    for (const auto &[position, chunk] : m_terrain.getChunks()) {
-      const AABB &chunkAABB = chunk.getMesh().getBoundingBox();
+      for (const auto& [position, chunk] : m_terrain.getChunks()) {
+          const AABB& chunkAABB = chunk.getMesh().getBoundingBox();
 
-      if (!cameraFrustum.isOnFrustum(chunkAABB))
-        continue;
+          if (!cameraFrustum.isOnFrustum(chunkAABB))
+              continue;
 
-      Renderer::renderMesh(camera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
-    }
+          Renderer::renderMesh(camera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
+      }
 
-    m_sky.render(camera, m_realTime);
+      m_sky.render(camera, m_realTime, false);
   }
 
   void onRender() override
@@ -181,16 +199,24 @@ public:
     renderSceneDepthPass();
 
     Renderer::beginColorPass();
-    m_rockTexture.bind(0);
-    m_grassTexture.bind(1);
+    m_snowTexture.bind(0);
+    m_rockTexture.bind(1);
+    m_snowTexture_normal.bind(2);
     m_depthTexture.bind(5);
     Renderer::FrameBufferObject::unbind();
     Renderer::FrameBufferObject::setViewportToWindow();
+
+    m_pipeline.bind();
     renderScene();
+    m_pipeline.unbind();
+
+    m_pipeline.renderPipeline();
+
   }
 
   void onImGuiRender() override
   {
+      m_pipeline.onImGuiRender();
     int refresh = 0;
     refresh += ImGui::DragFloat("WaterLevel", &m_waterData.level, 0.5f);
     refresh += ImGui::DragFloat2("Water Position", &m_waterData.position.x, 1.f);

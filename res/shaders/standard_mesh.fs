@@ -75,15 +75,18 @@ float unnormalizeOrthoDepth(float depth) {
 
 void main()
 {
+    vec3 normal = o_normal;
 #ifdef MESA_SCENE
     // for the mesa scene, a simple texture sample does not sufice
     color = mix(texture(u_Textures2D[0], o_uv), vec4(mesa_colors[int(floor(o_pos.y*.5))%5], 1), .7);
 #else
     // regular texture sample
+    //color.rgb = mix(color.rgb, vec3(2,2,2), dot(normalize(o_normal), normalize(u_SunPos)));
     if (u_isTerrain) {
         if (u_RenderChunks==0) {
             vec4 rockSample = texture(u_Textures2D[0], o_uv);
             vec4 grassSample = texture(u_Textures2D[1], o_uv);
+            //normal = texture(u_Textures2D[2], o_uv).rgb; //only for POC1
             color = mix(rockSample, grassSample, smoothstep(u_grassSteepness.x, u_grassSteepness.y, o_normal.y));
         } else {
             color = vec4(o_color, 1.f);
@@ -92,14 +95,13 @@ void main()
 #endif
 
     // normal only (works well with eroded terrain)
-    //color.rgb = mix(vec3(0.282, 0.294, 0.294), vec3(0.894, 0.824, 0.667), dot(normalize(o_normal), normalize(u_SunPos)));
 
     if (!u_isTerrain) {
         color = texture(u_Textures2D[o_texId], o_uv);
     }
     float sunLight = 1;
     // direct sun light + normal map if defined, TODO clean this 
-    vec3 normal = o_normal;
+    
     if (u_NormalsTextureSlot[o_texId] != -1) {
         int index_normal_slot = u_NormalsTextureSlot[o_texId];
         vec4 sn = texture(u_Textures2D[index_normal_slot],o_uv);
@@ -122,12 +124,14 @@ void main()
 
     // apply lights
     vec3 viewDir = normalize(u_cameraPos - o_pos);
+    vec3 lightDir = normalize(u_SunPos); // default is sun direction
+
     for (int i = 0; i < numberOfLights; i++) {
         PointLight light = u_lights[i];
         if (light.on == 0) continue;
-    
         color.rgb += CalcPointLight(light, normal, o_pos, viewDir);
     }
+
 
     // apply distance fog
     color.rgb = mix(u_fogColor, color.rgb, exp(-length(o_pos - u_cameraPos)*u_fogDamping));

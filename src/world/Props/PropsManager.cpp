@@ -13,7 +13,8 @@ void PropsManager::computeToBeRendered(const Renderer::Frustum& viewFrustum) {
 
 	for (const auto& prop : m_props) {
 
-		if (viewFrustum.isOnFrustum(prop.mesh->getBoundingBoxInstance(prop.position, prop.size))) {
+		if (viewFrustum.isOnFrustum(prop.mesh->getBoundingBoxInstance(prop.position, prop.size))) 
+		{
 			m_toRender.push(prop);
 		}
 
@@ -31,14 +32,18 @@ void PropsManager::feed(const std::shared_ptr<Renderer::Mesh>&  mesh, const glm:
 void PropsManager::render(const Renderer::Camera& camera) {
 
 	computeToBeRendered(Renderer::Frustum::createFrustumFromPerspectiveCamera(camera));
+
 	while (!m_toRender.empty()) {
 
 		const Prop& p = m_toRender.front();
 
 		Renderer::renderMesh(camera, p.position, p.size, *p.mesh);
+
+
 		if (DebugWindow::renderAABB()) {
 			Renderer::renderAABBDebugOutline(camera, p.mesh->getBoundingBoxInstance(p.position, p.size));
 		}
+
 		m_toRender.pop();
 	}
 
@@ -56,7 +61,9 @@ void PropsManager::onImGuiRender()  {
 		if (ImGui::CollapsingHeader(ss.str().c_str())) {
 
 			ImGui::DragFloat3("Position##" + i, &p.position.x, 1.F);
-			ImGui::DragFloat3("Size##" + i, &p.size.x, 1.F);
+			if (ImGui::DragFloat("Size##" + i, &p.size.x, 0.25F)) {
+				p.size = glm::vec3(p.size.x);
+			}
 
 		}
 

@@ -24,7 +24,7 @@ struct ErosionSettings {
   float initialWaterVolume = 1;
   float initialSpeed = 1;
   int maxDropletLifetime = 30;
-  size_t dropletCount = 100'000;
+  size_t dropletCount = 100'000 * 5;
 };
 
 void erode(float *noiseMap, unsigned int mapSize, const ErosionSettings &settings);

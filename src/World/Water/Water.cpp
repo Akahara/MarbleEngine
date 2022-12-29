@@ -79,5 +79,5 @@ void World::Water::onRender(const std::function<void()> &renderFn, Renderer::Cam
   
   renderFn();
   m_renderer.onRenderWater(m_sources, camera);
-  m_renderer.showDebugTextures();
+  // m_renderer.showDebugTextures();
 }

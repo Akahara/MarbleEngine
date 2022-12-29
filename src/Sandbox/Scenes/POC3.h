@@ -18,13 +18,13 @@ private:
   Terrain::Terrain    m_terrain;
   Renderer::Texture   m_sandTexture = Renderer::Texture("res/textures/sand1.jpg");
   Renderer::Texture   m_sandTexture_normal = Renderer::Texture("res/textures/sand1_normal.jpg");
-  std::shared_ptr<Renderer::Texture>   m_rockTexture = std::make_shared<Renderer::Texture>("res/textures/rock.jpg");
+  std::shared_ptr<Renderer::Texture>   m_rockTexture = std::make_shared<Renderer::Texture>("res/textures/Rock_9_Base_Color.jpg");
   World::Sky          m_sky{World::Sky::SkyboxesType::SAND};
   float               m_realTime;
 
   World::LightRenderer m_light;
 
-  std::shared_ptr<Renderer::Mesh> m_rock = std::make_shared < Renderer::Mesh >(Renderer::loadMeshFromFile("res/meshes/Rock_9.obj"));
+  //std::shared_ptr<Renderer::Mesh> m_rock = std::make_shared < Renderer::Mesh >(Renderer::loadMeshFromFile("res/meshes/Rock_9.obj"));
   std::shared_ptr<Renderer::Mesh> m_arch = std::make_shared < Renderer::Mesh >(Renderer::loadMeshFromFile("res/meshes/SmallArch_Obj.obj"));
 
   visualEffects::VFXPipeline m_pipeline{ Window::getWinWidth(), Window::getWinHeight() };
@@ -73,9 +73,8 @@ public:
       Renderer::Shader::unbind();
     }
 
-    m_rock->bindTextureToSlot(m_rockTexture, 0);
-      m_props.feed(m_rock, glm::vec3{ 30,5,20 }, glm::vec3{ 0.1 });
-      m_props.feed(m_arch, glm::vec3{ -20,5,40 }, glm::vec3{ 1 });
+      m_props.feed(m_arch, glm::vec3{ 65,26,40 }, glm::vec3{ 0.5 });
+     // m_props.feed(m_rock, glm::vec3{ 65,26,40 }, glm::vec3{ 0.05 });
 
     // VFX stuff
     {
@@ -139,7 +138,7 @@ public:
 
     Renderer::Camera& camera = m_player.getCamera();
     Renderer::Frustum cameraFrustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(camera);
-
+    
     m_sandTexture.bind(0);
     m_sandTexture_normal.bind(1);
     for (const auto& [position, chunk] : m_terrain.getChunks()) {
@@ -151,28 +150,41 @@ public:
       Renderer::renderMesh(camera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
     }
 
+    m_sandTexture.unbind();
+    m_sandTexture_normal.unbind();
+    
     m_props.render(camera);
+    
     if (rendersky) m_sky.render(camera, m_realTime, false);
+    
   }
 
   void onRender() override
   {
-      /*
+      
     m_pipeline.setContextParam<glm::vec3>("sunPos", m_sun);
     m_pipeline.setContextParam<glm::vec3>("cameraPos", getCamera().getForward());
     m_pipeline.setContextParam<Renderer::Camera>("camera", getCamera());
     m_pipeline.bind();
 
-
-    renderScene();
+    m_water.onRender([this]() -> void { renderScene(); }, getCamera());
+    //renderScene();
     m_pipeline.unbind();
     m_pipeline.renderPipeline();
-      */
-    m_water.onRender([this]() -> void { renderScene(); }, getCamera());
+      
   }
 
   void onImGuiRender() override
   {
+
+      if (ImGui::DragFloat("WaterLevel", &m_waterData.level, 0.5f) +
+          ImGui::DragFloat2("Water Position", &m_waterData.position.x, 1.f) +
+          ImGui::DragFloat("WaterSize", &m_waterData.size, 1.f))
+      {
+          m_water.getSourceAt(0)->setHeight(m_waterData.level);
+          m_water.getSourceAt(0)->setPosition(m_waterData.position);
+          m_water.getSourceAt(0)->setSize(m_waterData.size);
+      }
   
       ImGui::Checkbox("render sky", &rendersky);
     if (ImGui::Button("Turn on/off normal map")) {
