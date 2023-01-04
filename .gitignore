@@ -3,3 +3,5 @@ rapport/*
 !rapport/rapport.tex
 !rapport/pdfs
 !rapport/res
+!rapport/logo_*
+!rapport/EPUProjetDi.cls
