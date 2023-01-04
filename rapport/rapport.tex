@@ -67,9 +67,7 @@
 \begin{document}
 \maketitle
 
-\section{Avant propos}
-
-%% TODO intro 
+\section{Avant propos} 
 
 Notre projet consiste à créer un générateur de terrain et à afficher ce terrain d'une manière réaliste. Pour cela nous développerons des algorithmes de génération, des interfaces de dialogue avec le gpu et des systèmes d'affichage très complexes.
 
@@ -245,12 +243,7 @@ Avant de générer le mesh du terrain on peut modifier la heightmap pour obtenir
 	\item{Avec un peu plus d'effort on peut créer des plateaux et arriver à une génération ressemblant aux Mesa}
 \end{itemize}
 
-%% TODO illustration des variations
-
-
-
-
-
+Des illustrations de ces variations peuvent être trouveés plus loin\ref{fig:final}.
 
 
 \section{Affichage 3D}
@@ -312,7 +305,17 @@ $$
 $$
 	BAP = \begin{pmatrix}2x+2\\2y\\2z\\1\end{pmatrix}
 $$
+
+\begin{wrapfigure}{R}{0.3\textwidth}
+	\begin{center}
+	\includegraphics[scale=.2]{coordinate_systems}
+	\end{center}
+	\caption[Résumé des repères]{Résumé des repères\\\url{https://www.aosabook.org/en/500L/a-3d-modeller.html}}
+	\label{fig:coordinate_systems}
+\end{wrapfigure}
+
 Ici $A$ est une matrice de mise à l'echelle et $B$ est une matrice de translation, $C=BA$ serait la matrice de transformation (projection) du repère modèle au repère monde. La quatrième coordonnée est utilisée pour faciliter le calcul des translations, elle vaudra toujours $1$ pour les points et $0$ pour les vecteurs même s'il est plus rare de faire ces projections sur des vecteurs.
+
 
 \paragraph{}
 La projection du monde vers le viewport est un peu plus compliquée, il existe deux types principaux de projection qui sont les projections perspective et orthographique. Elles possèdent chacune une écriture matricielle que nous ne détaillerons pas mais qui peuvent se retrouver assez facilement avec un peu d'algèbre linéaire. Cette projection seule ne suffit pas, tel quel notre caméra devrait toujours être placée à l'origine du monde et être dirigée selon l'axe $+x$...
@@ -328,8 +331,6 @@ Pour finir on retient trois matrices de projection :
 \end{itemize}
 
 Ce modèle en trois matrices est le plus utilisé. Il suffit de donner $P'=PVM$ au Vertex Shader et lui laisser transformer chaque vertex. On notera d'ailleur qu'il suffit d'inverser $P'$ pour projeter des positions à l'écran à des positions dans le monde, on peut par exemple savoir où - dans le monde - l'utilisateur pointe lorsqu'il clique à l'écran\footnote{Le calcul est un peu plus compliqué, on passe de $\mathbb{R}^2$ à $\mathbb{R}^3$, il faut tirer un rayon depuis la position de la caméra en direction du point qu'on vient de calculer à partir de $P'^{-1}$ et trouver la première intersection avec un objet du monde.}.
-
-%% TODO schéma repères + caméra
 
 \subsection{Ciel}
 \label{sec:sky}
@@ -488,6 +489,7 @@ Le profilage répertorie l'enssemble des appels aux fonctions d'affichage (\code
 
 \section{Algorithmes spécifiques}
 
+Dans cette section nous aborderons avec plus de détails les algorithmes que nous avons du développé et qui on représenté des défis techniques interessants.
 %% algos qu'on a développé avec plus ou moins de sources (plutot moins que plus)
 
 \subsection{Affichage de l'herbe}
@@ -576,11 +578,21 @@ Il est assez difficile de se représenter la quantité de travail à fournir pou
 
 \section{Résultats}
 
-%% TODO screens
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=3cm]{final_trees}
+	\includegraphics[height=3cm]{final_desert}
+	\includegraphics[height=3cm]{final_mesa}
+	\includegraphics[height=3cm]{final_mountains}
+	\caption{Captures de nos différents résultats}
+	\label{fig:final}
+\end{figure}
+
+Ces visuels peuvent être obtenus en utilisant le projet dans son état final et en écrivant un peu moins de 200 lignes chacun. Le projet totalise environ $11000$ lignes de c++ et $1500$ lignes de shaders, tout cela pour arriver à un niveau d'abstraction très satisfaisant.
 
 \section{Pistes d'améliorations}
 
-Notre travail peut s'utiliser tel quel, mais le projet pourrait être poursuivit sur de nombreux axes de développement. Nous en aborderons ici quelques uns qui nous ont parru important pendant le développement.
+Notre travail peut s'utiliser tel quel, mais le projet pourrait être poursuivit de nombreuses manières. Nous en aborderons ici quelques unes qui nous ont parru important pendant le développement.
 
 \subsection{Tessellation}
 
@@ -618,9 +630,17 @@ Une autre modification qui pourrait être apportée au mesh du terrain est la mo
 
 \subsection{Esthetiques différentes}
 
-%% TODO section esthetiques différentes
-%% Cartoon? on y a pensé pendant le dev
+Nous avons choisi une esthetique qui se veut réaliste mais avec assez peu de changements on peut obtenir des visuels très différents.
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.205]{esthetics_1}
+	\includegraphics[scale=.2]{esthetics_2}
+	\caption{Différentes variations d'esthetique}
+	\label{fig:esthetics}
+\end{figure}
+
+On pourrait imaginer des visuels "low-poly" ou "toon" en diminuant le nombre de triangles et en rajoutant un shader "cel-shading\footnote{\url{https://en.wikipedia.org/wiki/Cel_shading}}".
 
 \section{Conclusion}
 
