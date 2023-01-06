@@ -1,8 +1,5 @@
 #pragma once
 
-
-#pragma once
-
 #include <glm/glm.hpp>
 #include <unordered_map>
 
@@ -15,7 +12,6 @@ namespace World {
 
 	private:
 		std::vector<Light> m_lights;
-		//std::vector<bool> m_isOn;
 
 		bool m_lightsOn[12] =
 		{
@@ -24,6 +20,15 @@ namespace World {
 			0,0,0,
 			0,0,0
 		};
+
+		int m_lightDistanceIndex[12] =
+		{
+			0,0,0,
+			0,0,0,
+			0,0,0,
+			0,0,0
+		};
+
 
 	public:
 		LightRenderer() {
@@ -61,18 +66,20 @@ namespace World {
 					if (!ImGui::CollapsingHeader(ss.str().c_str()))
 						continue;
 
-					if (ImGui::DragFloat3((std::stringstream{ "LightPosition n" } << i).str().c_str(), &pos.x, 2.f) +
-						ImGui::SliderFloat3((std::stringstream{ "Ambiant n" } << i).str().c_str(), &params.ambiant.x, 0, 15) +
-						ImGui::SliderFloat3((std::stringstream{ "Diffuse n" } << i).str().c_str(), &params.diffuse.x, 0, 15) +
-						ImGui::SliderFloat3((std::stringstream{ "Specular n" } << i).str().c_str(), &params.specular.x, 0, 15) +
-						ImGui::DragFloat((std::stringstream{ "Distance n" } << i).str().c_str(), &distance, 30.f)) {
+					if (ImGui::DragFloat3("Position ##" + i, &pos.x, 2.f) +
+						ImGui::SliderFloat3("Ambiant ##" + i, &params.ambiant.x, 0, 15) +
+						ImGui::SliderFloat3("Diffuse ##" + i, &params.diffuse.x, 0, 15) +
+						ImGui::SliderFloat3("Specular ##" + i, &params.specular.x, 0, 15) +
+						ImGui::SliderInt("Distance ##" + i, &m_lightDistanceIndex[i], 0, 11)) {
 
 						Light l = Light{
 						  pos,
 						  params,
-						  distance,
+						  s_keys[m_lightDistanceIndex[i]],
 						  m_lightsOn[i]
 						};
+
+						std::cout << l.getDistance() << std::endl;
 						m_lights.at(i) = l;
 
 						Renderer::setUniformPointLights(m_lights);
