@@ -11,6 +11,8 @@
 
 #include "../../abstraction/pipeline/VFXPipeline.h"
 
+/* ========  A mountainy scene with erosion, shadows and flares  ======== */
+
 class POC1Scene : public Scene {
 private:
   World::Sky        m_sky{World::Sky::SkyboxesType::SNOW};

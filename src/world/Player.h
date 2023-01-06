@@ -4,6 +4,16 @@
 
 #include "../abstraction/Camera.h"
 
+/*
+* The player class is basically a fancy wrapper arround a camera, it also
+* handles movement.
+* 
+* In scene classes simply having a player instance and calling #step on 
+* every step cycle is enough to have access to #getCamera. To avoid extra
+* matrix calculations, when moving the player or its rotation the camera
+* projection and view matrices are not updated, do call #updateCamera after
+* applying your changes.
+*/
 class Player {
 public:
   Player();

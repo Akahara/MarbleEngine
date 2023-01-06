@@ -10,6 +10,8 @@
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../abstraction/FrameBufferObject.h"
 
+/* ========  A mesa scene with shadows and custom terrain shader (custom terrain showcase)  ======== */
+
 class POC4Scene : public Scene {
 private:
   Player              m_player;

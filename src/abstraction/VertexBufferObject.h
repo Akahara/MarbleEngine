@@ -8,6 +8,7 @@
 
 namespace Renderer {
 
+/* Immediate wrapper of the GL concept */
 class VertexBufferObject : public BufferObject {
 public:
   VertexBufferObject() {}

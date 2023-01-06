@@ -9,6 +9,7 @@
 
 namespace Renderer {
 
+/* Immediate wrapper of the GL concept */
 class FrameBufferObject {
 private:
   unsigned int m_renderID;

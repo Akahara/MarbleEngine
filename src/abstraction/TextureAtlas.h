@@ -7,6 +7,12 @@
 
 namespace Renderer {
 
+/**
+* Contains a set of textures wrapped in a single one, individual textures can
+* be accessed using UV coordinates.
+* Search the web for a more detailed explanation, it corresponds to the standard
+* definition of "texture atlas".
+*/
 class TextureAtlas
 {
 private:

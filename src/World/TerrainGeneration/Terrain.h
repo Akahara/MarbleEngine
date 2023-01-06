@@ -9,6 +9,16 @@
 #include "../../abstraction/Mesh.h"
 #include "../../abstraction/Camera.h"
 
+/**
+* Terrain are composed of chunks (not necessarily contiguous) and is defined
+* by a height map. 
+* 
+* Each chunk is defined by a mesh that can be rendered but not modified, the
+* chunk's bounding box (AABB) can be used not to render chunks that are not
+* visible by a camera.
+* 
+* To get an heightmap see Noise.h and HeightMap.h
+*/
 namespace Terrain {
 
 class Chunk {

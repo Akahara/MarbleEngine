@@ -3,6 +3,13 @@
 #include "VertexBufferObject.h"
 #include "VertexArray.h"
 
+/**
+* Specialized rendering functions, used by the grass renderer.
+* 
+* Contains
+* - VertexBufferHolder : holds multiple IBO/VBO, used with LD/HD rendering
+* - IndirectDrawCommand : the GL object that defines glDrawElementsInstancedIndirect uses (to be instanced on the gpu, not in cpu memory)
+*/
 namespace Renderer {
 
 struct IndirectDrawCommand {

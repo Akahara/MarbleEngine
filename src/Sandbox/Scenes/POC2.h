@@ -14,6 +14,8 @@
 
 #include <queue>
 
+/* ========  A flat scene with trees and grass  ======== */
+
 class POC2Scene : public Scene {
 private:
   struct CHUNKS {

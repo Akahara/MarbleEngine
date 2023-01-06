@@ -7,6 +7,15 @@
 
 namespace World {
 
+/**
+* The sky class is basically a fancy wrapper arround a cubemap. It also
+* renders clouds.
+* 
+* Default cubemaps are available and can be picked using Sky#SkyboxesType.
+* 
+* Use Renderer::SkyRenderer#drawSkyClouds on a Sky instance to draw both
+* the sky and clouds.
+*/
 class Sky {
 private:
   std::unique_ptr<Renderer::Cubemap> m_skybox; // this has no default constructor but we need late init

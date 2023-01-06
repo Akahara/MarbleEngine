@@ -12,6 +12,7 @@ namespace Renderer {
 
 namespace fs = std::filesystem;
 
+/* Immediate wrapper of the GL concept */
 class Shader
 {
 private:
@@ -53,6 +54,7 @@ private:
 };
 
 
+/* ImGui interface wrapper arround a uniform */
 class TestUniform {
 private:
   Shader     *m_shader;
@@ -118,6 +120,8 @@ private:
   void collectTestUniforms(Shader *shader, const std::vector<TestUniform> &previousUniforms);
 };
 
+
+/* Factory with which to build shader programs, shader files can be added but not removed */
 class ShaderFactory {
 private:
   std::vector<int> m_parts;

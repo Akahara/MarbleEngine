@@ -3,11 +3,19 @@
 #include <array>
 #include <vector>
 
+/**
+* Noise can be generated manually or by using a function in this namespace.
+* They can then be used to generate heightmaps.
+*/
 namespace Noise {
 
+/* Standard perlin noise */
 float *generateNoiseMap(int mapWidth, int mapHeight, float scale, int octaves, float persistance, float initialFrequency, float lacunarity, int seed);
+/* Load a heightmap from a black and white file, white values produce heights of 1 and black values heights of 0 */
 float *loadNoiseMapFromFile(const char *path, unsigned int *o_width, unsigned int *o_height);
+/* Rescales a noisemap by applying a linear function to each of its values */
 void rescaleNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHeight, float currentMin, float currentMax, float newMin, float newMax);
+/* Outline a noisemap by seting its edge values to the specified height, this can be used to produce walls or steep edges */
 void outlineNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHeight, float outlineHeight, unsigned int outlineSize);
 
 // TODO comment individual erosion settings
@@ -28,6 +36,13 @@ struct ErosionSettings {
   size_t dropletCount = 100'000 * 5;
 };
 
+/**
+* Applies a standard erosion algorithm to an existing *square* noise map.
+* 
+* This algortihm is quite slow, prefer running it in release mode.
+* 
+* FUTURE The erosion algorithm could (and should) be ran on the gpu
+*/
 void erode(float *noiseMap, unsigned int mapSize, const ErosionSettings &settings);
 
 };

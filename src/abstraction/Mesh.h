@@ -13,14 +13,24 @@
 
 namespace Renderer {
 
-	struct Vertex {
-		glm::vec3 position;
-		glm::vec2 uv;
-		glm::vec3 normal;
-		glm::vec3 color = {1.0f, 0.f, 0.f};
-		float texId = 0;
-	};
+struct Vertex {
+  glm::vec3 position;
+  glm::vec2 uv;
+  glm::vec3 normal;
+  glm::vec3 color = {1.0f, 0.f, 0.f};
+  float texId = 0;
+};
 
+/**
+* A mesh contains references to a VAO and its components, textures and a bounding box.
+* 
+* The vertices used to generate the mesh are not kept in cpu memory.
+* 
+* Mesh can be considered as "renderable primitives", a final user should not have to
+* use GL functions when using meshes.
+* 
+* Meshes can be generated using Renderer#loadMeshFromFile.
+*/
 class Mesh {
 private:
   VertexBufferObject m_VBO;

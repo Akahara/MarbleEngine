@@ -8,6 +8,8 @@
 
 namespace Renderer {
 
+/* Immediate wrapper of the GL concept */
+/* Textures can be loaded from files using Renderer#loadTexture() */
 class Texture {
 private:
   unsigned int m_rendererID;
@@ -20,19 +22,13 @@ public:
   Texture(Texture &&moved) noexcept;
   Texture &operator=(Texture &&moved) noexcept;
   Texture &operator=(const Texture &other) = delete;
- // Texture& operator=(const Texture& other) 
- // { 
-	//m_RendererID = other.m_RendererID;
-	//m_width = other.m_width; 
-	//m_height = other.m_height;
-	//return *this;
- // }
   Texture(const Texture &) = delete;
 
   void bind(unsigned int slot = 0) const;
   static void unbind(unsigned int slot = 0);
   void destroy();
 
+  /* fill the texture with the given rgba value */
   void changeColor(uint32_t color);
 
   inline int getWidth() const { return m_width; }

@@ -9,12 +9,12 @@
 
 namespace Renderer {
 
-
 enum class CameraProjection : unsigned char {
   ORTHOGRAPHIC,
   PERSPECTIVE,
 };
 
+/* A perspective projection is the usual kind of projection, use this if you don't known what you're doing */
 struct PerspectiveProjection {
   float fovy;          // in radians, in range ]0,PI[
   float aspect;        // camera width/camera height
@@ -24,6 +24,7 @@ struct PerspectiveProjection {
   glm::mat4 computeProjectionMatrix() const;
 };
 
+/* An othographic projection projects points "without considering how far they are from the camera", use this for depth maps and such */
 struct OrthographicProjection {
   float left;          // in world space
   float right;         // in world space
@@ -35,6 +36,18 @@ struct OrthographicProjection {
   glm::mat4 computeProjectionMatrix() const;
 };
 
+
+/**
+* A camera is defined by a transform (position+rotation) and a type of projection.
+*
+* When built a camera provides a View Matrix and a Projection Matrix, they correspond
+* to the standard V and P matrices used to render meshes.
+*
+* To avoid extra calculations VP matrices are not updated after each change, call
+* #recalculateXX methods after applying changes.
+*
+* Orientations are defined by yaw+pitch (not quaternions, not euler angles).
+*/
 class Camera {
 public:
   static constexpr glm::vec3 UP{ 0, 1, 0 };
@@ -107,6 +120,13 @@ struct Plan {
 };
 
 // https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
+/**
+* A frustum can be generated from a camera and checked against an AABB to check
+* wether the bounding box overlaps the camera frustum.
+* 
+* Using frustum to avoid rendering objects outside of view is a very simple and
+* efficient optimization.
+*/
 struct Frustum {
 
     Plan topFace;

@@ -4,6 +4,17 @@
 
 namespace Terrain {
 
+/**
+* An heightmap is a "2D continuous grid", it maps every xy position to a height (z) value.
+* 
+* Concrete implementations may have size requirements that prevent from sampling outside
+* of some bounds, this implementation provides width and height fields that users should
+* respect (not sample outside of).
+* 
+* Heightmaps implementations are not required to provide height values for every xy point
+* but rather for xy points with round coordinates (#getHeight), these values are then used 
+* to lerp between when a non-round point is sampled (#getHeightLerp).
+*/
 class HeightMap {
 protected:
   unsigned int m_width, m_height;
@@ -21,6 +32,11 @@ public:
   float getHeightLerp(float x, float y) const;
 };
 
+/**
+* Standard implementation of Heightmap, when provided with a grid of
+* heights of a certain size, heights are sampled and lerped between.
+* Heigth values can be modified after construction but not resized.
+*/
 class ConcreteHeightMap : public HeightMap {
 private:
   float *m_heightValues;

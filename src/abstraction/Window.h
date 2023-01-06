@@ -1,5 +1,12 @@
 #pragma once
 
+/* Immediate wrapper of the GL concept */
+/*
+* A single window may exist at any given time.
+* 
+* Inputs can be handled using #registerInputHandler with an InputHandler
+* instance that overrides one or more methods.
+*/
 namespace Window {
 
 namespace Inputs {

@@ -5,6 +5,7 @@
 
 namespace Renderer {
 
+/* Immediate wrapper of the GL concept */
 class VertexArray {
 private:
   unsigned int m_RendererID;

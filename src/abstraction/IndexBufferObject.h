@@ -6,6 +6,7 @@
 
 namespace Renderer {
 
+/* Immediate wrapper of the GL concept */
 class IndexBufferObject : public BufferObject {
 private:
   size_t m_count;

@@ -12,6 +12,8 @@
 #include "../../abstraction/FrameBufferObject.h"
 #include "../../abstraction/pipeline/VFXPipeline.h"
 
+/* ========  A desert scene with water  ======== */
+
 class POC3Scene : public Scene {
 private:
   Player               m_player;

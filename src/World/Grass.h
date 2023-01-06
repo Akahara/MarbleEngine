@@ -9,6 +9,29 @@
 #include "../World/TerrainGeneration/Terrain.h"
 #include "../abstraction/Camera.h"
 
+/**
+* Grass rendering is one of the most complex features of this project,
+* to render grass you must first create a TerrainGrass instance and supply
+* it with a GrassWorld.
+* 
+* A GrassWorld is responsible for the repopulation of grass blades, default
+* implementations include FixedGrassChunks for cases where the covered area
+* does not change at runtime and InfiniteGrassWorld for cases where grass
+* must be regenerated every so often.
+* 
+* A GrassWorld will most likely require a GrassGenerator, default implementations 
+* of GrassGenerator include TerrainGrass to generate grass blades at terrain height.
+* 
+* 
+* The actual rendering of grass blades is handled by GrassRenderer, the
+* implementations details are too complex to be explained in a few lines
+* but basically it uses GL instance buffers and compute shaders to filter
+* out blades that are not visible by the camera.
+* Grass rendering is NOT CHEAP, if you need to render the scene multiple
+* times (eg. shadow pass) you may want to lower the number of blades or
+* simply skip the grass except in the final pass.
+*/
+
 namespace World {
 
 // TODO add a buffer_t type

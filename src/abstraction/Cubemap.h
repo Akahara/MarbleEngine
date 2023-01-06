@@ -6,6 +6,7 @@
 
 namespace Renderer {
 
+/* Immediate wrapper of the GL concept */
 class Cubemap {
 private:
   unsigned int m_id;
