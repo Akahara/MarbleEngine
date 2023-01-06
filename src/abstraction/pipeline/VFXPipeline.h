@@ -27,7 +27,7 @@ private:
 	std::vector<VFX*>   m_effects;
 
 public:
-	VFXPipeline(int w, int h)
+	VFXPipeline(int w = Window::getWinWidth(), int h = Window::getWinHeight())
 	{
 		m_context.targetTexture = Renderer::Texture(w,h);
 		m_context.originTexture = Renderer::Texture(w,h);

@@ -14,7 +14,8 @@ private:
 public:
   enum SkyboxesType {
 	DEFAULT,
-	SAND
+	SAND,
+	SNOW
   };
 
   Sky(const SkyboxesType& style = DEFAULT);

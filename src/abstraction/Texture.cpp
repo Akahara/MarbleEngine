@@ -98,8 +98,8 @@ void Texture::bind(unsigned int slot /* = 0*/) const
 }
 void Texture::unbind(unsigned int slot /* = 0*/)
 {
-  glBindTexture(GL_TEXTURE_2D, 0);
-}
+  glBindTexture(GL_TEXTURE_2D + slot, 0);
+} 
 
 void Texture::changeColor(uint32_t color)
 {

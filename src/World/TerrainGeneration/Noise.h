@@ -8,7 +8,7 @@ namespace Noise {
 float *generateNoiseMap(int mapWidth, int mapHeight, float scale, int octaves, float persistance, float initialFrequency, float lacunarity, int seed);
 float *loadNoiseMapFromFile(const char *path, unsigned int *o_width, unsigned int *o_height);
 void rescaleNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHeight, float currentMin, float currentMax, float newMin, float newMax);
-void outlineNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHeight, float outlineHeight, int outlineSize);
+void outlineNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHeight, float outlineHeight, unsigned int outlineSize);
 
 // TODO comment individual erosion settings
 // TODO move the TerrainSettings struct in noise.h
@@ -25,7 +25,7 @@ struct ErosionSettings {
   float initialWaterVolume = 1;
   float initialSpeed = 1;
   int maxDropletLifetime = 30;
-  size_t dropletCount = 100'000;
+  size_t dropletCount = 100'000 * 5;
 };
 
 void erode(float *noiseMap, unsigned int mapSize, const ErosionSettings &settings);

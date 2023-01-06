@@ -28,7 +28,8 @@ private:
   std::vector<AABB>  m_cubes;
 
   Renderer::FrameBufferObject m_depthFBO;
-  Renderer::Texture  m_depthTexture;
+  Renderer::Texture           m_depthTexture;
+  static constexpr int        m_depthTextureSlot = 1; // cannot use slot0 because the mesh overrides it with the "missing texture"
 
   Renderer::BlitPass m_depthTestBlitPass;
   bool               m_dbgDrawDepthBuffer = false;
@@ -41,6 +42,9 @@ public:
     m_shader(Renderer::loadShaderFromFiles("res/shaders/shadows.vs", "res/shaders/shadows.fs")),
     m_depthTestBlitPass{ "res/shaders/shadows_testblitdepth.fs" }
   {
+    m_shader.bind();
+    m_shader.setUniform1i("u_shadowMap", m_depthTextureSlot);
+
     m_sunCameraHelper.setSunDirection(glm::normalize(glm::vec3{ .5f, .1f, 0.f }));
     updateSunCamera();
 
@@ -65,8 +69,6 @@ public:
 
   void renderScene(const Renderer::Camera &camera, bool depthPass)
   {
-    m_depthTexture.bind();
-
     if (!depthPass) {
       renderDebugCameraOutline(camera, m_sunCameraHelper.getCamera());
       renderAABBDebugOutline(camera, m_visibleAABB);
@@ -75,6 +77,9 @@ public:
         renderAABBDebugOutline(camera, box, m_sunCameraHelper.isBoxVisibleBySun(box) ? glm::vec4{1,0,0,1} : glm::vec4{100.f,1,0,1});
     }
 
+    m_depthTexture.bind(m_depthTextureSlot);
+
+    // do not use Renderer::renderMesh because the standard mesh shader would be used
     m_shader.bind();
     m_shader.setUniformMat4f("u_M", glm::translate(glm::mat4(1.f), { 3, 0, 0 }));
     m_shader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
@@ -109,6 +114,7 @@ public:
     m_shader.bind();
     m_shader.setUniformMat4x3f("u_shadowMapProj", m_sunCameraHelper.getWorldToShadowMapProjectionMatrix());
     m_shader.setUniform2f("u_shadowMapOrthoZRange", zNear, zFar);
+    m_shader.unbind();
   }
 
   void onRender() override
@@ -120,7 +126,7 @@ public:
     renderScene(m_sunCameraHelper.getCamera(), true);
     Renderer::beginColorPass();
     Renderer::FrameBufferObject::unbind();
-    m_depthFBO.setViewportToWindow();
+    Renderer::FrameBufferObject::setViewportToWindow();
 
     Renderer::clear();
     if (m_dbgDrawDepthBuffer) {

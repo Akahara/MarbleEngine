@@ -7,54 +7,60 @@ using namespace Renderer;
 
 namespace Terrain {
 
-static Renderer::Mesh generateChunkMesh(const HeightMap &heightmap, glm::ivec2 chunkPosition, unsigned int chunkSize)
-{
-  std::vector<Vertex> vertices;
-  std::vector<unsigned int> indices;
+    static Renderer::Mesh generateChunkMesh(const HeightMap& heightmap, glm::ivec2 chunkPosition, unsigned int chunkSize)
+    {
+        std::vector<Vertex> vertices;
+        std::vector<unsigned int> indices;
 
-  for (int y = 0; y <= (int)chunkSize; y++) {
-    for (int x = 0; x <= (int)chunkSize; x++) {
-      int hx = chunkPosition.x * chunkSize + x + 1;
-      int hy = chunkPosition.y * chunkSize + y + 1;
-      Vertex &vertex = vertices.emplace_back();
-      vertex.position = {
-        x + chunkPosition.x * chunkSize,
-        heightmap.getHeight(hx, hy),
-        y + chunkPosition.y * chunkSize,
-      };
+        for (int y = 0; y <= (int)chunkSize; y++) {
+            for (int x = 0; x <= (int)chunkSize; x++) {
+                int hx = chunkPosition.x * chunkSize + x + 1;
+                int hy = chunkPosition.y * chunkSize + y + 1;
+                Vertex& vertex = vertices.emplace_back();
+                vertex.position = {
+                  x + chunkPosition.x * chunkSize,
+                  heightmap.getHeight(hx, hy),
+                  y + chunkPosition.y * chunkSize,
+                };
 
-      vertex.uv = { x, y };
-      vertex.uv /= 10.f;
+                vertex.uv = { x, y };
+                vertex.uv /= 10.f;
 
-      vertex.normal = glm::normalize(glm::cross(
-        glm::vec3{ 0.f, (heightmap.getHeight(hx, hy + 1) - heightmap.getHeight(hx, hy - 1)), 2.f },
-        glm::vec3{ 2.f, (heightmap.getHeight(hx + 1, hy) - heightmap.getHeight(hx - 1, hy)), 0.f }
-      ));
+                vertex.normal = glm::normalize(glm::cross(
+                    glm::vec3{ 0.f, (heightmap.getHeight(hx, hy + 1) - heightmap.getHeight(hx, hy - 1)), 2.f },
+                    glm::vec3{ 2.f, (heightmap.getHeight(hx + 1, hy) - heightmap.getHeight(hx - 1, hy)), 0.f }
+                ));
 
-      vertex.color = {
-        Mathf::rand(chunkPosition.x * 64.542f),
-        Mathf::rand(chunkPosition.y * 12.523f),
-        Mathf::rand(chunkPosition.x * 25.642f + chunkPosition.y * 53.2f),
-      };
-    }
-  }
+                vertex.color = {
+                  Mathf::rand(chunkPosition.x * 64.542f),
+                  Mathf::rand(chunkPosition.y * 12.523f),
+                  Mathf::rand(chunkPosition.x * 25.642f + chunkPosition.y * 53.2f),
+                };
 
-  for (int x = 0; x < (int)chunkSize; x++) {
-    for (int y = 0; y < (int)chunkSize; y++) {
-      unsigned int a1 = y * (chunkSize + 1) + x;
-      unsigned int a2 = y * (chunkSize + 1) + x + 1;
-      unsigned int a3 = (y + 1) * (chunkSize + 1) + x;
-      unsigned int a4 = (y + 1) * (chunkSize + 1) + x + 1;
-      indices.push_back(a1);
-      indices.push_back(a3);
-      indices.push_back(a2);
-      indices.push_back(a2);
-      indices.push_back(a3);
-      indices.push_back(a4);
-    }
-  }
+                vertex.texId = 0;
+            }
+        }
 
-  Mesh mesh{ vertices, indices };
+        for (int x = 0; x < (int)chunkSize; x++) {
+            for (int y = 0; y < (int)chunkSize; y++) {
+                unsigned int a1 = y * (chunkSize + 1) + x;
+                unsigned int a2 = y * (chunkSize + 1) + x + 1;
+                unsigned int a3 = (y + 1) * (chunkSize + 1) + x;
+                unsigned int a4 = (y + 1) * (chunkSize + 1) + x + 1;
+                indices.push_back(a1);
+                indices.push_back(a3);
+                indices.push_back(a2);
+                indices.push_back(a2);
+                indices.push_back(a3);
+                indices.push_back(a4);
+            }
+        }
+
+        std::unordered_map<int, std::shared_ptr<Texture>> texture = {
+            {0, std::make_shared<Texture>("res/textures/no_texture.png") }
+        };
+
+  Mesh mesh{ vertices, indices , texture};
   return mesh;
 }
 

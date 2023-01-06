@@ -17,8 +17,6 @@
 #endif
 
 class TestTerrainScene : public Scene {
-
-
 private:
 
   //=====================================================================================================================//
@@ -87,6 +85,7 @@ public:
     m_fogDampingTestUniform.setValue(0, 0, .001f);
     m_grassSteepnessTestUniform = Renderer::TestUniform(&Renderer::getStandardMeshShader(), "u_grassSteepness", 2, .01f);
     m_grassSteepnessTestUniform.setValue(.79f, 1.f);
+
   }
 
   void regenerateTerrain()

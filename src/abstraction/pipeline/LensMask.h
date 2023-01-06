@@ -44,10 +44,10 @@ public:
 
 	virtual void onImGuiRender() override
 	{
-		//VFX::onImGuiRender();
-		//if (m_isEnabled && ImGui::CollapsingHeader(m_name.c_str())) {
-		//    // no settings
-		//}
+		VFX::onImGuiRender();
+		if (m_isEnabled && ImGui::CollapsingHeader(m_name.c_str())) {
+		    // no settings
+		}
 	}
 
 	EFFECT_CLASS_TYPE(LensMaskEffect);

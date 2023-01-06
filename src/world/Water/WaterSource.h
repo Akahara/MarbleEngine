@@ -28,6 +28,7 @@ public:
 	{
 	}
 
+	// dont ask me anything about this class
 	WaterSource(const WaterSource& other)
 		: m_height(other.m_height), m_position(other.m_position), m_size(other.m_size) // mesh cannot be copied and is not?
 	{ }

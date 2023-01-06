@@ -17,8 +17,8 @@ struct Flare {
 
 class FlareRenderer {
 private:
-	const static int NUMBER_OF_FLARES = 9;
-	const static int INDICES_COUNT = 9 * 6;
+	const static int NUMBER_OF_FLARES = 10;
+	const static int INDICES_COUNT = NUMBER_OF_FLARES * 6;
 
 	struct QuadVertex {
 		glm::vec3 Position;
@@ -34,7 +34,7 @@ private:
 		"res/shaders/flare.vs",
 		"res/shaders/flare.fs");
 
-	std::array<Renderer::Texture, 9> m_textureSlots;
+	std::array<Renderer::Texture, 10> m_textureSlots;
 
 	QuadVertex* m_quadBuffer = nullptr;
 	QuadVertex* m_quadBufferPtr = nullptr;
@@ -161,8 +161,17 @@ private:
 public:
 	FlareManager()
 	{
+
+		// -- Main sun texture
+		m_flares.push_back({
+				Renderer::Texture{"res/textures/flare/sun.png"},
+				{0,0},
+				0
+			});
+
 		for (int i = 1; i < 10; i++) {
 			std::stringstream ss;
+			
 			ss << "res/textures/flare/tex" << i << ".png";
 			m_flares.push_back({
 				Renderer::Texture{ss.str()},
@@ -186,7 +195,8 @@ public:
 
 	void computeFlarePositions(const glm::vec2& sunToCenter, const glm::vec2& sunCoords)
 	{
-		for (unsigned int i = 0; i < m_flares.size(); i++) {
+		m_flares[0].screenPos = sunCoords;
+		for (unsigned int i = 1; i < m_flares.size(); i++) {
 			glm::vec2 direction = sunToCenter;
 			direction *= (float)i * SPACING;
 

@@ -89,16 +89,16 @@ void rescaleNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHei
   }
 }
 
-void outlineNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHeight, float outlineHeight, int outlineSize)
+void outlineNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHeight, float outlineHeight, unsigned int outlineSize)
 {
-  for (int x = 0; x < mapWidth; x++) {
-	for (int y = 0; y < outlineSize; y++) {
+  for (unsigned int x = 0; x < mapWidth; x++) {
+	for (unsigned int y = 0; y < outlineSize; y++) {
 	  noiseMap[y * mapWidth + x] = outlineHeight;
 	  noiseMap[(mapHeight-y-1) * mapWidth + x] = outlineHeight;
 	}
   }
-  for (int y = 0; y < mapHeight; y++) {
-	for (int x = 0; x < outlineSize; x++) {
+  for (unsigned int y = 0; y < mapHeight; y++) {
+	for (unsigned int x = 0; x < outlineSize; x++) {
 	  noiseMap[y * mapWidth + x] = outlineHeight;
 	  noiseMap[y * mapWidth + (mapWidth-x-1)] = outlineHeight;
 	}

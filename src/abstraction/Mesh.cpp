@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <map>
+
 #include <glad/glad.h>
 
 #include "../Utils/BoundingSphere.h"
@@ -17,6 +19,7 @@ static const VertexBufferLayout &getVertexBufferLayout()
     l.push<float>(2); // uv
     l.push<float>(3); // normal
     l.push<float>(3); // color
+    l.push<float>(1); // texId
     return l;
   }();
   return layout;
@@ -31,11 +34,13 @@ Mesh::Mesh()
 {
 }
 
-Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices)
+Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices,
+    const std::unordered_map<int, std::shared_ptr<Texture>>& slotsTextures)
   : m_VBO(vertices.data(), sizeof(Vertex) * vertices.size()),
   m_IBO(indices.data(), indices.size()),
   m_VAO(),
-  m_verticesCount((unsigned int)indices.size())
+  m_verticesCount((unsigned int)indices.size()),
+  m_SlotTextures(slotsTextures)
 {
   m_VAO.addBuffer(m_VBO, getVertexBufferLayout(), m_IBO);
   VertexArray::unbind();
@@ -70,16 +75,30 @@ Mesh &Mesh::operator=(Mesh &&moved) noexcept
   return *this;
 }
 
+void Mesh::bindTextureToSlot(const std::shared_ptr<Texture>& texture, int slot) {
+
+
+    m_SlotTextures[slot] = texture;
+}
+
+
 void Mesh::draw() const
 {
   m_VAO.bind();
+  // bind all textures
+  for (const auto& [slot, texture_ptr] : m_SlotTextures) {
+      texture_ptr->bind(slot);
+  }
   glDrawElements(GL_TRIANGLES, m_verticesCount, GL_UNSIGNED_INT, nullptr);
+
   VertexArray::unbind();
 }
 
 AABB Mesh::getBoundingBoxInstance(glm::vec3 instancePosition, glm::vec3 instanceSize) const
 {
-  return AABB(m_boudingBox.getOrigin() + instancePosition, m_boudingBox.getSize() * instanceSize);
+
+  return AABB(instancePosition - (m_boudingBox.getSize() * instanceSize)/2.f, m_boudingBox.getSize() * instanceSize);
+  //return AABB(m_boudingBox.getOrigin() + instancePosition, m_boudingBox.getSize() * instanceSize);
 }
 
 NormalsMesh::NormalsMesh()

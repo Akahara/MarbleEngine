@@ -38,6 +38,7 @@
     <ClCompile Include="src\World\Water\Water.cpp" />
     <ClCompile Include="src\World\Water\WaterRenderer.cpp" />
     <ClCompile Include="src\World\Water\WaterSource.cpp" />
+    <ClCompile Include="src\world\Props\PropsManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h" />
@@ -119,7 +120,9 @@
     <ClInclude Include="src\abstraction\pipeline\Flares.h" />
     <ClInclude Include="src\abstraction\pipeline\LensMask.h" />
     <ClInclude Include="src\world\Water\Water.h" />
-    <ClInclude Include="src\Sandbox\Scenes\DemoScene.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestAtlas.h" />
+    <ClInclude Include="src\world\Light\LightManager.h" />
+    <ClInclude Include="src\world\Props\PropsManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />
@@ -153,7 +156,6 @@
     <None Include="res\shaders\standard.vs" />
     <None Include="res\shaders\standard_color.fs" />
     <None Include="res\shaders\standard_line.vs" />
-    <None Include="res\shaders\standard_mesh.fs" />
     <None Include="res\shaders\test_scene.fs" />
     <None Include="res\shaders\test_scene.vs" />
     <None Include="res\shaders\water.fs" />

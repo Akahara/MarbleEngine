@@ -10,6 +10,7 @@
 #include "Scenes/TestInstanced.h"
 #include "Scenes/TestWater.h"
 #include "Scenes/TestBloom.h"
+#include "Scenes/TestAtlas.h"
 
 #include "Scenes/POC1.h"
 #include "Scenes/POC2.h"

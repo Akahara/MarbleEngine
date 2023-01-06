@@ -7,8 +7,12 @@
 #include "../../World/TerrainGeneration/Terrain.h"
 #include "../../World/TerrainGeneration/MeshGenerator.h"
 #include "../../World/TerrainGeneration/Noise.h"
+#include "../../World/Light/Light.h"
+#include "../../World/Light/LightManager.h"
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../abstraction/FrameBufferObject.h"
+
+#include <queue>
 
 class POC2Scene : public Scene {
 private:
@@ -28,9 +32,12 @@ private:
   World::Water        m_water;
   float               m_realTime;
 
-  Renderer::Texture   m_grassTexture = Renderer::Texture("res/textures/grass6.jpg");
+  Renderer::Texture   m_grassTexture = Renderer::Texture("res/textures/black.png");
 
   Renderer::Mesh      m_lowPolyTreeMesh = Renderer::loadMeshFromFile("res/meshes/lowtree.obj");
+  Renderer::Mesh      m_lowPolyFatTreeMesh = Renderer::loadMeshFromFile("res/meshes/fattree.obj");
+  //Renderer::Mesh      m_housePoly = Renderer::loadMeshFromFile("res/meshes/lowPolyHouse.obj");
+  //Renderer::Mesh      m_house = Renderer::loadMeshFromFile("res/meshes/house.obj");
 
   struct Tree {
     glm::vec3 position;
@@ -42,7 +49,10 @@ private:
     }
   };
 
+  std::queue<Renderer::Mesh*> m_renderQueue;
   std::vector<Tree> m_trees;
+
+  World::LightRenderer m_light; // holds 12 lights, todo : change this
 
 public:
   POC2Scene()
@@ -69,7 +79,8 @@ public:
     meshShader.setUniform2f("u_grassSteepness", .79f, 1.f);
     Renderer::Shader::unbind();
 
-    { // terrain
+    // terrain
+    { 
       unsigned int noiseMapSize = 3 + CHUNKS::SIZE * CHUNKS::COUNT;
       float *noiseMap = Noise::generateNoiseMap(noiseMapSize,
                                                 noiseMapSize,
@@ -155,6 +166,7 @@ public:
     Renderer::Frustum cameraFrustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(camera);
 
     // no textures are bound, the ground will be black
+    m_grassTexture.bind(0);
     for (const auto &[position, chunk] : m_terrain.getChunks()) {
       const AABB &chunkAABB = chunk.getMesh().getBoundingBox();
 
@@ -163,15 +175,21 @@ public:
 
       Renderer::renderMesh(camera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
 
-      m_grassTexture.bind(0);
-      
-      for (auto& t : m_trees) {
-          if (!cameraFrustum.isOnFrustum(m_lowPolyTreeMesh.getBoundingBoxInstance(t.position, t.size))) {
-              continue;
-          }
-          t.render(camera);
-      }
     }
+
+
+
+    for (auto& t : m_trees) {
+        if (!cameraFrustum.isOnFrustum(m_lowPolyTreeMesh.getBoundingBoxInstance(t.position, t.size))) {
+            continue;
+        }
+        t.render(camera);
+    }
+
+    if (cameraFrustum.isOnFrustum(m_lowPolyFatTreeMesh.getBoundingBoxInstance({ 150,m_terrain.getHeight(150,150), 150 }, glm::vec3(4) ))) {
+        Renderer::renderMesh(camera, { 150,m_terrain.getHeight(150,150), 150 }, glm::vec3(4) , m_lowPolyFatTreeMesh);
+    }
+
 
     m_grass.render(camera, m_realTime);
     m_sky.render(camera, m_realTime);
@@ -181,6 +199,7 @@ public:
   {
       glm::vec3 pos = m_player.getPosition();
       ImGui::Text("x : %f | y : %f | z : %f\n", pos.x, pos.y, pos.z);
+      m_light.onImguiRender();
   }
 
   CAMERA_IS_PLAYER(m_player);
