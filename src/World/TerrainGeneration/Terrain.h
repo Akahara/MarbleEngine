@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/hash.hpp>
 
+#include "Noise.h"
 #include "HeightMap.h"
 #include "../../abstraction/Mesh.h"
 #include "../../abstraction/Camera.h"
@@ -60,15 +61,15 @@ public:
   std::unordered_map<glm::ivec2, Chunk> &getChunks() { return m_chunks; }
 };
 
-// These values are kinda magical and good looking
-struct TerrainData {
-  float scale = 27.6f;
-  float terrainHeight = 20.f;
-  int   octaves = 4;            // Number of times we add a new frequency to the heightmap
-  float persistence = 0.3f;     // How impactfull an octave is relative to the previous one
-  float initialFrequency = 1.f; // The impactfullness of the first octave
-  float lacunarity = 3.18f;     // How scaled an octave is relative to the previous one
-  int   seed = 5;
-};
+/**
+* Terrain instances are generated from Heightmaps.
+*
+* Heightmaps used to generated a terrain of C chunks of size S must be
+* at least of size 3+C*S, the factor '3' is required because samples are
+* taken out of bounds of the actual terrain chunks to generate normals.
+*/
+Terrain generateTerrain(Noise::TerrainData terrainData, unsigned int chunkCountX, unsigned int chunkCountY, unsigned int chunkSize);
+// Note: when calling this function the caller looses the ownership of heightMap!
+Terrain generateTerrain(HeightMap *heightMap, unsigned int chunkCountX, unsigned int chunkCountY, unsigned int chunkSize);
 
 }

@@ -10,7 +10,6 @@
 #include "../../abstraction/Cubemap.h"
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../World/TerrainGeneration/HeightMap.h"
-#include "../../World/TerrainGeneration/MeshGenerator.h"
 #include "../../World/Player.h"
 #include "../../Utils/Mathf.h"
 #include "../../Utils/MathIterators.h"
@@ -42,7 +41,7 @@ public:
     m_player.setRotation(3.14f*3/4.f, 0);
     m_player.updateCamera();
 
-    Terrain::TerrainData terrainData{};
+    Noise::TerrainData terrainData{};
     terrainData.scale = 100.f;
     terrainData.octaves = 3;
     terrainData.seed = 0;

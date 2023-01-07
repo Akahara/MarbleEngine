@@ -6,7 +6,6 @@
 #include "../../abstraction/Mesh.h"
 #include "../../World/Player.h"
 #include "../../World/TerrainGeneration/HeightMap.h"
-#include "../../World/TerrainGeneration/MeshGenerator.h"
 #include "../../World/TerrainGeneration/Terrain.h"
 #include "../../World/TerrainGeneration/Noise.h"
 #include "../../Utils/AABB.h"
@@ -31,7 +30,7 @@ private:
 
     /* Terrain generation stuff */
   Terrain::Terrain       m_terrain;      // holds heightmap and chunksize
-  Terrain::TerrainData   m_terrainData;  // < This holds default and nice configuration for the terrain
+  Noise::TerrainData     m_terrainData;  // < This holds default and nice configuration for the terrain
   bool                   m_isErosionEnabled = NDEBUG; // disable erosion by default when running in debug mode (because it's way too slow)
   Noise::ErosionSettings m_erosionSettings;
   unsigned int           m_terrainSizeInChunks = 20;
@@ -171,7 +170,7 @@ public:
     Renderer::getStandardMeshShader().unbind();
   }
 
-  static bool ImGuiTerrainDataSliders(Terrain::TerrainData &data)
+  static bool ImGuiTerrainDataSliders(Noise::TerrainData &data)
   {
     if (ImGui::Button("Reset")) {
       data = {};

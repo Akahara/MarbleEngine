@@ -5,7 +5,6 @@
 #include "../../World/Grass.h"
 #include "../../World/SunCameraHelper.h"
 #include "../../World/TerrainGeneration/Terrain.h"
-#include "../../World/TerrainGeneration/MeshGenerator.h"
 #include "../../World/TerrainGeneration/Noise.h"
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../abstraction/FrameBufferObject.h"

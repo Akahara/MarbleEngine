@@ -69,7 +69,7 @@ public:
   void render(const Renderer::Camera &camera, const Renderer::Camera &frustumCamera, float time, const WorldGrass &grass);
 
 private:
-  static unsigned int createComputeShader(const char *sourcePath); // TODO move elsewhere
+  static unsigned int loadComputeShader(const char *sourcePath);
 
   void generateGrassModels();
 
@@ -249,11 +249,11 @@ GrassRenderer::GrassRenderer()
 
   m_grassShader = Renderer::loadShaderFromFiles("res/shaders/grass/grass.vs", "res/shaders/grass/grass.fs");
 
-  m_voteComputeShader = createComputeShader("res/shaders/grass/vote.comp");
-  m_scan1ComputeShader = createComputeShader("res/shaders/grass/scan_blocks.comp");
-  m_scan2ComputeShader = createComputeShader("res/shaders/grass/scan_groups.comp");
-  m_scan3ComputeShader = createComputeShader("res/shaders/grass/scan_accumulate.comp");
-  m_compactComputeShader = createComputeShader("res/shaders/grass/compact.comp");
+  m_voteComputeShader = loadComputeShader("res/shaders/grass/vote.comp");
+  m_scan1ComputeShader = loadComputeShader("res/shaders/grass/scan_blocks.comp");
+  m_scan2ComputeShader = loadComputeShader("res/shaders/grass/scan_groups.comp");
+  m_scan3ComputeShader = loadComputeShader("res/shaders/grass/scan_accumulate.comp");
+  m_compactComputeShader = loadComputeShader("res/shaders/grass/compact.comp");
 
   Renderer::IndirectDrawCommand filledDrawCommand{};
   filledDrawCommand.count = -1; // to be set before each draw call (depending on the lod)
@@ -285,7 +285,7 @@ void GrassRenderer::render(const Renderer::Camera &camera, const Renderer::Camer
   renderSingleLOD(camera, frustumCamera, time, grass.getLDInstanceBuffer(), grass.getLDInstanceCount(), 1);
 }
 
-unsigned int GrassRenderer::createComputeShader(const char *sourcePath)
+unsigned int GrassRenderer::loadComputeShader(const char *sourcePath)
 {
   std::ifstream vertexFile{ sourcePath };
   std::stringstream buffer;

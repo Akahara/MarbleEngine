@@ -6,7 +6,6 @@
 #include "../../abstraction/Mesh.h"
 #include "../../World/Player.h"
 #include "../../World/TerrainGeneration/HeightMap.h"
-#include "../../World/TerrainGeneration/MeshGenerator.h"
 #include "../../World/TerrainGeneration/Noise.h"
 
 #include "../../World/Water/WaterSource.h"
@@ -31,7 +30,7 @@ private:
     /* Terrain generation stuff */
     Renderer::Mesh       m_terrainMesh;
     Terrain::Terrain     m_terrain;      // holds heightmap and chunksize
-    Terrain::TerrainData m_terrainData;  // < This holds default and nice configuration for the terrain
+    Noise::TerrainData   m_terrainData;  // < This holds default and nice configuration for the terrain
     unsigned int         m_terrainWidthInChunks = 10, m_terrainHeightInChunks = 10;
     int                  m_chunkSize = 16;
 

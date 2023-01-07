@@ -182,7 +182,6 @@
     <ClCompile Include="src\World\Player.cpp" />
     <ClCompile Include="src\World\SunCameraHelper.cpp" />
     <ClCompile Include="src\world\TerrainGeneration\HeightMap.cpp" />
-    <ClCompile Include="src\world\TerrainGeneration\MeshGenerator.cpp" />
     <ClCompile Include="src\world\TerrainGeneration\Noise.cpp" />
     <ClCompile Include="src\World\Sky.cpp" />
     <ClCompile Include="src\World\TerrainGeneration\Terrain.cpp" />
@@ -263,7 +262,6 @@
     <ClInclude Include="src\World\Player.h" />
     <ClInclude Include="src\World\SunCameraHelper.h" />
     <ClInclude Include="src\World\TerrainGeneration\HeightMap.h" />
-    <ClInclude Include="src\world\TerrainGeneration\MeshGenerator.h" />
     <ClInclude Include="src\world\TerrainGeneration\Noise.h" />
     <ClInclude Include="src\world\TerrainGeneration\PerlinNoise.hpp" />
     <ClInclude Include="src\World\Sky.h" />

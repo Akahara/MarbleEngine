@@ -23,9 +23,9 @@ Sky::Sky(const SkyboxesType& type)
   path << "res/skybox/";
 
   switch (type) {
-  case SAND: path << "desert_debug/"; break; // TODO REMOVE DEBUG
-  case SNOW: path << "snow/"; break;
-  default:   path << "default/";      break;
+  case SAND: path << "desert/";  break;
+  case SNOW: path << "snow/";    break;
+  default:   path << "default/"; break;
   }
 
   std::string finalPath = path.str();
