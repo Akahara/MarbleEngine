@@ -10,16 +10,13 @@
 static constexpr glm::vec3 UP{ 0, 1, 0 };
 
 Player::Player()
-  : m_camera(),
-    m_yaw(0),
-    m_pitch(0),
-    m_position(0, 0, 0)
+  : m_camera()
 {
   m_camera.setProjection(Renderer::PerspectiveProjection{ Mathf::PI / 3.f, 16.f / 9.f });
   // default position
-  m_yaw = .8f;
-  m_pitch = .5f;
-  m_position = { 3, 3, 3 };
+  m_camera.setYaw(.8f);
+  m_camera.setPitch(.5f);
+  m_camera.setPosition({ 3, 3, 3 });
 
   updateCamera();
 }
@@ -46,14 +43,14 @@ void Player::step(float delta)
 
   glm::vec2 rotationMotion = Inputs::getMouseDelta() / Inputs::getInputRange() * Mathf::PI;
 
-  m_yaw -= rotationMotion.x;
-  m_pitch = std::max(-Mathf::PI * .499f, std::min(+Mathf::PI * .499f, m_pitch + rotationMotion.y));
-  m_position += motion * delta * speed;
+  m_camera.setYaw(m_camera.getYaw() - rotationMotion.x);
+  m_camera.setPitch(std::max(-Mathf::PI * .499f, std::min(+Mathf::PI * .499f, m_camera.getPitch() + rotationMotion.y)));
+  m_camera.setPosition(m_camera.getPosition() + motion * delta * speed);
 
   if (Inputs::isKeyPressed('Q')) {
-    m_yaw = 0;
-    m_pitch = 0;
-    m_position = { 10, 10, 10 };
+    m_camera.setYaw(0);
+    m_camera.setPitch(0);
+    m_camera.setPosition({ 10, 10, 10 });
     updateCamera();
   }
 
@@ -63,9 +60,6 @@ void Player::step(float delta)
 
 void Player::updateCamera()
 {
-  m_camera.setPosition(m_position);
-  m_camera.setYaw(m_yaw);
-  m_camera.setPitch(m_pitch);
   m_camera.recalculateViewMatrix();
   m_camera.recalculateViewProjectionMatrix();
 }

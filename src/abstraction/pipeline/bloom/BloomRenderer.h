@@ -81,7 +81,8 @@ private:
                 m_blitdata.getShader().unbind();
 
                 m_fbo.bind();
-                m_blitdata.doBlit(texture);
+                texture.bind(0);
+                m_blitdata.doBlit();
                 m_fbo.unbind();
             } else {
 
@@ -90,7 +91,8 @@ private:
                 m_blitdata.getShader().unbind();
 
                 m_fbo.bind();
-                m_blitdata.doBlit(m_mipChain.at(bloomPass-1)->texture); // get the previous mip texture
+                m_mipChain.at(bloomPass - 1)->texture.bind(); // get the previous mip texture
+                m_blitdata.doBlit();
                 m_fbo.unbind();
             }
 
@@ -131,7 +133,8 @@ private:
             m_fbo.setTargetTexture(nextMip.texture);
 
             m_fbo.bind();
-            m_blitdata.doBlit(mip.texture);
+            mip.texture.bind(0);
+            m_blitdata.doBlit();
             m_fbo.unbind();
 
             if (write) {

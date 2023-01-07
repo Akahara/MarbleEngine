@@ -74,34 +74,4 @@ void renderDebugGUIQuadWithTexture(const Texture& texture, glm::vec2 positionOnS
 
 void setUniformPointLights(const std::vector<Light>& pointLights);
 
-/**
-* A blit pass is a rendering operation that takes an input texture
-* (more often than not the texture contains everything that has been
-* rendered untill that point) and renders a quad that takes the full
-* screen. A single shader is used.
-* 
-* Blit passes are largelly used for VFX, for example color correction
-* can be done using a simple fragment shader in a blit pass.
-*/
-class BlitPass { // TODO move BlitPass to its own class
-private:
-  IndexBufferObject  m_keepAliveIBO;
-  VertexBufferObject m_keepAliveVBO;
-
-  Shader             m_shader;
-  VertexArray        m_vao;
-public:
-  BlitPass();
-  BlitPass(const fs::path &fragmentShaderPath);
-  BlitPass(const BlitPass &) = delete;
-  BlitPass &operator=(const BlitPass &) = delete;
-
-  Shader &getShader() { return m_shader; }
-  void setShader(const fs::path& fs) { m_shader = loadShaderFromFiles("res/shaders/blit.vs", fs); }
-
-  void doBlit(const Texture &renderTexture, bool bindRenderTexture=true); // TODO these parameters are confusing
-                                                                          // if the caller needs a texture to be bound it can bind it itself
-                                                                          // these two parameters should be removed for clarity
-};
-
 }

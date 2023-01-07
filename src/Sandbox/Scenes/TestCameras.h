@@ -48,8 +48,7 @@ public:
     Player &p = m_players.emplace_back();
     p.setPostion(position);
     p.updateCamera();
-    p.getCamera().lookAt({ 0, 0, 0 }); // modifies the camera but not the player's rotation TODO remove Player::m_yaw&m_pitch because they already are in Player#m_camera
-    p.setRotation(p.getCamera().getYaw(), p.getCamera().getPitch());
+    p.getCamera().lookAt({ 0, 0, 0 });
     p.updateCamera();
     return p;
   }

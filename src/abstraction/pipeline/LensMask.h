@@ -36,7 +36,8 @@ public:
 		glm::vec4 clip = camera.getViewProjectionMatrix() * glm::vec4(sunPos+camera.getPosition(), 1);
 		glm::vec2 screenspace = ((clip / clip.w) + 1.F) * 0.5F;
 		m_blitData.getShader().setUniform2f("u_sunScreenSpace", screenspace);
-		m_blitData.doBlit(context.originTexture);
+		context.originTexture.bind();
+		m_blitData.doBlit();
 		m_fManager.render(sunPos, camera);
 
 		context.fbo.unbind();

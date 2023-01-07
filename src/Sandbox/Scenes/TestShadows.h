@@ -130,7 +130,8 @@ public:
 
     Renderer::clear();
     if (m_dbgDrawDepthBuffer) {
-      m_depthTestBlitPass.doBlit(m_depthTexture);
+      m_depthTexture.bind(0);
+      m_depthTestBlitPass.doBlit();
     } else {
       renderScene(m_player.getCamera(), false);
     }

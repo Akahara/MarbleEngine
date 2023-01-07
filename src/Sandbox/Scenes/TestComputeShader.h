@@ -8,7 +8,7 @@
 
 class TestComputeShader : public Scene {
 private:
-    Renderer::ComputeShader  m_computeShader{ "res/shaders/shader.comp", glm::uvec2(10, 1) };
+    Renderer::ComputeShader  m_computeShader{ "res/shaders/test_compute.comp", glm::uvec2(10, 1) };
 
 public:
     TestComputeShader()

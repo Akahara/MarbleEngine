@@ -1,12 +1,17 @@
 #pragma once
 
-#include "BoundingVolume.h"
 #include "BoundingSphere.h"
 
 
 class AABBIterator;
 
-class AABB : public BoundingVolume {
+/**
+* An AABB (axis aligned bounding box) is a bounding box, a quad that fully
+* contains an arbitrary object. It is often used to quickly check if two
+* objects overlap, like a cube and a camera viewport - if they don't there
+* is no need to render the cube.
+*/
+class AABB {
 private:
   glm::vec3 m_origin;
   glm::vec3 m_size;
@@ -69,6 +74,14 @@ public:
   AABBIterator end()   const;
 };
 
+/**
+* There are some cases where it is useful to iterate over the vertices
+* of an AABB, this class does just that.
+* 
+* Example usage:
+*   AABB aabb;
+*   for(glm::vec3 p : aabb) {...}
+*/
 class AABBIterator {
 private:
   const AABB *m_aabb;

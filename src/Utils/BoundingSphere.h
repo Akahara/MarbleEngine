@@ -1,8 +1,10 @@
 #pragma once
 
-#include "BoundingVolume.h"
-
-class BoundingSphere : public BoundingVolume {
+/*
+* A bounding sphere is, just as it says, a sphere that completely 
+* encloses an arbitrary object. Its uses are much like AABB's.
+*/
+class BoundingSphere {
 
 private:
 	glm::vec3	m_center;
@@ -37,6 +39,4 @@ public:
 	{
 		return glm::distance(point, m_center) < glm::distance(m_center, m_center + glm::vec3(m_radius));
 	}
-
-
 };

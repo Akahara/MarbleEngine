@@ -48,7 +48,8 @@ public:
 		finalTexture->bind(1);
 
 		context.fbo.bind();
-		m_blitFinal.doBlit(context.originTexture, true);
+		context.originTexture.bind();
+		m_blitFinal.doBlit();
 		context.fbo.unbind();
 	}
 

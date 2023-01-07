@@ -8,6 +8,8 @@
 
 #include <glm/glm.hpp>
 
+#include "VertexArray.h"
+
 namespace Renderer {
 
 namespace fs = std::filesystem;
@@ -144,6 +146,34 @@ public:
 
 private:
   void addPart(const std::string &source, int glType);
+};
+
+/**
+* A blit pass is a rendering operation that takes an input texture
+* (more often than not the texture contains everything that has been
+* rendered untill that point) and renders a quad that takes the full
+* screen. A single shader is used.
+*
+* Blit passes are largelly used for VFX, for example color correction
+* can be done using a simple fragment shader in a blit pass.
+*/
+class BlitPass {
+private:
+  IndexBufferObject  m_keepAliveIBO;
+  VertexBufferObject m_keepAliveVBO;
+
+  Shader             m_shader;
+  VertexArray        m_vao;
+public:
+  BlitPass();
+  BlitPass(const fs::path &fragmentShaderPath);
+  BlitPass(const BlitPass &) = delete;
+  BlitPass &operator=(const BlitPass &) = delete;
+
+  Shader &getShader() { return m_shader; }
+  void setShader(const fs::path &fs);
+
+  void doBlit();
 };
 
 }

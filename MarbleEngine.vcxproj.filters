@@ -83,7 +83,6 @@
     <ClInclude Include="src\Utils\AABB.h" />
     <ClInclude Include="src\Utils\BoundingSphere.h" />
     <ClInclude Include="src\Utils\Debug.h" />
-    <ClInclude Include="src\Utils\BoundingVolume.h" />
     <ClInclude Include="src\Utils\Mathf.h" />
     <ClInclude Include="src\Utils\MathIterators.h" />
     <ClInclude Include="src\Utils\StringUtils.h" />
@@ -148,7 +147,7 @@
     <None Include="res\shaders\grass\scan_groups.comp" />
     <None Include="res\shaders\grass\vote.comp" />
     <None Include="res\shaders\saturation.fs" />
-    <None Include="res\shaders\shader.comp" />
+    <None Include="res\shaders\test_compute.comp" />
     <None Include="res\shaders\shadows.fs" />
     <None Include="res\shaders\shadows.vs" />
     <None Include="res\shaders\shadows_testblitdepth.fs" />

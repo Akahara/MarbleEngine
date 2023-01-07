@@ -122,7 +122,8 @@ public:
 			std::swap(m_context.originTexture, m_context.targetTexture);
 		}
 			
-		m_blitData.doBlit(m_context.originTexture);
+		m_context.originTexture.bind();
+		m_blitData.doBlit();
 	}
 
 	void onImGuiRender()

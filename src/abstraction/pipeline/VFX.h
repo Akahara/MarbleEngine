@@ -80,7 +80,8 @@ public:
 	virtual void applyEffect(PipelineContext& context) {
 		context.fbo.setTargetTexture(context.targetTexture);
 		context.fbo.bind();
-		m_blitData.doBlit(context.originTexture);
+		context.originTexture.bind(0);
+		m_blitData.doBlit();
 		context.fbo.unbind();
 	}
 

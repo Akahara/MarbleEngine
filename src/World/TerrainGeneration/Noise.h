@@ -40,6 +40,9 @@ struct ErosionSettings {
 * Applies a standard erosion algorithm to an existing *square* noise map.
 * 
 * This algortihm is quite slow, prefer running it in release mode.
+*
+* Original algorithm: Implementation of a method for hydraulic
+erosion, Hans Theobald Beyer
 * 
 * FUTURE The erosion algorithm could (and should) be ran on the gpu
 */

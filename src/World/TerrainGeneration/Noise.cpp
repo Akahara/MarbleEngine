@@ -186,7 +186,6 @@ static glm::vec3 computeHeightGradientOfCell(float *map, unsigned int mapSize, f
   return { gradientX, gradientY, height };
 }
 
-// TODO add the source of the erosion algorithm
 void erode(float *map, unsigned int mapSize, const ErosionSettings &settings)
 {
   std::vector<std::vector<int>> erosionBrushIndices;

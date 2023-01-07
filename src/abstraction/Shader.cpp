@@ -1,4 +1,4 @@
-#pragma once
+#include "Shader.h"
 
 #include <string>
 #include <fstream>
@@ -12,9 +12,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "../vendor/imgui/imgui.h"
 
-#include "Shader.h"
 #include "UnifiedRenderer.h"
-
 
 namespace Renderer {
 
@@ -271,4 +269,32 @@ namespace Renderer {
 	  return *this;
 	}
 
+	BlitPass::BlitPass()
+	  : BlitPass("res/shaders/blit.fs")
+	{
+	}
+
+	BlitPass::BlitPass(const fs::path &fragmentShaderPath)
+	{
+	  m_shader = loadShaderFromFiles("res/shaders/blit.vs", fragmentShaderPath);
+	  m_keepAliveIBO = IndexBufferObject({ 0, 2, 1, 3, 2, 0 });
+	  m_vao.addBuffer(m_keepAliveVBO, VertexBufferLayout{}, m_keepAliveIBO);
+	  VertexArray::unbind();
+	}
+
+	void BlitPass::setShader(const fs::path &fs)
+	{
+	  m_shader = loadShaderFromFiles("res/shaders/blit.vs", fs);
+	}
+
+	void BlitPass::doBlit()
+	{
+	  Renderer::clear();
+	  m_shader.bind();
+	  m_vao.bind();
+	  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+	  m_shader.unbind();
+	  Texture::unbind();
+	  VertexArray::unbind();
+	}
 };
