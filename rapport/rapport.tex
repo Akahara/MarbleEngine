@@ -86,7 +86,7 @@
 \addcontentsline{toc}{chapter}{\numberline{}Remerciements}
 \markboth{\hspace{0.5cm}Remerciements}{}
 
-Nous souhaitons avant tout remercier notre encandrant M. Romain Raveaux, qui a accepté de nous accompagner sur ce projet qui nous avons proposé.
+Nous souhaitons avant tout remercier notre encandrant M. Romain Raveaux, qui a accepté de nous accompagner sur ce projet que nous avons proposé.
 Il est évident que sans lui, ce projet n'aurait pas pu voir le jour, et pour ceci, il a toute notre gratitude.
 
 \paragraph{}
@@ -203,7 +203,7 @@ Pour générer notre terrain, il nous faut d'abord lister les contraintes que no
 	\item{dont la hauteur change}
 \end{itemize}
 
-Nous nous restreindrons à une seule valeur de hauteur par position dans le plan, donc pas de grottes ou de surplomb. Les algorithmes classiques qui correspondent à ces critères consistent à créer une \textit{carte de hauteur} (\textit{heightmap}) et à placer des points sur une grille dont les hauteurs correspondent à celles de la carte. Il suffit ensuite de relier ces points pour avoir un terrain convaincant comme illustré par la figure \ref{fig:wireframe_terrain}. L'objet généré s'appelle un \textit{Mesh}.
+Nous nous restreindrons à une seule valeur de hauteur par position dans le plan, donc pas de grotte ou de surplomb. Les algorithmes classiques qui correspondent à ces critères consistent à créer une \textit{carte de hauteur} (\textit{heightmap}) et à placer des points sur une grille dont les hauteurs correspondent à celles de la carte. Il suffit ensuite de relier ces points pour avoir un terrain convaincant comme illustré par la figure \ref{fig:wireframe_terrain}. L'objet généré s'appelle un \textit{Mesh}.
 
 \begin{figure}[ht]
 	\centering
@@ -224,7 +224,7 @@ Pour créer la heightmap il nous faut ce qu'on appelle un \textit{bruit}, une fo
 	\centering
 	\includegraphics[scale=.49]{white_noise}
 	\includegraphics[scale=.49]{perlin_noise}
-	\caption{White noise et Perlin noise}
+	\caption[White noise et Perlin noise]{White noise et Perlin noise\\Les pixels blancs sont plus hauts et les pixels\\ noirs sont plus bas une fois portés en 3D}
 	\label{fig:noises}
 \end{figure}
 
@@ -279,7 +279,7 @@ Dans ce projet la première utilisation des fonctions de bruit est la générati
 
 On peut rendre le bruit généré plus réaliste encore en appliquant des propriétés physiques naturelles, la première à laquelle on pense est l'érosion.
 
-L'idée est de simuler un très grand nombre de gouttes d'eau qui dévalent les pentes en arrachant du sédiment du terrain et en la relâchant en aval. L'algorithme que nous utiliserons est expliqué dans la thèse de Hans Theobald Beyer\cite{erosion}.
+L'idée est de simuler un très grand nombre de gouttes d'eau qui dévalent les pentes en arrachant des sédiments du terrain et en les relâchant en aval. L'algorithme que nous utiliserons est expliqué dans la thèse de Hans Theobald Beyer\cite{erosion}.
 Dans le code cela consiste à calculer une suite de valeurs de gradient de la heightmap pour déplacer les gouttes selon la pente, et à chaque déplacement on calcule la quantité de sédiments à arracher ou déposer. Le seul bémol est que le dépot et l'érosion ne se font pas seulement à la position de la goutte, mais aussi aux alentours. Pour ne pas recalculer les différences à chaque étape de chaque goutte on fait le calcul en amont, qu'on stocke pendant toute la durée de l'algorithme. Cela peut poser certains problèmes de performance et de besoin en mémoire, l'espace mémoire nécessaire est en $O(n^2)$ avec la taille du terrain et le premier facteur du polynôme est très important.
 
 \begin{figure}[ht]
@@ -311,7 +311,7 @@ Avant de générer le mesh du terrain on peut modifier la heightmap pour obtenir
 	\item{Avec un peu plus d'effort on peut créer des plateaux et arriver à une génération ressemblant aux Mesa}
 \end{itemize}
 
-Des illustrations de ces variations peuvent être trouvées plus loin\ref{fig:final}.
+Des illustrations de ces variations peuvent être trouvées en \ref{fig:final}.
 
 
 \chapter{Affichage 3D}
@@ -334,7 +334,7 @@ Il est important de mentionner que les gpu modernes ne savent pas afficher autre
 \section{Shaders}
 \label{sec:shaders}
 
-Les \textit{shaders} sont des programmes qui tournent sur le gpu plutôt que sur le cpu. Nous utiliserons extensivement deux types de shaders pour l'affichage : le \textit{vertex shader} qui s'exécute pour chaque sommet des triangles affichés ; et le \textit{fragment shader} qui s'exécute pour chaque pixel couvert par le triangle. Des shaders classiques ressemblent à la figure \ref{fig:vs_fs_shaders}.
+Les \textit{shaders} sont des programmes qui tournent sur le gpu plutôt que sur le cpu. Nous utiliserons extensivement deux types de shaders pour l'affichage : le \textit{vertex shader} qui s'exécute pour chaque sommet des triangles affichés ; et le \textit{fragment shader} qui s'exécute pour chaque pixel couvert par le triangle. Des shaders classiques ressemblent au code en \ref{fig:vs_fs_shaders}.
 
 
 \begin{figure}[ht]
@@ -360,7 +360,7 @@ Avec ces éléments définis on peut faire un schéma de la "pipeline OpenGL"  c
 \section{Repères, caméras et mathématiques}
 
 Avant de pouvoir afficher quoi que ce soit à l'écran, il nous faut des données à afficher (Vertex Buffer et Index Buffer, nous y reviendrons \hyperref[sec:instanced_rendering]{plus tard}), des shaders pour définir \textit{comment} l'afficher et aussi bien comprendre comment placer les triangles à l'écran.
-Par défaut OpenGL utilise un \textit{viewport} (un espace virtuel d'affichage) compris entre $-1$ et $1$ en $x$ et $y$ et entre $0$ et $1$ pour $z$. Cela signifie que la position générée par le Vertex Shader doit être comprise dans cet intervalle pour que le pixel associé être affiché (le vertex shader définit la position des sommets, les positions des pixels du triangle en sont déduit). Un sommet de coordonnées $(-1,-1,0)$ est affiché en haut à gauche de l'écran et un sommet $(1,1,0)$ est affiché en bas à droite. La coordonnée $z$ est utilisée pour la profondeur.
+Par défaut OpenGL utilise un \textit{viewport} (un espace virtuel d'affichage) compris entre $-1$ et $1$ en $x$ et $y$ et entre $0$ et $1$ pour $z$. Cela signifie que la position générée par le Vertex Shader doit être comprise dans cet intervalle pour que le pixel associé être affiché (le vertex shader définit la position des sommets, les positions des pixels du triangle en sont déduites). Un sommet de coordonnées $(-1,-1,0)$ est affiché en haut à gauche de l'écran et un sommet $(1,1,0)$ est affiché en bas à droite. La coordonnée $z$ est utilisée pour la profondeur.
 \par
 Nous définirons deux repères supplémentaires, celui du monde (dans $\mathbb{R}^3$) et celui des modèles (dans $\mathbb{R}^3$). Imaginons qu'on veuille afficher le modèle d'un arbre, on va d'abord créer les sommets dans le repère du modèle (centré en $(0,0,0)$, aux dimensions 1:1), on le transformera pour passer dans le repère du monde (d'abord une mise à l'échelle puis une translation pour le placer au bon endroit) et enfin on le projetera sur le viewport, la projection dépendra du type de caméra qu'on utilisera.
 
@@ -422,10 +422,10 @@ Une optimisation qu'on retrouve à plusieurs autres moments est d'afficher ce ci
 
 \section{Ombres}
 
-Nous avons implémenté deux types d'ombre : les ombres d'ambiance et les ombres portées. Les deux se combinent très facilement dans le fragment shader utilisé pour le terrain.
-\subsection{Ombre d'ambiance}
-Une ombre d'ambiance est l'obsurcissement des surfaces qui ne sont pas dirigées vers le soleil. Mathématiquement cela se calcule très bien à partir des normales du terrain, pour chaque pixel on calcule ce que reçoit le pixel :
-$$ S_{ambiance}=max(0, \vec{N}\cdot \vec{D}) $$
+Nous avons implémenté deux types d'ombre : les ombres ambiantes et les ombres portées. Les deux se combinent très facilement dans le fragment shader utilisé pour le terrain.
+\subsection{Ombre ambiantes}
+Une ombre ambiante est l'obsurcissement des surfaces qui ne sont pas dirigées vers le soleil. Mathématiquement cela se calcule très bien à partir des normales du terrain, pour chaque pixel on calcule ce que reçoit le pixel :
+$$ S_{ambiant}=max(0, \vec{N}\cdot \vec{D}) $$
 Avec $\vec{N}$ la normale du terrain à la position du pixel, $\vec{D}$ la direction des rayons su soleil comme illustré dans la figure \ref{fig:ambiant_shadows_schema}.
 
 \begin{figure}[ht]
@@ -437,7 +437,7 @@ Avec $\vec{N}$ la normale du terrain à la position du pixel, $\vec{D}$ la direc
 
 \subsection{Ombre portées}
 \label{sec:casted_shadows}
-Le calcul des ombres portées et autrement plus compliqué, et se divise en plusieurs étapes
+Le calcul des ombres portées est autrement plus compliqué, et se divise en plusieurs étapes
 \begin{enumerate}
 \itemsep-.5em
 \item positionner le soleil pour qu'il éclaire le moins possible
@@ -516,9 +516,9 @@ On préfère utiliser la fonction $smoothstep$ et utiliser $\epsilon$ plutôt qu
 \section{Instanced rendering}
 \label{sec:instanced_rendering}
 
-En plus du terrain en lui-même, nous avons choisi d'afficher quelques objets en plus. Et par "quelques" il faut entendre plusieurs millions. Nous nous sommes donné le but d'afficher des brins d'herbe, nous reviendrons sur les algorithmes d'optimisation mis en place mais avant de pouvoir en discuter il est important de comprendre \textit{comment} OpenGL gère l'affichage.
+En plus du terrain en lui-même, nous avons choisi d'afficher quelques objets. Et par "quelques" il faut entendre plusieurs millions. Nous nous sommes donné le but d'afficher des brins d'herbe, nous reviendrons sur les algorithmes d'optimisation mis en place mais avant de pouvoir en discuter il est important de comprendre \textit{comment} OpenGL gère l'affichage.
 \paragraph{}
-Pour afficher un objet simple (un cube par exemple) il nous faut 4 structures de données sur le gpu : un \textit{Vertex Buffer}, qui contient les données de chaque sommet du cube ; un \textit{Index Buffer}, qui définit les triangles à partir des sommets ; un shader et un \textit{Vertex Array} que nous passerons sous silence car ils n'influencent pas les données.
+Pour afficher un objet simple (un cube par exemple) il nous faut 4 structures de données sur le gpu : un \textit{Vertex Buffer}, qui contient les données de chaque sommet du cube ; un \textit{Index Buffer}, qui définit les triangles à partir des sommets ; un shader et un \textit{Vertex Array} que nous passerons sous silence car il n'influence pas les données.
 
 Une manière très naïve d'afficher un très grand nombre d'éléments est de construire un Vertex Buffer (VB) et un Index Buffer (IB) par objet. Le souci est qu'à l'affichage il nous faudra changer le contexte OpenGL (modifier les VB/IB actifs) pour chaque élément, ce qui ralentit considérablement le tout\footnote{Le vrai problème vient du nombre d'appels à des fonctions d'affichage, il est possible d'afficher beaucoups d'éléments d'un coup mais seulement si le contexte n'a pas à changer}.
 Si les objets sont identiques on peut n'utiliser qu'un seul IB, mais ce n'est pas suffisant.
@@ -550,7 +550,7 @@ Avec l'instanced rendering on peut afficher plusieurs centaines de milliers de t
 	\label{fig:profiling}
 \end{wrapfigure}
 
-Le profilage répertorie l'ensemble des appels aux fonctions d'affichage (\code{glDrawXX}), les appels aux compute shaders (\code{glDispatchCompute}) et tous les appels de changement d'état (\code{glBindBuffer}, \code{glBindTexture}, \code{glUniformXX}... ces appels ont été masqués sur la figure \ref{fig:profiling} car leurs temps d'exécution sont négligeables). Le temps d'exécution pour chaque fonction indiqué en $\mu$s et le temps total ne doit pas dépasser $10^6/60=16.\overline{6}\mu\text{s}$.
+Le profilage répertorie l'ensemble des appels aux fonctions d'affichage (\code{glDrawXX}), les appels aux compute shaders (\code{glDispatchCompute}) et tous les appels de changement d'état (\code{glBindBuffer}, \code{glBindTexture}, \code{glUniformXX}... ces appels ont été masqués sur la figure \ref{fig:profiling} car leurs temps d'exécution sont négligeables). Le temps d'exécution pour chaque fonction indiqué en $\mu$s et le temps total ne doit pas dépasser $10^6/60=16666.\overline{6}\mu\text{s}\cdot$.
 
 
 
@@ -571,7 +571,7 @@ En soit, l'image qu'on voit sur l'écran est toujours une frame en retard ; cell
 
 On peut donc définir nous même des framebuffers qui permettent, bien souvent, de prendre notre scène en "photo" pour y appliquer un tas de modifications, à la manière des logiciels de retouche.
 Cependant, on ne peut plus avoir accès à la géometrie de ce qui est écrit dans le framebuffer, donc on peut avoir des problèmes de profondeur.
-Pour palier à ca, on peut utiliser un Z-buffer ou Depth-Buffer. Il s'agit d'un framebuffer dans lequel on inscrit la distance entre un pixel et la caméra. Nous l'avons vu plus haut dans la section ??? concernant les ombres projetées.
+Pour palier à ca, on peut utiliser un Z-buffer ou Depth-Buffer. Il s'agit d'un framebuffer dans lequel on inscrit la distance entre un pixel et la caméra. Nous l'avons vu plus haut dans la section \ref{sec:casted_shadows} concernant les ombres projetées.
 
 
 %% IMAGE Z BUFFER?
@@ -579,7 +579,7 @@ Pour palier à ca, on peut utiliser un Z-buffer ou Depth-Buffer. Il s'agit d'un 
 \subsubsection{Pipeline VFX} %% ...
 
 A l'aide de ces framebuffers, on peut donc appliquer des retouches après le calcul de la géométrie : on parle alors de Post-Processing.
-Ces effets de post-processing font parts de la catégorie des effets spéciaux (Visual Effects - VFX). 
+Ces effets de post-processing font partie de la catégorie des effets spéciaux (Visual Effects - VFX). 
 
 Il faut également savoir que l'application des différents effets spéciaux diffère selon l'ordre. On peut facilement s'en convaincre avec des inversions et multiplications de couleurs sur les pixels.
 Ainsi, on définit une Pipeline d'effets : une pipeline prend une entrée, applique tout un tas d'opérations, et nous ressort l'entrée modifiée.
@@ -740,7 +740,7 @@ Il est à noter que les chunks de l'herbe ne correspondent pas aux chunks du ter
 \end{figure}
 
 \paragraph{}
-Il est assez difficile de se représenter la quantité de travail à fournir pour afficher tout cela ; si on oublie la partie "filtre" en moyenne pour 2M brins d'herbes à afficher (1M HD et 1M LD) on a $10^6\times3\times7 + 10^6\times3\times1=24\times10^6$ appels du vertex shader. Tel qu'il est écrit le vertex shader calcule deux multiplications de matrices par appel\footnote{en réalité il fait aussi plusieurs calculs trigonométriques et bien plus d'additions/multiplications, sans compter les déplacements de valeurs en mémoire...}, pour environ 20 multiplications. Au total, le gpu doit traiter (beaucoup) plus de 500M multiplications par frame, et tout cela en moins de 16.6$\mu$s ! Avec les optimisations que nous avons apportées dans le cas idéal (quand aucun brin d'herbe n'est dans le champ de la caméra) chaque brin d'herbe est traité en un seul calcul, mais l'algorithme possède un coût incompressible non-négligeable. On se rend bien compte de la difficulté que représente l'affichage d'autant d'objets. Ce serait complètement impossible sans gpu.
+Il est assez difficile de se représenter la quantité de travail à fournir pour afficher tout cela ; si on oublie la partie "filtre" en moyenne pour 2M brins d'herbes à afficher (1M HD et 1M LD) on a $10^6\times3\times7 + 10^6\times3\times1=24\times10^6$ appels du vertex shader. Tel qu'il est écrit le vertex shader calcule deux multiplications de matrices par appel\footnote{en réalité il fait aussi plusieurs calculs trigonométriques et bien plus d'additions/multiplications, sans compter les déplacements de valeurs en mémoire...}, pour environ 20 multiplications. Au total, le gpu doit traiter (beaucoup) plus de 500M multiplications par frame, et tout cela en moins de 16ms ! Avec les optimisations que nous avons apportées dans le cas idéal (quand aucun brin d'herbe n'est dans le champ de la caméra) chaque brin d'herbe est traité en un seul calcul, mais l'algorithme possède un coût incompressible non-négligeable. On se rend bien compte de la difficulté que représente l'affichage d'autant d'objets. Ce serait complètement impossible sans gpu.
 
 \section{Eau}
 
@@ -748,7 +748,7 @@ Il est assez difficile de se représenter la quantité de travail à fournir pou
 Dessiner de l'eau par ordinateur peut être une tâche très compliquée si l'on applique une approche basée sur la physique. La simulation de la mécanique des fluides et évidemment trop coûteuse, et nécessite bien souvent la génération de milliers de petites boules qui représente les molécules d'eau.
 \paragraph{}
 Une autre approche consiste à utiliser une grille, et effectuer les calculs sur les Vertices qui composent la grille. On utilise alors une technologie appelée Vertex Displacement, qui consiste à modifier la positions d'un vertex depuis un shader. 
-C'est sur ce principe que repose les Gertsner Waves, qui simule des comportements naturels d'un océan par exemple. Pour que cet effet soit réaliste, il faut cependant un grand nombre de Vertices, et les jeux qui utilisent ces technologies sont souvent centrées sur l'océan, la mer. On peut citer Sea of Thieves, ou encore Subnautica.
+C'est sur ce principe que repose les Gertsner Waves, qui simulent des comportements naturels d'un océan par exemple. Pour que cet effet soit réaliste, il faut cependant un grand nombre de Vertices, et les jeux qui utilisent ces technologies sont souvent centrées sur l'océan, la mer. On peut citer Sea of Thieves, ou encore Subnautica.
 
 \paragraph{}
 Dans notre cas, on va se contenter d'utiliser - comme bien souvent - des combines pour donner l'illusion d'eau.
@@ -783,13 +783,13 @@ Cette étape signifie qu'on redessine 2 fois la scène en plus, ce qui peut êtr
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=.3]{water_camera}
-	\caption{Placement de la caméra pour les différents points de vus}
+	\caption{Placement de la caméra pour les différents points de vues}
 	\label{fig:water_camera}
 \end{figure}
 
 \paragraph{}
 C'est bien beau tout ca... mais comment on restreint notre géométrie ? Comment peut on dire "uniquement ce qu'on trouve au dessus / dessous" ?
-Heureusement pour nous, OpenGL nous fournit les Clipping Planes. Ces objets doivent être explicitement activés via GlEnable.
+Heureusement pour nous, OpenGL nous fournit les Clipping Planes. Ces objets doivent être explicitement activés via \code{glEnable}.
 Ensuite, on peut donner une hauteur à se plan, et OpenGL se charge, dans le Vertex Shader, de supprimer la géometrie qui se trouve sous le plan.
 \begin{figure}[h]
 	\centering
@@ -805,7 +805,7 @@ Si l'on passe une variable de temps dans le Fragment Shader via une uniform, on 
 
 \paragraph{}
 Tant qu'à faire, on va aussi en profiter pour faire l'étape numéro 3 et calculer les lumières.
-Comme toujours, la lumière se calcule avec les normales. On peut déterminer une lumière diffuse via le produit scalaire avec la normale du plan et la position du soleil, mais ce qui donne vraiment de l'impact, c'est la lumière spéculative.
+Comme toujours, la lumière se calcule avec les normales. On peut déterminer une lumière diffuse via le produit scalaire avec la normale du plan et la position du soleil, mais ce qui donne vraiment de l'impact, c'est la lumière spéculaire.
 Elle se calcule en effectuant le produit scalaire du vecteur de la refléction du soleil par rapport à la normale de l'eau, et le vecteur de la caméra vers l'eau.
 
 \paragraph{}
@@ -884,7 +884,7 @@ On peut aussi utiliser la tessellation de manière dynamique, en diminuant la r�
 Nous nous sommes focalisés sur la génération du relief du terrain, mais il reste beaucoup à faire pour créer un monde réaliste. Nous avons traité de l'eau et de l'herbe car ils représentaient des défis interessants mais rajouter des "\textit{features}" (arbres, batiments, etc...) parait essentiel. Rajouter un système de gestion de ces features performant n'est pas une mince affaire. Dans un premier temps on pourra se contenter de placer quelques modèles d'arbre dans le monde, dans un second temps on pourra les générer algorithmiquement, les animer et même concevoir un \textit{Entity Component System}\footnote{Un ECS est un système où chaque "objet" est un lien entre plusieurs composantes (physique, affichage...), chaque composante est stockée avec les autres du même type, la hiérarchie structurelle est très différente. Il est particulièrement adapté au jeu vidéo.} si les performances l'exigent.
 
 \par
-Un problème que nous avons rencontré est l'application des textures. Nous sommes passés très vite sur le sujet mais chaque vertex possède des coordonnées \textit{uv} qui définissent la position du vertex sur une texture, notre problème vient du fait que les uvs sont calculés en fonction de la position $xz$ du vertex et ne tiennent pas compte de la hauteur. Sur des terrains très escarpés on a des artefacts importants qu'il est difficile de corriger.
+Un problème que nous avons rencontré est l'application des textures. Nous sommes passés très vite sur le sujet mais chaque vertex possède des \textit{coordonnées-uv} qui définissent la position du vertex sur une texture, notre problème vient du fait que les uvs sont calculés en fonction de la position $xz$ du vertex et ne tiennent pas compte de la hauteur. Sur des terrains très escarpés on a des artefacts importants qu'il est difficile de corriger.
 
 \par
 Une autre piste d'amélioration est la création de nuages réalistes. Nous nous sommes contenté d'utiliser astucieusement le perlin noise mais des techniques plus modernes à base de perlin noise 3D existent\footnote{SimonDev, "How Big Budget AAA Games Render Clouds", \url{https://youtu.be/Qj_tK_mdRcA}}. Avec ceci réalisé il serait facile d'ajouter de la brume dans des canyons par exemple.
@@ -903,11 +903,6 @@ Une autre modification qui pourrait être apportée au mesh du terrain est la mo
 \section{Esthetiques différentes}
 
 Nous avons choisi une esthétique qui se veut réaliste mais avec assez peu de changements on peut obtenir des visuels très différents.
-
-
-
-%% TODO section esthetiques différentes
-%% Cartoon? on y a pensé pendant le dev
 
 \begin{figure}[ht]
 	\centering
@@ -932,7 +927,7 @@ Cet effet est cependant très couteux... bla bla bla....
 
 En conclusion, ce projet aura été très conséquent et instructif. Nous avons eu l'occasion de traiter bien des sujets, de la génération procédurale aux techniques d'optimisations d'affichage  très spécifiques. C'est aussi notre premier projet aussi conséquent en C++ et il nous aura fait acquérir une certaine maîtrise technique et d'architecture logicielle. Le projet est tout à fait utilisable tel quel mais en prenant un certain recul il ne reste qu'un premier jet. S'il fallait le continuer nous aurions encore bien de quoi faire.
 
-Nous nous sommes inspiré d'un bon nombre de sources et nous avons aussi conçu par nous même des algorithmes efficaces pour résoudre des problèmes généraux.
+Nous nous sommes inspiré d'un bon nombre de sources et nous avons aussi conçu par nous même des algorithmes efficaces pour résoudre des problèmes généraux. Il nous aura fallu plus de quatre mois pour tout réaliser et cela en valait tout à fait la peine.
 
 %% TODO conclusion de la conclusion
 
