@@ -100,7 +100,7 @@ Nous avons donc du adopter des conventions, adopter des stratégies et principe 
 
 \paragraph{}
 
-Nous remercions également M. Nicolas Monmarche, encadrants des projets, qui a accepté de soumettre notre sujet.
+Nous remercions également M. Nicolas Monmarche, encadrant des projets, qui a accepté de soumettre notre sujet.
 
 \setlength\epigraphrule{0pt}
 
@@ -132,7 +132,7 @@ Pour les systèmes existants, nous utiliserons la terminologie anglaise plutôt 
 
 \paragraph{}
 
-En premier lieu, abordons un peu le facon dont nous avons attaqué le projet.
+En premier lieu, abordons un peu le façon dont nous avons attaqué le projet.
 
 Les premières heures étaient surtout consacrées à la délimitation du projet. Que voulions nous aborder ? Comment allaient s'agencer les classes entre elles ? Comment se répartir le travail ?
 
@@ -140,7 +140,7 @@ Ce premiet travail nous a permis d'estimer l'effort que nous allions fournir pou
 
 Notre approche pour le reste du projet ressemble sensiblement à de l'agile incrémentatif : par sprint d'environ une semaine, nous développions une fonctionnalité, sur une branche séparée chacun, puis nous l'intégrions dans la branche principale. Un gros bénéfice de cette approche est que les modules restent indépendants, et qu'on ne se retrouve pas avec des liaisons obscures entre certaines classes. 
 
-Ce projet n'a pas réellement de tâche bloquante. Hormis le moteur 3D de base - qui a été implémenté en quelques heures - les élements sont asez indépendants des autres, et nous pouvions avancer sans attendre l'autre.
+Ce projet n'a pas réellement de tâche bloquante. Hormis le moteur 3D de base - qui a été implémenté en quelques heures - les élements sont assez indépendants des autres, et nous pouvions avancer sans attendre l'autre.
 
 Régulièrement, nous prennions le temps de faire un point sur l'avancée du projet, et de mettre à jour notre liste de tâche. C'est un moment très important, puisqu'il s'accompagne bien souvent de relecture globale du code, de refactorisation, de nettoyage, et permet de prendre de la hauteur sur le projet.
 
@@ -846,6 +846,83 @@ une correction de couleur pour donner un effet de profondeur !
 	\label{fig:water_colors}
 \end{figure}
 
+\section{Frustum culling}
+
+Le Frustum culling est un algorithme qui s'occupe de sélectionner les objets qui sont dans le champ de vision d'une caméra.
+C'est un algorithme d'optimisation, et il permet bien souvent de ne pas afficher les objets non visibles par la caméra, épargnant ainsi énormément de $drawcalls$.
+
+Voyons en premier temps un concept très important pour un moteur, tant bien pour de l'affichage, que de la physique : les $Bounding$ $boxes$.
+
+\subsection{Bounding Boxes}
+
+Comme son nom l'indique, ce concept répresente la délimitation d'un mesh dans l'espace. Peut importe le modèle de bouding box, un mesh doit forcément être contenu dans la boite.
+Les bounding boxes permette d'approximer l'objet dans l'espace. 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.5]{aabb}
+	\caption{Un mesh encadré par son AABB}
+	\label{fig:aabb}
+\end{figure}
+
+
+On trouve plusieurs types de Bounding boxes :
+
+\begin{itemize}
+    \item $Sphere$ : forme d'une sphère.
+    \item $AABB$ : Axis-aligned Bounding box. Englobe l'objet dans un pavé toujours aligné avec les axes (pas de rotation).
+    \item $OBB$ : Oriented bounding box. Une AABB avec une rotation.
+   \item $Convex$ $Hull$ : une délimitation assez précise de l'objet
+\end{itemize}
+
+Chaque type échange une précision avec une rapidité de calcul : un modèle de bounding box précis sera plus réaliste et produira sûrement moins d'artefacts, mais sera plus long à calculer. 
+
+Dans notre cas, les AABB sont très largement convenables, et ne produisent pas de problèmes.
+Nous avons fait en sorte que dès qu'un mesh est importé, sa bouding box soit automatiquement calculée.
+
+\paragraph{}
+\\
+\\
+\\
+
+\subsection{SDF et Intersection}
+
+Une SDF, ou $signed$ $distance$ $function$ est une fonction qui renvoit une valeur positive ou négative qui représente une distance : on peut donc, en plus d'avoir une norme, savoir si un point se situe à l'interieur ou à l'exterieur d'un objet.
+
+Prenons l'exemple de la SDF d'un point et d'une sphere, la plus simple :
+
+\begin{align*}
+	CircleSDF(point, circle) = length(point - circle_{origin}) - circle_{radius}
+\end{align*}
+
+On peut définir un plan comme une normale (au plan) et une distance à l'origine.
+En suivant ce principe, on peut calculer la distance signée d'un point et d'un plan :
+
+\begin{align*}
+	PlanSDF(point, plan) = dot(point, plan_{normale}) - plan_{distanceToOrigin}
+\end{align*}
+
+Le produit scalaire permet de determiner si le point est devant ou derriere le plan, puis la soustraction permet de déterminer la distance exacte.
+
+Il nous faut maintenant vérifier si une AABB intersecte un plan.
+L'algorithme pour vérifier ca est assez obscure, et repose sur une projection des points de l'AABB sur une droite, pour verifier que la ligne formée par le plan coupe également la projection de l'AABB. Nous nous sommes inspirés de cet article\footnote{\url{https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html}} pour implémenter la fonction d'intersection.
+
+Enfin, dernière étape : vérifier, pour un AABB donné, qu'au moins un des 6 plans de la caméra (haut, bas, gauche, droite, proche et lointain) a l'AABB devant le plan, c'est à dire que l'AABB est apparant dans le champ de vision. Ceci ne relève que d'une simple fonction qui teste chaque plan.
+
+\subsection{Chunking et résultat}
+
+L'implémentation du frustum culling nécessite également de diviser notre terrain en $chunks$. Chaque chunk aura sa propre AABB, et peut donc être ignorée individuellement. Il faut cependant trouver un équilibre entre taille de chunks et quantité : comme toujours, il y a un équilibre entre mémoire et performances.
+
+Dès lors l'implémentation de cette technique, le gain d'images par seconde est considérable. On observait facilement 30 FPS d'économisés sur des gros terrains.
+Il est très facile de verifier le bon fonctionnement du frustum culling : envolez vous sur un gros terrain, et vous pouvez observer jusqu'à 10 millions de Verticies, aux alentours de 15 FPS. Allez sur le sol, et vous devriez déjà faire disparaitre la moitié du terrain, pour vous faire remonter jusqu'à 60FPS !
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=.5]{frustum_culling}
+	\caption{En rouge, les AABB des chunks qui ont été $cull$, en jaune, les chunks visibles par la caméra du joueur}
+	\label{fig:frustum_culling}
+\end{figure}
+
 
 
 \chapter{Résultats}
@@ -919,7 +996,7 @@ On pourrait imaginer des visuels "low-poly" ou "toon" en diminuant le nombre de 
 
 \paragraph{}
 Parmi les effets de post-processing les plus impressionants et ceux qui donne le plus de réalisme, on trouve la Volumetric Fog, qui donne une excellente sensation de profondeur, d'atmosphère et apporte du réalisme aux lumières de la scène.
-Cet effet est cependant très couteux... bla bla bla....
+Cet effet est cependant très couteux et necessite l'utilisation de ray marching, qui effectue un paquet d'opérations par pixel pour obtenir un rendu convaincant.
 
 \chapter*{Conclusion}
 \addcontentsline{toc}{chapter}{\numberline{}Conclusion}
