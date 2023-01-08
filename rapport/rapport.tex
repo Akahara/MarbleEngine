@@ -22,6 +22,8 @@
 \usepackage{hyperref}
 \usepackage{wrapfig}
 \usepackage{sidecap}
+\usepackage{listings}
+\usepackage{epigraph}
 \graphicspath{ {./res/} }
 
 % declare \abs{x}  \floor{x}  \fract{x}
@@ -52,8 +54,8 @@
 	\noindent[\url{albin.calais@etu.univ-tours.fr}]
 }
 \encadrant{
-	Prénom Nom\\
-	\noindent[\url{prenom.nom@univ-tours.fr}]\\~\\
+	Romain Raveaux\\
+	\noindent[\url{romain.raveaux@univ-tours.fr}]\\~\\
 	Polytech Tours\\
 	Département Informatique\\~ %
 }
@@ -79,15 +81,41 @@
 
 %%%%%%%%%%%%% Document %%%%%%%%%%%%%%
 
+\chapter*{Remerciements} 
+\addcontentsline{toc}{chapter}{\numberline{}Remerciements}
+\markboth{\hspace{0.5cm}Remerciements}{}
+
+Nous souhaitons avant tout remercier notre encandrant M. Romain Raveaux, qui a accepté de nous accompagner sur ce projet qui nous avons proposé.
+Il est évident que sans lui, ce projet n'aurait pas pu voir le jour, et pour ceci, il a toute notre gratitude.
+
+\paragraph{}
+
+Ce projet a pour but d'améliorer nos compétences en infographie. Nous sommes tous deux friands de programmation, et aspirons à travailler dans l'industrie du jeu-vidéo, particulièrement dans la programmation de moteurs.
+
+La génération de terrain étant un outil classique dans le domaine, ce projet était l'occasion de nous apporter des connaissances sur des techniques employées dans l'industrie. 
+
+\paragraph{}
+
+Nous remercions également M. Nicolas Monmarche, encadrants des projets, qui a accepté de soumettre notre sujet.
+
+\setlength\epigraphrule{0pt}
+
+\epigraph{Nous vous souhaitons une bonne lecture.}{ --- Albin et Joshua}
+
+
+
+
 
 \chapter*{Avant propos} 
 \addcontentsline{toc}{chapter}{\numberline{}Avant propos}
 \markboth{\hspace{0.5cm}Avant propos}{}
 
+
 Notre projet consiste à créer un générateur de terrain et à afficher ce terrain d'une manière réaliste. Pour cela nous développerons des algorithmes de génération, des interfaces de dialogue avec le gpu et des systèmes d'affichage très complexes.
 
 Ce projet sera écrit en C++ pour permettre une gestion avancée de la mémoire et des performances, il facilitera aussi l'utilisation de l'api graphique OpenGL.
 Nous utiliserons plusieurs algorithmes connus et d'autres tirés de papiers de recherche, nous en concevrons et adapterons certains car notre cas d'utilisation est assez particulier.
+Nous avons également rédigé une documentation plus précise et complète pour certains des points qui seront abordés dans ce rapport.  %%%%% JSP ???
 
 La plupart des systèmes que nous construirons existent déjà mais nous essayerons d'y apporter des améliorations.
 
@@ -95,6 +123,15 @@ La plupart des systèmes que nous construirons existent déjà mais nous essayer
 Pour les systèmes existants, nous utiliserons la terminologie anglaise plutôt que française car elle est bien plus largement répendue.
 
 \chapter{Conception et gestion de projet}
+
+\section{Gestion du projet}
+
+\paragraph{}
+
+///////////////// PARLER GDP
+
+
+\section{Conception structurelle}
 
 D'un point de vue global notre projet est assez simple, il se compose seulement de deux modules de hauts niveaux qui utilisent chacun plusieurs modules de plus bas niveau.
 
@@ -104,7 +141,6 @@ D'un point de vue global notre projet est assez simple, il se compose seulement 
 	\caption{Diagramme de classes : composantes principales du projet}
 \end{figure}
 
-\section{Conception structurelle}
 
 Nous avons passé un certain temps en amont sur la conception globale de l'application. Elle ressemble à ce qu'on trouverait dans un \textit{Game Engine} moderne du type Unity ou Unreal Engine. Il existe une unique \textit{scène} - un monde - qui contient des objets qui sont affichés et mis à jour régulièrement.
 
@@ -273,6 +309,7 @@ Avec ces considérations et notre expérience passée commune, nous avons choisi
 
 OpenGL est une spécification qui définit des points d'entrée d'une interface cpu-gpu. Pour utiliser OpenGL nous avons besoin d'une librairie dépendante du langage de programmation ; en c++ nous utiliserons glad. Nous aurons aussi besoin de librairies pour la gestion de la fenêtre de l'application et l'interface utilisateur, nous utiliserons glfw et ImGui.
 
+
 \paragraph{}
 OpenGL fonctionne comme une \textit{state machine}. Chaque fonction modifie l'état interne du gpu et certaines lances des commandes à exécuter comme l'affichage de formes géométriques.
 Il est important de mentionner que les gpu modernes ne savent pas afficher autre chose que des triangles et des lignes, pour afficher un rectangle on devra se contenter de dessiner deux triangles.
@@ -281,6 +318,7 @@ Il est important de mentionner que les gpu modernes ne savent pas afficher autre
 \label{sec:shaders}
 
 Les \textit{shaders} sont des programmes qui tournent sur le gpu plutôt que sur le cpu. Nous utiliserons extensivement deux types de shaders pour l'affichage : le \textit{vertex shader} qui s'exécute pour chaque sommet des triangles affichés ; et le \textit{fragment shader} qui s'exécute pour chaque pixel couvert par le triangle. Des shaders classiques ressemblent à la figure \ref{fig:vs_fs_shaders}.
+
 
 \begin{figure}[ht]
 	\centering
@@ -308,6 +346,7 @@ Avant de pouvoir afficher quoi que ce soit à l'écran, il nous faut des donnée
 Par défaut OpenGL utilise un \textit{viewport} (un espace virtuel d'affichage) compris entre $-1$ et $1$ en $x$ et $y$ et entre $0$ et $1$ pour $z$. Cela signifie que la position générée par le Vertex Shader doit être comprise dans cet intervalle pour que le pixel associé être affiché (le vertex shader définit la position des sommets, les positions des pixels du triangle en sont déduit). Un sommet de coordonnées $(-1,-1,0)$ est affiché en haut à gauche de l'écran et un sommet $(1,1,0)$ est affiché en bas à droite. La coordonnée $z$ est utilisée pour la profondeur.
 \par
 Nous définirons deux repères supplémentaires, celui du monde (dans $\mathbb{R}^3$) et celui des modèles (dans $\mathbb{R}^3$). Imaginons qu'on veuille afficher le modèle d'un arbre, on va d'abord créer les sommets dans le repère du modèle (centré en $(0,0,0)$, aux dimensions 1:1), on le transformera pour passer dans le repère du monde (d'abord une mise à l'échelle puis une translation pour le placer au bon endroit) et enfin on le projetera sur le viewport, la projection dépendra du type de caméra qu'on utilisera.
+
 Un gros avantage de cette méthode est que toutes ces transformations sont des opérations de projection d'un espace à un autre, qu'on peut donc les décrire avec des multiplications de matrices. En mémoire il nous suffira de conserver les positions dans le repère du modèle et les deux matrices de changement de repère.
 
 \paragraph{}
@@ -335,6 +374,9 @@ Ici $A$ est une matrice de mise à l'échelle et $B$ est une matrice de translat
 \paragraph{}
 La projection du monde vers le viewport est un peu plus compliquée, il existe deux types principaux de projection qui sont les projections perspective et orthogonale. Elles possèdent chacune une écriture matricielle que nous ne détaillerons pas mais qui peuvent se retrouver assez facilement avec un peu d'algèbre linéaire. Cette projection seule ne suffit pas, tel quel notre caméra devrait toujours être placée à l'origine du monde et être dirigée selon l'axe $+x$...
 \par
+
+
+\paragraph{}
 Une astuce pour prendre en compte la position de la caméra est d'appliquer une transformation au repère du monde qui projète la caméra à l'origine et dirigée vers $+x$, de cette manière nous n'avons pas à modifier la dernière projection. Par exemple si la caméra est située en $(2,3,4)$ on appliquera $(x,y,z)\rightarrow(x-2,y-3,z-4)$ à tous les points avant de les projeter sur le viewport (ici on ne tient bien sûr pas compte de la rotation de la caméra).
 
 \paragraph{}
@@ -421,7 +463,7 @@ Le calcul du positionnement de la caméra du soleil est la partie la plus compli
 
 \subsection{Algorithme final}
 
-Après que la depth map ai été calculée, on arrive à l'algorithme \ref{alg:shadows} pour calculer la quantité de soleil que reçoit chaque pixel.
+Après que la depth map ait été calculée, on arrive à l'algorithme \ref{alg:shadows} pour calculer la quantité de soleil que reçoit chaque pixel.
 \begin{algorithm}
 \caption{Calcul des ombres par pixel}
 \label{alg:shadows}
@@ -448,7 +490,7 @@ On préfère utiliser la fonction $smoothstep$ et utiliser $\epsilon$ plutôt qu
 
 \begin{SCfigure}
 	\centering
-	\caption[Capture des ombres]{Capture des ombres\\Il reste quelques soucis de crénelage, il existe des solutions (\textit{multisampling}) mais puisque notre cas d'utilisation est d'afficher la silouete du terrain le crénelage n'est pas très génant.}
+	\caption[Capture des ombres]{Capture des ombres\\Il reste quelques soucis de crénelage, il existe des solutions (\textit{multisampling}) mais puisque notre cas d'utilisation est d'afficher la silhouete du terrain le crénelage n'est pas très génant.}
 	\includegraphics[scale=.45]{shadows}
 	\label{fig:shadows}
 	\vspace{-10pt}
@@ -493,19 +535,116 @@ Avec l'instanced rendering on peut afficher plusieurs centaines de milliers de t
 
 Le profilage répertorie l'ensemble des appels aux fonctions d'affichage (\code{glDrawXX}), les appels aux compute shaders (\code{glDispatchCompute}) et tous les appels de changement d'état (\code{glBindBuffer}, \code{glBindTexture}, \code{glUniformXX}... ces appels ont été masqués sur la figure \ref{fig:profiling} car leurs temps d'exécution sont négligeables). Le temps d'exécution pour chaque fonction indiqué en $\mu$s et le temps total ne doit pas dépasser $10^6/60=16.\overline{6}\mu\text{s}$.
 
+
+
 \section{Effets spéciaux}
 
-%% TODO section effets spéciaux
-
 \subsection{Frame Buffers} %% ...
+\subsubsection{Frame Buffers} %% ...
+
 \label{sec:framebuffers}
 
-%% TODO section framebuffers
+
+\paragraph{}
+Un Framebuffer est un objet assez particulier mais incontournable des librairies graphiques, dont OpenGL.
+La manière la plus simple de se représenter un framebuffer, c'est de se dire qu'on va rediriger OpenGL pour qu'il fasse tous ses dessins dans une texture cible, celle qui est attachée à notre framebuffer. On peut ensuite récuperer cette texture et s'en servir comme une nouvelle image.
+
+Il y a par défaut deux Framebuffers : celui dans lequel OpenGL dessine, puis celui qui est affiché. On doit, à chaque itération de notre boucle principale, appeler explicitement la fonction glSwapBuffers() qui dit à OpenGL d'inverser ces textures.
+En soit, l'image qu'on voit sur l'écran est toujours une frame en retard ; celle sur laquelle on travaille est "cachée".
+
+On peut donc définir nous même des framebuffers qui permettent, bien souvent, de prendre notre scène en "photo" pour y appliquer un tas de modifications, à la manière des logiciels de retouche.
+Cependant, on ne peut plus avoir accès à la géometrie de ce qui est écrit dans le framebuffer, donc on peut avoir des problèmes de profondeur.
+Pour palier à ca, on peut utiliser un Z-buffer ou Depth-Buffer. Il s'agit d'un framebuffer dans lequel on inscrit la distance entre un pixel et la caméra. Nous l'avons vu plus haut dans la section ??? concernant les ombres projetées.
+
+
+%% IMAGE Z BUFFER?
+
+\subsubsection{Pipeline VFX} %% ...
+
+A l'aide de ces framebuffers, on peut donc appliquer des retouches après le calcul de la géométrie : on parle alors de Post-Processing.
+Ces effets de post-processing font parts de la catégorie des effets spéciaux (Visual Effects - VFX). 
+
+Il faut également savoir que l'application des différents effets spéciaux diffère selon l'ordre. On peut facilement s'en convaincre avec des inversions et multiplications de couleurs sur les pixels.
+Ainsi, on définit une Pipeline d'effets : une pipeline prend une entrée, applique tout un tas d'opérations, et nous ressort l'entrée modifiée.
+
+Dans notre cas, on définie une classe abstraite VFX qui implémente forcément une méthode qui prend une texture en entrée et lui applique l'effet que la classe fille représente.
+La pipeline contient alors un ensemble de VFX - que l'utilisateur choisit ou non d'ajouter à sa scène - et qui, chacun leur tour, vont appliquer leur effet. pour finalement dessiner la texture modifiée à l'écran.
+
+Voici une liste d'effets spéciaux que nous avons implémenté.
+
+\paragraph{}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+	\hline
+	Nom de l'effet & \makecell{Résultat produit \\ }\\\hline\hline
+	\code{Contrast} & \makecell{Accentuation des couleurs des pixels} \\\hline
+	\code{Gamma Correction} &\makecell{ Balance des fortes valeurs de blanc} \\\hline
+	\code{Saturation} & \makecell{Accentuation des fortes couleurs de pixels} \\\hline
+	\code{Sharpness} & \makecell{Effet d'amélioration de netteté\\ et de démarquation des bordures}\\\hline
+	\code{Sun Flares} & \makecell{Mimique de l'effet de surexposition\\ qui donne des halos lumineux\\lorsqu'une caméra regarde le soleil}\\\hline
+	\code{Lens Mask} & \makecell{Mimique des fines poussières sur le verre\\ des vraies caméras}\\\hline
+	\code{Bloom} & \makecell{Effet de saignement de la lumière qui provient\\ sur des sources très lumineuses}\\\hline
+\end{tabular}
+
+\end{table}
+
+%% TODO IMAGE RECAPITULATIVE
+
+\subsubsection{Bloom} %% ...
+
+
+\paragraph{}
+Parler du bloom permet de comprendre un concept clé des effets spéciaux : l'HDR.\\
+HDR veut dire High Dynamic Range, en opposition au Low Dynamic Range (LDR).\\\\
+On explique souvent cela comme : "Les valeurs R,G,B des pixels peuvent aller au dela de 1". C'est exactement ca, mais c'est difficile de comprendre à quoi ca sert ! \\\\
+Le HDR s'active en donnant plus de bits par pixels : au lieu d'avoir 24bits, ou 8 bits par channel (soit les fameux 255 valeurs possibles par channel), on passe à 32 bits.\\
+Très souvent, on donne 10 au rouge, et 12 au vert / bleu : c'est simplement que l'oeil humain percoit moins bien les nuances de rouge.
+
+\paragraph{}
+On sait qu'un pixel (1,1,1) est blanc en LDR.  Et c'est pareil en HDR ! Si on donne maintenant un pixel (2,2,2), il est aussi blanc !
+Peut importe ce qu'on veut, quand les couleurs sont affichées à l'écran, elles ont forcément été restreinte entre 0 et 1.
+Le HDR permet garder des informations et de donner plus de précision quand aux couleurs dominantes d'une lumière : l'exemple typique est celui du sabre laser.
+Un sabre laser est blanc : il est tellement lumineux qu'il est blanc. Et pourtant, il a une aura autour de lui qui lui donne sa couleur ! Au fur et à mesure que la lumière diminue, les couleurs dominantes sont revelées.
+Ainsi, un pixel (15,1,1) est blanc, mais en théorie, il devrait émettre dans le rouge.
+
+
+\paragraph{}
+C'est cet effet que le bloom reproduit. En filtrant les pixels les plus lumineux de l'écran, ceux qui sont fondamentalements blancs, mais dont les valeurs excèdent 1, on peut savoir quels sont les zones qui sont censé avoir un halo lumineux à cause de la dissipation de la lumière.
+Pour implémenter cet effet, le standard dans l'industrie du jeu-vidéo provient de \textit{Call Of Duty : Modern Warfare}\cite{bloom}.\\
+L'idée est de prendre la scène en photo, puis de diviser par 4 sa résolution tout en appliquant un calcul de ponderation des pixels, qui permettent de, peu à peu, faire ressortir les couleurs dominantes des zones lumineuses.
+On effectue cette opération 5 ou 6 fois, et puis on se retrouve avec une image très petite (~15x20 pixels). On va maintenant faire l'inverse, et additioner peu à peu ces textures : l'addition d'une texture $i$ avec la texture $i-1$ permet de donner un effet de flou et d'attenuation.
+Enfin, au terme de tout ca, après environ 13 calculs, on obtient une image avec des halos lumineux !
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[scale=.5]{down_samples}
+	\caption{Filtrage des pixels lumineux, et procédé de réduction de résolution des textures}
+	\label{fig:bloom_down_sample}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[scale=.7]{up_samples}
+	\caption{Addition des textures pour obtenir un flou}
+	\label{fig:bloom_up_sample}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=.4]{before_bloom}
+	\includegraphics[scale=.47]{after_bloom}
+	\caption{Exemple de cubes qui sont blanc en LDR, mais grâce au HDR et au Bloom, ont une couleur}
+	\label{fig:bloom_comp_fig}
+\end{figure}
+
+
 
 \chapter{Algorithmes spécifiques}
 
 Dans cette section nous aborderons avec plus de détails les algorithmes que nous avons dus développé et qui ont représenté des défis techniques intéressants.
-%% algos qu'on a développé avec plus ou moins de sources (plutot moins que plus)
 
 \section{Affichage de l'herbe}
 \label{section:grass_rendering}
@@ -561,14 +700,14 @@ Le code de ces algorithmes peut être trouvé dans les fichiers sous \code{res/s
 \paragraph{}
 On peut ensuite afficher $M$ brins d'herbe. Pour arriver aux plusieurs millions promis nous exécutons cet algorithme sur \textit{deux} buffers, l'un sera affiché avec un modèle HD et le second avec un modèle LD. Il s'agit ensuite de modifier les deux instance buffers pour que les chunks proches de la caméra contiennent toujours des instances. On divise donc les deux instance buffers pour que chaque "case" contienne les instances d'un chunk. Il suffit de régénérer les cases des chunks qui changent de niveau de définition comme illustré en figure \ref{fig:grass_instance_buffers}.
 
-\begin{figure}[ht]
+\begin{figure}[H]
 	\centering
 	\includegraphics[scale=.49]{grass_instance_buffers}
 	\caption{Les deux instance buffers de l'herbe}
 	\label{fig:grass_instance_buffers}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}[H]
 	\centering
 	\includegraphics[scale=.49]{grass_uml}
 	\caption{Diagramme de classes : composantes du système de l'herbe}
@@ -576,19 +715,122 @@ On peut ensuite afficher $M$ brins d'herbe. Pour arriver aux plusieurs millions 
 
 Il est à noter que les chunks de l'herbe ne correspondent pas aux chunks du terrain, les deux n'ont pas les mêmes contraintes ce qui fait que généralement les chunks de l'herbe sont beaucoup plus grands. Aussi, même si nous avons implémenté la génération continue de l'herbe, nous n'avons pas fait de même pour le terrain ; cette partie du projet serait facilement réalisable mais n'entrait pas dans nos priorités. Le résultat de ces algorithmes peut être observé en figure \ref{fig:grass}.
 
-\begin{SCfigure}
+\begin{figure}[H]
 	\centering
-	\caption[Capture de l'herbe]{Capture de l'herbe\\Les brins d'herbe sont très gros ici, le résultat plus est satisfaisant au loin. L'herbe est animée (le vent la déplace). Il y a environ 1M3 brins d'herbe, et 6M triangles.}
+	\caption[Capture de l'herbe]{Capture de l'herbe\\Les brins d'herbe sont très gros ici, le résultat est plus satisfaisant au loin. L'herbe est animée (le vent la déplace). Il y a environ 1M3 brins d'herbe, et 6M triangles.}
 	\includegraphics[scale=.35]{grass}
 	\label{fig:grass}
-\end{SCfigure}
+\end{figure}
 
 \paragraph{}
 Il est assez difficile de se représenter la quantité de travail à fournir pour afficher tout cela ; si on oublie la partie "filtre" en moyenne pour 2M brins d'herbes à afficher (1M HD et 1M LD) on a $10^6\times3\times7 + 10^6\times3\times1=24\times10^6$ appels du vertex shader. Tel qu'il est écrit le vertex shader calcule deux multiplications de matrices par appel\footnote{en réalité il fait aussi plusieurs calculs trigonométriques et bien plus d'additions/multiplications, sans compter les déplacements de valeurs en mémoire...}, pour environ 20 multiplications. Au total, le gpu doit traiter (beaucoup) plus de 500M multiplications par frame, et tout cela en moins de 16.6$\mu$s ! Avec les optimisations que nous avons apportées dans le cas idéal (quand aucun brin d'herbe n'est dans le champ de la caméra) chaque brin d'herbe est traité en un seul calcul, mais l'algorithme possède un coût incompressible non-négligeable. On se rend bien compte de la difficulté que représente l'affichage d'autant d'objets. Ce serait complètement impossible sans gpu.
 
 \section{Eau}
 
-%% TODO section eau
+\paragraph{}
+Dessiner de l'eau par ordinateur peut être une tâche très compliquée si l'on applique une approche basée sur la physique. La simulation de la mécanique des fluides et évidemment trop coûteuse, et nécessite bien souvent la génération de milliers de petites boules qui représente les molécules d'eau.
+\paragraph{}
+Une autre approche consiste à utiliser une grille, et effectuer les calculs sur les Vertices qui composent la grille. On utilise alors une technologie appelée Vertex Displacement, qui consiste à modifier la positions d'un vertex depuis un shader. 
+C'est sur ce principe que repose les Gertsner Waves, qui simule des comportements naturels d'un océan par exemple. Pour que cet effet soit réaliste, il faut cependant un grand nombre de Vertices, et les jeux qui utilisent ces technologies sont souvent centrées sur l'océan, la mer. On peut citer Sea of Thieves, ou encore Subnautica.
+
+\paragraph{}
+Dans notre cas, on va se contenter d'utiliser - comme bien souvent - des combines pour donner l'illusion d'eau.
+\paragraph{}
+Pour se faire, l'eau ne sera qu'une surface plane, composée de 4 points. Nous allons créer dynamiquement une texture et l'appliquer à cette surface.
+Cette texture prendra en compte des effets de lumière, de reflexivité et réfractivité, en fonction notamment de la position de la caméra par rapport à la surface de l'eau, et celle du soleil.
+Histoire que tout le monde soit au point, la réfraction, c'est ce qui se trouve sous l'eau et qui est légèrement déformé à cause de la lumière, et la réfléxion, c'est l'effet miroir.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.6]{water}
+	\caption{Résultat final de notre eau}
+	\label{fig:water}
+\end{figure}
+
+Les différentes étapes pour parvenir à ce résultat sont les suivantes :
+
+
+\begin{enumerate}
+\item Calculer une texture de rélexion et une texture de réfraction et les combiner
+\item Appliquer une texture de distortion et donner un effet de mouvement
+\item Appliquer une texture de normales et calculer les jeux de lumières
+\item Peaufiner le tout via l'effet Fresnel, l'utilisation d'un Z-Buffer pour lisser les bords et assombrir le fond
+\end{enumerate}
+
+\paragraph{}
+La première étape est la plus couteuse de toute la procédure. L'idée est de redessiner la scène d'un autre point de vue, et d'écrire cette vue dans une texture.
+Pour la réfraction, c'est le plus simple. On se contente de dessiner la scène mais uniquement ce qui se trouve en dessous du plan de l'eau.
+Pour la réflexion, on place la caméra en dessous du sol et on dessine la scène mais uniquement ce qui se trouve au dessus de l'eau.
+Cette étape signifie qu'on redessine 2 fois la scène en plus, ce qui peut être très lourd ! Beaucoup de jeux ne s'embètent pas à calculer la réfléction par exemple.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.3]{water_camera}
+	\caption{Placement de la caméra pour les différents points de vus}
+	\label{fig:water_camera}
+\end{figure}
+
+\paragraph{}
+C'est bien beau tout ca... mais comment on restreint notre géométrie ? Comment peut on dire "uniquement ce qu'on trouve au dessus / dessous" ?
+Heureusement pour nous, OpenGL nous fournit les Clipping Planes. Ces objets doivent être explicitement activés via GlEnable.
+Ensuite, on peut donner une hauteur à se plan, et OpenGL se charge, dans le Vertex Shader, de supprimer la géometrie qui se trouve sous le plan.
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.3]{water_textures}
+	\caption{Les deux textures obtenues. A gauche, la réflraction, à droite, la réfléxion.}
+	\label{fig:water_textures}
+\end{figure}
+
+\paragraph{}
+Pour la deuxième étape, on va utiliser une Distortion Map. C'est une texture qu'on va "importer" pour qu'elle soit lu dans le Fragment Shader.
+Chacun des pixel de cette texture possède une certaines quantité de rouge et de vert, et cette quantité va indiquer un décalage dans la lecture de notre texture combinée dans l'étape 1.
+Si l'on passe une variable de temps dans le Fragment Shader via une uniform, on peut également calculer un décalage dans la texture de distortion ! Cette astuce donne l'illusion de mouvement et de vagues.
+
+\paragraph{}
+Tant qu'à faire, on va aussi en profiter pour faire l'étape numéro 3 et calculer les lumières.
+Comme toujours, la lumière se calcule avec les normales. On peut déterminer une lumière diffuse via le produit scalaire avec la normale du plan et la position du soleil, mais ce qui donne vraiment de l'impact, c'est la lumière spéculative.
+Elle se calcule en effectuant le produit scalaire du vecteur de la refléction du soleil par rapport à la normale de l'eau, et le vecteur de la caméra vers l'eau.
+
+\paragraph{}
+Afin d'obtenir une sensation de "hauteur" de l'eau, on ne peut pas se contenter de dire que la normale en chaque point est la perpendiculaire parfaite du plan.
+On utilise, comme pour les mouvements, une Normal Map. Cette texture contient des informations sur la direction de la normale qui sont inscrites dans les valeurs RGB de la texture.
+Cette texture est intentionnellement similaire à celle de distortion.
+
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.4]{water_distortion_normal}
+	\caption{A gauche une texture de distortion, à droite, une texture de normales}
+	\label{fig:water_distortion_normal}
+\end{figure}
+
+\paragraph{}
+
+Note : On retrouve l'utilisation des Normal Maps sur des textures classiques. Elles donnent une sensation de profondeur et de réalisme !
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.6]{normals_tex}
+	\caption{Application de texture de normales sur une texture classique}
+	\label{fig:normals_tex}
+\end{figure}
+
+
+\paragraph{}
+Pour la dernière étape, on pas facilement calculer l'effet Fresnel, qui dit (entre autre) que plus on est perpendiculaire à la surface de l'eau, moins cete dernière reflète (et inversement).
+C'est un simple produit scalaire qui nous donne le résultat de cette loi.
+\paragraph{}
+Enfin, si, lors du calcul de la texture réfracteé, on en profite pour produire un depth-buffer, on peut déterminer la distance des pixels qui sont sous l'eau par rapport à la caméra. On peut donc savoir à quel point ils sont profonds dans l'eau, et ainsi appliquer
+une correction de couleur pour donner un effet de profondeur !
+
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.5]{water_colors}
+	\caption{Quelques couleurs pour l'eau...}
+	\label{fig:water_colors}
+\end{figure}
+
 
 
 \chapter{Résultats}
@@ -647,6 +889,11 @@ Une autre modification qui pourrait être apportée au mesh du terrain est la mo
 
 Nous avons choisi une esthétique qui se veut réaliste mais avec assez peu de changements on peut obtenir des visuels très différents.
 
+
+
+%% TODO section esthetiques différentes
+%% Cartoon? on y a pensé pendant le dev
+
 \begin{figure}[ht]
 	\centering
 	\includegraphics[scale=.205]{esthetics_1}
@@ -656,6 +903,13 @@ Nous avons choisi une esthétique qui se veut réaliste mais avec assez peu de c
 \end{figure}
 
 On pourrait imaginer des visuels "low-poly" ou "toon" en diminuant le nombre de triangles et en rajoutant un shader "cel-shading\footnote{\url{https://en.wikipedia.org/wiki/Cel_shading}}".
+
+
+\subsection{Volumetric Fog}
+
+\paragraph{}
+Parmi les effets de post-processing les plus impressionants et ceux qui donne le plus de réalisme, on trouve la Volumetric Fog, qui donne une excellente sensation de profondeur, d'atmosphère et apporte du réalisme aux lumières de la scène.
+Cet effet est cependant très couteux... bla bla bla....
 
 \chapter*{Conclusion}
 \addcontentsline{toc}{chapter}{\numberline{}Conclusion}
@@ -685,16 +939,23 @@ GPU Gems 3, "Chapter 39. Parallel Prefix Sum (Scan) with CUDA", \url{https://dev
 
 \bibitem{tessellation}
 Sebastian Lague, "Trying to Improve My Geography Game with More Real-World Data", \url{https://youtu.be/UXD97l7ZT0w?t=989}
+
+
+\bibitem{bloom}
+Jorge Jimenez, "Next generation post processing in Call of Duty : Modern Warfare", \url{http://www.iryoku.com/next-generation-post-processing-in-call-of-duty-advanced-warfare}
+
+
+
 \end{thebibliography}
 
 
 %%%%%%%%%%%%% Last page %%%%%%%%%%%%%%
 
 
-\resume{TODO}
-\motcles{TODO}
-\abstract{TODO}
-\keywords{TODO}
+\resume{Le projet a pour objectif de dessiner un terrain en 3D aléatoire en utilisant du bruit. Nous avons construit un moteur 3D en OpenGL/C++, et avons également exploré et implémenté différents procédés classiques de l'industrie du jeu-vidéo pour améliorer le réalisme et les possibilités d'affichage de notre moteur. Le moteur est également pensé pour faire de l'affichage en temps réel (+60 ips).}
+\motcles{infographie, génération de terrain, réalisme, lumière, ombres, GPU, OpenGL, performances, optimisations, C++, rendu, affichage, bruit}
+\abstract{This project's scope is to draw and generate a 3D terrain using noise. We built a 3D Engine using C++ and OpenGL, and we explored and implemented various video-game industry techniques to enhence the realism and rendering possibilities of our engine. The engine is designed to have real-time rendering performances (+60FPS). }
+\keywords{computer graphics, terrain generation, realism, lights, shadows, GPU, OpenGL, performances, optimizations, C++, rendering, noise}
 \makedernierepage
 
 \end{document}

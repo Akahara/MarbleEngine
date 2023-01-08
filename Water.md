@@ -81,7 +81,8 @@ int main() {
 }
 ```
 
-OpenGL va se charger tout seul de ne pas rendre les vertices dont les positions sont ==sous== le clipping plane. Ainsi, nous pouvons dessiner uniquement ce qu'il y a au dessus de l'eau.
+Les variables integrées `gl_ClipDistance[0]` sont à définir en fonction des plans activés.
+OpenGL va se charger tout seul de ne pas rendre les vertices dont les positions sont ==sous le clipping plane==. Ainsi, nous pouvons dessiner uniquement ce qu'il y a au dessus de l'eau.
 
 Pour la réfraction, on applique le même principe, mais on passe une normale dans l'autre sens pour le clipping plane. Ainsi, on dessine dans un framebuffer (une nouvelle fois) uniquement ce que la caméra voit SOUS l'eau.
 
@@ -145,7 +146,10 @@ Il nous suffit d'effectuer le produit scalaire entre la normale de la surface du
 
 On applique donc cette valeur comme le coefficient de l'interpolation des textures, on et a donc:
 
-`color = mix(texRefrac, texReflec, fresnel);`
+`color = mix(texRefrac, texReflec, 1 - fresnel);`
+
+>[!Info] 
+>A noter qu'ici on fait `1-fresnel` parcequ'on interpole de refrac vers reflec, donc quand le produit scalaire vaut 1 (la caméra est parallèle à la normale du plan, donc on regarde perpendiculairement l'eau), on a `color = texRefrac;`. On aurait pu inverser l'ordre des texture et écrire simplement `fresnel`.
 
 Pour la lumière et les reflets spéculatifs, on utilise les mêmes techniques qu'avant. 
 En connaissant la normale de l'eau, la position de la caméra d'origine et la direction du soleil, on peut calculer aisément la lumière.
@@ -157,7 +161,7 @@ Les formulations sont un peu verbeuse, mais le principe est de regarder à quel 
 
 >[!Normales] 
 >Ca n'est pas très réaliste de dire que la normale de l'eau est parfaitement perpendiculaire au plan, comme nous le supposons depuis le début... 
->Utilisons une normale map !
+>Utilisons une *normale map* !
 
 Sur le même principe que la texture de distortion, nous fournissons au programme une texture de normales !
 
