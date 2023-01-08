@@ -24,6 +24,7 @@
 \usepackage{sidecap}
 \usepackage{listings}
 \usepackage{epigraph}
+\usepackage{tcolorbox}
 \graphicspath{ {./res/} }
 
 % declare \abs{x}  \floor{x}  \fract{x}
@@ -94,6 +95,9 @@ Ce projet a pour but d'améliorer nos compétences en infographie. Nous sommes t
 
 La génération de terrain étant un outil classique dans le domaine, ce projet était l'occasion de nous apporter des connaissances sur des techniques employées dans l'industrie. 
 
+Cet exercice est aussi l'occasion pour nous d'appliquer les concepts de génie logiciel vus en cours, et d'apprendre à travailler sur un projet de grande envergure à deux.
+Nous avons donc du adopter des conventions, adopter des stratégies et principe de programmation pour permettre à l'autre de comprendre tout ce qu'on fait de son côté. C'est donc un enrichissement pour la qualité de notre travail. 
+
 \paragraph{}
 
 Nous remercions également M. Nicolas Monmarche, encadrants des projets, qui a accepté de soumettre notre sujet.
@@ -128,7 +132,20 @@ Pour les systèmes existants, nous utiliserons la terminologie anglaise plutôt 
 
 \paragraph{}
 
-///////////////// PARLER GDP
+En premier lieu, abordons un peu le facon dont nous avons attaqué le projet.
+
+Les premières heures étaient surtout consacrées à la délimitation du projet. Que voulions nous aborder ? Comment allaient s'agencer les classes entre elles ? Comment se répartir le travail ?
+
+Ce premiet travail nous a permis d'estimer l'effort que nous allions fournir pour le projet, et quelles fonctionnalités pouvaient demander plus de travail, ou être prioritaires.
+
+Notre approche pour le reste du projet ressemble sensiblement à de l'agile incrémentatif : par sprint d'environ une semaine, nous développions une fonctionnalité, sur une branche séparée chacun, puis nous l'intégrions dans la branche principale. Un gros bénéfice de cette approche est que les modules restent indépendants, et qu'on ne se retrouve pas avec des liaisons obscures entre certaines classes. 
+
+Ce projet n'a pas réellement de tâche bloquante. Hormis le moteur 3D de base - qui a été implémenté en quelques heures - les élements sont asez indépendants des autres, et nous pouvions avancer sans attendre l'autre.
+
+Régulièrement, nous prennions le temps de faire un point sur l'avancée du projet, et de mettre à jour notre liste de tâche. C'est un moment très important, puisqu'il s'accompagne bien souvent de relecture globale du code, de refactorisation, de nettoyage, et permet de prendre de la hauteur sur le projet.
+
+
+Ayant tout deux un déjà réalisé des programmes en OpenGL, nous avons pu très vite démarrer grâce à la réutilisabilité de nos codes. OpenGL est très souvent abstrait en classe C++, et ainsi, nous n'avions pas besoin de faire énormément de choses pour avoir un premier rendu.
 
 
 \section{Conception structurelle}
@@ -804,16 +821,14 @@ Cette texture est intentionnellement similaire à celle de distortion.
 	\label{fig:water_distortion_normal}
 \end{figure}
 
-\paragraph{}
 
-Note : On retrouve l'utilisation des Normal Maps sur des textures classiques. Elles donnent une sensation de profondeur et de réalisme !
 
-\begin{figure}[h]
-	\centering
+\newtcolorbox[blend into=figures]{myfigure}[2][]{float=htb,capture=hbox,
+blend before title=dash hang,title={#2},every float=\centering,#1}
+\begin{myfigure}{Note : On peut utiliser les normales maps sur des textures classiques !}
 	\includegraphics[scale=.6]{normals_tex}
-	\caption{Application de texture de normales sur une texture classique}
 	\label{fig:normals_tex}
-\end{figure}
+\end{myfigure}
 
 
 \paragraph{}
