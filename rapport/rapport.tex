@@ -1,7 +1,6 @@
 % !TEX TS-program = pdflatex
 % !TEX encoding = UTF-8 Unicode
 
-% TODO - mise en page
 
 %%%%%%%%%%%%% Document customization %%%%%%%%%%%%%%
 
@@ -187,7 +186,7 @@ En plus de ces scènes de test, nous créerons des scènes \textit{sandbox} qui 
 	\code{TestComputeShader} & \hyperref[sec:shaders]{Compute shader}\\\hline
 	\code{TestShadows} & \hyperref[sec:casted_shadows]{Ombres portées}, caméra orthogonale, depth map\\\hline
 	\code{TestInstanced} & \hyperref[sec:instanced_rendering]{Instanced rendering}, affichage de l'herbe\\\hline
-	\code{TestWater} & Réflexion, réfraction\\\hline
+	\code{TestWater} & \hyperref[section:Eau]{Eau}, Réflexion, réfraction\\\hline
 	\code{POC1} & Intégration - terrain, ombres\\\hline
 	\code{POC2} & Intégration - terrain, herbe\\\hline
 	\code{POC[3,4]} & Intégration - démonstrations de différents types de terrain\\\hline
@@ -220,8 +219,9 @@ Il existe d'autres méthodes pour faire ce genre de terrain (cubemarching, rayma
 
 Pour créer la heightmap il nous faut ce qu'on appelle un \textit{bruit}, une fonction dont le domaine de définition est le plan $xz$ et le domaine de valeurs est $\mathbb{R}$. Cette fonction doit être pseudo-aléatoire mais déterministe. La plus simple est le \textit{white noise} qui est "complètement aléatoire"\footnote{On utilisera le générateur de nombres pseudo-aléatoires de C++ pour attribuer une valeur à chaque point du plan $\mathbb{Z}^2$.}. On s'intéressera plutôt aux fonctions de bruit continues sur $\mathbb{R}^2$.
 
-\begin{figure}[ht]
+\begin{figure}[H]
 	\centering
+	\captionsetup{justification=centering}
 	\includegraphics[scale=.49]{white_noise}
 	\includegraphics[scale=.49]{perlin_noise}
 	\caption[White noise et Perlin noise]{White noise et Perlin noise\\Les pixels blancs sont plus hauts et les pixels\\ noirs sont plus bas une fois portés en 3D}
@@ -505,13 +505,12 @@ Après que la depth map ait été calculée, on arrive à l'algorithme \ref{alg:
 
 On préfère utiliser la fonction $smoothstep$ et utiliser $\epsilon$ plutôt que de mettre $S_{casted}$ à $0$ ou $1$ pour éviter le crénelage du aux erreurs d'arrondis. Le résultat de ces algorithmes peut être vu en figure \ref{fig:shadows}.
 
-\begin{SCfigure}
+\begin{figure}
 	\centering
+	\includegraphics[scale=.75]{shadows}
 	\caption[Capture des ombres]{Capture des ombres\\Il reste quelques soucis de crénelage, il existe des solutions (\textit{multisampling}) mais puisque notre cas d'utilisation est d'afficher la silhouete du terrain le crénelage n'est pas très génant.}
-	\includegraphics[scale=.45]{shadows}
 	\label{fig:shadows}
-	\vspace{-10pt}
-\end{SCfigure}
+\end{figure}
 
 \section{Instanced rendering}
 \label{sec:instanced_rendering}
@@ -607,16 +606,15 @@ Voici une liste d'effets spéciaux que nous avons implémenté.
 
 \end{table}
 
-%% TODO IMAGE RECAPITULATIVE
-
+\pagebreak
 \subsubsection{Bloom} %% ...
 
 
 \paragraph{}
 Parler du bloom permet de comprendre un concept clé des effets spéciaux : l'HDR.\\
 HDR veut dire High Dynamic Range, en opposition au Low Dynamic Range (LDR).\\\\
-On explique souvent cela comme : "Les valeurs R,G,B des pixels peuvent aller au dela de 1". C'est exactement ca, mais c'est difficile de comprendre à quoi ca sert ! \\\\
-Le HDR s'active en donnant plus de bits par pixels : au lieu d'avoir 24bits, ou 8 bits par channel (soit les fameux 255 valeurs possibles par channel), on passe à 32 bits.\\
+On explique souvent cela comme : "Les valeurs R,G,B des pixels peuvent aller au-delà de 1". C'est exactement ça, mais c'est difficile de comprendre à quoi ça sert ! \\\\
+Le HDR s'active en donnant plus de bits par pixels : au lieu d'avoir 24bits, ou 8 bits par channel (soit les fameux 255 valeurs entières possibles par channel), on passe à 32 bits.\\
 Très souvent, on donne 10 au rouge, et 12 au vert / bleu : c'est simplement que l'oeil humain percoit moins bien les nuances de rouge.
 
 \paragraph{}
@@ -628,10 +626,10 @@ Ainsi, un pixel (15,1,1) est blanc, mais en théorie, il devrait émettre dans l
 
 
 \paragraph{}
-C'est cet effet que le bloom reproduit. En filtrant les pixels les plus lumineux de l'écran, ceux qui sont fondamentalements blancs, mais dont les valeurs excèdent 1, on peut savoir quels sont les zones qui sont censé avoir un halo lumineux à cause de la dissipation de la lumière.
+C'est cet effet que le bloom reproduit. En filtrant les pixels les plus lumineux de l'écran, ceux qui sont fondamentalements blancs, mais dont les valeurs excèdent 1, on peut savoir quelles sont les zones qui sont censées avoir un halo lumineux à cause de la dissipation de la lumière.
 Pour implémenter cet effet, le standard dans l'industrie du jeu-vidéo provient de \textit{Call Of Duty : Modern Warfare}\cite{bloom}.\\
-L'idée est de prendre la scène en photo, puis de diviser par 4 sa résolution tout en appliquant un calcul de ponderation des pixels, qui permettent de, peu à peu, faire ressortir les couleurs dominantes des zones lumineuses.
-On effectue cette opération 5 ou 6 fois, et puis on se retrouve avec une image très petite (~15x20 pixels). On va maintenant faire l'inverse, et additioner peu à peu ces textures : l'addition d'une texture $i$ avec la texture $i-1$ permet de donner un effet de flou et d'attenuation.
+L'idée est de prendre la scène en photo, puis de diviser par 4 sa résolution tout en appliquant un calcul de pondération des pixels, qui permettent de, peu à peu, faire ressortir les couleurs dominantes des zones lumineuses.
+On effectue cette opération 5 ou 6 fois, et puis on se retrouve avec une image très petite (~15x20 pixels). On va maintenant faire l'inverse, et additioner peu à peu ces textures : l'addition d'une texture $i$ avec la texture $i-1$ permet de donner un effet de flou et d'atténuation.
 Enfin, au terme de tout ca, après environ 13 calculs, on obtient une image avec des halos lumineux !
 
 \begin{figure}[ht]
@@ -661,7 +659,7 @@ Enfin, au terme de tout ca, après environ 13 calculs, on obtient une image avec
 
 \chapter{Algorithmes spécifiques}
 
-Dans cette section nous aborderons avec plus de détails les algorithmes que nous avons dus développé et qui ont représenté des défis techniques intéressants.
+Dans cette section nous aborderons avec plus de détails les algorithmes que nous avons du développer et qui ont représenté des défis techniques intéressants.
 
 \section{Affichage de l'herbe}
 \label{section:grass_rendering}
@@ -743,6 +741,7 @@ Il est à noter que les chunks de l'herbe ne correspondent pas aux chunks du ter
 Il est assez difficile de se représenter la quantité de travail à fournir pour afficher tout cela ; si on oublie la partie "filtre" en moyenne pour 2M brins d'herbes à afficher (1M HD et 1M LD) on a $10^6\times3\times7 + 10^6\times3\times1=24\times10^6$ appels du vertex shader. Tel qu'il est écrit le vertex shader calcule deux multiplications de matrices par appel\footnote{en réalité il fait aussi plusieurs calculs trigonométriques et bien plus d'additions/multiplications, sans compter les déplacements de valeurs en mémoire...}, pour environ 20 multiplications. Au total, le gpu doit traiter (beaucoup) plus de 500M multiplications par frame, et tout cela en moins de 16ms ! Avec les optimisations que nous avons apportées dans le cas idéal (quand aucun brin d'herbe n'est dans le champ de la caméra) chaque brin d'herbe est traité en un seul calcul, mais l'algorithme possède un coût incompressible non-négligeable. On se rend bien compte de la difficulté que représente l'affichage d'autant d'objets. Ce serait complètement impossible sans gpu.
 
 \section{Eau}
+\label{section:Eau}
 
 \paragraph{}
 Dessiner de l'eau par ordinateur peut être une tâche très compliquée si l'on applique une approche basée sur la physique. La simulation de la mécanique des fluides et évidemment trop coûteuse, et nécessite bien souvent la génération de milliers de petites boules qui représente les molécules d'eau.
@@ -768,14 +767,14 @@ Les différentes étapes pour parvenir à ce résultat sont les suivantes :
 
 
 \begin{enumerate}
-\item Calculer une texture de rélexion et une texture de réfraction et les combiner
+\item Calculer une texture de réflexion et une texture de réfraction et les combiner
 \item Appliquer une texture de distortion et donner un effet de mouvement
 \item Appliquer une texture de normales et calculer les jeux de lumières
-\item Peaufiner le tout via l'effet Fresnel, l'utilisation d'un Z-Buffer pour lisser les bords et assombrir le fond
+\item Peaufiner le tout via l'effet Fresnel, l'utilisation d'un Depth-Buffer pour lisser les bords et assombrir le fond
 \end{enumerate}
 
 \paragraph{}
-La première étape est la plus couteuse de toute la procédure. L'idée est de redessiner la scène d'un autre point de vue, et d'écrire cette vue dans une texture.
+La première étape est la plus coûteuse de toute la procédure. L'idée est de redessiner la scène d'un autre point de vue, et d'écrire cette vue dans une texture.
 Pour la réfraction, c'est le plus simple. On se contente de dessiner la scène mais uniquement ce qui se trouve en dessous du plan de l'eau.
 Pour la réflexion, on place la caméra en dessous du sol et on dessine la scène mais uniquement ce qui se trouve au dessus de l'eau.
 Cette étape signifie qu'on redessine 2 fois la scène en plus, ce qui peut être très lourd ! Beaucoup de jeux ne s'embètent pas à calculer la réfléction par exemple.
@@ -794,7 +793,7 @@ Ensuite, on peut donner une hauteur à se plan, et OpenGL se charge, dans le Ver
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=.3]{water_textures}
-	\caption{Les deux textures obtenues. A gauche, la réflraction, à droite, la réfléxion.}
+	\caption{Les deux textures obtenues. A gauche, la réfraction, à droite, la réfléxion.}
 	\label{fig:water_textures}
 \end{figure}
 
@@ -880,16 +879,12 @@ Chaque type échange une précision avec une rapidité de calcul : un modèle de
 Dans notre cas, les AABB sont très largement convenables, et ne produisent pas de problèmes.
 Nous avons fait en sorte que dès qu'un mesh est importé, sa bouding box soit automatiquement calculée.
 
-\paragraph{}
-\\
-\\
-\\
-
+\pagebreak
 \subsection{SDF et Intersection}
 
-Une SDF, ou $signed$ $distance$ $function$ est une fonction qui renvoit une valeur positive ou négative qui représente une distance : on peut donc, en plus d'avoir une norme, savoir si un point se situe à l'interieur ou à l'exterieur d'un objet.
+Une SDF, ou $signed$ $distance$ $function$ est une fonction qui renvoit une valeur positive ou négative qui représente une distance : on peut donc, en plus d'avoir une norme, savoir si un point se situe à l'intérieur ou à l'extérieur d'un objet.
 
-Prenons l'exemple de la SDF d'un point et d'une sphere, la plus simple :
+Prenons l'exemple de la SDF d'un point et d'une sphère, la plus simple :
 
 \begin{align*}
 	CircleSDF(point, circle) = length(point - circle_{origin}) - circle_{radius}
@@ -902,10 +897,10 @@ En suivant ce principe, on peut calculer la distance signée d'un point et d'un 
 	PlanSDF(point, plan) = dot(point, plan_{normale}) - plan_{distanceToOrigin}
 \end{align*}
 
-Le produit scalaire permet de determiner si le point est devant ou derriere le plan, puis la soustraction permet de déterminer la distance exacte.
+Le produit scalaire permet de déterminer si le point est devant ou derrière le plan, puis la soustraction permet de déterminer la valeur de la distance exacte.
 
 Il nous faut maintenant vérifier si une AABB intersecte un plan.
-L'algorithme pour vérifier ca est assez obscure, et repose sur une projection des points de l'AABB sur une droite, pour verifier que la ligne formée par le plan coupe également la projection de l'AABB. Nous nous sommes inspirés de cet article\footnote{\url{https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html}} pour implémenter la fonction d'intersection.
+L'algorithme pour vérifier ceci est assez obscure, et repose sur une projection des points de l'AABB sur une droite, pour vérifier que la ligne formée par le plan coupe également la projection de l'AABB. Nous nous sommes inspirés de cet article\footnote{\url{https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html}} pour implémenter la fonction d'intersection.
 
 Enfin, dernière étape : vérifier, pour un AABB donné, qu'au moins un des 6 plans de la caméra (haut, bas, gauche, droite, proche et lointain) a l'AABB devant le plan, c'est à dire que l'AABB est apparant dans le champ de vision. Ceci ne relève que d'une simple fonction qui teste chaque plan.
 
@@ -922,6 +917,10 @@ Il est très facile de verifier le bon fonctionnement du frustum culling : envol
 	\caption{En rouge, les AABB des chunks qui ont été $cull$, en jaune, les chunks visibles par la caméra du joueur}
 	\label{fig:frustum_culling}
 \end{figure}
+
+Nou avons également implémenté un système de $Props$, qui sont des Meshes qui représentent des objets par exemple.
+Il suffit d'importer un mesh et d'ajouter un $PropsManager$ à la scène, puis de $feed$ les meshes au manager. 
+Ce dernier s'occupe automatiquement de ne pas afficher les props hors du champ de vision.
 
 
 
@@ -1006,7 +1005,6 @@ En conclusion, ce projet aura été très conséquent et instructif. Nous avons 
 
 Nous nous sommes inspiré d'un bon nombre de sources et nous avons aussi conçu par nous même des algorithmes efficaces pour résoudre des problèmes généraux. Il nous aura fallu plus de quatre mois pour tout réaliser et cela en valait tout à fait la peine.
 
-%% TODO conclusion de la conclusion
 
 %%%%%%%%%%%%% Bibliography %%%%%%%%%%%%%%
 
@@ -1041,7 +1039,7 @@ Jorge Jimenez, "Next generation post processing in Call of Duty : Modern Warfare
 
 \resume{Le projet a pour objectif de dessiner un terrain en 3D aléatoire en utilisant du bruit. Nous avons construit un moteur 3D en OpenGL/C++, et avons également exploré et implémenté différents procédés classiques de l'industrie du jeu-vidéo pour améliorer le réalisme et les possibilités d'affichage de notre moteur. Le moteur est également pensé pour faire de l'affichage en temps réel (+60 ips).}
 \motcles{infographie, génération de terrain, réalisme, lumière, ombres, GPU, OpenGL, performances, optimisations, C++, rendu, affichage, bruit}
-\abstract{This project's scope is to draw and generate a 3D terrain using noise. We built a 3D Engine using C++ and OpenGL, and we explored and implemented various video-game industry techniques to enhence the realism and rendering possibilities of our engine. The engine is designed to have real-time rendering performances (+60FPS). }
+\abstract{This project's scope is to draw and generate a 3D terrain using noise. We built a 3D Engine using C++ and OpenGL, and we explored and implemented various video-game industry techniques to enhance the realism and rendering possibilities of our engine. The engine is designed to have real-time rendering performances (+60FPS). }
 \keywords{computer graphics, terrain generation, realism, lights, shadows, GPU, OpenGL, performances, optimizations, C++, rendering, noise}
 \makedernierepage
 
