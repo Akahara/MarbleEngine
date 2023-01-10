@@ -1,51 +1,57 @@
 # MarbleEngine
 
-Projet S7 de génération de terrain et d'affichage 3D en OpenGL.
+Our terrain generation and 3D rendering engine for our software quality course.
 
-![Capture d'écran au début du projet](https://user-images.githubusercontent.com/44240178/193861277-f4d03973-bde5-438e-83f4-a35e247530ef.png)
+![Screenshot at the begining of the project](https://user-images.githubusercontent.com/44240178/193861277-f4d03973-bde5-438e-83f4-a35e247530ef.png)
+
+## Final screenshots
+
+![final_1](_git/final_1.png)
+![final_2](_git/final_2.png)
+![final_3](_git/final_3.png)
+![final_4](_git/final_4.png)
+![final_5](_git/final_5.png)
+![final_6](_git/final_6.png)
+![final_7](_git/final_7.png)
 
 ### roadmap
 
-**Partie abstraction OpenGL**:
+**OpenGL abstraction**:
 - [x] VBO/IBO/Shaders
 - [x] Mesh
 - [x] FBO
 - [x] On-the-fly shader recompilation
 
 **Terrain**:
-- [x] Generation de Heightmap
-- [x] Generation de Mesh
-- [x] Generation réaliste
-- [x] Coloration/texturage du mesh
+- [x] Heightmap generation
+- [x] Mesh generation
+- [x] Realistic generation (=erosion)
 
 **Monde**:
-- [x] Features (arbres/herbe...)
+- [x] Features (trees/grass...)
 - [x] Skybox
-- [x] Nuages
-- [ ] ? Cycle jour nuit
-- [x] Rivières/Océans (partiel)
+- [x] Clouds
+- [ ] ? Day/night cycle
+- [x] Rivers/Oceans
 
-**Caméra**:
-- [x] Mouvements
-- [x] Perspective/Isométrique
+**Camera**:
+- [x] Player movements
+- [x] Perspective/Isometric
 
 **VFX**:
-- [x] Lumière ambiante
-- [x] Ombres
-- [ ] ? Ambient occlusion
-- [x] HDR (=grande plage de couleurs)
-- [x] Bloom (=surbrillance)
+- [x] Ambiant shadows
+- [x] Casted shadows
+- [ ] ? Ambiant occlusion
+- [x] HDR
+- [x] Bloom
 - [x] Vignette
-- [x] Brouillard de distance (!= brouillard ambiant)
+- [x] Distance fog
 - [x] Dirt mask
 
 **Animations**:
-- [ ] Animation de meshs
-- [x] ? Vent (après les features)
-- [ ] ? Pluie
+- [ ] Mesh animations
+- [x] ? Wind
+- [ ] ? Rain
 - [x] Nuages
-- [ ] ? Cycle jour nuit
+- [ ] ? Day/night cycle
 
-**Documentation**:
-- Dans la branche wiki
-- Dans le code
