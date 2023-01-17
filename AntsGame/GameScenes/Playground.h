@@ -14,6 +14,8 @@ private:
 	World::Sky m_sky{World::Sky::SkyboxesType::SAND};
 	Player m_player; // TODO put player in namespace for consistency
 
+	Renderer::Mesh m_cube = Renderer::createCubeMesh();
+
 	float m_realTime = 0;
 
 
@@ -30,7 +32,9 @@ public:
 	void onRender() override {
 
 		Renderer::clear();
-		m_sky.render(m_player.getCamera(), m_realTime, true);
+		Renderer::renderMesh(getCamera(), { 0,0,0 }, { 1,1,1 }, m_cube);
+		Renderer::renderAABBDebugOutline(getCamera(), m_cube.getBoundingBoxInstance({ 0,0,0 }, { 1,1,1 }));
+		//m_sky.render(m_player.getCamera(), m_realTime, true);
 
 
 	}

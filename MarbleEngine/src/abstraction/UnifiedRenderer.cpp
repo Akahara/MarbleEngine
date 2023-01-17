@@ -57,7 +57,29 @@ Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentP
 
 Mesh createCubeMesh()
 {
-  return loadMeshFromFile("res/meshes/cube.obj");
+  //return loadMeshFromFile("res/meshes/cube.obj");
+
+    float s3 = std::sqrtf(3);
+    std::vector<Vertex> vertices{
+        // position              uv            normal
+        { { -.5f, -.5f, -.5f }, { 0.f, 0.f }, { -s3, -s3, -s3 } },
+        { { +.5f, -.5f, -.5f }, { 0.f, 0.f }, { +s3, -s3, -s3 } },
+        { { +.5f, +.5f, -.5f }, { 0.f, 0.f }, { +s3, +s3, -s3 } },
+        { { -.5f, +.5f, -.5f }, { 0.f, 0.f }, { -s3, +s3, -s3 } },
+        { { -.5f, -.5f, +.5f }, { 0.f, 0.f }, { -s3, -s3, +s3 } },
+        { { +.5f, -.5f, +.5f }, { 0.f, 0.f }, { +s3, -s3, +s3 } },
+        { { +.5f, +.5f, +.5f }, { 0.f, 0.f }, { +s3, +s3, +s3 } },
+        { { -.5f, +.5f, +.5f }, { 0.f, 0.f }, { -s3, +s3, +s3 } },
+    };
+    std::vector<unsigned int> indices{
+      0, 3, 1, 1, 3, 2,
+      1, 2, 5, 5, 2, 6,
+      5, 6, 4, 4, 6, 7,
+      4, 7, 0, 0, 7, 3,
+      3, 7, 2, 2, 7, 6,
+      4, 0, 5, 5, 0, 1
+    };
+    return Mesh(vertices, indices);
 }
 
 Mesh createPlaneMesh(bool facingDown)
