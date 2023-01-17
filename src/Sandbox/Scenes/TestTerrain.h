@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../Scene.h"
 #include "../../abstraction/Cubemap.h"
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../abstraction/Mesh.h"
@@ -9,7 +8,6 @@
 #include "../../World/TerrainGeneration/Terrain.h"
 #include "../../World/TerrainGeneration/Noise.h"
 #include "../../Utils/AABB.h"
-#include "../Scenes/TestShadows.h"
 
 #ifndef NDEBUG
 #define NDEBUG 0

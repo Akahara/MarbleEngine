@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/vec2.hpp>
+#include "../../Libraries/include/glm/vec2.hpp"
 
 namespace Inputs {
 

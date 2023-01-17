@@ -27,26 +27,26 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -73,22 +73,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)Libraries\include;$(LibraryPath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(ProjectDir)\Libraries\lib</LibraryPath>
+    <LibraryPath>$(SolutionDir)Libraries\lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)Libraries\include;$(LibraryPath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(ProjectDir)\Libraries\lib</LibraryPath>
+    <LibraryPath>$(SolutionDir)Libraries\lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(VC_LibraryPath_x64);$(ProjectDir)\Libraries\lib;$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Libraries\lib</LibraryPath>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)Libraries\include;$(LibraryPath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)Libraries\include;$(LibraryPath)</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(ProjectDir)\Libraries\lib</LibraryPath>
+    <LibraryPath>$(SolutionDir)Libraries\lib</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -194,6 +194,22 @@
     <ClInclude Include="Libraries\include\GLFW\glfw3.h" />
     <ClInclude Include="Libraries\include\GLFW\glfw3native.h" />
     <ClInclude Include="Libraries\include\KHR\khrplatform.h" />
+    <ClInclude Include="src\Sandbox\d.h" />
+    <ClInclude Include="src\Sandbox\Scenes\POC1.h" />
+    <ClInclude Include="src\Sandbox\Scenes\POC2.h" />
+    <ClInclude Include="src\Sandbox\Scenes\POC3.h" />
+    <ClInclude Include="src\Sandbox\Scenes\POC4.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestAtlas.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestBloom.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestCameras.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestComputeShader.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestFB.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestInstanced.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestShaders.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestShadows.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestSky.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestTerrain.h" />
+    <ClInclude Include="src\Sandbox\Scenes\TestWater.h" />
     <ClInclude Include="src\world\Props\PropsManager.h" />
     <ClInclude Include="src\abstraction\BufferObject.h" />
     <ClInclude Include="src\abstraction\Camera.h" />
@@ -222,21 +238,6 @@
     <ClInclude Include="src\abstraction\VertexBufferObject.h" />
     <ClInclude Include="src\abstraction\Window.h" />
     <ClInclude Include="src\Sandbox\Scene.h" />
-    <ClInclude Include="src\Sandbox\Scenes\POC1.h" />
-    <ClInclude Include="src\Sandbox\Scenes\POC2.h" />
-    <ClInclude Include="src\Sandbox\Scenes\POC3.h" />
-    <ClInclude Include="src\Sandbox\Scenes\POC4.h" />
-    <ClInclude Include="src\Sandbox\Scenes\TestAtlas.h" />
-    <ClInclude Include="src\Sandbox\Scenes\TestBloom.h" />
-    <ClInclude Include="src\Sandbox\Scenes\TestCameras.h" />
-    <ClInclude Include="src\Sandbox\Scenes\TestComputeShader.h" />
-    <ClInclude Include="src\Sandbox\Scenes\TestFB.h" />
-    <ClInclude Include="src\Sandbox\Scenes\TestInstanced.h" />
-    <ClInclude Include="src\Sandbox\Scenes\TestShaders.h" />
-    <ClInclude Include="src\Sandbox\Scenes\TestShadows.h" />
-    <ClInclude Include="src\Sandbox\Scenes\TestSky.h" />
-    <ClInclude Include="src\Sandbox\Scenes\TestTerrain.h" />
-    <ClInclude Include="src\Sandbox\Scenes\TestWater.h" />
     <ClInclude Include="src\Sandbox\Tests.h" />
     <ClInclude Include="src\Utils\AABB.h" />
     <ClInclude Include="src\Utils\BoundingSphere.h" />

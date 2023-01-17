@@ -10,6 +10,7 @@
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../abstraction/FrameBufferObject.h"
 #include "../../World/Player.h"
+#include "../../World/Sky.h"
 #include "../../World/SunCameraHelper.h"
 #include "../../Utils/Debug.h"
 #include "../../Utils/AABB.h"
