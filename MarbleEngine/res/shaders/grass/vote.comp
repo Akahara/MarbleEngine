@@ -1,0 +1,38 @@
+#version 430 core
+
+// {...} are replaced at runtime
+#define WORK_SIZE {WORK_SIZE}
+#define GROUP_COUNT {GROUP_COUNT}
+
+layout(local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
+
+struct instance_data
+{
+  vec4 position;
+};
+
+layout(std140, binding = 0) buffer i_instances {
+  instance_data instances[]; // length n
+};
+layout(std430, binding = 1) buffer b_culled {
+  int voted_instances[]; // length n
+};
+
+uniform uint N; // actual total number of blades, may be lower than WORK_SIZE*GROUP_COUNT but all buffers sizes are unchanged
+uniform mat4 u_VP;
+
+void main()
+{
+  uint i = gl_LocalInvocationID.x + gl_WorkGroupID.x * gl_WorkGroupSize.x;
+  if(i >= N) {
+    voted_instances[i] = 0;
+    return;
+  }
+  // if the "visible point" is outside of the view frustum, the whole instance is culled
+  vec3 visiblePt = instances[i].position.xyz;
+  visiblePt.y += instances[i].position.w * .5;
+  vec4 proj = u_VP * vec4(visiblePt, 1);
+  proj /= abs(proj.z);
+  proj.xy = abs(proj.xy);
+  voted_instances[i] = (proj.x < 1 && proj.y < 1 && proj.z > 0) ? 1 : 0; // could use zNear and zFar, good enough for now
+}
