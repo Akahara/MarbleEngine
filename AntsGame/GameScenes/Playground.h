@@ -27,6 +27,12 @@ private:
 	unsigned int VBO;
 	unsigned int EBO;
 
+	Renderer::Mesh* m_mesh;
+
+	Renderer::VertexBufferObject* m_VBO;
+	Renderer::IndexBufferObject* m_IBO;
+	Renderer::VertexArray* m_VAO;
+
 
 public:
 
@@ -52,6 +58,17 @@ public:
 			  3, 7, 2, 2, 7, 6,
 			  4, 0, 5, 5, 0, 1
 		};
+
+		m_VBO = new Renderer::VertexBufferObject(vertices, sizeof(vertices));
+		m_IBO = new Renderer::IndexBufferObject(indices, 36);
+
+		Renderer::VertexBufferLayout layout;
+		layout.push<float>(3);
+
+		m_VAO = new Renderer::VertexArray();
+		m_VAO->addBuffer(*m_VBO, layout, *m_IBO);
+		m_VAO->unbind();
+		
 
 		glGenBuffers(1, &VBO);
 
@@ -124,6 +141,7 @@ public:
 
 		Renderer::clear();
 
+		Renderer::renderDebugCube(getCamera(), { 5,5,5 }, { 3,3,3 }); //??????????????????????????????????? apparitions soudaines parfois
 		glDisable(GL_CULL_FACE);
 		glUseProgram(m_shader);
 
@@ -133,9 +151,21 @@ public:
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
-		//m_sky.render(getCamera());
 
-		Renderer::renderDebugCube(getCamera(), { 5,5,5 }, { 3,3,3 }); //??????????????????????????????????? apparitions soudaines parfois
+		/* Nothing to be seen ... */
+		glUniformMatrix4fv(glGetUniformLocation(m_shader, "u_M"), 1, GL_FALSE, glm::value_ptr(glm::scale(glm::translate(glm::mat4(1), { -5,-5,-5 }), { 3,3,3 })));
+		glUniformMatrix4fv(glGetUniformLocation(m_shader, "u_VP"), 1, GL_FALSE, glm::value_ptr(getCamera().getViewProjectionMatrix()));
+		m_VAO->bind();
+		glDrawElements(GL_TRIANGLES, m_IBO->getCount(), GL_UNSIGNED_INT, 0);
+		m_VAO->unbind();
+
+		//m_mesh->draw();
+
+
+		glUseProgram(0);
+		//m_sky.render(getCamera()); //jittering is fixed
+
+
 
 
 	}
