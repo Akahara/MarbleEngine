@@ -437,11 +437,11 @@ void renderCubemap(const Camera &camera, const Cubemap &cubemap)
   the shader should not set the screen position to 1 but rather to gl_Position.w
   */
 
-  glDepthMask(false); // do not write to depth buffer, technically not necessary
-  glDepthFunc(GL_EQUAL);
+  //glDepthMask(false); // do not write to depth buffer, technically not necessary
+  glDepthFunc(GL_LEQUAL);
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
   glDepthFunc(GL_LESS);
-  glDepthMask(true);
+  //glDepthMask(true);
 
   VertexArray::unbind();
   s_keepAliveResources->cubemapShader.unbind();
@@ -462,6 +462,7 @@ void renderDebugLine(const Camera &camera, const glm::vec3 &from, const glm::vec
 
 void renderDebugCube(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const glm::vec4 &color)
 {
+    glDisable(GL_CULL_FACE);
   glm::mat4 M(1.f);
   M = glm::translate(M, position);
   M = glm::scale(M, size);

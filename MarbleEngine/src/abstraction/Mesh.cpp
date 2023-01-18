@@ -84,12 +84,15 @@ void Mesh::bindTextureToSlot(const std::shared_ptr<Texture>& texture, int slot) 
 
 void Mesh::draw() const
 {
+    
   m_VAO.bind();
   // bind all textures
+  /*
   for (const auto& [slot, texture_ptr] : m_SlotTextures) {
       texture_ptr->bind(slot);
   }
-  glDrawElements(GL_TRIANGLES, m_verticesCount, GL_UNSIGNED_INT, nullptr);
+  */
+  glDrawElements(GL_TRIANGLES, m_verticesCount, GL_UNSIGNED_INT, 0);
 
   VertexArray::unbind();
 }
