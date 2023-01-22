@@ -1,17 +1,17 @@
 #include <thread>
 #include <chrono>
 
-#include "src/vendor/imgui/imgui.h"
-#include "src/vendor/imgui/imgui_impl_glfw.h"
-#include "src/vendor/imgui/imgui_impl_opengl3.h"
+#include "marble/vendor/imgui/imgui.h"
+#include "marble/vendor/imgui/imgui_impl_glfw.h"
+#include "marble/vendor/imgui/imgui_impl_opengl3.h"
 
-#include "src/abstraction/Window.h"
-#include "src/abstraction/Inputs.h"
+#include "marble/abstraction/Window.h"
+#include "marble/abstraction/Inputs.h"
 
-#include "src/Sandbox/Scene.h"
-#include "src/Utils/Debug.h"
+#include "marble/Sandbox/Scene.h"
+#include "marble/Utils/Debug.h"
 
-#include "src/Sandbox/Tests.h"
+#include "marble/Sandbox/Tests.h"
 
 inline long long nanoTime()
 {
