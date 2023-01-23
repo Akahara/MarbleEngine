@@ -63,6 +63,7 @@ public:
       meshShader.setUniform1f("u_Strength", 1.25f);
       meshShader.setUniform3f("u_fogDamping", .005f, .005f, .007f);
       meshShader.setUniform3f("u_fogColor", 1.000f, 0.944f, 0.102f);
+      meshShader.setUniform3f("u_SunPos", 1000,1000,1000);
       Renderer::Shader::unbind();
     }
 

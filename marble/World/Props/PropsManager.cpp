@@ -51,7 +51,8 @@ void PropsManager::render(const Renderer::Camera& camera) {
 
 void PropsManager::onImGuiRender()  {
 
-	ImGui::Begin("Scene props");
+	if (ImGui::Begin("Scene props")) {
+
 
 	for (unsigned int i = 0; i < m_props.size(); i ++) {
 
@@ -68,6 +69,8 @@ void PropsManager::onImGuiRender()  {
 		}
 
 	}
+	}
+	ImGui::End();
 
 
 }

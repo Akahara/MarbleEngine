@@ -51,7 +51,7 @@ void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
   default:                                severityName = "?";               break;
   }
   
-  if (type != GL_DEBUG_TYPE_PERFORMANCE) {
+  if ((type != GL_DEBUG_TYPE_PERFORMANCE) && (type != GL_DEBUG_TYPE_OTHER)) {
     std::cerr
       << "GL CALLBACK: " << sourceName << "\n"
       << " type     = " << typeName << "\n"

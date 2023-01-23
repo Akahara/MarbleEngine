@@ -69,7 +69,7 @@ void init()
 void drawSkyClouds(const Camera &camera, float time)
 {
   glDepthMask(false); // do not write to depth buffer
-  glDepthFunc(GL_EQUAL);
+  glDepthFunc(GL_LEQUAL);
   glm::mat4 M(1.f);
   // beware! if vertices go too far outside the clip range after the vertex shader
   // transformation, some may flicker, making triangles break and the whole plane

@@ -36,12 +36,14 @@ Mesh::Mesh()
 
 Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices,
     const std::unordered_map<int, std::shared_ptr<Texture>>& slotsTextures)
-  : m_VBO(vertices.data(), sizeof(Vertex) * vertices.size()),
-  m_IBO(indices.data(), indices.size()),
-  m_VAO(),
+  : 
+    m_VAO(),
   m_verticesCount((unsigned int)indices.size()),
   m_SlotTextures(slotsTextures)
 {
+
+    m_VBO = VertexBufferObject(vertices.data(), sizeof(Vertex) * vertices.size());
+    m_IBO = IndexBufferObject(indices.data(), indices.size());
   m_VAO.addBuffer(m_VBO, getVertexBufferLayout(), m_IBO);
   VertexArray::unbind();
 
