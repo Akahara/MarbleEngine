@@ -18,10 +18,10 @@ class Player {
 public:
   Player();
 
-  void step(float delta);
+  virtual void step(float delta); // added virtual for player redefinition in games
 
   const Renderer::Camera &getCamera() const { return m_camera; }
-  Renderer::Camera &getCamera() { return m_camera; }
+  virtual Renderer::Camera &getCamera() { return m_camera; }
   glm::vec3 getForward() const { return { -sin(m_camera.getYaw()), 0, -cos(m_camera.getYaw()) }; }
   glm::vec3 getRight() const { return m_camera.getRight(); }
   glm::vec3 getPosition() const { return m_camera.getPosition(); }
@@ -34,6 +34,7 @@ public:
   void moveCamera(const glm::vec3& delta) { m_camera.setPosition(m_camera.getPosition() + delta); m_camera.setPosition(m_camera.getPosition() + delta); }
 
   void updateCamera();
-private:
+
+protected:
   Renderer::Camera m_camera;
 };
