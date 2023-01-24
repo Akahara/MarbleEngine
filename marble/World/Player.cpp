@@ -37,15 +37,14 @@ void Player::step(float delta)
   if (Inputs::isKeyPressed(GLFW_KEY_LEFT_SHIFT))
     motion -= UP;
 
-  float speed = 25.f;
   if (Inputs::isKeyPressed(GLFW_KEY_TAB))
-    speed *= 15.f;
+      m_speed *= 15.f;
 
   glm::vec2 rotationMotion = Inputs::getMouseDelta() / Inputs::getInputRange() * Mathf::PI;
 
   m_camera.setYaw(m_camera.getYaw() - rotationMotion.x);
   m_camera.setPitch(std::max(-Mathf::PI * .499f, std::min(+Mathf::PI * .499f, m_camera.getPitch() + rotationMotion.y)));
-  m_camera.setPosition(m_camera.getPosition() + motion * delta * speed);
+  m_camera.setPosition(m_camera.getPosition() + motion * delta * m_speed);
 
   if (Inputs::isKeyPressed('Q')) {
     m_camera.setYaw(0);

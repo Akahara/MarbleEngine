@@ -15,6 +15,10 @@
 * applying your changes.
 */
 class Player {
+private: 
+
+	float m_speed = 25.f;
+
 public:
   Player();
 
@@ -28,12 +32,13 @@ public:
   glm::vec2 getRotation() const { return { m_camera.getYaw(), m_camera.getPitch() }; }
 
   // After moving the player #updateCamera() should be called
+  void setSpeed(float val) { m_speed = val; }
   void setPostion(const glm::vec3 &position) { m_camera.setPosition(position); }
   void setRotation(float yaw, float pitch) { m_camera.setYaw(yaw); m_camera.setPitch(pitch); }
   void inversePitch() { m_camera.setPitch(-m_camera.getPitch()); }
   void moveCamera(const glm::vec3& delta) { m_camera.setPosition(m_camera.getPosition() + delta); m_camera.setPosition(m_camera.getPosition() + delta); }
 
-  void updateCamera();
+  virtual void updateCamera();
 
 protected:
   Renderer::Camera m_camera;
