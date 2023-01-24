@@ -13,10 +13,6 @@ Player::Player()
   : m_camera()
 {
   m_camera.setProjection(Renderer::PerspectiveProjection{ Mathf::PI / 3.f, 16.f / 9.f });
-  // default position
-  m_camera.setYaw(.8f);
-  m_camera.setPitch(.5f);
-  m_camera.setPosition({ 3, 3, 3 });
 
   updateCamera();
 }
