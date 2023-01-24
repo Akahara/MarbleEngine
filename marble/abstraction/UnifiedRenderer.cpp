@@ -279,7 +279,7 @@ void init()
   s_keepAliveResources = new KeepAliveResources;
 
   s_keepAliveResources->standardMeshShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_color.fs"); // invalid shader
-  s_keepAliveResources->standardLightsShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/lights_pointlights.fs");
+  //s_keepAliveResources->standardLightsShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/lights_pointlights.fs");
   s_keepAliveResources->standardLineShader = loadShaderFromFiles("res/shaders/standard_line.vs", "res/shaders/standard_color.fs");
   s_keepAliveResources->standardDepthPassShader = loadShaderFromFiles("res/shaders/depth_pass.vs", "res/shaders/depth_pass.fs");
   s_keepAliveResources->cubemapShader = loadShaderFromFiles("res/shaders/cubemap.vs", "res/shaders/cubemap.fs");

@@ -22,9 +22,9 @@ private:
 public:
   Player();
 
-  virtual void step(float delta); // added virtual for player redefinition in games
+  virtual void step(float delta);
 
-  const Renderer::Camera &getCamera() const { return m_camera; }
+  virtual const Renderer::Camera &getCamera() const { return m_camera; }
   virtual Renderer::Camera &getCamera() { return m_camera; }
   glm::vec3 getForward() const { return { -sin(m_camera.getYaw()), 0, -cos(m_camera.getYaw()) }; }
   glm::vec3 getRight() const { return m_camera.getRight(); }
