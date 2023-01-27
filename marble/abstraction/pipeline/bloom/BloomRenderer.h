@@ -56,7 +56,6 @@ private:
     {
         // This seems to work, giving downsampled mips
         // 
-        // 
         // Set the downsampling shader         
         m_blitdata.getShader().bind();
         texture.bind();
@@ -71,7 +70,6 @@ private:
 
             Renderer::FrameBufferObject::setViewport((unsigned int)mip.resolution.x, (unsigned int)mip.resolution.y);//?
             m_fbo.setTargetTexture(mip.texture);
-
 
             // blit
             if (bloomPass == 0) {
@@ -118,9 +116,11 @@ private:
 
         m_blitdata.getShader().setUniform1f("u_filterRadius", filterRadius);
         m_blitdata.getShader().setUniform1i("u_texture", 0);
+        
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);
         glBlendEquation(GL_FUNC_ADD); // TODO FIX pin down the inclusing of glad.h that allows this call
+   
                                       // glad.h should not be included in any .h file
 
         for (size_t bloomPass = m_mipChain.size() - 1; bloomPass > 0; bloomPass--) {
@@ -147,6 +147,6 @@ private:
             }
         }
 
-        glDisable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     }
 };
