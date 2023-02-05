@@ -120,6 +120,7 @@
     <ClInclude Include="marble\Sandbox\Scenes\TestAtlas.h" />
     <ClInclude Include="marble\World\Light\LightManager.h" />
     <ClInclude Include="marble\World\Props\PropsManager.h" />
+    <ClInclude Include="marble\World\Props\Prop.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\lib\glfw3.lib" />

@@ -29,6 +29,14 @@ void PropsManager::feed(const std::shared_ptr<Renderer::Mesh>&  mesh, const glm:
 
 }
 
+void PropsManager::feed(Prop prop) {
+
+	m_props.emplace_back(prop);
+
+}
+
+
+
 void PropsManager::render(const Renderer::Camera& camera) {
 
 	computeToBeRendered(Renderer::Frustum::createFrustumFromPerspectiveCamera(camera));

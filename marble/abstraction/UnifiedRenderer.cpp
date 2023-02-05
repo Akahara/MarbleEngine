@@ -171,7 +171,7 @@ Mesh loadMeshFromFile(const fs::path& objPath)
 
     } else if (strstr(lineBuffer, "mtllib ") == lineBuffer)  {
         ss >>  mtllib ;
-        std::cout << "Using material libraire : " + mtllib << std::endl;
+        //std::cout << "Using material libraire : " + mtllib << std::endl;
 
     } else if (strstr(lineBuffer, "usemtl ") == lineBuffer)  {
         std::string material_name;
@@ -225,7 +225,7 @@ Mesh loadMeshFromFile(const fs::path& objPath)
          
               std::string file_path = "res/textures/" + textureFileName;
 
-              std::cout << "Material : " + cachedMaterialName + " uses texture : " + textureFileName << std::endl;
+              //std::cout << "Material : " + cachedMaterialName + " uses texture : " + textureFileName << std::endl;
               
               material_texturefilepath_map[cachedMaterialName] = file_path;
 

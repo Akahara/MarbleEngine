@@ -194,6 +194,7 @@
     <ClInclude Include="Libraries\include\GLFW\glfw3.h" />
     <ClInclude Include="Libraries\include\GLFW\glfw3native.h" />
     <ClInclude Include="Libraries\include\KHR\khrplatform.h" />
+    <ClInclude Include="marble\World\Props\Prop.h" />
     <ClInclude Include="marble\World\Props\PropsManager.h" />
     <ClInclude Include="marble\abstraction\BufferObject.h" />
     <ClInclude Include="marble\abstraction\Camera.h" />

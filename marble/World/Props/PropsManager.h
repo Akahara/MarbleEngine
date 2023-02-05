@@ -6,21 +6,14 @@
 #include "../../abstraction/Mesh.h"
 #include "../../abstraction/Camera.h"
 
+#include "Prop.h"
+
 namespace World {
 
 class PropsManager
 {
 
 private:
-
-	struct Prop {
-
-		std::shared_ptr< Renderer::Mesh>  mesh;
-		glm::vec3 position = {0,0,0};
-		glm::vec3 size = { 1,1,1 };
-		std::string name = "N/A";
-
-	};
 
 	std::vector<Prop> m_props;
 	std::queue<Prop> m_toRender;
@@ -39,11 +32,11 @@ public:
 	void feed(const std::shared_ptr< Renderer::Mesh>& mesh, 
 		const glm::vec3& position = {0,0,0},
 		const glm::vec3& size = {1,1,1});
+
+	void feed(Prop prop);
 	void render(const Renderer::Camera& camera);
 
 	void onImGuiRender() ;
-
-	//void feedFromFile(const )
 
 
 };
