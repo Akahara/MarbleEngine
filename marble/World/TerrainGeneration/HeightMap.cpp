@@ -2,6 +2,7 @@
 
 #include "../../Utils/Mathf.h"
 #include "Terrain.h"
+#include <cstring>
 
 namespace Terrain {
 
@@ -64,7 +65,7 @@ ConcreteHeightMap::ConcreteHeightMap(const ConcreteHeightMap &other)
 {
   size_t arraySize = (size_t)m_width * m_height;
   m_heightValues = new float[arraySize];
-  memcpy_s(m_heightValues, arraySize * sizeof(float), other.m_heightValues, arraySize * sizeof(float));
+  memcpy(m_heightValues, other.m_heightValues, arraySize * sizeof(float));
 }
 
 ConcreteHeightMap &ConcreteHeightMap::operator=(const ConcreteHeightMap &other)

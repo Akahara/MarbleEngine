@@ -62,9 +62,8 @@ float *loadNoiseMapFromFile(const char *path, unsigned int *o_width, unsigned in
   if (!buf) {
 	std::cout << "Error: Failed to load noise texture '" << path << "'" << std::endl;
 	std::cout << stbi_failure_reason() << std::endl;
-	__debugbreak();
 	stbi_image_free(buf);
-	throw std::exception("Failed to load file");
+	throw "Failed to load file";
   }
 
   float *noiseMap = new float[mapWidth * mapHeight];

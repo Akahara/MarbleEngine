@@ -125,7 +125,7 @@ namespace Renderer {
 
 	void ShaderManager::addShader(Shader *shader, const char *vertexPath, const char *fragmentPath, bool loadNow)
 	{
-	  m_managedShaders.emplace_back(shader, vertexPath, fragmentPath);
+	  m_managedShaders.push_back({ shader, vertexPath, fragmentPath });
 	  if(loadNow)
 	  	*shader = loadShaderFromFiles(vertexPath, fragmentPath);
 	  collectTestUniforms(shader, {});
@@ -239,7 +239,7 @@ namespace Renderer {
 	{
 	  std::ifstream file{ path };
 	  if (!file.good())
-		throw std::exception("Could not load a shader file");
+		throw "Could not load a shader file";
 	  std::stringstream buffer;
 	  buffer << file.rdbuf();
 	  return buffer.str();

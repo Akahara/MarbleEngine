@@ -5,7 +5,9 @@
 #include "../../abstraction/Mesh.h"
 #include "../../abstraction/UnifiedRenderer.h"
 
-struct Renderer::Frustum;
+namespace Renderer {
+	struct Frustum;
+}
 
 class WaterSource
 {

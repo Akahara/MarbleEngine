@@ -5,10 +5,10 @@
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../abstraction/Camera.h"
 #include "../../World/Player.h"
-#include "../../world/Sky.h"
+#include "../../World/Sky.h"
 #include "../../abstraction/pipeline/Bloom.h"
-#include "../../world/Light/Light.h"
-#include "../../world/Light/LightManager.h"
+#include "../../World/Light/Light.h"
+#include "../../World/Light/LightManager.h"
 #include "../../abstraction/pipeline/VFXPipeline.h"
 
 class TestBloomScene : public Scene {

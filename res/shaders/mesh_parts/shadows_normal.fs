@@ -6,7 +6,7 @@ in vec3 o_pos;
 in vec3 o_color;
 
 // This tells what texture slot is the normal texture of the index-Texture
-uniform int u_NormalsTextureSlot[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+uniform int u_NormalsTextureSlot[8];
 uniform vec3 u_SunPos;
 
 float computeSunlight(vec3 normal) {

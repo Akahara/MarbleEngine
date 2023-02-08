@@ -8,7 +8,7 @@
 #include "Camera.h"
 #include "Cubemap.h"
 #include "../Utils/AABB.h"
-#include "../world/Light/Light.h"
+#include "../World/Light/Light.h"
 
 /**
 * The Renderer is the primary interface with OpenGL. A final user should not have

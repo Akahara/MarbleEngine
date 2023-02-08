@@ -37,7 +37,6 @@ Texture::Texture(const std::string &path)
   } else {
 	std::cout << "Error: Failed to load texture '" << path << "'" << std::endl;
 	std::cout << stbi_failure_reason() << std::endl;
-	__debugbreak();
 	stbi_image_free(localBuffer);
   }
 }
@@ -123,7 +122,7 @@ Texture Texture::createTextureFromData(const float *data, int width, int height,
   case 2: dataFormat = GL_RG;  	break;
   case 3: dataFormat = GL_RGB;  break;
   case 4: dataFormat = GL_RGBA; break;
-  default: throw std::exception("Unreachable");
+  default: throw "Unreachable";
   }
 
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, dataFormat, GL_FLOAT, data);
@@ -162,7 +161,7 @@ void Texture::writeToFile(const Texture &texture, const std::filesystem::path &p
   bool success = stbi_write_png(pathStr.c_str(), w, h, 4, data, w * 4);
   delete[] data;
   if (!success)
-	throw std::exception("Could not write to file");
+	throw "Could not write to file";
 }
 
 }

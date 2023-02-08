@@ -27,7 +27,7 @@ Cubemap::Cubemap(const std::string &front, const std::string &back, const std::s
   for (unsigned int i = 0; i < 6; i++) {
     unsigned char *data = stbi_load(files[i]->c_str(), &width, &height, &nrChannels, 0);
     if (data == nullptr)
-      throw std::exception("Could not load a cubemap");
+      throw "Could not load a cubemap";
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     stbi_image_free(data);
   }

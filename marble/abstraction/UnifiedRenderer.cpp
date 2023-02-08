@@ -4,6 +4,8 @@
 #include <sstream>
 #include <iostream>
 #include <memory>
+#include <cstring>
+#include <algorithm>
 
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -13,8 +15,12 @@
 #include "Camera.h"
 #include "Mesh.h"
 
-#include "../world/Light/Light.h" // TODO move light.h to the abstraction package
+#include "../World/Light/Light.h" // TODO move light.h to the abstraction package
                                   // abstraction should not depend on world, the inverse is possible
+
+#ifndef WIN32
+#include <sys/stat.h>
+#endif
 
 namespace Renderer {
 
@@ -121,7 +127,7 @@ Mesh loadMeshFromFile(const fs::path& objPath)
   std::vector<Vertex> vertices;
 
   if (!modelFile.good())
-    throw std::exception("Could not open model file");
+    throw "Could not open model file";
 
   int l = 0;
   while (modelFile.good()) {
@@ -343,14 +349,14 @@ void shutdown()
 Shader &rebuildStandardMeshShader(const ShaderFactory &builder)
 {
   if (s_keepAliveResources == nullptr)
-    throw std::exception("Cannot fetch resources while the renderer is uninitialized");
+    throw "Cannot fetch resources while the renderer is uninitialized";
   return s_keepAliveResources->standardMeshShader = builder.build();
 }
 
 Shader &getStandardMeshShader()
 {
   if (s_keepAliveResources == nullptr)
-    throw std::exception("Cannot fetch resources while the renderer is uninitialized");
+    throw "Cannot fetch resources while the renderer is uninitialized";
   return s_keepAliveResources->standardMeshShader;
 }
 
@@ -552,7 +558,7 @@ void renderDebugCameraOutline(const Camera &viewCamera, const Camera &outlinedCa
   switch (outlinedCamera.getProjectionType()) {
   case CameraProjection::ORTHOGRAPHIC: renderDebugOrthographicCameraOutline(viewCamera, outlinedCamera);       break;
   case CameraProjection::PERSPECTIVE:  renderDebugPerspectiveCameraOutline(viewCamera, outlinedCamera); break;
-  default:                             throw std::exception("Unreachable");                             break;
+  default:                             throw "Unreachable";                             break;
   }
 }
 

@@ -41,7 +41,7 @@ struct ErosionSettings {
   float initialWaterVolume = 1;
   float initialSpeed = 1;
   int maxDropletLifetime = 30;      // number of erosion steps
-  size_t dropletCount = 100'000;
+  std::size_t dropletCount = 100'000;
 };
 
 /**

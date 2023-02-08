@@ -1,5 +1,6 @@
 #include "Inputs.h"
 
+#include <cstdlib>
 #include <set>
 
 #include <GLFW/glfw3.h>

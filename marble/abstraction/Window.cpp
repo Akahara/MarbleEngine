@@ -65,7 +65,7 @@ void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
     (type != GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR) &&
     (type != GL_DEBUG_TYPE_OTHER)
     ) {
-    __debugbreak();
+      
   }
 }
 
@@ -83,7 +83,7 @@ void createWindow(unsigned int width, unsigned int height, const char *title)
   winHeight = height;
 
   if (window == NULL)
-    throw std::exception("Failed to create GLFW window");
+    throw "Failed to create GLFW window";
 
   glfwMakeContextCurrent(window);
 
@@ -114,7 +114,7 @@ void createWindow(unsigned int width, unsigned int height, const char *title)
   });
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    throw std::exception("Failed to initialize GLAD");
+    throw "Failed to initialize GLAD";
 
   glEnable(GL_DEBUG_OUTPUT);
   glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -206,7 +206,7 @@ void setPosition(int x, int y)
 
 void capFramerate()
 {
-  glfwSwapInterval(1);
+  glfwSwapInterval(0);
 }
 
 void captureMouse(bool enabled)
