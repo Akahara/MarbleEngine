@@ -59,38 +59,37 @@ namespace Renderer {
     }
 
     template<>
-    void VertexBufferLayout::push<float>(unsigned int count)
+    VertexBufferLayout &VertexBufferLayout::push<float>(unsigned int count)
     {
       m_elements.push_back({ GL_FLOAT, count, GL_FALSE });
       m_stride += VertexBufferElement::getSizeOfType(GL_FLOAT) * count; // 4 bytes
+      return *this;
     }
 
     template<>
-    void VertexBufferLayout::push<glm::vec2>(unsigned int count)
+    VertexBufferLayout &VertexBufferLayout::push<glm::vec2>(unsigned int count)
     {
-      m_elements.push_back({ GL_FLOAT, count, GL_FALSE });
-      m_stride += 2 * sizeof(GL_FLOAT) * count; // 4 bytes
+        return push<float>(2);
     }
 
     template<>
-    void VertexBufferLayout::push<glm::vec3>(unsigned int count)
+    VertexBufferLayout &VertexBufferLayout::push<glm::vec3>(unsigned int count)
     {
-      m_elements.push_back({ GL_FLOAT, count, GL_FALSE });
-      m_stride += 3 * sizeof(GL_FLOAT) * count; // 4 bytes
+        return push<float>(3);
     }
 
     template<>
-    void VertexBufferLayout::push<glm::vec4>(unsigned int count)
+    VertexBufferLayout &VertexBufferLayout::push<glm::vec4>(unsigned int count)
     {
-      m_elements.push_back({ GL_FLOAT, count, GL_FALSE });
-      m_stride += 4 * sizeof(GL_FLOAT) * count; // 4 bytes
+        return push<float>(4);
     }
 
     template<>
-    void VertexBufferLayout::push<unsigned int>(unsigned int count)
+    VertexBufferLayout &VertexBufferLayout::push<unsigned int>(unsigned int count)
     {
       m_elements.push_back({ GL_UNSIGNED_INT, count, GL_FALSE });
       m_stride += VertexBufferElement::getSizeOfType(GL_UNSIGNED_INT) * count;
+      return *this;
     }
 
 }

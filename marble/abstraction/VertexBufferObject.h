@@ -42,9 +42,9 @@ public:
 
   VertexBufferLayout() : m_stride(0) {}
 
-  /* T may be (unsigned)int,float and glm vectors */
+  /* T may be (unsigned)int,float and glm vectors, matrices are not yet supported */
   template<typename T>
-  void push(unsigned int count);
+  VertexBufferLayout &push(unsigned int count);
 
   inline const std::vector<VertexBufferElement> &getElements() const { return m_elements; }
   inline unsigned int getStride() const { return m_stride; }

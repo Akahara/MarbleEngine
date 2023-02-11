@@ -11,20 +11,6 @@
 
 namespace Renderer {
 
-static const VertexBufferLayout &getVertexBufferLayout()
-{
-  static VertexBufferLayout layout = []() {
-    VertexBufferLayout l;
-    l.push<float>(3); // position
-    l.push<float>(2); // uv
-    l.push<float>(3); // normal
-    l.push<float>(3); // color
-    l.push<float>(1); // texId
-    return l;
-  }();
-  return layout;
-}
-
 Mesh::Mesh()
   : m_VBO(),
   m_IBO(),
@@ -42,9 +28,9 @@ Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> 
   m_SlotTextures(slotsTextures)
 {
 
-    m_VBO = VertexBufferObject(vertices.data(), sizeof(Vertex) * vertices.size());
-    m_IBO = IndexBufferObject(indices.data(), indices.size());
-  m_VAO.addBuffer(m_VBO, getVertexBufferLayout(), m_IBO);
+  m_VBO = VertexBufferObject(vertices.data(), sizeof(Vertex) * vertices.size());
+  m_IBO = IndexBufferObject(indices.data(), indices.size());
+  m_VAO.addBuffer(m_VBO, Vertex::getVertexBufferLayout(), m_IBO);
   VertexArray::unbind();
 
   glm::vec3 aabbMin{ std::numeric_limits<float>::max() };
@@ -88,10 +74,20 @@ void Mesh::draw() const
 {
   m_VAO.bind();
   // bind all textures
-  for (const auto& [slot, texture_ptr] : m_SlotTextures) {
+  for (const auto& [slot, texture_ptr] : m_SlotTextures)
       texture_ptr->bind(slot);
-  }
   glDrawElements(GL_TRIANGLES, m_verticesCount, GL_UNSIGNED_INT, nullptr);
+
+  VertexArray::unbind();
+}
+
+void Mesh::draw(int instanceCount) const
+{
+  m_VAO.bind();
+  // bind all textures
+  for (const auto &[slot, texture_ptr] : m_SlotTextures)
+      texture_ptr->bind(slot);
+  glDrawElementsInstanced(GL_TRIANGLES, m_verticesCount, GL_UNSIGNED_INT, nullptr, instanceCount);
 
   VertexArray::unbind();
 }
@@ -129,7 +125,7 @@ NormalsMesh::NormalsMesh(const std::vector<Vertex> &vertices)
 
   m_VBO = VertexBufferObject(newVertices.data(), sizeof(Vertex) * newVertices.size());
   m_IBO = IndexBufferObject(newIndices.data(), newIndices.size());
-  m_VAO.addBuffer(m_VBO, getVertexBufferLayout(), m_IBO);
+  m_VAO.addBuffer(m_VBO, Vertex::getVertexBufferLayout(), m_IBO);
   m_verticesCount = (unsigned int)newVertices.size();
   VertexArray::unbind();
 }

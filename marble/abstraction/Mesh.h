@@ -19,6 +19,18 @@ struct Vertex {
   glm::vec3 normal;
   glm::vec3 color = {1.0f, 0.f, 0.f};
   float texId = 0;
+
+  static const VertexBufferLayout &getVertexBufferLayout()
+  {
+      static VertexBufferLayout layout = VertexBufferLayout()
+          .push<float>(3) // position
+          .push<float>(2) // uv
+          .push<float>(3) // normal
+          .push<float>(3) // color
+          .push<float>(1) // texId
+          ;
+      return layout;
+  }
 };
 
 /**
@@ -56,10 +68,12 @@ public:
   unsigned int getVertexCount() const { return m_verticesCount; }
   const AABB &getBoundingBox() const { return m_boudingBox; }
   AABB getBoundingBoxInstance(glm::vec3 instancePosition, glm::vec3 instanceSize) const;
+  VertexArray &getVAO() { return m_VAO; } // may be used for instanced rendering
 
   void bindTextureToSlot(const std::shared_ptr<Texture>& texture, int slot = 0);
 
   void draw() const;
+  void draw(int instanceCount) const; // an instance buffer must have been bound to this mesh's vao
 };
 
 

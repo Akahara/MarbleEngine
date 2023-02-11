@@ -298,6 +298,7 @@
     <None Include="res\shaders\grass\scan_blocks.comp" />
     <None Include="res\shaders\grass\scan_groups.comp" />
     <None Include="res\shaders\grass\vote.comp" />
+    <None Include="res\shaders\instanced.vs" />
     <None Include="res\shaders\lensmask.fs" />
     <None Include="res\shaders\mesh_parts\base.fs" />
     <None Include="res\shaders\mesh_parts\color_singletexture.fs" />

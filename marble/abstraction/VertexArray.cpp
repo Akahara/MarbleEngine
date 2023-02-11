@@ -55,6 +55,8 @@ void VertexArray::addBuffer(const VertexBufferObject& vb, const VertexBufferLayo
 		
 	offset += element.count * VertexBufferElement::getSizeOfType(element.type);
   }
+
+  unbind();
 }
 
 void VertexArray::addInstanceBuffer(const VertexBufferObject &ivb, const VertexBufferLayout &instanceLayout, const VertexBufferLayout &modelLayout)
@@ -65,6 +67,8 @@ void VertexArray::addInstanceBuffer(const VertexBufferObject &ivb, const VertexB
   const auto &elements = instanceLayout.getElements();
   unsigned int offset = 0;
   unsigned int attribOffset = (unsigned int)modelLayout.getElements().size();
+  int g;
+  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &g);
 
   for (unsigned int i = 0; i < elements.size(); i++) {
 	const auto &element = elements[i];
@@ -75,6 +79,8 @@ void VertexArray::addInstanceBuffer(const VertexBufferObject &ivb, const VertexB
 
 	offset += element.count * VertexBufferElement::getSizeOfType(element.type);
   }
+
+  unbind();
 }
 
 void VertexArray::sendToGPU(size_t size, const void* data) {

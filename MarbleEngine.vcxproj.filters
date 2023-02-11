@@ -178,5 +178,6 @@
     <None Include="res\shaders\mesh_parts\normal_normalmap.fs" />
     <None Include="res\shaders\clouds.vs" />
     <None Include="res\shaders\clouds.fs" />
+    <None Include="res\shaders\instanced.vs" />
   </ItemGroup>
 </Project>
