@@ -18,10 +18,6 @@
 #include "../World/Light/Light.h" // TODO move light.h to the abstraction package
                                   // abstraction should not depend on world, the inverse is possible
 
-#ifndef WIN32
-#include <sys/stat.h>
-#endif
-
 namespace Renderer {
 
 static struct KeepAliveResources {
@@ -127,7 +123,7 @@ Mesh loadMeshFromFile(const fs::path& objPath)
   std::vector<Vertex> vertices;
 
   if (!modelFile.good())
-    throw "Could not open model file";
+    throw std::runtime_error("Could not open model file");
 
   int l = 0;
   while (modelFile.good()) {
@@ -349,14 +345,14 @@ void shutdown()
 Shader &rebuildStandardMeshShader(const ShaderFactory &builder)
 {
   if (s_keepAliveResources == nullptr)
-    throw "Cannot fetch resources while the renderer is uninitialized";
+    throw std::runtime_error("Cannot fetch resources until the renderer is initialized");
   return s_keepAliveResources->standardMeshShader = builder.build();
 }
 
 Shader &getStandardMeshShader()
 {
   if (s_keepAliveResources == nullptr)
-    throw "Cannot fetch resources while the renderer is uninitialized";
+    throw std::runtime_error("Cannot fetch resources until the renderer is initialized");
   return s_keepAliveResources->standardMeshShader;
 }
 
@@ -556,9 +552,9 @@ static void renderDebugPerspectiveCameraOutline(const Camera &viewCamera, const 
 void renderDebugCameraOutline(const Camera &viewCamera, const Camera &outlinedCamera)
 {
   switch (outlinedCamera.getProjectionType()) {
-  case CameraProjection::ORTHOGRAPHIC: renderDebugOrthographicCameraOutline(viewCamera, outlinedCamera);       break;
-  case CameraProjection::PERSPECTIVE:  renderDebugPerspectiveCameraOutline(viewCamera, outlinedCamera); break;
-  default:                             throw "Unreachable";                             break;
+  case CameraProjection::ORTHOGRAPHIC: renderDebugOrthographicCameraOutline(viewCamera, outlinedCamera); break;
+  case CameraProjection::PERSPECTIVE:  renderDebugPerspectiveCameraOutline(viewCamera, outlinedCamera);  break;
+  default:                             throw std::runtime_error("Unreachable");                          break;
   }
 }
 

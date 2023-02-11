@@ -3,7 +3,6 @@
   <ItemGroup>
     <ClCompile Include="marble\abstraction\ComputeShader.cpp" />
     <ClCompile Include="marble\vendor\glad.c" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="marble\abstraction\Camera.cpp" />
     <ClCompile Include="marble\abstraction\Cubemap.cpp" />
     <ClCompile Include="marble\abstraction\FrameBufferObject.cpp" />
@@ -38,6 +37,7 @@
     <ClCompile Include="marble\World\Water\WaterRenderer.cpp" />
     <ClCompile Include="marble\World\Water\WaterSource.cpp" />
     <ClCompile Include="marble\World\Props\PropsManager.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h" />

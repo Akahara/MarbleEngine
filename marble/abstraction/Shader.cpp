@@ -13,6 +13,7 @@
 #include "../vendor/imgui/imgui.h"
 
 #include "UnifiedRenderer.h"
+#include "../Utils/Debug.h"
 
 namespace Renderer {
 
@@ -39,8 +40,10 @@ namespace Renderer {
 		char infoLog[2048];
 		GLsizei infoLen;
 		glGetProgramInfoLog(m_shaderID, sizeof(infoLog), &infoLen, infoLog);
-		if(infoLen != 0)
-			std::cout << infoLog << std::endl;
+		if (infoLen != 0) {
+			std::cerr << infoLog << std::endl;
+			MARBLE_DEBUGBREAK();
+		}
 
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
@@ -239,7 +242,7 @@ namespace Renderer {
 	{
 	  std::ifstream file{ path };
 	  if (!file.good())
-		throw "Could not load a shader file";
+		throw std::runtime_error("Could not load a shader file");
 	  std::stringstream buffer;
 	  buffer << file.rdbuf();
 	  return buffer.str();

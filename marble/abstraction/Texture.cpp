@@ -37,6 +37,7 @@ Texture::Texture(const std::string &path)
   } else {
 	std::cout << "Error: Failed to load texture '" << path << "'" << std::endl;
 	std::cout << stbi_failure_reason() << std::endl;
+	MARBLE_DEBUGBREAK();
 	stbi_image_free(localBuffer);
   }
 }
@@ -161,7 +162,7 @@ void Texture::writeToFile(const Texture &texture, const std::filesystem::path &p
   bool success = stbi_write_png(pathStr.c_str(), w, h, 4, data, w * 4);
   delete[] data;
   if (!success)
-	throw "Could not write to file";
+	throw std::runtime_error("Could not write to file");
 }
 
 }

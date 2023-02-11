@@ -1,5 +1,7 @@
 #include "VertexBufferObject.h"
 
+#include <stdexcept>
+
 #include <glad/glad.h>
 
 namespace Renderer {
@@ -52,7 +54,7 @@ namespace Renderer {
         case GL_FLOAT:         return 4;
         case GL_UNSIGNED_INT:  return 4;
         case GL_UNSIGNED_BYTE: return 1;
-        default:               throw "Unreachable";
+        default:               throw std::runtime_error("Unreachable");
         }
     }
 

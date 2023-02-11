@@ -2,6 +2,7 @@
 
 #include <array>
 #include <vector>
+#include <stddef.h>
 
 /**
 * Noise can be generated manually or by using a function in this namespace.
@@ -41,7 +42,7 @@ struct ErosionSettings {
   float initialWaterVolume = 1;
   float initialSpeed = 1;
   int maxDropletLifetime = 30;      // number of erosion steps
-  std::size_t dropletCount = 100'000;
+  size_t dropletCount = 100'000;
 };
 
 /**

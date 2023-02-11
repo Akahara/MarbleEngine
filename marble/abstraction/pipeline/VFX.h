@@ -32,7 +32,7 @@ public:
 	}
 };
 
-#define EFFECT_CLASS_TYPE(type) virtual EffectType getType() const override {return type;}\
+#define EFFECT_CLASS_TYPE(type) virtual EffectType getType() const override { return type; }\
 
 // the order in which effects are declared here is the same as
 // the order they will be applied in

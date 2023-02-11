@@ -19,8 +19,7 @@ float unnormalizeOrthoDepth(float depth) {
 
 float computeSunlight(vec3 normal) {
     if (u_NormalsTextureSlot[0] != -1) {
-        int indexNormalSlot = u_NormalsTextureSlot[0];
-        vec4 sn = texture(u_Textures2D[0],o_uv);
+        vec4 sn = texture(u_Textures2D[0],o_uv); // TODO see note in normal_normalmap.fs
         normal = normal * sn.rgb;
     }
 

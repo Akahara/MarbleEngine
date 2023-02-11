@@ -4,12 +4,12 @@
 
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../abstraction/Camera.h"
+#include "../../abstraction/pipeline/Bloom.h"
+#include "../../abstraction/pipeline/VFXPipeline.h"
 #include "../../World/Player.h"
 #include "../../World/Sky.h"
-#include "../../abstraction/pipeline/Bloom.h"
 #include "../../World/Light/Light.h"
 #include "../../World/Light/LightManager.h"
-#include "../../abstraction/pipeline/VFXPipeline.h"
 
 class TestBloomScene : public Scene {
 private:

@@ -7,6 +7,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "../Utils/Debug.h"
 
 using namespace Window::Inputs;
 
@@ -65,7 +66,7 @@ void GLAPIENTRY openglMessageCallback(GLenum source, GLenum type, GLuint id,
     (type != GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR) &&
     (type != GL_DEBUG_TYPE_OTHER)
     ) {
-      
+    MARBLE_DEBUGBREAK();
   }
 }
 
@@ -83,7 +84,7 @@ void createWindow(unsigned int width, unsigned int height, const char *title)
   winHeight = height;
 
   if (window == NULL)
-    throw "Failed to create GLFW window";
+    throw std::runtime_error("Failed to create GLFW window");
 
   glfwMakeContextCurrent(window);
 
@@ -114,7 +115,7 @@ void createWindow(unsigned int width, unsigned int height, const char *title)
   });
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    throw "Failed to initialize GLAD";
+    throw std::runtime_error("Failed to initialize GLAD");
 
   glEnable(GL_DEBUG_OUTPUT);
   glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -206,7 +207,7 @@ void setPosition(int x, int y)
 
 void capFramerate()
 {
-  glfwSwapInterval(0);
+  glfwSwapInterval(1);
 }
 
 void captureMouse(bool enabled)

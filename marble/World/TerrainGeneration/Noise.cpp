@@ -4,6 +4,7 @@
 #include <stb/stb_image.h>
 
 #include "../../Utils/Mathf.h"
+#include "../../Utils/Debug.h"
 
 namespace Noise {
 
@@ -62,8 +63,9 @@ float *loadNoiseMapFromFile(const char *path, unsigned int *o_width, unsigned in
   if (!buf) {
 	std::cout << "Error: Failed to load noise texture '" << path << "'" << std::endl;
 	std::cout << stbi_failure_reason() << std::endl;
+	MARBLE_DEBUGBREAK();
 	stbi_image_free(buf);
-	throw "Failed to load file";
+	throw std::runtime_error("Failed to load file");
   }
 
   float *noiseMap = new float[mapWidth * mapHeight];

@@ -16,7 +16,7 @@
 class TestFBScene : public Scene {
 private:
   Scene                      *m_backingScene;
-  visualEffects::VFXPipeline  m_pipeline{ static_cast<int>(Window::getWinWidth()), static_cast<int>(Window::getWinHeight()) };
+  visualEffects::VFXPipeline  m_pipeline{ (int)Window::getWinWidth(), (int)Window::getWinHeight() };
 
   glm::vec3      m_sun{100,100,100};
   Renderer::Mesh m_cube = Renderer::createCubeMesh();
