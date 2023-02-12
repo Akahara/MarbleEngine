@@ -380,7 +380,10 @@ void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3
   M = glm::scale(M, size);
 
   glm::vec3 axis{ 0.F, 0.F, 0.F };
-  *(& axis.x + rotation.axis) = 1.0f; // obscure stuff that im proud of
+
+  axis.x = (rotation.axis & 1 << 0) != 0;
+  axis.y = (rotation.axis & 1 << 1) != 0;
+  axis.z = (rotation.axis & 1 << 2) != 0;
 
   M = glm::rotate(M, glm::radians(rotation.theta), axis);
   s_state.activeStandardShader->bind();

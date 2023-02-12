@@ -65,19 +65,23 @@ void beginDepthPass();
 
 
 enum ROTATION_AXIS {
-    X_AXIS,
-    Y_AXIS,
-    Z_AXIS
+    X_AXIS = 1,
+    Y_AXIS = 2,
+    Z_AXIS = 4,
+    XY_AXIS = X_AXIS | Y_AXIS,
+    XZ_AXIS = X_AXIS | Z_AXIS,
+    YZ_AXIS = Y_AXIS | Z_AXIS,
+    XYZ_AXIS = X_AXIS |Y_AXIS | Z_AXIS
 };
 
 struct Rotation {
-    ROTATION_AXIS axis;
+    unsigned char axis;
     float theta;
 
-    Rotation(ROTATION_AXIS a, float t) : axis(a), theta(t) {}
+    Rotation(unsigned char a, float t) : axis(a), theta(t) {}
 };
 
-/* For rotation, give a initialization of a struct like that = {axis, degrees}, where axis is the enum Renderer::ROTATION_AXIS (0=x, 1=y, 2=z)*/
+/* For rotation, give a initialization of a struct like that = {axis, degrees}, where axis is the enum Renderer::ROTATION_AXIS (0=x, 1=y, 2=z), use bitwise or built enum*/
 void renderMesh(const Camera& camera, const glm::vec3& position, const glm::vec3& size, const Mesh& mesh, const Rotation& rotation = { X_AXIS, 0.F });
 void renderNormalsMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const NormalsMesh &normalsMesh, const glm::vec4 &color={ 1,0,0,1 });
 void renderCubemap(const Camera &camera, const Cubemap &cubemap);
