@@ -8,7 +8,7 @@ layout(location = 4) in float i_texId;
 // instance members
 layout(location = 5) in vec3 i_iposition;
 layout(location = 6) in vec3 i_iscale;
-layout(location = 7) in float i_irotation;
+layout(location = 7) in float i_irotation; // fake rotation, acceptable values are 0 (no rotation) and 1 (90deg rotation)
 
 out vec2 o_uv;
 out vec3 o_normal;
@@ -32,7 +32,7 @@ uniform vec4 u_plane = vec4(0, -1, 0, 10000);
 void main()
 {
   vec4 worldPos = vec4(i_position, 0);
-  //worldPos.xz += i_irotation * (-worldPos.xz -worldPos.zw +worldPos.wx);
+  worldPos.xz += i_irotation * (-worldPos.xz -worldPos.zw +worldPos.wx); // if an actual rotation is required, replace with rotation matrices
   worldPos.xyz *= i_iscale;
   worldPos.xyz += i_iposition;
   worldPos.w = 1;
