@@ -34,9 +34,10 @@ void main()
 
   o_pos = worldPos.xyz;
   o_uv = i_uv;
-  o_normal = i_normal;
+  o_normal = mat3(u_M) *  i_normal;
   o_color = i_color;
   o_texId = int(i_texId);
+
 
   o_toCameraVector = u_camPos - o_pos;
   o_SunPos = u_SunPos;

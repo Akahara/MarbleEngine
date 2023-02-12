@@ -370,7 +370,7 @@ void beginDepthPass()
   s_state.activeStandardShader = &s_keepAliveResources->standardDepthPassShader;
 }
 
-void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const Mesh &mesh)
+void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const Mesh &mesh, const Rotation& rotation/* = 0° on X_AXIS*/)
 {
   s_debugData.meshCount++;
   s_debugData.vertexCount += mesh.getVertexCount();
@@ -378,6 +378,11 @@ void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3
   glm::mat4 M(1.f);
   M = glm::translate(M, position);
   M = glm::scale(M, size);
+
+  glm::vec3 axis{ 0.F, 0.F, 0.F };
+  *(& axis.x + rotation.axis) = 1.0f; // obscure stuff that im proud of
+
+  M = glm::rotate(M, glm::radians(rotation.theta), axis);
   s_state.activeStandardShader->bind();
   s_state.activeStandardShader->setUniform3f("u_cameraPos", camera.getPosition());
   s_state.activeStandardShader->setUniformMat4f("u_M", M);

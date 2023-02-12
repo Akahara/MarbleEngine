@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <array>
 
 #include "Shader.h"
 #include "Mesh.h"
@@ -62,7 +63,22 @@ void beginColorPass();
 /* Enables color drawing and restores the standard mesh shader */
 void beginDepthPass();
 
-void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const Mesh& mesh);
+
+enum ROTATION_AXIS {
+    X_AXIS,
+    Y_AXIS,
+    Z_AXIS
+};
+
+struct Rotation {
+    ROTATION_AXIS axis;
+    float theta;
+
+    Rotation(ROTATION_AXIS a, float t) : axis(a), theta(t) {}
+};
+
+/* For rotation, give a initialization of a struct like that = {axis, degrees}, where axis is the enum Renderer::ROTATION_AXIS (0=x, 1=y, 2=z)*/
+void renderMesh(const Camera& camera, const glm::vec3& position, const glm::vec3& size, const Mesh& mesh, const Rotation& rotation = { X_AXIS, 0.F });
 void renderNormalsMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const NormalsMesh &normalsMesh, const glm::vec4 &color={ 1,0,0,1 });
 void renderCubemap(const Camera &camera, const Cubemap &cubemap);
 void renderDebugLine(const Camera &camera, const glm::vec3 &from, const glm::vec3 &to, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});
