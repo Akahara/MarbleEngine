@@ -11,6 +11,9 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glad/glad.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include "Window.h"
 #include "Camera.h"
 #include "Mesh.h"
@@ -370,7 +373,7 @@ void beginDepthPass()
   s_state.activeStandardShader = &s_keepAliveResources->standardDepthPassShader;
 }
 
-void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const Mesh &mesh, const Rotation& rotation/* = 0° on X_AXIS*/)
+void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const Mesh &mesh, const Rotation& rotation/* = 0ï¿½ on X_AXIS*/)
 {
   s_debugData.meshCount++;
   s_debugData.vertexCount += mesh.getVertexCount();
