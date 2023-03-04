@@ -386,6 +386,7 @@ void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3
   axis.z = (rotation.axis & 1 << 2) != 0;
 
   M = glm::rotate(M, glm::radians(rotation.theta), axis);
+
   s_state.activeStandardShader->bind();
   s_state.activeStandardShader->setUniform3f("u_cameraPos", camera.getPosition());
   s_state.activeStandardShader->setUniformMat4f("u_M", M);

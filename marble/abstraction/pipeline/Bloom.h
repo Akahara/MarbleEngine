@@ -16,22 +16,22 @@ private:
 	Renderer::Texture           m_depth = Renderer::Texture::createDepthTexture(Window::getWinWidth(), Window::getWinHeight());
 	
 	float m_filterRadius = 0.005f;
-	float m_exposure = 1.0f;
-	float m_strenght = 0.05f;
+	float m_exposure = 3.2f;
+	float m_strenght = 0.8f;
 
 public:
 	Bloom()
 		: VFX("Bloom")
 	{
-		m_isEnabled = false;
+		m_isEnabled = true;
 
 		m_blitFinal.setShader("res/shaders/bloom/finalBloom.fs");
 
 		m_blitFinal.getShader().bind();
 		m_blitFinal.getShader().setUniform1i("u_sceneTexture", 0);
 		m_blitFinal.getShader().setUniform1i("u_finalBloom", 1);
-		m_blitFinal.getShader().setUniform1i("u_strength", 1);
-		m_blitFinal.getShader().setUniform1i("u_exposure", 1);
+		m_blitFinal.getShader().setUniform1f("u_bloomStrength", m_strenght);
+		m_blitFinal.getShader().setUniform1f("u_exposure", m_exposure);
 		m_blitFinal.getShader().unbind();
 
 		m_fboBloom.setDepthTexture(m_depth);
