@@ -19,7 +19,7 @@ class Shader
 {
 private:
 	unsigned int m_shaderID;
-	std::unordered_map<std::string_view, int> m_uniformLocationCache;
+	std::unordered_map<std::string, int> m_uniformLocationCache;
 
 public:
 	Shader() : m_shaderID(0) {}
@@ -33,23 +33,23 @@ public:
 	static void unbind();
 	void destroy();
 
-	void setUniform1i(std::string_view name, int value);
-	void setUniform1f(std::string_view name, float value);
-	void setUniform2f(std::string_view name, float v1, float v2);
-	void setUniform3f(std::string_view name, float v1, float v2, float v3);
-	void setUniform4f(std::string_view name, float v1, float v2, float v3, float v4);
-	void setUniformMat2f(std::string_view name, const glm::mat2 &matrix);
-	void setUniformMat4f(std::string_view name, const glm::mat4 &matrix);
-	void setUniformMat4x3f(std::string_view name, const glm::mat4x3 &matrix);
-	void setUniform2f(std::string_view name, glm::vec2 v) { setUniform2f(name, v.x, v.y); }
-	void setUniform3f(std::string_view name, glm::vec3 v) { setUniform3f(name, v.x, v.y, v.z); }
-	void setUniform4f(std::string_view name, glm::vec4 v) { setUniform4f(name, v.x, v.y, v.z, v.w); }
-	void setUniform1iv(std::string_view name, unsigned int count, const int* data);
+	void setUniform1i(const std::string & name, int value);
+	void setUniform1f(const std::string & name, float value);
+	void setUniform2f(const std::string & name, float v1, float v2);
+	void setUniform3f(const std::string & name, float v1, float v2, float v3);
+	void setUniform4f(const std::string & name, float v1, float v2, float v3, float v4);
+	void setUniformMat2f(const std::string & name, const glm::mat2 &matrix);
+	void setUniformMat4f(const std::string & name, const glm::mat4 &matrix);
+	void setUniformMat4x3f(const std::string & name, const glm::mat4x3 &matrix);
+	void setUniform2f(const std::string & name, glm::vec2 v) { setUniform2f(name, v.x, v.y); }
+	void setUniform3f(const std::string & name, glm::vec3 v) { setUniform3f(name, v.x, v.y, v.z); }
+	void setUniform4f(const std::string & name, glm::vec4 v) { setUniform4f(name, v.x, v.y, v.z, v.w); }
+	void setUniform1iv(const std::string & name, unsigned int count, const int* data);
 	// Unsafe
 	inline unsigned int getId() { return m_shaderID; }
 
 private:
-	int getUniformLocation(std::string_view name);
+	int getUniformLocation(const std::string & name);
 
 	explicit Shader(int shaderID) : m_shaderID(shaderID) {}
 	friend class ShaderFactory;

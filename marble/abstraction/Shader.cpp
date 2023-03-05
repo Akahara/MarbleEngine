@@ -75,45 +75,45 @@ namespace Renderer {
 		glDeleteProgram(m_shaderID);
 	}
 
-	void Shader::setUniform1i(std::string_view name, int value) {
+	void Shader::setUniform1i(const std::string & name, int value) {
 		glUniform1i(getUniformLocation(name), value);
 	}
 
-	void Shader::setUniform1f(std::string_view name, float value) {
+	void Shader::setUniform1f(const std::string & name, float value) {
 		glUniform1f(getUniformLocation(name), value);
 	}
 
-	void Shader::setUniform2f(std::string_view name, float v1, float v2)
+	void Shader::setUniform2f(const std::string & name, float v1, float v2)
 	{
 	  glUniform2f(getUniformLocation(name), v1, v2);
 	}
 
-	void Shader::setUniform3f(std::string_view name, float v1, float v2, float v3)
+	void Shader::setUniform3f(const std::string & name, float v1, float v2, float v3)
 	{
 	  glUniform3f(getUniformLocation(name), v1, v2, v3);
 	}
 
-	void Shader::setUniform4f(std::string_view name, float v1, float v2, float v3, float v4) {
+	void Shader::setUniform4f(const std::string & name, float v1, float v2, float v3, float v4) {
 		glUniform4f(getUniformLocation(name), v1, v2, v3, v4);
 	}
 	
-	void Shader::setUniformMat4f(std::string_view name, const glm::mat4& matrix) {
+	void Shader::setUniformMat4f(const std::string & name, const glm::mat4& matrix) {
 		glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
-	void Shader::setUniformMat2f(std::string_view name, const glm::mat2& matrix) {
+	void Shader::setUniformMat2f(const std::string & name, const glm::mat2& matrix) {
 		glUniformMatrix2fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 	
-	void Shader::setUniformMat4x3f(std::string_view name, const glm::mat4x3 &matrix) {
+	void Shader::setUniformMat4x3f(const std::string & name, const glm::mat4x3 &matrix) {
 	  glUniformMatrix4x3fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
-	void Shader::setUniform1iv(std::string_view name, unsigned int count, const int* data) {
+	void Shader::setUniform1iv(const std::string & name, unsigned int count, const int* data) {
 		 glUniform1iv(getUniformLocation(name), count, data);
 	}
 
-	int Shader::getUniformLocation(std::string_view name) {
+	int Shader::getUniformLocation(const std::string &name) {
 		if (m_uniformLocationCache.find(name) != m_uniformLocationCache.end())
 			return m_uniformLocationCache[name];
 

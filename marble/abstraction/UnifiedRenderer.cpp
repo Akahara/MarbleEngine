@@ -94,7 +94,7 @@ Mesh loadMeshFromFile(const fs::path& objPath)
 
     // TODO : read the MTL file, and try to find the correct filename for the materials
   std::ifstream modelFile{ objPath };
-  constexpr size_t bufSize = 10000;
+  constexpr size_t bufSize = 100;
   char lineBuffer[bufSize];
 
   std::vector<glm::vec3> positions;

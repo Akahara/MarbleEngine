@@ -14,6 +14,18 @@ Our terrain generation and 3D rendering engine for our software quality course.
 ![final_6](_git/final_6.png)
 ![final_7](_git/final_7.png)
 
+### Building
+
+This project was built using Visual Studio, building with other platforms should not be too different.
+
+Steps for VS:
+- clone or download the project
+- create a new VS project in the new directory
+- go to the project's properties > C/C++ > additional include directories > add `$(ProjectDir)Libraries\include`
+- in the Linker tab > general > additional library directories > add `$(ProjectDir)Libraries\lib`
+- in the Linker tab > input > additional dependencies > add `glfw3.lib`
+- in the General tab, make sure you are using C++20 or latter
+
 ### roadmap
 
 **OpenGL abstraction**:
