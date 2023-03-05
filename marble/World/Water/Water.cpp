@@ -34,9 +34,9 @@ void World::Water::onRender(const std::function<void()> &renderFn, Renderer::Cam
 
   // ~~~~~~~~~~~~ REFLEXION ~~~~~~~~~~~~ //
 
-  Renderer::getStandardMeshShader().bind();
-  Renderer::getStandardMeshShader().setUniform4f("u_plane", glm::vec4(0, 1, 0, -m_source.getHeight())); // clipping plane stuff
-  Renderer::getStandardMeshShader().unbind();
+  Renderer::getStandardMeshShader()->bind();
+  Renderer::getStandardMeshShader()->setUniform4f("u_plane", glm::vec4(0, 1, 0, -m_source.getHeight())); // clipping plane stuff
+  Renderer::getStandardMeshShader()->unbind();
 
   // place camera
   float distance = (camera.getPosition().y - m_source.getHeight()) * 2;
@@ -63,9 +63,9 @@ void World::Water::onRender(const std::function<void()> &renderFn, Renderer::Cam
 
   // ~~~~~~~~~~~~ REFRACTION ~~~~~~~~~~~~ //
 
-  Renderer::getStandardMeshShader().bind();
-  Renderer::getStandardMeshShader().setUniform4f("u_plane", glm::vec4(0, -1, 0, m_source.getHeight()));
-  Renderer::getStandardMeshShader().unbind();
+  Renderer::getStandardMeshShader()->bind();
+  Renderer::getStandardMeshShader()->setUniform4f("u_plane", glm::vec4(0, -1, 0, m_source.getHeight()));
+  Renderer::getStandardMeshShader()->unbind();
 
 
   glEnable(GL_CLIP_DISTANCE0);

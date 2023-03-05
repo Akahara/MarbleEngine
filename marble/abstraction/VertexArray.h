@@ -25,7 +25,6 @@ public:
 
   void addBuffer(const VertexBufferObject &vb, const VertexBufferLayout &layout, const IndexBufferObject &ib);
   void addInstanceBuffer(const VertexBufferObject &ivb, const VertexBufferLayout &instanceLayout, const VertexBufferLayout &modelLayout);
-  void sendToGPU(size_t size, const void *data);
 };
 
 }

@@ -5,10 +5,13 @@
 #include <string_view>
 #include <vector>
 #include <filesystem>
+#include <array>
+#include <memory>
 
 #include <glm/glm.hpp>
 
 #include "VertexArray.h"
+#include "Texture.h"
 
 namespace Renderer {
 
@@ -103,26 +106,6 @@ private:
   void sendUniformValue();
 };
 
-class ShaderManager {
-private:
-  struct ManagedShader {
-	Shader *shader;
-	const char *vertexPath;
-	const char *fragmentPath;
-  };
-  std::vector<ManagedShader> m_managedShaders;
-  std::vector<TestUniform>   m_testUniforms;
-public:
-  void addShader(Shader *shader, const char *vertexPath, const char *fragmentPath, bool loadNow=true);
-
-  bool promptReloadAndUI();
-
-  void reloadShaders();
-private:
-  void collectTestUniforms(Shader *shader, const std::vector<TestUniform> &previousUniforms);
-};
-
-
 /* Factory with which to build shader programs, shader files can be added but not removed */
 class ShaderFactory {
 private:
@@ -142,7 +125,7 @@ public:
   ShaderFactory &addFileFragment(const fs::path &path);
   ShaderFactory &addFileVertex(const fs::path &path);
 
-  Shader build() const;
+  std::shared_ptr<Shader> build() const;
 
 private:
   void addPart(const std::string &source, int glType);
@@ -158,12 +141,16 @@ private:
 * can be done using a simple fragment shader in a blit pass.
 */
 class BlitPass {
+public:
+  static constexpr size_t TEXTURE_SLOT_COUNT = 8;
 private:
   IndexBufferObject  m_keepAliveIBO;
   VertexBufferObject m_keepAliveVBO;
+  VertexArray        m_vao;
 
   Shader             m_shader;
-  VertexArray        m_vao;
+  std::array<std::shared_ptr<Texture>, TEXTURE_SLOT_COUNT> m_textures;
+
 public:
   BlitPass();
   BlitPass(const fs::path &fragmentShaderPath);
@@ -172,6 +159,11 @@ public:
 
   Shader &getShader() { return m_shader; }
   void setShader(const fs::path &fs);
+
+  void attachInputTexture(const std::shared_ptr<Texture> &texture, unsigned int slot)
+  {
+	m_textures[slot] = texture;
+  }
 
   void doBlit();
 };

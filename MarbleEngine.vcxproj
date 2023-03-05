@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="marble\abstraction\VertexBufferObject.cpp" />
     <ClCompile Include="marble\World\Props\PropsManager.cpp" />
     <ClCompile Include="marble\abstraction\ComputeShader.cpp" />
     <ClCompile Include="marble\vendor\glad.c" />
@@ -167,7 +168,6 @@
     <ClCompile Include="marble\abstraction\TextureAtlas.cpp" />
     <ClCompile Include="marble\abstraction\UnifiedRenderer.cpp" />
     <ClCompile Include="marble\abstraction\VertexArray.cpp" />
-    <ClCompile Include="marble\abstraction\VertexBufferObject.cpp" />
     <ClCompile Include="marble\abstraction\Window.cpp" />
     <ClCompile Include="marble\Sandbox\Scene.cpp" />
     <ClCompile Include="marble\Utils\Debug.cpp" />
@@ -194,9 +194,10 @@
     <ClInclude Include="Libraries\include\GLFW\glfw3.h" />
     <ClInclude Include="Libraries\include\GLFW\glfw3native.h" />
     <ClInclude Include="Libraries\include\KHR\khrplatform.h" />
+    <ClInclude Include="marble\abstraction\VertexBufferObject.h" />
+    <ClInclude Include="marble\Utils\Transform.h" />
     <ClInclude Include="marble\World\Props\Prop.h" />
     <ClInclude Include="marble\World\Props\PropsManager.h" />
-    <ClInclude Include="marble\abstraction\BufferObject.h" />
     <ClInclude Include="marble\abstraction\Camera.h" />
     <ClInclude Include="marble\abstraction\ComputeShader.h" />
     <ClInclude Include="marble\abstraction\Cubemap.h" />
@@ -220,7 +221,6 @@
     <ClInclude Include="marble\abstraction\TextureAtlas.h" />
     <ClInclude Include="marble\abstraction\UnifiedRenderer.h" />
     <ClInclude Include="marble\abstraction\VertexArray.h" />
-    <ClInclude Include="marble\abstraction\VertexBufferObject.h" />
     <ClInclude Include="marble\abstraction\Window.h" />
     <ClInclude Include="marble\Sandbox\Scene.h" />
     <ClInclude Include="marble\Sandbox\Scenes\POC1.h" />

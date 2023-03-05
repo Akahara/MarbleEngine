@@ -1,5 +1,6 @@
 #include "Terrain.h"
 
+#include "../../abstraction/UnifiedRenderer.h"
 #include "../../Utils/Mathf.h"
 #include "Noise.h"
 
@@ -53,14 +54,14 @@ Chunk &Chunk::operator=(Chunk &&moved) noexcept
 
 static Renderer::Mesh generateChunkMesh(const HeightMap &heightmap, glm::ivec2 chunkPosition, unsigned int chunkSize)
 {
-  std::vector<Renderer::Vertex> vertices;
+  std::vector<Renderer::BaseVertex> vertices;
   std::vector<unsigned int> indices;
 
   for (int y = 0; y <= (int)chunkSize; y++) {
     for (int x = 0; x <= (int)chunkSize; x++) {
       int hx = chunkPosition.x * chunkSize + x + 1;
       int hy = chunkPosition.y * chunkSize + y + 1;
-      Renderer::Vertex &vertex = vertices.emplace_back();
+      Renderer::BaseVertex &vertex = vertices.emplace_back();
       vertex.position = {
         x + chunkPosition.x * chunkSize,
         heightmap.getHeight(hx, hy),
@@ -100,11 +101,12 @@ static Renderer::Mesh generateChunkMesh(const HeightMap &heightmap, glm::ivec2 c
     }
   }
 
-  std::unordered_map<int, std::shared_ptr<Renderer::Texture>> texture = {
-      {0, std::make_shared<Renderer::Texture>("res/textures/no_texture.png") }
-  };
-
-  Renderer::Mesh mesh{ vertices, indices , texture };
+  //Renderer::Mesh mesh{ vertices, indices, texture };
+  auto model = std::make_shared<Renderer::Model>(vertices, indices);
+  auto material = std::make_shared<Renderer::Material>();
+  material->textures[0] = std::make_shared<Renderer::Texture>("res/textures/no_texture.png");
+  material->shader = Renderer::getStandardMeshShader();
+  Renderer::Mesh mesh{ model, material };
   return mesh;
 }
 

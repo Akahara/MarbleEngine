@@ -14,8 +14,10 @@ IndexBufferObject::IndexBufferObject(const unsigned int* indices, size_t count)
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 }
 
-IndexBufferObject::~IndexBufferObject() {
-  destroy();
+IndexBufferObject::~IndexBufferObject()
+{
+    glDeleteBuffers(1, &m_renderID);
+    m_renderID = 0;
 }
 
 IndexBufferObject::IndexBufferObject(IndexBufferObject &&moved) noexcept
@@ -28,22 +30,19 @@ IndexBufferObject::IndexBufferObject(IndexBufferObject &&moved) noexcept
 
 IndexBufferObject& IndexBufferObject::operator=(IndexBufferObject &&moved) noexcept
 {
-  destroy();
+glDeleteBuffers(1, &m_renderID);
   new (this) IndexBufferObject(std::move(moved));
   return *this;
 }
 
-void IndexBufferObject::bind() const {
+void IndexBufferObject::bind() const
+{
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_renderID);
 }
 
-void IndexBufferObject::unbind() const {
+void IndexBufferObject::unbind() const
+{
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
-void IndexBufferObject::destroy() {
-  glDeleteBuffers(1, &m_renderID);
-  m_renderID = 0;
 }
 
 }

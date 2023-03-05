@@ -243,11 +243,11 @@ void FixedGrassChunks::regenerate()
 
 GrassRenderer::GrassRenderer()
 {
-  m_instanceBuffer = Renderer::VertexBufferObject(GrassRenderSettings::MAX_BLADE_COUNT_PER_DRAWCALL * sizeof(GrassInstance));
+  m_instanceBuffer = Renderer::VertexBufferObject(nullptr, GrassRenderSettings::MAX_BLADE_COUNT_PER_DRAWCALL * sizeof(GrassInstance));
   generateGrassModels();
   m_vao.addInstanceBuffer(m_instanceBuffer, GrassModelVertex::getInstanceLayout(), m_grassModels.getLayout());
 
-  m_grassShader = Renderer::loadShaderFromFiles("res/shaders/grass/grass.vs", "res/shaders/grass/grass.fs");
+  m_grassShader = std::move(*Renderer::loadShaderFromFiles("res/shaders/grass/grass.vs", "res/shaders/grass/grass.fs"));
 
   m_voteComputeShader = loadComputeShader("res/shaders/grass/vote.comp");
   m_scan1ComputeShader = loadComputeShader("res/shaders/grass/scan_blocks.comp");

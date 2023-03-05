@@ -12,8 +12,10 @@
 
 #include "marble/Sandbox/Scene.h"
 #include "marble/Utils/Debug.h"
+#include "marble/World/Sky.h"
 
-#include "marble/Sandbox/Tests.h"
+//#include "marble/Sandbox/Tests.h"
+#include "marble/Sandbox/Scenes/TestShadows.h"
 
 inline long long nanoTime()
 {
@@ -40,24 +42,24 @@ int main()
     SceneManager::init();
 
     
-    SceneManager::registerScene<TestTerrainScene>("Terrain");
-    SceneManager::registerScene<TestSkyScene>("Sky");
-    SceneManager::registerScene<TestFBScene>("Framebuffer");
-    SceneManager::registerScene<TestShadersScene>("Shaders");
+    //SceneManager::registerScene<TestTerrainScene>("Terrain");
+    //SceneManager::registerScene<TestSkyScene>("Sky");
+    //SceneManager::registerScene<TestFBScene>("Framebuffer");
+    //SceneManager::registerScene<TestShadersScene>("Shaders");
     SceneManager::registerScene<TestShadowsScene>("Shadows");
-    SceneManager::registerScene<TestCamerasScene>("Cameras");
-    SceneManager::registerScene<TestComputeShader>("Compute Shader");
-    SceneManager::registerScene<TestInstancedScene>("Instanced");
-    SceneManager::registerScene<TestBloomScene>("Bloom");
-    SceneManager::registerScene<TestAtlas>("Atlas");
-    SceneManager::registerScene<TestWater>("Water");
-    SceneManager::registerScene<POC1Scene>("POC 1");
-    SceneManager::registerScene<POC2Scene>("POC 2");
-    SceneManager::registerScene<POC3Scene>("POC 3");
-    SceneManager::registerScene<POC4Scene>("POC 4");
+    //SceneManager::registerScene<TestCamerasScene>("Cameras");
+    //SceneManager::registerScene<TestComputeShader>("Compute Shader");
+    //SceneManager::registerScene<TestInstancedScene>("Instanced");
+    //SceneManager::registerScene<TestBloomScene>("Bloom");
+    //SceneManager::registerScene<TestAtlas>("Atlas");
+    //SceneManager::registerScene<TestWater>("Water");
+    //SceneManager::registerScene<POC1Scene>("POC 1");
+    //SceneManager::registerScene<POC2Scene>("POC 2");
+    //SceneManager::registerScene<POC3Scene>("POC 3");
+    //SceneManager::registerScene<POC4Scene>("POC 4");
     
 
-    SceneManager::switchToScene(5);
+    SceneManager::switchToScene(1);
 
     //===========================================================//
 

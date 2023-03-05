@@ -4,23 +4,27 @@
 
 #include <glm/glm.hpp>
 
-#include "BufferObject.h"
-
 namespace Renderer {
 
 /* Immediate wrapper of the GL concept */
-class VertexBufferObject : public BufferObject {
+class VertexBufferObject {
+private:
+  unsigned int m_renderID;
 public:
-  VertexBufferObject() {}
-  VertexBufferObject(const void *vertices, size_t size);
-  VertexBufferObject(size_t size);
-  ~VertexBufferObject();
+  VertexBufferObject() : m_renderID(0) {}
+  VertexBufferObject(const void *vertices, size_t size); // can be constructed with null vertices
   VertexBufferObject(VertexBufferObject &&moved) noexcept;
   VertexBufferObject &operator=(VertexBufferObject &&moved) noexcept;
+  ~VertexBufferObject();
 
-  void bind() const override;
-  void unbind() const override;
-  void destroy() override;
+  void bind() const;
+  void unbind() const;
+
+  // Unsafe
+  unsigned int getId() const { return m_renderID; }
+  // buffer must be bound
+  void replaceData(const void *data, size_t size);
+  void updateData(const void *data, size_t size, size_t offset=0);
 };
 
 struct VertexBufferElement {
@@ -33,6 +37,7 @@ struct VertexBufferElement {
 
 };
 
+// TODO make constexpr
 class VertexBufferLayout {
 private:
   std::vector<VertexBufferElement> m_elements;
@@ -42,9 +47,9 @@ public:
 
   VertexBufferLayout() : m_stride(0) {}
 
-  /* T may be (unsigned)int,float and glm vectors */
+  /* T may be (unsigned)int,float and glm vectors, matrices are not yet supported */
   template<typename T>
-  void push(unsigned int count);
+  VertexBufferLayout &push(unsigned int count);
 
   inline const std::vector<VertexBufferElement> &getElements() const { return m_elements; }
   inline unsigned int getStride() const { return m_stride; }

@@ -60,7 +60,7 @@ public:
 		}
 
 
-		m_VBO = Renderer::VertexBufferObject(4 * NUMBER_OF_FLARES * sizeof(QuadVertex));
+		m_VBO = Renderer::VertexBufferObject(nullptr, 4 * NUMBER_OF_FLARES * sizeof(QuadVertex));
 		Renderer::VertexBufferLayout layout;
 		layout.push<float>(3);		// Position
 		layout.push<float>(2);		// TexCoords
@@ -131,7 +131,7 @@ public:
 		GLsizeiptr size = (uint8_t*)m_quadBufferPtr - (uint8_t*)m_quadBuffer;
 
 		m_VBO.bind();
-		m_VAO.sendToGPU(size, m_quadBuffer);
+		m_VBO.updateData(m_quadBuffer, size);
 
 		m_VAO.bind();
 

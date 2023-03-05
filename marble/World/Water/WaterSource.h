@@ -26,7 +26,7 @@ public:
 	{ }
 
 	WaterSource(float level, const glm::vec2& pos) 
-		: m_height(level), m_position(pos), m_mesh(Renderer::createPlaneMesh()) // shouldn't size be set ?
+		: m_height(level), m_position(pos), m_mesh(Renderer::createPlaneModel(), std::make_shared<Renderer::Material>()) // shouldn't size be set ?
 	{
 	}
 
@@ -40,11 +40,11 @@ public:
 	//------------------------------------//
 
 	void draw() const {
-		m_mesh.draw();
+		//m_mesh.draw(); // FIX water source rendering
 	}
 
 	bool isOnFrustum(Renderer::Frustum& frustum) {
-		return frustum.isOnFrustum(m_mesh.getBoundingBox());
+		return frustum.isOnFrustum(m_mesh.getModel()->getBoundingBox());
 	}
 
 	//------------------------------------//

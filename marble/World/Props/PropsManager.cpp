@@ -13,7 +13,7 @@ void PropsManager::computeToBeRendered(const Renderer::Frustum& viewFrustum) {
 
 	for (const auto& prop : m_props) {
 
-		if (viewFrustum.isOnFrustum(prop.mesh->getBoundingBoxInstance(prop.position, prop.size))) 
+		if (viewFrustum.isOnFrustum(prop.mesh->getModel()->getBoundingBoxInstance(prop.position, prop.size))) 
 		{
 			m_toRender.push(prop);
 		}
@@ -45,11 +45,12 @@ void PropsManager::render(const Renderer::Camera& camera) {
 
 		const Prop& p = m_toRender.front();
 
-		Renderer::renderMesh(camera, p.position, p.size, *p.mesh);
+		//Renderer::renderMesh(camera, p.position, p.size, *p.mesh);
+		Renderer::renderMesh(camera, *p.mesh); // FIX props (now Mesh have transforms)
 
 
 		if (DebugWindow::renderAABB()) {
-			Renderer::renderAABBDebugOutline(camera, p.mesh->getBoundingBoxInstance(p.position, p.size));
+			Renderer::renderAABBDebugOutline(camera, p.mesh->getModel()->getBoundingBoxInstance(p.position, p.size));
 		}
 
 		m_toRender.pop();
