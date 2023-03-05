@@ -10,16 +10,20 @@ namespace Renderer {
 class VertexBufferObject {
 private:
   unsigned int m_renderID;
+  size_t       m_size;
 public:
-  VertexBufferObject() : m_renderID(0) {}
+  VertexBufferObject() : m_renderID(0), m_size(0) {} // does not create the buffer on the gpu, call the next constructor with size 0 to be able to resize it later
   VertexBufferObject(const void *vertices, size_t size); // can be constructed with null vertices
   VertexBufferObject(VertexBufferObject &&moved) noexcept;
   VertexBufferObject &operator=(VertexBufferObject &&moved) noexcept;
+  VertexBufferObject(const VertexBufferObject &) = delete;
+  VertexBufferObject &operator=(const VertexBufferObject &) = delete;
   ~VertexBufferObject();
 
   void bind() const;
   void unbind() const;
 
+  size_t getSize() const { return m_size; }
   // Unsafe
   unsigned int getId() const { return m_renderID; }
   // buffer must be bound

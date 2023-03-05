@@ -11,14 +11,6 @@
 
 namespace Renderer {
 
-Model::Model()
-  : m_VBO(),
-    m_IBO(),
-    m_verticesCount(0),
-    m_boudingBox()
-{
-}
-
 Model::Model(const std::vector<BaseVertex> &vertices, const std::vector<unsigned int> &indices)
   : m_verticesCount((unsigned int)indices.size())
 {
@@ -78,12 +70,11 @@ AABB Model::getBoundingBoxInstance(glm::vec3 instancePosition, glm::vec3 instanc
   return AABB(instancePosition - (m_boudingBox.getSize() * instanceSize)/2.f, m_boudingBox.getSize() * instanceSize);
 }
 
-InstancedMesh::InstancedMesh(const std::shared_ptr<Model> &model, const std::shared_ptr<Material> &material, size_t instanceSize, size_t instanceCount)
+InstancedMesh::InstancedMesh(const std::shared_ptr<Model> &model, const std::shared_ptr<Material> &material, size_t instanceCount, const BaseInstance *instances)
   : m_model(model),
     m_material(material),
-    m_instanceSize(instanceSize),
-    m_instanceCount(instanceCount),
-    m_instanceBuffer(nullptr, instanceSize*instanceCount)
+    m_instanceBuffer(instances, m_instanceSize * instanceCount),
+    m_VAO()
 {
   m_VAO.addBuffer(model->getVBO(), BaseVertex::getVertexBufferLayout(), model->getIBO());
   m_VAO.addInstanceBuffer(m_instanceBuffer, BaseInstance::getVertexBufferLayout(), BaseVertex::getVertexBufferLayout());
@@ -94,9 +85,7 @@ InstancedMesh::InstancedMesh(InstancedMesh &&moved) noexcept
   : m_model(std::move(moved.m_model)),
     m_material(std::move(moved.m_material)),
     m_VAO(std::move(moved.m_VAO)),
-    m_instanceBuffer(std::move(moved.m_instanceBuffer)),
-    m_instanceCount(moved.m_instanceCount),
-    m_instanceSize(moved.m_instanceSize)
+    m_instanceBuffer(std::move(moved.m_instanceBuffer))
 {
 }
 
@@ -109,10 +98,17 @@ InstancedMesh &InstancedMesh::operator=(InstancedMesh &&moved) noexcept
 
 void InstancedMesh::updateInstances(const BaseInstance *data, size_t beginInstance, size_t endInstance)
 {
-  assert(endInstance <= m_instanceCount);
-  assert(beginInstance <= endInstance);
+  assert(endInstance * m_instanceSize <= m_instanceBuffer.getSize());
+  assert(beginInstance < endInstance);
   m_instanceBuffer.bind();
   m_instanceBuffer.updateData(data, (endInstance - beginInstance) * m_instanceSize, beginInstance * m_instanceSize);
+  m_instanceBuffer.unbind();
+}
+
+void InstancedMesh::replaceInstances(const BaseInstance *instances, size_t instanceCount)
+{
+  m_instanceBuffer.bind();
+  m_instanceBuffer.replaceData(instances, instanceCount * m_instanceSize);
   m_instanceBuffer.unbind();
 }
 

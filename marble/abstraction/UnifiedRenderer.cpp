@@ -356,7 +356,7 @@ void beginDepthPass()
 
 void renderMesh(const Camera &camera, const Mesh &mesh)
 {
-  s_debugData.meshCount++;
+  s_debugData.meshCount++; // TODO add s_debugData.drawCalls
   s_debugData.vertexCount += mesh.getModel()->getVertexCount();
 
   Material &material = *mesh.getMaterial();
@@ -382,6 +382,37 @@ void renderMesh(const Camera &camera, const Mesh &mesh)
   // unbind
   VertexArray::unbind();
   Shader::unbind();
+}
+
+void renderMeshInstanced(const Camera &camera, const InstancedMesh &mesh)
+{
+  renderMeshInstanced(camera, mesh, mesh.getInstanceCount());
+}
+
+void renderMeshInstanced(const Camera &camera, const InstancedMesh &mesh, size_t instanceCount)
+{
+  assert(instanceCount <= mesh.getInstanceCount());
+  s_debugData.meshCount += instanceCount;
+  s_debugData.vertexCount += mesh.getModel()->getVertexCount() * instanceCount;
+
+  Material &material = *mesh.getMaterial();
+  Shader &shader = *material.shader;
+
+  // bindings
+  mesh.getVAO().bind();
+  shader.bind();
+  for (unsigned int i = 0; i < material.textures.size(); i++)
+    if (material.textures[i])
+      material.textures[i]->bind(i);
+  // uniforms
+  shader.setUniform3f("u_cameraPos", camera.getPosition());
+  shader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+  // draw call
+  glDrawElementsInstanced(GL_TRIANGLES, mesh.getModel()->getVertexCount(), GL_UNSIGNED_INT, nullptr, instanceCount);
+  // unbind
+  VertexArray::unbind();
+  Shader::unbind();
+  
 }
 
 void renderNormalsMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const NormalsMesh &normalsMesh, const glm::vec4 &color)

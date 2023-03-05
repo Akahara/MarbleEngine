@@ -70,7 +70,7 @@ private:
   AABB               m_boudingBox;
 
 public:
-  Model();
+  Model() : m_verticesCount(0) {}
   Model(const std::vector<BaseVertex> &vertices, const std::vector<unsigned int> &indices);
   Model(Model &&moved) noexcept;
   Model &operator=(Model &&moved) noexcept;
@@ -123,12 +123,12 @@ private:
   std::shared_ptr<Material> m_material;
   VertexArray               m_VAO;
   VertexBufferObject        m_instanceBuffer;
-  size_t                    m_instanceCount;
-  size_t                    m_instanceSize;
+
+  static constexpr size_t m_instanceSize = sizeof(BaseInstance);
 
 public:
-  InstancedMesh() : m_instanceSize(0), m_instanceCount(0) {}
-  InstancedMesh(const std::shared_ptr<Model> &model, const std::shared_ptr<Material> &material, size_t instanceSize, size_t instanceCount);
+  InstancedMesh() {}
+  InstancedMesh(const std::shared_ptr<Model> &model, const std::shared_ptr<Material> &material, size_t instanceCount, const BaseInstance *instances=nullptr);
   InstancedMesh(InstancedMesh &&moved) noexcept;
   InstancedMesh &operator=(InstancedMesh &&moved) noexcept;
   InstancedMesh(const InstancedMesh &) = delete;
@@ -139,9 +139,10 @@ public:
   std::shared_ptr<Material> &getMaterial() { return m_material; }
   void setMaterial(const std::shared_ptr<Material> &material) { m_material = material; }
   const VertexArray &getVAO() const { return m_VAO; }
-  size_t getInstanceCount() const { return m_instanceCount; }
+  size_t getInstanceCount() const { return m_instanceBuffer.getSize() / m_instanceSize; }
 
-  void updateInstances(const BaseInstance *instances, size_t beginInstance, size_t endInstance);
+  void updateInstances(const BaseInstance *instances, size_t beginInstance, size_t endInstance); // updates the instances at indices [begin,end[
+  void replaceInstances(const BaseInstance *instances, size_t instanceCount);
 };
 
 class NormalsMesh {

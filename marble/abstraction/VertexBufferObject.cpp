@@ -7,10 +7,13 @@
 namespace Renderer {
 
 VertexBufferObject::VertexBufferObject(const void *vertices, size_t size)
+  : m_size(size), m_renderID(0)
 {
     glGenBuffers(1, &m_renderID);
-    glBindBuffer(GL_ARRAY_BUFFER, m_renderID);
-    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+    if (size > 0) {
+        glBindBuffer(GL_ARRAY_BUFFER, m_renderID);
+        glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+    }
 }
 
 VertexBufferObject::~VertexBufferObject()
@@ -21,6 +24,7 @@ VertexBufferObject::~VertexBufferObject()
 
 VertexBufferObject::VertexBufferObject(VertexBufferObject &&moved) noexcept
 {
+    m_size = moved.m_size;
     m_renderID = moved.m_renderID;
     moved.m_renderID = 0;
 }
@@ -44,11 +48,15 @@ void VertexBufferObject::unbind() const
 
 void VertexBufferObject::replaceData(const void *data, size_t size)
 {
-  glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
+    assert(m_renderID != 0);
+    glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
+    m_size = size;
 }
 
 void VertexBufferObject::updateData(const void *data, size_t size, size_t offset)
 {
+    assert(m_renderID != 0);
+    assert(offset + size <= m_size);
     glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 }
 
