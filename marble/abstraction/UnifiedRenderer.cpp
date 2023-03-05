@@ -591,10 +591,11 @@ void renderDebugGUIQuadWithTexture(const Texture& texture, glm::vec2 positionOnS
     gui.draw();
 }
 
+// This method should be somewhere else
 void setUniformPointLights(const std::vector<Light>& pointLights)
 {
-    s_keepAliveResources->standardLightsShader.bind();
-    s_keepAliveResources->standardLightsShader.setUniform1i("u_numberOfLights", (int)pointLights.size());
+    s_keepAliveResources->standardMeshShader.bind();
+    s_keepAliveResources->standardMeshShader.setUniform1i("u_numberOfLights", (int)pointLights.size());
 
     for (int i = 0; i < pointLights.size(); i++) {
         const Light& light = pointLights.at(i);
@@ -604,19 +605,19 @@ void setUniformPointLights(const std::vector<Light>& pointLights)
         ss << i;
         ss << "].";
         std::string lightInShader = ss.str();
-        s_keepAliveResources->standardLightsShader.setUniform1i(lightInShader + "on", light.isOn());
+        s_keepAliveResources->standardMeshShader.setUniform1i(lightInShader + "on", light.isOn());
 
-        s_keepAliveResources->standardLightsShader.setUniform3f(lightInShader + "position", light.getPosition());
+        s_keepAliveResources->standardMeshShader.setUniform3f(lightInShader + "position", light.getPosition());
 
-        s_keepAliveResources->standardLightsShader.setUniform1f(lightInShader + "constant", light.getCoefs().constant);
-        s_keepAliveResources->standardLightsShader.setUniform1f(lightInShader + "linear", light.getCoefs().linear);
-        s_keepAliveResources->standardLightsShader.setUniform1f(lightInShader + "quadratic", light.getCoefs().quadratic);
+        s_keepAliveResources->standardMeshShader.setUniform1f(lightInShader + "constant", light.getCoefs().constant);
+        s_keepAliveResources->standardMeshShader.setUniform1f(lightInShader + "linear", light.getCoefs().linear);
+        s_keepAliveResources->standardMeshShader.setUniform1f(lightInShader + "quadratic", light.getCoefs().quadratic);
 
-        s_keepAliveResources->standardLightsShader.setUniform3f(lightInShader + "ambient", light.getParams().ambiant);
-        s_keepAliveResources->standardLightsShader.setUniform3f(lightInShader + "diffuse", light.getParams().diffuse);
-        s_keepAliveResources->standardLightsShader.setUniform3f(lightInShader + "specular", light.getParams().specular);
+        s_keepAliveResources->standardMeshShader.setUniform3f(lightInShader + "ambient", light.getParams().ambiant);
+        s_keepAliveResources->standardMeshShader.setUniform3f(lightInShader + "diffuse", light.getParams().diffuse);
+        s_keepAliveResources->standardMeshShader.setUniform3f(lightInShader + "specular", light.getParams().specular);
     }
-    s_keepAliveResources->standardLightsShader.unbind();
+    s_keepAliveResources->standardMeshShader.unbind();
 }
 
 //=========================================================================================================================//

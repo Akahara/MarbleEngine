@@ -6,6 +6,10 @@
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../vendor/imgui/imgui.h"
 
+
+// TODO : This class has to change alot
+
+
 namespace World {
 
 	class LightRenderer {
@@ -32,23 +36,24 @@ namespace World {
 
 	public:
 		LightRenderer() {
-			Renderer::Shader& meshShader = Renderer::getStandardMeshShader();
-			meshShader.bind();
-			Renderer::setUniformPointLights(m_lights);
-			meshShader.unbind();
 		}
 
 
 		void onImguiRender() {
-			// light controls
+			
+			ImGui::Begin("Lights controls");
 			{ 
 				if (ImGui::Button("Generate a light") && m_lights.size() < 12)
-					m_lights.push_back({});
+					m_lights.push_back(Light{
+						});
 
 				for (unsigned int i = 0; i < m_lights.size(); i++) {
 					Light& light = m_lights.at(i);
 
-					if (ImGui::Checkbox((std::stringstream{ "Switch n" } << i).str().c_str(), &m_lightsOn[i])) {
+					std::stringstream ss{ std::string() };
+					ss << "Light " << i + 1;
+
+					if (ImGui::Checkbox(ss.str().c_str(), &m_lightsOn[i])) {
 						m_lights.at(i).setOn(m_lightsOn[i]);
 						Renderer::setUniformPointLights(m_lights);
 					}
@@ -60,16 +65,14 @@ namespace World {
 					Light::LightParam params = light.getParams();
 					float distance = light.getDistance();
 
-					std::stringstream ss{ std::string() };
-					ss << "Light " << i + 1;
-
 					if (!ImGui::CollapsingHeader(ss.str().c_str()))
 						continue;
 
+
 					if (ImGui::DragFloat3("Position ##" + i, &pos.x, 2.f) +
-						ImGui::SliderFloat3("Ambiant ##" + i, &params.ambiant.x, 0, 15) +
-						ImGui::SliderFloat3("Diffuse ##" + i, &params.diffuse.x, 0, 15) +
-						ImGui::SliderFloat3("Specular ##" + i, &params.specular.x, 0, 15) +
+						ImGui::ColorEdit3("Ambiant ##" + i, &params.ambiant.x) +
+						ImGui::ColorEdit3("Diffuse ##" + i, &params.diffuse.x) +
+						ImGui::ColorEdit3("Specular ##" + i, &params.specular.x) +
 						ImGui::SliderInt("Distance ##" + i, &m_lightDistanceIndex[i], 0, 11)) {
 
 						Light l = Light{
@@ -86,6 +89,8 @@ namespace World {
 					}
 				}
 			}
+
+			ImGui::End();
 		}
 	};
 }
