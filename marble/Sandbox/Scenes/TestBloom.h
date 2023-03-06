@@ -23,10 +23,6 @@ private:
 
     visualEffects::VFXPipeline  m_pipeline{ Window::getWinWidth(), Window::getWinHeight() };
 
-    std::vector<Light> m_lights;
-    Renderer::BlitPass m_blit;
-    Renderer::BlitPass m_blitFinal;
-
     World::LightRenderer m_lRenderer;
 
     BloomRenderer      m_bloomRenderer;
@@ -35,27 +31,13 @@ private:
     float m_strenght = 0.05f;
 
     float m_realtime = 0;
-    /*
-    bool m_lightsOn[12] =
-    {
-        0,0,0,
-        0,0,0,
-        0,0,0,
-        0,0,0
-    };
-    */
+    
 
 public:
     TestBloomScene()
     {
         m_fbo.setTargetTexture(m_target);
         m_fbo.setDepthTexture(m_depth);
-        Renderer::setUniformPointLights(m_lights);
-        m_blitFinal.setShader("res/shaders/bloom/finalBloom.fs");
-        m_blitFinal.getShader().bind();
-        m_blitFinal.getShader().setUniform1i("u_sceneTexture", 0);
-        m_blitFinal.getShader().setUniform1i("u_finalBloom", 1);
-        m_blitFinal.getShader().unbind();
 
         //===============//
         m_pipeline.registerEffect<visualEffects::Saturation>();
@@ -92,10 +74,6 @@ public:
         Renderer::clear();
         Renderer::Texture::unbind(0);
 
-        for (const auto& light : m_lights) {
-            Renderer::renderMesh(camera, light.getPosition(), glm::vec3(3), m_cubeMesh);
-        }
-
         Renderer::renderMesh(camera, {0,0,0}, glm::vec3(3), m_cubeMesh);
         Renderer::renderMesh(camera, {10,0,0}, glm::vec3(3), m_cubeMesh);
         Renderer::renderMesh(camera, {0,10,0}, glm::vec3(3), m_cubeMesh);
@@ -111,13 +89,6 @@ public:
     void onImGuiRender() override
     {
         m_pipeline.onImGuiRender();
-
-        if (ImGui::SliderFloat("bloomStrength", &m_strenght, 0, 5)) {
-            m_blitFinal.getShader().bind();
-            m_blitFinal.getShader().setUniform1f("u_bloomStrength", m_strenght);
-            m_blitFinal.getShader().unbind();
-        }
-
         m_lRenderer.onImguiRender();
        
         

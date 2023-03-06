@@ -45,16 +45,18 @@ void VertexArray::addBuffer(const VertexBufferObject& vb, const VertexBufferLayo
   ib.bind();
 
   const auto& elements = layout.getElements();
-  unsigned int offset = 0;
+  uintptr_t offset = 0;
 
   for (unsigned int i = 0; i < elements.size(); i++) {
 	const auto& element = elements[i];
 
 	glEnableVertexAttribArray(i);
-	glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.getStride(), *(const void**)&offset);
+	glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.getStride(), (const void *)offset);
 		
 	offset += element.count * VertexBufferElement::getSizeOfType(element.type);
   }
+
+  unbind();
 }
 
 void VertexArray::addInstanceBuffer(const VertexBufferObject &ivb, const VertexBufferLayout &instanceLayout, const VertexBufferLayout &modelLayout)
@@ -63,18 +65,22 @@ void VertexArray::addInstanceBuffer(const VertexBufferObject &ivb, const VertexB
   ivb.bind();
 
   const auto &elements = instanceLayout.getElements();
-  unsigned int offset = 0;
+  uintptr_t offset = 0;
   unsigned int attribOffset = (unsigned int)modelLayout.getElements().size();
+  int g;
+  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &g);
 
   for (unsigned int i = 0; i < elements.size(); i++) {
 	const auto &element = elements[i];
 
 	glEnableVertexAttribArray(i + attribOffset);
-	glVertexAttribPointer(i + attribOffset, element.count, element.type, element.normalized, instanceLayout.getStride(), *(const void **)&offset);
+	glVertexAttribPointer(i + attribOffset, element.count, element.type, element.normalized, instanceLayout.getStride(), (const void *)offset);
 	glVertexAttribDivisor(i + attribOffset, 1);
 
 	offset += element.count * VertexBufferElement::getSizeOfType(element.type);
   }
+
+  unbind();
 }
 
 }

@@ -5,6 +5,8 @@
 
 #include "../../abstraction/UnifiedRenderer.h"
 
+// This file has to change.
+// Change distance to fall-off, don't stick to such a small sample of fall-offs, add an intensity parameter for HDR, support more than 12 lights...
 
 static std::unordered_map<float, glm::vec3> s_mapDistValues =
 {
@@ -98,20 +100,9 @@ public:
 	Light() : m_position(0)
 			, m_params{ {0,0,0},{0,0,0},{0,0,0} }
 			, m_isOn(false)
-			, m_distance(0)
-	{}
-
-	Light(const glm::vec3& position,
-		const glm::vec3& ambiant,
-		const glm::vec3& diffuse,
-		const glm::vec3& specular,
-		float distance = 30,
-		bool isOn = true) 
+			, m_distance(7.0f)
 	{
-		m_params = { ambiant, diffuse, specular };
-		m_position = position;
-		m_isOn = isOn;
-		computeLightCoefs(distance);
+		computeLightCoefs(7.0f);
 	}
 
 	Light(const glm::vec3& position,

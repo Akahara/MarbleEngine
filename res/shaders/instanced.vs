@@ -5,6 +5,10 @@ layout(location = 1) in vec2 i_uv;
 layout(location = 2) in vec3 i_normal;
 layout(location = 3) in vec3 i_color;
 layout(location = 4) in float i_texId;
+// instance members
+layout(location = 5) in vec3 i_iposition;
+layout(location = 6) in vec3 i_iscale;
+layout(location = 7) in float i_irotation; // fake rotation, acceptable values are 0 (no rotation) and 1 (90deg rotation)
 
 out vec2 o_uv;
 out vec3 o_normal;
@@ -20,7 +24,6 @@ out vec3 o_toCameraVector;
 out vec3 o_fromLightVector;
 
 uniform mat4 u_VP;
-uniform mat4 u_M;
 uniform vec3 u_SunPos = vec3(1000.f);
 
 uniform vec3 u_camPos = vec3(0.f,0.f,0.f);
@@ -28,16 +31,20 @@ uniform vec4 u_plane = vec4(0, -1, 0, 10000);
 
 void main()
 {
-  vec4 worldPos = u_M * vec4(i_position, +1.0);
+  vec4 worldPos = vec4(i_position, 0);
+  worldPos.xz += i_irotation * (-worldPos.xz -worldPos.zw +worldPos.wx); // if an actual rotation is required, replace with rotation matrices
+  worldPos.xyz *= i_iscale;
+  worldPos.xyz += i_iposition;
+  worldPos.w = 1;
   gl_ClipDistance[0] = dot(worldPos, u_plane);
+  gl_ClipDistance[0] = 100000;
   vec4 screenSpacePos = u_VP * worldPos;
 
   o_pos = worldPos.xyz;
   o_uv = i_uv;
-  o_normal = mat3(u_M) *  i_normal;
+  o_normal = i_normal;
   o_color = i_color;
   o_texId = int(i_texId);
-
 
   o_toCameraVector = u_camPos - o_pos;
   o_SunPos = u_SunPos;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <array>
 
 #include "Shader.h"
 #include "Mesh.h"
@@ -14,16 +15,16 @@
 * The Renderer is the primary interface with OpenGL. A final user should not have
 * to call any gl function and instead shall use Renderer functions.
 * 
-* In this namespace are functions that load data (shaders & Modeles), initialization
+* In this namespace are functions that load data (shaders & models), initialization
 * and finalization methods, debug drawing methods (bounding boxes, cameras...) and
-* normal rendering methods (Modeles...).
+* normal rendering methods (meshes...).
 * 
-* The Renderer contains a "standard Model shader" that is set globally and can be
-* replaced using #rebuildStandardModelShader, for example:
-*   Renderer::Shader &ModelShader = Renderer::rebuildStandardModelShader(Renderer::ShaderFactory()
+* The Renderer contains a "standard mesh shader" that is set globally and can be
+* replaced using #rebuildStandardMeshShader, for example:
+*   Renderer::Shader &meshShader = Renderer::rebuildStandardMeshShader(Renderer::ShaderFactory()
 *     .prefix("res/shaders/")
 *     .addFileVertex("standard.vs")
-*     .prefix("Model_parts/")
+*     .prefix("mesh_parts/")
 *     .addFileFragment("base.fs")
 *     .addFileFragment("color_terrain.fs")
 *     .addFileFragment("lights_none.fs")

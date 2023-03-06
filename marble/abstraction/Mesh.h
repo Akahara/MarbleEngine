@@ -60,7 +60,7 @@ struct BaseInstance {
 * Mesh can be considered as "renderable primitives", a final user should not have to
 * use GL functions when using meshes.
 * 
-* Models can be generated using Renderer#loadModelFromFile.
+* Models can be generated using Renderer#loadMeshFromFile.
 */
 class Model {
 private:

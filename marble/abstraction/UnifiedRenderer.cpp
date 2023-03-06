@@ -91,7 +91,7 @@ std::shared_ptr<Model> loadModelFromFile(const fs::path& objPath)
 {
     // TODO : read the MTL file, and try to find the correct filename for the materials
   std::ifstream modelFile{ objPath };
-  constexpr size_t bufSize = 10000;
+  constexpr size_t bufSize = 100;
   char lineBuffer[bufSize];
 
   std::vector<glm::vec3> positions;
@@ -609,6 +609,7 @@ void renderDebugGUIQuadWithTexture(const Texture& texture, glm::vec2 positionOnS
     Mesh mesh{ gui, std::make_shared<Material>() };
 }
 
+// This method should be somewhere else
 void setUniformPointLights(const std::vector<Light>& pointLights)
 {
     s_keepAliveResources->standardLightsShader->bind();
