@@ -29,6 +29,8 @@ static struct KeepAliveResources {
   std::shared_ptr<Shader> standardDepthPassShader;
   std::shared_ptr<Shader> debugFlatScreenShader;
 
+  std::shared_ptr<Texture> missingTextureTexture;
+
   Mesh               debugCubeMesh;
   VertexArray        cubemapVAO;
   VertexBufferObject cubemapVBO;
@@ -36,6 +38,9 @@ static struct KeepAliveResources {
   VertexArray        lineVAO;
   IndexBufferObject  lineIBO;
   VertexBufferObject emptyVBO; // used by the line vao
+  VertexArray        debugUIQuadVAO;
+  VertexBufferObject debugUIQuadVBO;
+  IndexBufferObject  debugUIQuadIBO;
 } *s_keepAliveResources = nullptr;
 
 static struct State {
@@ -112,7 +117,6 @@ std::shared_ptr<Model> loadModelFromFile(const fs::path& objPath)
   uvs.push_back({ 0,0 });
 
   uvs.emplace_back();
-
 
   std::vector<std::tuple<int, int, int>> cachedVertices;
   unsigned int previousCachedVertices = 0;
@@ -254,6 +258,11 @@ std::shared_ptr<Model> loadModelFromFile(const fs::path& objPath)
   return std::make_shared<Model>(vertices, indices);
 }
 
+const std::shared_ptr<Texture> &getMissingTexture()
+{
+  return s_keepAliveResources->missingTextureTexture;
+}
+
 void clear()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -270,6 +279,8 @@ void init()
   s_keepAliveResources->standardDepthPassShader = loadShaderFromFiles("res/shaders/depth_pass.vs", "res/shaders/depth_pass.fs");
   s_keepAliveResources->cubemapShader = loadShaderFromFiles("res/shaders/cubemap.vs", "res/shaders/cubemap.fs");
   
+  s_keepAliveResources->missingTextureTexture = std::make_shared<Texture>("res/textures/no_texture.png");
+
   s_keepAliveResources->lineIBO = IndexBufferObject({ 0, 1 });
   s_keepAliveResources->lineVAO.addBuffer(s_keepAliveResources->emptyVBO, emptyLayout, s_keepAliveResources->lineIBO);
 
@@ -310,6 +321,13 @@ void init()
     VertexBufferLayout layout;
     layout.push<float>(3);
     s_keepAliveResources->cubemapVAO.addBuffer(s_keepAliveResources->cubemapVBO, layout, s_keepAliveResources->cubemapIBO);
+  }
+
+  { // debugUIQuad setup
+    std::array<unsigned int, 6> indices{ 3,2,0, 1,0,2 };
+    s_keepAliveResources->debugUIQuadVBO = VertexBufferObject(nullptr, sizeof(BaseVertex) * 12);
+    s_keepAliveResources->debugUIQuadIBO = IndexBufferObject(indices.data(), indices.size());
+    s_keepAliveResources->debugUIQuadVAO.addBuffer(s_keepAliveResources->debugUIQuadVBO, BaseVertex::getVertexBufferLayout(), s_keepAliveResources->debugUIQuadIBO);
   }
 
   s_state.activeStandardShader = s_keepAliveResources->standardMeshShader.get();
@@ -408,7 +426,7 @@ void renderMeshInstanced(const Camera &camera, const InstancedMesh &mesh, size_t
   shader.setUniform3f("u_cameraPos", camera.getPosition());
   shader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
   // draw call
-  glDrawElementsInstanced(GL_TRIANGLES, mesh.getModel()->getVertexCount(), GL_UNSIGNED_INT, nullptr, instanceCount);
+  glDrawElementsInstanced(GL_TRIANGLES, mesh.getModel()->getVertexCount(), GL_UNSIGNED_INT, nullptr, (GLsizei)instanceCount);
   // unbind
   VertexArray::unbind();
   Shader::unbind();
@@ -586,27 +604,23 @@ void renderDebugCameraOutline(const Camera &viewCamera, const Camera &outlinedCa
 
 void renderDebugGUIQuadWithTexture(const Texture& texture, glm::vec2 positionOnScreen, glm::vec2 size)
 {
-    // TODO store a plane mesh in a static variable and rotate,translate&scale at each call
-    std::vector<BaseVertex> vertices{
-        // position                                                          uv            normal (up)    color
-        { { positionOnScreen.x,          positionOnScreen.y,          0.f }, { 1.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
-        { { positionOnScreen.x,          positionOnScreen.y + size.y, 0.f }, { 1.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
-        { { positionOnScreen.x + size.x, positionOnScreen.y + size.y, 0.f }, { 0.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
-        { { positionOnScreen.x + size.x, positionOnScreen.y,          0.f }, { 0.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
-    };
+  s_debugData.meshCount++;
+  s_debugData.vertexCount += 6;
 
-    std::vector<unsigned int> indices{
-      3, 2, 0, 1,0,2
-    };
+  std::array vertices{
+    //            position                                                           uv            normal (up)   color
+    BaseVertex{ { positionOnScreen.x,          positionOnScreen.y,          0.f }, { 1.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+    BaseVertex{ { positionOnScreen.x,          positionOnScreen.y + size.y, 0.f }, { 1.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+    BaseVertex{ { positionOnScreen.x + size.x, positionOnScreen.y + size.y, 0.f }, { 0.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+    BaseVertex{ { positionOnScreen.x + size.x, positionOnScreen.y,          0.f }, { 0.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+  };
 
-    std::shared_ptr<Model> gui = std::make_shared<Model>(vertices, indices);
+  s_keepAliveResources->debugUIQuadVAO.bind();
+  s_keepAliveResources->debugUIQuadVBO.updateData(vertices.data(), sizeof(vertices));
 
-    texture.bind(0);
-    s_keepAliveResources->debugFlatScreenShader->bind();
-    s_keepAliveResources->debugFlatScreenShader->setUniform1i("u_texture", 0);
-    //gui.draw();
-    // FIX restore renderDebugGUIQuadWithTexture
-    Mesh mesh{ gui, std::make_shared<Material>() };
+  texture.bind(0);
+  s_keepAliveResources->debugFlatScreenShader->bind();
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
 // This method should be somewhere else

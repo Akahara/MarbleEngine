@@ -104,7 +104,8 @@ static Renderer::Mesh generateChunkMesh(const HeightMap &heightmap, glm::ivec2 c
   //Renderer::Mesh mesh{ vertices, indices, texture };
   auto model = std::make_shared<Renderer::Model>(vertices, indices);
   auto material = std::make_shared<Renderer::Material>();
-  material->textures[0] = std::make_shared<Renderer::Texture>("res/textures/no_texture.png");
+  material->textures[0] = Renderer::getMissingTexture();
+  material->textures[1] = Renderer::getMissingTexture();
   material->shader = Renderer::getStandardMeshShader();
   Renderer::Mesh mesh{ model, material };
   return mesh;

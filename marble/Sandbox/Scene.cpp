@@ -47,6 +47,10 @@ void switchToScene(size_t sceneIndex)
     .addFileFragment("shadows_normal.fs")
     .addFileFragment("normal_none.fs"));
 
+  int samplers[8] = { 0,1,2,3,4,5,6,7 };
+  Renderer::getStandardMeshShader()->bind();
+  Renderer::getStandardMeshShader()->setUniform1iv("u_Textures2D", 8, samplers);
+
   delete s_activeScene;
   auto &[name, provider] = s_availableScenes[sceneIndex];
   s_activeScene = provider();

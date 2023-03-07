@@ -6,7 +6,7 @@ in vec3 o_pos;
 in vec3 o_color;
 
 uniform int       u_RenderChunks = 0;
-uniform vec2      u_grassSteepness = vec2(0.015f);
+uniform vec2      u_grassSteepness = vec2(.0f, 0.015f);
 uniform sampler2D u_Textures2D[8];
 
 vec4 computeBaseColor(vec3 normal) {

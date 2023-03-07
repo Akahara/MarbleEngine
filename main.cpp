@@ -16,6 +16,7 @@
 
 //#include "marble/Sandbox/Tests.h"
 #include "marble/Sandbox/Scenes/TestShadows.h"
+#include "marble/Sandbox/Scenes/TestWater.h"
 
 inline long long nanoTime()
 {
@@ -52,14 +53,14 @@ int main()
     //SceneManager::registerScene<TestInstancedScene>("Instanced");
     //SceneManager::registerScene<TestBloomScene>("Bloom");
     //SceneManager::registerScene<TestAtlas>("Atlas");
-    //SceneManager::registerScene<TestWater>("Water");
+    SceneManager::registerScene<TestWater>("Water");
     //SceneManager::registerScene<POC1Scene>("POC 1");
     //SceneManager::registerScene<POC2Scene>("POC 2");
     //SceneManager::registerScene<POC3Scene>("POC 3");
     //SceneManager::registerScene<POC4Scene>("POC 4");
     
 
-    SceneManager::switchToScene(1);
+    SceneManager::switchToScene(2);
 
     //===========================================================//
 
