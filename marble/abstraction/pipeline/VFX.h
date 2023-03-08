@@ -21,7 +21,7 @@ public:
 
 	Renderer::Texture targetTexture;
 	Renderer::Texture originTexture;
-
+	Renderer::Texture normalTexture;
 	Renderer::Texture depthTexture;
 	
 	std::map<std::string, void*> m_params;
@@ -48,6 +48,7 @@ enum EffectType {
 	GammaCorrectionEffect,
 	//TonemapperEffect, // not yet implemented
 	LensMaskEffect,
+	SSAOEffect,
 	
 	end_marker
 };
@@ -55,6 +56,7 @@ enum EffectType {
 
 /* Parent class for all effects */
 class VFX {
+
 protected:
 	bool                m_isEnabled;
 	std::string         m_name;

@@ -31,6 +31,8 @@ public:
   FrameBufferObject(FrameBufferObject &&moved) noexcept;
 
   void bind() const;
+  void bindAsWrite() const;
+  void bindAsRead() const;
   void bindCached() const; // do something else, this is to prevent looping between stack pushing and poping TODO make this a friend function
  
   static void unbind();
@@ -38,6 +40,8 @@ public:
 
   void setTargetTexture(Texture &texture, unsigned int slot = 0);
   void setDepthTexture(Texture &texture);
+
+
 
   void assertIsValid() const;
 
@@ -49,6 +53,7 @@ public:
   unsigned int getViewportHeight() const { return m_viewPort.height; }
   unsigned int getViewportWidth() const { return m_viewPort.width; }
   Renderer::Texture* getTarget() const { return m_target; }
+  Renderer::Texture* getDepth() const { return m_depth; }
 };
 
 

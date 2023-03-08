@@ -7,8 +7,10 @@
 #include "../../vendor/imgui/imgui.h"
 
 
-// TODO : This class has to change alot
 
+
+// TODO : This class has to change alot
+// rename, and change the ligth class
 
 namespace World {
 
@@ -35,7 +37,32 @@ namespace World {
 
 
 	public:
-		LightRenderer() {
+
+		void uploadLightsToShader(Renderer::Shader& shader) {
+
+			shader.bind();
+
+			shader.setUniform1i("u_numberOfLights", m_lights.size());
+
+			for (int i = 0; i < m_lights.size(); i++) {
+				const Light& light = m_lights.at(i);
+
+				std::stringstream ss{ std::string() };
+				ss << "u_lights[";
+				ss << i;
+				ss << "].";
+				std::string lightInShader = ss.str();
+				shader.setUniform1i(lightInShader + "on", light.isOn());
+				shader.setUniform3f(lightInShader + "position", light.getPosition());
+				shader.setUniform1f(lightInShader + "constant", light.getCoefs().constant);
+				shader.setUniform1f(lightInShader + "linear", light.getCoefs().linear);
+				shader.setUniform1f(lightInShader + "quadratic", light.getCoefs().quadratic);
+				shader.setUniform3f(lightInShader + "ambient", light.getParams().ambiant);
+				shader.setUniform3f(lightInShader + "diffuse", light.getParams().diffuse);
+				shader.setUniform3f(lightInShader + "specular", light.getParams().specular);
+			}
+
+			shader.unbind();
 		}
 
 

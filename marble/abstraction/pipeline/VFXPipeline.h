@@ -11,6 +11,7 @@
 #include "VFX.h"
 
 #include "Bloom.h"
+#include "SSAO.h"
 #include "Sharpness.h"
 #include "Saturation.h"
 #include "Contrast.h"
@@ -22,7 +23,6 @@ namespace visualEffects {
 class VFXPipeline {
 private:
 	PipelineContext     m_context;
-
 	Renderer::BlitPass	m_blitData;
 	std::vector<VFX*>   m_effects;
 
@@ -31,6 +31,8 @@ public:
 	{
 		m_context.targetTexture = Renderer::Texture(w,h);
 		m_context.originTexture = Renderer::Texture(w,h);
+
+
 		m_context.depthTexture = Renderer::Texture::createDepthTexture(w,h);
 
 		m_context.fbo.setTargetTexture(m_context.targetTexture);
@@ -68,7 +70,6 @@ public:
 
 	void bind()
 	{
-		m_context.fbo.setTargetTexture(m_context.originTexture);
 		m_context.fbo.bind();
 		Renderer::FrameBufferObject::setViewportToTexture(m_context.originTexture);
 	}
@@ -76,7 +77,7 @@ public:
 	void unbind() const
 	{
 		m_context.fbo.unbind();
-		Renderer::FrameBufferObject::setViewport(Window::getWinWidth(), Window::getWinHeight());
+		Renderer::FrameBufferObject::setViewportToWindow();
 	}
 
 	template<typename T> 
@@ -113,6 +114,8 @@ public:
 
 	void renderPipeline()
 	{
+
+
 		for (VFX* effect : m_effects) {
 			if (!effect->isEnabled()) continue;
 
@@ -126,17 +129,30 @@ public:
 		m_blitData.doBlit();
 	}
 
+	VFX* getEffect(EffectType type) {
+		for (VFX* v : m_effects) {
+			if (v->getType() == type) return v;
+		}
+		return nullptr;
+	}
+
 	void onImGuiRender()
 	{
 		if(ImGui::Begin("Effects")) {
 			for (VFX* effect : m_effects)
 				effect->onImGuiRender();
 		}
+		//ImGui::Image(m_context.depthTexture.getId(), {16*20, 9*20}, {0,1}, {1,0});
+		ImGui::Image(m_context.targetTexture.getId(), {16*20, 9*20}, {0,1}, {1,0});
 		ImGui::End();
 	}
 
 	Renderer::Texture &getTargetTexture() {
 		return m_context.targetTexture;
+	}
+
+	Renderer::Texture& getDepthTexture() {
+		return m_context.depthTexture;
 	}
 
 	//-------- Helpers

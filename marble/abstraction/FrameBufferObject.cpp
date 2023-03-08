@@ -38,6 +38,20 @@ void FrameBufferObject::bind() const
   FBOStack::getInstance().pushFBO(this);
 }
 
+void FrameBufferObject::bindAsWrite() const
+{
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_renderID);
+	FBOStack::getInstance().pushFBO(this);
+}
+
+
+void FrameBufferObject::bindAsRead() const
+{
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_renderID);
+	FBOStack::getInstance().pushFBO(this);
+}
+
+
 void FrameBufferObject::bindCached() const
 {
   glBindFramebuffer(GL_FRAMEBUFFER, m_renderID);
@@ -60,7 +74,7 @@ void FrameBufferObject::setTargetTexture(Texture &texture, unsigned int slot/*=0
 {
   bind();
 
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.getId(), 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+slot, GL_TEXTURE_2D, texture.getId(), 0);
   m_viewPort.width = texture.getWidth();
   m_viewPort.height = texture.getHeight();
   m_target = &texture;
@@ -77,6 +91,7 @@ void FrameBufferObject::setDepthTexture(Texture &texture)
   assertIsValid();
   unbind();
 }
+
 
 void FrameBufferObject::assertIsValid() const
 {

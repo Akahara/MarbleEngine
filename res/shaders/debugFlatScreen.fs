@@ -11,7 +11,6 @@ void main()
 {
 
     color = texture(u_texture, vec2(1-o_uv.x, 1-o_uv.y));
-    color.a = 1;
     //color.r += 0.2;
 
 }

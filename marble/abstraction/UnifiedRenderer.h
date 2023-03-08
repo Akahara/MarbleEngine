@@ -44,8 +44,22 @@ static struct DebugData {
   int debugLines;
 } s_debugData;
 
+
+enum RenderingState {
+
+    FORWARD,
+    DEFERRED,
+    FORWARD_PLUS
+};
+
+
+RenderingState getCurrentRenderingState();
+void setRenderingState(RenderingState state);
+
 Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath);
 Mesh createCubeMesh();
+Mesh createSphereMesh(int resolution = 10);
+
 Mesh createPlaneMesh(bool facingDown=false);
 Mesh loadMeshFromFile(const fs::path &objPath);
 
@@ -64,6 +78,7 @@ void beginColorPass();
 void beginDepthPass();
 
 
+// Change this for quaternions
 enum ROTATION_AXIS {
     X_AXIS = 1,
     Y_AXIS = 2,

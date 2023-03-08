@@ -52,7 +52,9 @@ private:
   AABB               m_boudingBox;
 
   std::unordered_map<int, std::shared_ptr<Texture>> m_SlotTextures;
-  // could also store normale maps and such things
+  // could also store normale maps and such things :::: tihs should come with the new materials system
+
+
 
 public:
   Mesh();

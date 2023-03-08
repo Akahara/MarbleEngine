@@ -14,6 +14,7 @@
 #include "Window.h"
 #include "Camera.h"
 #include "Mesh.h"
+#include "../Utils/Mathf.h"
 
 #include "../World/Light/Light.h" // TODO move light.h to the abstraction package
                                   // abstraction should not depend on world, the inverse is possible
@@ -28,6 +29,8 @@ static struct KeepAliveResources {
   Shader             debugNormalsShader;
   Shader             standardDepthPassShader;
 
+  Shader             deferredGeometryPass; // This should be constructed and given later, but as of now, this will be fine (only 3 color attachments)
+
   Shader             debugFlatScreenShader;
 
   Shader             debugCubeShader;
@@ -40,11 +43,37 @@ static struct KeepAliveResources {
   VertexBufferObject emptyVBO; // used by the line vao
 } *s_keepAliveResources = nullptr;
 
+
+
+
 static struct State {
   Shader *activeStandardShader;
+  RenderingState renderingState;
 } s_state;
 
 
+/* Choose between FORWARD, DEFERRED, FORWARD_PLUS */
+void setRenderingState(RenderingState state) {
+
+
+    if (s_keepAliveResources == nullptr)
+        throw std::runtime_error("Cannot fetch resources until the renderer is initialized");
+
+    s_state.renderingState = state;
+
+    switch (state) {
+        case DEFERRED:
+            s_state.activeStandardShader = &s_keepAliveResources->deferredGeometryPass;
+            break;
+        default:
+            s_state.activeStandardShader = &s_keepAliveResources->standardMeshShader;
+    }
+
+
+}
+
+
+// Should be somewhere else, why would the renderer be the one to import shaders?
 Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath)
 {
   std::ifstream vertexFile{ vertexPath };
@@ -58,11 +87,97 @@ Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentP
   return Shader{ vertexCode, fragmentCode };
 }
 
+
+
 Mesh createCubeMesh()
 {
   return loadMeshFromFile("res/meshes/cube.obj");
 }
 
+
+Mesh createSphereMesh(int resolution/*=10*/) {
+    
+
+    int sectorCount = resolution;
+    int stackCount = resolution;
+
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+
+    float x, y, z, xy;                              // vertex position
+    float nx, ny, nz, lengthInv = 1.0f;             // vertex normal
+    float s, t;                                     // vertex texCoord
+
+    float sectorStep = 2 * Mathf::PI / sectorCount;
+    float stackStep = Mathf::PI / stackCount;
+    float sectorAngle, stackAngle;
+
+    for (int i = 0; i <= stackCount; ++i)
+    {
+        stackAngle = Mathf::PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
+        xy = cosf(stackAngle);             // r * cos(u)
+        z = sinf(stackAngle);              // r * sin(u)
+
+        // add (sectorCount+1) vertices per stack
+        // the first and last vertices have same position and normal, but different tex coords
+        for (int j = 0; j <= sectorCount; ++j)
+        {
+            sectorAngle = j * sectorStep;           // starting from 0 to 2pi
+
+            // vertex position (x, y, z)
+            x = xy * cosf(sectorAngle);             // r * cos(u) * cos(v)
+            y = xy * sinf(sectorAngle);             // r * cos(u) * sin(v)
+
+
+            // normalized vertex normal (nx, ny, nz)
+            nx = x * lengthInv;
+            ny = y * lengthInv;
+            nz = z * lengthInv;
+
+
+            // vertex tex coord (s, t) range between [0, 1]
+            s = (float)j / sectorCount;
+            t = (float)i / stackCount;
+
+            glm::vec3 position = { x,y,z };
+            glm::vec3 normal = { nx, ny, nz };
+            glm::vec3 color = { 1,0,0 };
+            glm::vec2 uv = { s,t };
+
+            vertices.push_back(Vertex{ position, uv,normal, color });
+
+        }
+    }
+
+    unsigned int k1, k2;
+    for (unsigned int i = 0; i < stackCount; ++i)
+    {
+        k1 = i * (sectorCount + 1);     // beginning of current stack
+        k2 = k1 + sectorCount + 1;      // beginning of next stack
+
+        for (int j = 0; j < sectorCount; ++j, ++k1, ++k2)
+        {
+            // 2 triangles per sector excluding first and last stacks
+            // k1 => k2 => k1+1
+            if (i != 0)
+            {
+                indices.push_back(k1);
+                indices.push_back(k2);
+                indices.push_back(k1 + 1);
+            }
+
+            // k1+1 => k2 => k2+1
+            if (i != (stackCount - 1))
+            {
+                indices.push_back(k1 + 1);
+                indices.push_back(k2);
+                indices.push_back(k2 + 1);
+            }
+        }
+    }
+
+    return Mesh{ vertices, indices };
+}
 Mesh createPlaneMesh(bool facingDown)
 {
   std::vector<Vertex> vertices{
@@ -89,6 +204,10 @@ static void skipStreamText(std::istream &stream, const char *text)
   }
 }
 
+
+
+
+// Move this somewhere else
 Mesh loadMeshFromFile(const fs::path& objPath)
 {
 
@@ -281,10 +400,12 @@ void init()
   s_keepAliveResources = new KeepAliveResources;
 
   s_keepAliveResources->standardMeshShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_color.fs"); // invalid shader
-  //s_keepAliveResources->standardLightsShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/lights_pointlights.fs");
   s_keepAliveResources->standardLineShader = loadShaderFromFiles("res/shaders/standard_line.vs", "res/shaders/standard_color.fs");
   s_keepAliveResources->standardDepthPassShader = loadShaderFromFiles("res/shaders/depth_pass.vs", "res/shaders/depth_pass.fs");
   s_keepAliveResources->cubemapShader = loadShaderFromFiles("res/shaders/cubemap.vs", "res/shaders/cubemap.fs");
+
+  // DEFERRED SHADER HERE
+  s_keepAliveResources->deferredGeometryPass = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/gBuffer.fs");
   
   s_keepAliveResources->lineIBO = IndexBufferObject({ 0, 1 });
   s_keepAliveResources->lineVAO.addBuffer(s_keepAliveResources->emptyVBO, emptyLayout, s_keepAliveResources->lineIBO);
@@ -329,6 +450,7 @@ void init()
   }
 
   s_state.activeStandardShader = &s_keepAliveResources->standardMeshShader;
+  s_state.renderingState = FORWARD;
 
   int samplers[8] = { 0,1,2,3,4,5,6,7 };
   s_state.activeStandardShader->bind();
@@ -410,6 +532,8 @@ void renderNormalsMesh(const Camera &camera, const glm::vec3 &position, const gl
   normalsMesh.draw();
 }
 
+
+// Does this make sense to be here ? This function is only called by a single class and won't ever be used again
 void renderCubemap(const Camera &camera, const Cubemap &cubemap)
 {
   s_keepAliveResources->cubemapVAO.bind();
@@ -591,7 +715,7 @@ void renderDebugGUIQuadWithTexture(const Texture& texture, glm::vec2 positionOnS
     gui.draw();
 }
 
-// This method should be somewhere else
+// This method should be somewhere else / WIP
 void setUniformPointLights(const std::vector<Light>& pointLights)
 {
     s_keepAliveResources->standardMeshShader.bind();
@@ -634,5 +758,11 @@ void clearDebugData() {
 const DebugData& getRendererDebugData() {
   return s_debugData;
 }
+
+
+RenderingState getCurrentRenderingState() {
+    return s_state.renderingState;
+}
+
 
 }

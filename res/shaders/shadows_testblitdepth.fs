@@ -14,10 +14,20 @@ float unlinearize_depth(float original_depth) {
     return original_depth * (far - near) + near;
 }
 
-void main()
+float linearize_depth(float d)
 {
-    vec2 uv = o_uv;
+    return ((1.f/d) - (1.F/u_zNear))/((1.F/u_zFar)-(1.F/u_zNear));
+}
 
-    float depth = unlinearize_depth(texture(u_texture, uv).r);
-    color = vec4(vec3((depth-u_zNear) / (u_zFar-u_zNear)), 1.);
+float LinearizeDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * u_zNear * u_zFar) / (u_zFar + u_zNear - z * (u_zFar - u_zNear));	
+}
+
+void main()
+{             
+    
+    float depth = LinearizeDepth(texture(u_texture,o_uv).r) / u_zFar; // divide by far for demonstration
+    color = vec4(vec3(depth), 1.0);
 }
