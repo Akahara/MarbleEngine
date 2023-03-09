@@ -372,6 +372,23 @@ void beginDepthPass()
   s_state.activeStandardShader = s_keepAliveResources->standardDepthPassShader.get();
 }
 
+static inline void bindMaterial(const Material &material)
+{
+  material.shader->bind();
+  for (unsigned int i = 0; i < material.textures.size(); i++)
+    if (material.textures[i])
+      material.textures[i]->bind(i);
+}
+
+static inline glm::mat4 transformToMMatrix(const Transform &transform)
+{
+  glm::mat4 M(1.f);
+  M = glm::translate(M, transform.position);
+  M = glm::scale(M, transform.scale);
+  M = M * glm::toMat4(transform.rotation);
+  return M;
+}
+
 void renderMesh(const Camera &camera, const Mesh &mesh)
 {
   s_debugData.meshCount++; // TODO add s_debugData.drawCalls
@@ -380,20 +397,12 @@ void renderMesh(const Camera &camera, const Mesh &mesh)
   Material &material = *mesh.getMaterial();
   Shader &shader = *material.shader;
 
-  glm::mat4 M(1.f);
-  M = glm::translate(M, mesh.getTransform().position);
-  M = glm::scale(M, mesh.getTransform().scale);
-  M = M * glm::toMat4(mesh.getTransform().rotation);
-
   // bindings
   mesh.getVAO().bind();
-  shader.bind();
-  for (unsigned int i = 0; i < material.textures.size(); i++)
-    if (material.textures[i])
-      material.textures[i]->bind(i);
+  bindMaterial(material);
   // uniforms
   shader.setUniform3f("u_cameraPos", camera.getPosition());
-  shader.setUniformMat4f("u_M", M);
+  shader.setUniformMat4f("u_M", transformToMMatrix(mesh.getTransform()));
   shader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
   // draw call
   glDrawElements(GL_TRIANGLES, mesh.getModel()->getVertexCount(), GL_UNSIGNED_INT, nullptr);
@@ -410,7 +419,7 @@ void renderMeshInstanced(const Camera &camera, const InstancedMesh &mesh)
 void renderMeshInstanced(const Camera &camera, const InstancedMesh &mesh, size_t instanceCount)
 {
   assert(instanceCount <= mesh.getInstanceCount());
-  s_debugData.meshCount += instanceCount;
+  s_debugData.meshCount++;
   s_debugData.vertexCount += mesh.getModel()->getVertexCount() * instanceCount;
 
   Material &material = *mesh.getMaterial();
@@ -418,10 +427,7 @@ void renderMeshInstanced(const Camera &camera, const InstancedMesh &mesh, size_t
 
   // bindings
   mesh.getVAO().bind();
-  shader.bind();
-  for (unsigned int i = 0; i < material.textures.size(); i++)
-    if (material.textures[i])
-      material.textures[i]->bind(i);
+  bindMaterial(material);
   // uniforms
   shader.setUniform3f("u_cameraPos", camera.getPosition());
   shader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
@@ -431,6 +437,34 @@ void renderMeshInstanced(const Camera &camera, const InstancedMesh &mesh, size_t
   VertexArray::unbind();
   Shader::unbind();
   
+}
+
+void renderMeshTerrain(const Camera &camera, const TerrainMesh &mesh)
+{
+  s_debugData.meshCount++;
+  Material &material = *mesh.getMaterial();
+  Shader &shader = *material.shader;
+  Frustum frustum = Frustum::createFrustumFromPerspectiveCamera(camera);
+  
+  // bindings
+  bindMaterial(material);
+  // uniforms
+  shader.setUniform3f("u_cameraPos", camera.getPosition());
+  shader.setUniformMat4f("u_M", transformToMMatrix(mesh.getTransform()));
+  shader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+
+  for (const TerrainMesh::Chunk &chunk : mesh.getChunks()) {
+    if (!frustum.isOnFrustum(chunk.worldBoundingBox))
+      continue;
+    // draw call
+    chunk.vao.bind();
+    glDrawElements(GL_TRIANGLES, (int)mesh.getIBO().getCount(), GL_UNSIGNED_INT, nullptr);
+    s_debugData.vertexCount += mesh.getIBO().getCount();
+  }
+
+  // unbind
+  VertexArray::unbind();
+  Shader::unbind();
 }
 
 void renderNormalsMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const NormalsMesh &normalsMesh, const glm::vec4 &color)
@@ -471,7 +505,7 @@ void renderCubemap(const Camera &camera, const Cubemap &cubemap)
   glDepthFunc(GL_LESS);
 
   VertexArray::unbind();
-  s_keepAliveResources->cubemapShader->unbind();
+  Shader::unbind();
 }
 
 void renderDebugLine(const Camera &camera, const glm::vec3 &from, const glm::vec3 &to, const glm::vec4 &color)

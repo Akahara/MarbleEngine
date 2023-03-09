@@ -4,7 +4,7 @@
 #include "Terrain.h"
 #include <cstring>
 
-namespace Terrain {
+namespace Noise {
 
 HeightMap::HeightMap(unsigned int width, unsigned int height)
   : m_width(width), m_height(height)

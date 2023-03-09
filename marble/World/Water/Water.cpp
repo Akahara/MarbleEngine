@@ -21,7 +21,8 @@ void World::Water::onRender(const std::function<void()> &renderFn, Renderer::Cam
 
   // Take photo
 
-  glEnable(GL_CLIP_DISTANCE0); // L'eau ne marchait plus à cause de ca qui avait disparu
+  glEnable(GL_CLIP_DISTANCE0);
+
   m_renderer.bindReflectionBuffer();
   Renderer::clear();
   renderFn();
@@ -39,8 +40,6 @@ void World::Water::onRender(const std::function<void()> &renderFn, Renderer::Cam
   Renderer::getStandardMeshShader()->bind();
   Renderer::getStandardMeshShader()->setUniform4f("u_plane", glm::vec4(0, -1, 0, m_source.position.y));
   Renderer::Shader::unbind();
-
-  glEnable(GL_CLIP_DISTANCE0);
 
   m_renderer.bindRefractionBuffer();
   Renderer::clear();

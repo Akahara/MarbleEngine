@@ -81,7 +81,7 @@ void main()
 
     vec4 texReflec = texture(u_ReflectionTexture, reflect);
     vec4 texRefrac = texture(u_RefractionTexture, refract);
-    texRefrac = mix(texRefrac, vec4(1,1,0,1), clamp(waterDepth/200.f, 0.0, 1.0)); // color deepness thing
+    texRefrac = mix(texRefrac, vec4(.5,.5,.9,1), clamp(waterDepth/200.f, 0.0, 1.0)); // color deepness thing
 
     vec4 normalMapColour = texture(u_normalMap, distortedTexCoords);
     vec3 normal = vec3(normalMapColour.r * 2.0 - 1.0, normalMapColour.b * 3.0, normalMapColour.g *2.0 - 1.0);

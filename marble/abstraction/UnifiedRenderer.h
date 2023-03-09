@@ -67,6 +67,7 @@ void beginDepthPass();
 void renderMesh(const Camera &camera, const Mesh &mesh);
 void renderMeshInstanced(const Camera &camera, const InstancedMesh &mesh);
 void renderMeshInstanced(const Camera &camera, const InstancedMesh &mesh, size_t instanceCount);
+void renderMeshTerrain(const Camera &camera, const TerrainMesh &mesh);
 void renderNormalsMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const NormalsMesh &normalsModel, const glm::vec4 &color={ 1,0,0,1 });
 void renderCubemap(const Camera &camera, const Cubemap &cubemap);
 void renderDebugLine(const Camera &camera, const glm::vec3 &from, const glm::vec3 &to, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});

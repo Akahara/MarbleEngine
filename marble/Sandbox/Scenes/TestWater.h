@@ -27,37 +27,26 @@ private:
 
     /* Terrain generation stuff */
     Renderer::Mesh       m_terrainMesh;
-    Terrain::Terrain     m_terrain;      // holds heightmap and chunksize
+    Renderer::TerrainMesh m_terrain;      // holds heightmap and chunksize
 
     /*  Water Stuff */    
     World::Water      m_water;
     World::Sky        m_sky;
     float             m_realTime = 0;
 
-    /* Rendering stuff */
-    Renderer::Frustum m_frustum;
-
-    Renderer::Texture m_rockTexture  = Renderer::Texture("res/textures/rock.jpg");
-    Renderer::Texture m_grassTexture = Renderer::Texture("res/textures/rock.jpg");
-
-    //=====================================================================================================================//
-
 public:
     TestWater()
     {
-        m_rockTexture.bind(0);
-        m_grassTexture.bind(1);
-
         m_player.setPostion({ 100.f, 22.F , 100.f });
         m_player.updateCamera();
 
-        m_terrain = Terrain::generateTerrain(
-            Noise::TerrainData{}, // use default values
-            10, 10, // generate 10x10=100 chunks
-            16      // each chunk is 16x16
-        );
+        auto terrainMaterial = std::make_shared<Renderer::Material>();
+        terrainMaterial->shader = Renderer::getStandardMeshShader();
+        terrainMaterial->textures[0] = std::make_shared<Renderer::Texture>("res/textures/rock.jpg");
+        terrainMaterial->textures[1] = std::make_shared<Renderer::Texture>("res/textures/rock.jpg");
+        m_terrain.setMaterial(terrainMaterial);
+        m_terrain.rebuildMesh([](float x, float y) { return x + y*.5f; }, {0,0, 80,80});
 
-        m_frustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(m_player.getCamera());
         m_water.addSource({40,12,40},{80,80});
     }
 
@@ -66,7 +55,6 @@ public:
         m_realTime += delta;
         m_player.step(delta);
         m_water.updateMoveFactor(delta);
-        m_frustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(m_player.getCamera());
     }
 
     void renderScene()
@@ -74,13 +62,7 @@ public:
         Renderer::Camera& camera = m_player.getCamera();
         Renderer::clear();
 
-        //m_rockTexture.bind(0);
-        //m_grassTexture.bind(1);
-
-        for (const auto& [position, chunk] : m_terrain.getChunks()) {
-            if (m_frustum.isOnFrustum(chunk.getMesh().getModel()->getBoundingBox()))
-                Renderer::renderMesh(camera, chunk.getMesh());
-        }
+        Renderer::renderMeshTerrain(camera, m_terrain);
 
         m_sky.render(camera, m_realTime);
     }

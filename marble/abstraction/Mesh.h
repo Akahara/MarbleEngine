@@ -145,6 +145,74 @@ public:
   void replaceInstances(const BaseInstance *instances, size_t instanceCount);
 };
 
+struct TerrainRegion {
+  float minX, minY, maxX, maxY;
+};
+
+/*
+ * Heightmaps are simply functions taking inputs in the xz plane and returning a height value.
+ * By convention, heightmap parameters are called x and y instead of x and z.
+ * Heightmaps are tipically not required to be sampleable in the whole xz plane, methods needing
+ * an heightmap should precise in what ranges the heightmap must be sampleable.
+ * Heigtmaphs must be predictible, that is, two calls with the same xy values must always produce
+ * the same output.
+ */
+template<typename T>
+concept Heightmap = requires(T heightmap, float x, float y)
+{
+  { heightmap(x, y) } -> std::convertible_to<float>;
+};
+
+class TerrainMesh {
+public:
+  static constexpr int CHUNK_SIZE = 50;
+  struct Chunk {
+    VertexArray        vao;
+    VertexBufferObject vbo;
+    glm::ivec2         position;
+    AABB               worldBoundingBox;
+  };
+
+private:
+  std::vector<Chunk>        m_chunks;
+  std::shared_ptr<Material> m_material;
+  Transform                 m_transform;
+  IndexBufferObject         m_ibo; // a single ibo is enough for all chunks
+
+public:
+  TerrainMesh() : TerrainMesh(nullptr) {}
+  TerrainMesh(const std::shared_ptr<Material> &material);
+  TerrainMesh(const TerrainMesh &) = delete;
+  TerrainMesh &operator=(const TerrainMesh &) = delete;
+  //TerrainMesh(TerrainMesh &&);
+  //TerrainMesh &operator=(TerrainMesh &&);
+
+  /*
+   * Rebuild the mesh to cover the given region.
+   *
+   * The generated chunks may cover more than the given region, they tipically
+   * cover multiples of CHUNK_SIZE world units.
+   *
+   * The heightmap must be sampleable in the given region plus a small
+   * margin, samples outside are used to compute terrain normals.
+   */
+  template<Heightmap Heightmap>
+  void rebuildMesh(Heightmap heightmap, TerrainRegion region);
+
+  Transform &getTransform() { return m_transform; }
+  const Transform &getTransform() const { return m_transform; }
+  void setTransform(const Transform &transform) { m_transform = transform; }
+  const std::vector<Chunk> &getChunks() const { return m_chunks; }
+  const IndexBufferObject &getIBO() const { return m_ibo; }
+  const std::shared_ptr<Material> &getMaterial() const { return m_material; }
+  std::shared_ptr<Material> &getMaterial() { return m_material; }
+  void setMaterial(const std::shared_ptr<Material> &material) { assert(material != nullptr); m_material = material; }
+
+private:
+  template<Heightmap Heightmap>
+  Chunk generateChunk(Heightmap &heightmap, glm::ivec2 chunkPosition);
+};
+
 class NormalsMesh {
 private:
   VertexBufferObject m_VBO;
