@@ -23,7 +23,7 @@ inline long long nanoTime()
 
 int main()
 {
-	Window::createWindow(16*70, 9*70, "test");
+	Window::createWindow(16 * 60, 9 * 60, "test");
 
     Window::setVisible(true);
     Window::setPosition(400, 100);

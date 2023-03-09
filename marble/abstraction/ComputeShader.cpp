@@ -4,13 +4,44 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-
+#include <string>
 #include <glad/glad.h>
+
+#include <glm/glm.hpp>
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+static bool s_warning = false;
 
 namespace Renderer {
 
 ComputeShader::ComputeShader(const char *path, glm::uvec2 workSize)
 {
+	if (!s_warning) {
+
+		int max_compute_work_group_count[3];
+		int max_compute_work_group_size[3];
+		int max_compute_work_group_invocations;
+
+		for (int idx = 0; idx < 3; idx++) {
+			glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, idx, &max_compute_work_group_count[idx]);
+			glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, idx, &max_compute_work_group_size[idx]);
+		}
+		glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &max_compute_work_group_invocations);
+
+		std::cout << "OpenGL Limitations: " << std::endl;
+		std::cout << "maximum number of work groups in X dimension " << max_compute_work_group_count[0] << std::endl;
+		std::cout << "maximum number of work groups in Y dimension " << max_compute_work_group_count[1] << std::endl;
+		std::cout << "maximum number of work groups in Z dimension " << max_compute_work_group_count[2] << std::endl;
+
+		std::cout << "maximum size of a work group in X dimension " << max_compute_work_group_size[0] << std::endl;
+		std::cout << "maximum size of a work group in Y dimension " << max_compute_work_group_size[1] << std::endl;
+		std::cout << "maximum size of a work group in Z dimension " << max_compute_work_group_size[2] << std::endl;
+		s_warning = false;
+	}
+	
+
   m_workSize = workSize;
 
   // read in shader code
@@ -78,6 +109,10 @@ void ComputeShader::dispatch() const
   glDispatchCompute(m_workSize.x, m_workSize.y, 1);
 }
 
+void ComputeShader::bindImage(unsigned int texId) {
+    glBindImageTexture(0, texId, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+}
+
 void ComputeShader::wait() const
 {
   glMemoryBarrier(GL_ALL_BARRIER_BITS);
@@ -96,5 +131,66 @@ std::vector<float> ComputeShader::getValues() const
 
   return computeData;
 }
+
+
+
+
+
+
+void ComputeShader::setUniform1i(const std::string& name, int value) {
+	glUniform1i(getUniformLocation(name), value);
+}
+
+void ComputeShader::setUniform1f(const std::string& name, float value) {
+	glUniform1f(getUniformLocation(name), value);
+}
+
+void ComputeShader::setUniform2f(const std::string& name, float v1, float v2)
+{
+	glUniform2f(getUniformLocation(name), v1, v2);
+}
+
+void ComputeShader::setUniform3f(const std::string& name, float v1, float v2, float v3)
+{
+	glUniform3f(getUniformLocation(name), v1, v2, v3);
+}
+
+void ComputeShader::setUniform3fv(const std::string& name, unsigned int count, const float* data)
+{
+	glUniform3fv(getUniformLocation(name), count, data);
+}
+
+void ComputeShader::setUniform4f(const std::string& name, float v1, float v2, float v3, float v4) {
+	glUniform4f(getUniformLocation(name), v1, v2, v3, v4);
+}
+
+void ComputeShader::setUniformMat4f(const std::string& name, const glm::mat4& matrix) {
+	glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+void ComputeShader::setUniformMat2f(const std::string& name, const glm::mat2& matrix) {
+	glUniformMatrix2fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+void ComputeShader::setUniformMat4x3f(const std::string& name, const glm::mat4x3& matrix) {
+	glUniformMatrix4x3fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+void ComputeShader::setUniform1iv(const std::string& name, unsigned int count, const int* data) {
+	glUniform1iv(getUniformLocation(name), count, data);
+}
+
+int ComputeShader::getUniformLocation(const std::string& name) {
+	if (m_uniformLocationCache.find(name) != m_uniformLocationCache.end())
+		return m_uniformLocationCache[name];
+
+	int location = glGetUniformLocation(m_shaderID, name.data());
+	if (location == -1)
+		std::cout << "Warning : uniform \"" << name << "\" doesn't exist ! " << std::endl;
+	m_uniformLocationCache[name] = location;
+
+	return location;
+}
+
 
 }

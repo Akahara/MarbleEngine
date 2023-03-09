@@ -3,7 +3,9 @@
 
 #include "VFX.h"
 #include "../Texture.h"
+#include "../ComputeShader.h"
 #include <random>
+#include <glm/vec2.hpp>
 
 // This SSAO implementation should really be used in a deferrend rendering engine
 // this has to be done before lighting pass, so its not really a vfx
@@ -18,8 +20,6 @@ namespace visualEffects {
 		Renderer::Texture m_ssaoTexture{Window::getWinWidth(), Window::getWinHeight()};
 		Renderer::Texture m_blurredTexture{Window::getWinWidth(), Window::getWinHeight()};
 		
-		
-
 
 		unsigned int m_noiseTexture;
 
@@ -33,12 +33,22 @@ namespace visualEffects {
 		Renderer::BlitPass m_blurPass; // todo set shader
 		Renderer::FrameBufferObject m_blurFBO;
 
+
+
+		/////////////////////// Compute update
+
+		
+		Renderer::ComputeShader m_ssaoComputeShader{ "res/shaders/compute/ssao.comp", glm::vec2{8,4} };
+		Renderer::Texture m_imgOutput{ Window::getWinWidth(), Window::getWinHeight() };
+
+
+
+
 	public:
-		SSAO()
+		SSAO() 
 		{
 			
 			// Init the kernel
-			
 
 			// ----------------------
 			std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0); // generates random floats between 0.0 and 1.0
@@ -74,7 +84,6 @@ namespace visualEffects {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			
 
-			
 
 			// Set-up the shader
 			m_ssaoPass.setShader("res/shaders/SSAO.fs");
@@ -97,6 +106,17 @@ namespace visualEffects {
 			m_ssaoFBO.setTargetTexture(m_ssaoTexture);
 			m_blurFBO.setTargetTexture(m_blurredTexture);
 
+			m_ssaoComputeShader.use();
+			m_ssaoComputeShader.setUniform1i("gPosition", 3);
+			m_ssaoComputeShader.setUniform1i("gNormal", 1);
+			m_ssaoComputeShader.setUniform1i("texNoise", 2);
+			m_ssaoComputeShader.setUniform3fv("samples", 64, (const float*)&ssaoKernel[0]);
+
+
+
+
+
+
 		}
 
 		Renderer::Texture* computeSSAOTexture(
@@ -105,11 +125,22 @@ namespace visualEffects {
 			Renderer::Camera& camera		
 		)
 		{
+
+			gPos->bind(3);
+			gNormal->bind(1);
+			Renderer::Texture::bindFromId(m_noiseTexture, 2);
+			m_ssaoComputeShader.bindImage(m_imgOutput.getId());
+			m_ssaoComputeShader.use();
+			m_ssaoComputeShader.setUniformMat4f("projection", camera.getViewProjectionMatrix());
+
+			glDispatchCompute(ceil(Window::getWinWidth() / 8), ceil(Window::getWinHeight() / 4), 1);
+			m_ssaoComputeShader.wait();
+
 			
+			/*
 			gPos->bind(0);
 			gNormal->bind(1);
 			Renderer::Texture::bindFromId(m_noiseTexture, 2);
-
 			m_ssaoPass.getShader().bind();
 			m_ssaoPass.getShader().setUniformMat4f("projection", camera.getViewProjectionMatrix());
 			m_ssaoPass.getShader().unbind();
@@ -118,9 +149,10 @@ namespace visualEffects {
 			m_ssaoFBO.bind();
 			m_ssaoPass.doBlit();
 			m_ssaoFBO.unbind();
+			*/
 
 			// Blur the ssao, now ssaoTexture is complete
-			m_ssaoTexture.bind(0);
+			m_imgOutput.bind(0);
 			m_blurFBO.bind();
 			m_blurPass.doBlit();
 			m_blurFBO.unbind();
@@ -135,6 +167,7 @@ namespace visualEffects {
 			if (ImGui::CollapsingHeader("SSAO")) {
 
 				ImGui::Image(m_ssaoTexture.getId(), { 16 * 20, 9 * 20 }, { 0,1 }, { 1,0 });
+				ImGui::Image(m_imgOutput.getId(), { 16 * 20, 9 * 20 }, { 0,1 }, { 1,0 });
 				if (ImGui::SliderInt("KernelSize", &m_kernelSize, 1, 64) ||
 					ImGui::SliderFloat("Radius", &m_radius, 0.F, 1.F) ||
 					ImGui::DragFloat("Bias", &m_bias, 0.005f))
