@@ -34,6 +34,7 @@ public:
 		const glm::vec3& size = {1,1,1});
 
 	void feed(Prop prop);
+	
 	void render(const Renderer::Camera& camera);
 
 	void onImGuiRender() ;

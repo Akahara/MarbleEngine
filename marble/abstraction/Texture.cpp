@@ -96,6 +96,14 @@ void Texture::bind(unsigned int slot /* = 0*/) const
   glBindTexture(GL_TEXTURE_2D, m_rendererID);
 
 }
+
+
+void Texture::bindFromId(unsigned int texId, unsigned int slot/*=0*/) {
+	glActiveTexture(GL_TEXTURE0 + slot);
+	glBindTexture(GL_TEXTURE_2D, texId);
+
+}
+
 void Texture::unbind(unsigned int slot /* = 0*/)
 {
   glBindTexture(GL_TEXTURE_2D + slot, 0);

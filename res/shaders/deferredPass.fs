@@ -41,22 +41,25 @@ float computeSunlight(vec3 normal) {
 void main() 
 {
     
-    vec3 fragPos = texture(u_gBufferTextures[0], o_uv).rgb;
+    vec3 diffuse = texture(u_gBufferTextures[0], o_uv).rgb;
     vec3 normal = texture(u_gBufferTextures[1], o_uv).rgb;
-    vec3 diffuse = texture(u_gBufferTextures[2], o_uv).rgb;
+    vec3 fragPos = texture(u_gBufferTextures[2], o_uv).rgb;
 
-    vec3 lighting  = diffuse * 0.3;
+    vec3 lighting  = diffuse * 0.35;
     vec3 viewDir  = normalize(u_cameraPos - fragPos);
     for(int i = 0; i < u_numberOfLights; ++i)
     {
         if (u_lights[i].on == 0) continue;
+
         // diffuse
         vec3 lightDir = normalize(u_lights[i].position - fragPos);
         vec3 lightDiffuse = max(dot(normal, lightDir), 0.0) * diffuse * u_lights[i].ambient;
+        
         // specular
         vec3 halfwayDir = normalize(lightDir + viewDir);  
         float spec = pow(max(dot(normal, halfwayDir), 0.0), 16.0);
         vec3 specular = u_lights[i].specular;
+        
         // attenuation
         float distance = length(u_lights[i].position - fragPos);
         float attenuation = 1.0 / (1.0 + u_lights[i].linear * distance + u_lights[i].quadratic * distance * distance);
@@ -69,8 +72,5 @@ void main()
 
     // Sun coloration
     color.rgb *= mix(vec3(0.09,0.09,0.09), color.rgb, max(.1, computeSunlight(normal)*1.25f));
-
-
-    color.a = 1.F;
 
 }

@@ -28,6 +28,8 @@ public:
   static void unbind(unsigned int slot = 0);
   void destroy();
 
+  static void bindFromId(unsigned int texId, unsigned int slot=0);
+
   /* fill the texture with the given rgba value */
   void changeColor(uint32_t color);
 

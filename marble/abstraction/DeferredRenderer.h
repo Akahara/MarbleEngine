@@ -12,19 +12,18 @@
 
 struct gBufferLayout {
 
-	Renderer::Texture position{ Window::getWinWidth(), Window::getWinHeight() };
-	Renderer::Texture normal{ Window::getWinWidth(), Window::getWinHeight() };
 	Renderer::Texture albedo{ Window::getWinWidth(), Window::getWinHeight() };
+	Renderer::Texture normal{ Window::getWinWidth(), Window::getWinHeight() };
+	Renderer::Texture position{ Window::getWinWidth(), Window::getWinHeight() };
 
 	Renderer::Texture depth = Renderer::Texture::createDepthTexture(Window::getWinWidth(), Window::getWinHeight());
 public:
 
 	std::vector<Renderer::Texture*> getTextures() {
 		return {
-			&position, &normal, &albedo
+			&albedo, &normal,&position
 		};
 	}
-
 
 };
 
@@ -41,16 +40,15 @@ struct gBuffer {
 
 		fbo.setDepthTexture(textures.depth);
 
-		fbo.setTargetTexture(textures.position,0);
+		fbo.setTargetTexture(textures.albedo,0);
 		fbo.setTargetTexture(textures.normal,1);
-		fbo.setTargetTexture(textures.albedo,2);
+		fbo.setTargetTexture(textures.position,2);
 
 		fbo.bind();
 		unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 		glDrawBuffers(3, attachments);
 		fbo.unbind();
 
-		//shader = Renderer::loadShaderFromFiles("res/shaders/deferred.vs", "res/shaders/deferred.fs");
 
 	}
 
@@ -93,7 +91,26 @@ public:
 		m_deferredPass.getShader().unbind();
 
 		// Bloom setup
+
+		m_vfx.registerEffect<visualEffects::SSAO>();
+		/*
 		m_vfx.registerEffect<visualEffects::Bloom>();
+		m_vfx.registerEffect<visualEffects::GammaCorrection>();
+		m_vfx.registerEffect<visualEffects::Saturation>();
+		m_vfx.registerEffect<visualEffects::Contrast>();
+		m_vfx.registerEffect<visualEffects::Sharpness>();
+		m_vfx.registerEffect<visualEffects::LensMask>();
+		m_vfx.sortPipeline();
+		*/
+
+		m_vfx.addContextParam<glm::vec3>({ 1000,1000,1000 }, "sunPos");
+		m_vfx.addContextParam < Renderer::Camera >({}, "camera");
+
+		m_vfx.addContextParam < unsigned int >(m_gBuffer.textures.depth.getId(), "depthMapId");
+		m_vfx.addContextParam < unsigned int >(m_gBuffer.textures.normal.getId(), "normalMapId");
+		m_vfx.addContextParam < unsigned int >(m_gBuffer.textures.position.getId(), "positionMapId");
+
+
 
 	}
 
@@ -101,7 +118,7 @@ public:
 	{
 		computeGeometryPass(renderFn);
 		combineAndApplyLights(camera);
-		finalPass();
+		finalPass(camera);
 
 	}
 
@@ -111,6 +128,9 @@ public:
 
 	}
 
+	unsigned int getDepthTextureId() const {
+		return m_gBuffer.textures.depth.getId();
+	}
 
 	void renderImGuiDebugWindow() 
 	{
@@ -182,9 +202,14 @@ private:
 	/* Blit to the screen */
 	// TODO : combine this with vfx pipeline
 	// todo : this works, but it can be better !!
-	void finalPass() 
+	void finalPass(Renderer::Camera& camera) 
 	{
 		m_target.bind(0);
+
+		m_vfx.setContextParam("camera", camera);
+		m_vfx.setContextParam("depthMapId", m_gBuffer.textures.depth.getId());
+		m_vfx.setContextParam("normalMapId", m_gBuffer.textures.normal.getId());
+		m_vfx.setContextParam("positionMapId", m_gBuffer.textures.position.getId());
 
 		m_vfx.bind();
 		last.doBlit();

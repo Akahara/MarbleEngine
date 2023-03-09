@@ -182,10 +182,10 @@ Mesh createPlaneMesh(bool facingDown)
 {
   std::vector<Vertex> vertices{
     // position             uv            normal (up)         // color
-    { { -.5f, 0.f, -.5f }, { 1.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
-    { { -.5f, 0.f, +.5f }, { 1.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
-    { { +.5f, 0.f, +.5f }, { 0.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
-    { { +.5f, 0.f, -.5f }, { 0.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+    { { -.5f, 0.f, -.5f }, { 1.f, 1.f }, { 0, 1.f, 0 }, {0.0f, 0.0f, 1.0f}, },
+    { { -.5f, 0.f, +.5f }, { 1.f, 0.f }, { 0, 1.f, 0 }, {0.0f, 0.0f, 1.0f}, },
+    { { +.5f, 0.f, +.5f }, { 0.f, 0.f }, { 0, 1.f, 0 }, {0.0f, 0.0f, 1.0f}, },
+    { { +.5f, 0.f, -.5f }, { 0.f, 1.f }, { 0, 1.f, 0 }, {0.0f, 0.0f, 1.0f}, },
   };
   using i = std::initializer_list<unsigned int>;
   std::vector<unsigned int> indices{ facingDown ? i{1,0,2, 3,2,0} : i{0,1,2, 2,3,0} };

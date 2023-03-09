@@ -16,6 +16,7 @@
 #include "Saturation.h"
 #include "Contrast.h"
 #include "GammaCorrection.h"
+#include "LensMask.h"
 
 
 namespace visualEffects {
@@ -142,8 +143,6 @@ public:
 			for (VFX* effect : m_effects)
 				effect->onImGuiRender();
 		}
-		//ImGui::Image(m_context.depthTexture.getId(), {16*20, 9*20}, {0,1}, {1,0});
-		ImGui::Image(m_context.targetTexture.getId(), {16*20, 9*20}, {0,1}, {1,0});
 		ImGui::End();
 	}
 

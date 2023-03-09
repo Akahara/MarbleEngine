@@ -42,7 +42,7 @@ namespace World {
 
 			shader.bind();
 
-			shader.setUniform1i("u_numberOfLights", m_lights.size());
+			shader.setUniform1i("u_numberOfLights", (int)m_lights.size());
 
 			for (int i = 0; i < m_lights.size(); i++) {
 				const Light& light = m_lights.at(i);

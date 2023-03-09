@@ -1,9 +1,9 @@
 #version 330 core
 
 // Vec4 to render
-layout (location=0) out vec4 gPosition;
+layout (location=0) out vec4 gAlbedo;
 layout (location=1) out vec4 gNormal;
-layout (location=2) out vec4 gAlbedo;
+layout (location=2) out vec4 gPosition;
 
 in vec2 o_uv;
 in vec3 o_normal;
