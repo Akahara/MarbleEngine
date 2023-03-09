@@ -3,7 +3,6 @@ out vec4 FragColor;
 
 in vec2 o_uv;
 
-uniform sampler2D u_target;
 uniform sampler2D u_texture;
 // really bad blur but its temp
 void main() 
@@ -19,9 +18,4 @@ void main()
         }
     }
     FragColor = vec4(vec3(result / (16.F)),1);
-    result = result / 16.F;
-    FragColor = texture(u_target, o_uv);
-
-    FragColor.rgb = FragColor.rgb - vec3(1-result);
-    //FragColor = vec4(1,0,0,1);
 }  

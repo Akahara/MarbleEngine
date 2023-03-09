@@ -61,7 +61,7 @@ class DeferredRenderer
 private:
 
 	gBuffer						m_gBuffer;
-	World::LightRenderer		m_lightEngine; 
+	World::LightRenderer		m_lightEngine;
 
 	Renderer::FrameBufferObject m_final;
 	Renderer::Texture m_target{Window::getWinWidth(), Window::getWinHeight()};
@@ -70,7 +70,13 @@ private:
 	Renderer::BlitPass last;
 
 	visualEffects::VFXPipeline m_vfx;
+	bool m_renderPipeline = false;
 
+
+	visualEffects::SSAO m_ssaoRenderer;
+	bool m_renderSSAO = false;
+	float whitepixel[4] = {1,1,1,1};
+	Renderer::Texture m_whitePixel = Renderer::Texture::createTextureFromData(whitepixel, 1, 1, 4);
 
 public:
 
@@ -88,12 +94,12 @@ public:
 
 		m_deferredPass.getShader().bind();
 		m_deferredPass.getShader().setUniform1iv("u_gBufferTextures", 16, samplers);
+		m_deferredPass.getShader().setUniform1i("u_ssaoTexture", 16 );
 		m_deferredPass.getShader().unbind();
 
 		// Bloom setup
 
-		m_vfx.registerEffect<visualEffects::SSAO>();
-		/*
+		
 		m_vfx.registerEffect<visualEffects::Bloom>();
 		m_vfx.registerEffect<visualEffects::GammaCorrection>();
 		m_vfx.registerEffect<visualEffects::Saturation>();
@@ -101,14 +107,11 @@ public:
 		m_vfx.registerEffect<visualEffects::Sharpness>();
 		m_vfx.registerEffect<visualEffects::LensMask>();
 		m_vfx.sortPipeline();
-		*/
+		
 
 		m_vfx.addContextParam<glm::vec3>({ 1000,1000,1000 }, "sunPos");
 		m_vfx.addContextParam < Renderer::Camera >({}, "camera");
 
-		m_vfx.addContextParam < unsigned int >(m_gBuffer.textures.depth.getId(), "depthMapId");
-		m_vfx.addContextParam < unsigned int >(m_gBuffer.textures.normal.getId(), "normalMapId");
-		m_vfx.addContextParam < unsigned int >(m_gBuffer.textures.position.getId(), "positionMapId");
 
 
 
@@ -118,7 +121,6 @@ public:
 	{
 		computeGeometryPass(renderFn);
 		combineAndApplyLights(camera);
-		finalPass(camera);
 
 	}
 
@@ -138,20 +140,32 @@ public:
 
 		static constexpr float image_size = 20.F;
 		static const ImVec2 size = { 16 * image_size, 9 * image_size };
-		if (ImGui::Begin("gBuffer content")) {
+		static bool renderBuffers = false;
+		ImGui::Checkbox("Render gBuffer buffers", &renderBuffers);
+
+				if (renderBuffers && ImGui::CollapsingHeader("gBuffer content")) {
 
 
-			std::vector<Renderer::Texture*> textures = m_gBuffer.textures.getTextures();
+					std::vector<Renderer::Texture*> textures = m_gBuffer.textures.getTextures();
 
-			for (int i = 0; i < textures.size(); i++) {
-				auto* t = textures[i];
-				ImGui::Image(t->getId(), size, { 0,1 }, { 1,0 });
-			}
-				ImGui::Image(m_gBuffer.textures.depth.getId(), size, { 0,1 }, { 1,0 });
+					for (int i = 0; i < textures.size(); i++) {
+						auto* t = textures[i];
+						ImGui::Image(t->getId(), size, { 0,1 }, { 1,0 });
+					}
+						ImGui::Image(m_gBuffer.textures.depth.getId(), size, { 0,1 }, { 1,0 });
+				
 		}
-		ImGui::End();
 
-		m_vfx.onImGuiRender();
+		ImGui::Checkbox("Turn on SSAO", &m_renderSSAO);
+
+		if (m_renderSSAO && ImGui::CollapsingHeader("SSAO preview")) {
+				m_ssaoRenderer.onImGuiRender();
+			
+		}
+		
+		
+		ImGui::Checkbox("Apply Pipeline", &m_renderPipeline);
+		if (m_renderPipeline) m_vfx.onImGuiRender();
 		m_lightEngine.onImguiRender();
 
 	}
@@ -177,6 +191,21 @@ private:
 	void combineAndApplyLights(Renderer::Camera& camera)
 	{
 
+		// SSAO stuff
+		if (m_renderSSAO) {
+
+		Renderer::Texture* ssaoTexture =
+			m_ssaoRenderer.computeSSAOTexture(
+				&m_gBuffer.textures.position,
+				&m_gBuffer.textures.normal,
+				camera
+			);
+			ssaoTexture->bind(16);// todo change this
+		}
+		else {
+			m_whitePixel.bind(16);
+		}
+
 		// Bind all textures
 		std::vector<Renderer::Texture*> textures = m_gBuffer.textures.getTextures();
 
@@ -194,31 +223,34 @@ private:
 
 		// Deferred pass, blit into target
 		
-		m_final.bind();
-		m_deferredPass.doBlit();
-		m_final.unbind();
+		if (!m_renderPipeline) {
+			m_deferredPass.doBlit();
+		}
+		else {
+
+			m_final.bind();
+			m_deferredPass.doBlit();
+			m_final.unbind();
+			applyPostEffects(camera);
+		}
+
 	}
 
 	/* Blit to the screen */
 	// TODO : combine this with vfx pipeline
 	// todo : this works, but it can be better !!
-	void finalPass(Renderer::Camera& camera) 
+	void applyPostEffects(Renderer::Camera& camera) 
 	{
-		m_target.bind(0);
 
 		m_vfx.setContextParam("camera", camera);
-		m_vfx.setContextParam("depthMapId", m_gBuffer.textures.depth.getId());
-		m_vfx.setContextParam("normalMapId", m_gBuffer.textures.normal.getId());
-		m_vfx.setContextParam("positionMapId", m_gBuffer.textures.position.getId());
-
 		m_vfx.bind();
+		m_target.bind(0);
 		last.doBlit();
 		m_vfx.unbind();
-
 		m_vfx.renderPipeline();
 
 	}
 
-
+	void applySSAO(bool v) { m_renderSSAO = v; }
 };
 

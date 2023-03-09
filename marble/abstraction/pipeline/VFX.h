@@ -21,7 +21,7 @@ public:
 
 	Renderer::Texture targetTexture;
 	Renderer::Texture originTexture;
-	Renderer::Texture normalTexture;
+
 	Renderer::Texture depthTexture;
 	
 	std::map<std::string, void*> m_params;

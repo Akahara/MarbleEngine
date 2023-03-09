@@ -5,6 +5,7 @@ layout (location=0) out vec4 color;
 in vec2 o_uv;
 
 uniform sampler2D[16] u_gBufferTextures;
+uniform sampler2D u_ssaoTexture;
 uniform vec3 u_cameraPos;
 
 // Somehow make a factory out of this
@@ -44,8 +45,11 @@ void main()
     vec3 diffuse = texture(u_gBufferTextures[0], o_uv).rgb;
     vec3 normal = texture(u_gBufferTextures[1], o_uv).rgb;
     vec3 fragPos = texture(u_gBufferTextures[2], o_uv).rgb;
+    float occlusion = texture(u_ssaoTexture, o_uv).r;
+    
+    vec3 lighting  = vec3(0.3 * diffuse * occlusion);
 
-    vec3 lighting  = diffuse * 0.35;
+
     vec3 viewDir  = normalize(u_cameraPos - fragPos);
     for(int i = 0; i < u_numberOfLights; ++i)
     {
@@ -53,7 +57,7 @@ void main()
 
         // diffuse
         vec3 lightDir = normalize(u_lights[i].position - fragPos);
-        vec3 lightDiffuse = max(dot(normal, lightDir), 0.0) * diffuse * u_lights[i].ambient;
+        vec3 lightDiffuse = max(dot(normal, lightDir), 0.0) * (u_lights[i].ambient);
         
         // specular
         vec3 halfwayDir = normalize(lightDir + viewDir);  

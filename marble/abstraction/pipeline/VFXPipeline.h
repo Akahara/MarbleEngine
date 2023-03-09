@@ -160,6 +160,9 @@ public:
 		for (VFX* effect : m_effects)
 			std::cout << effect->getName() << std::endl;
 	}
+
+	unsigned int getNumberOfRegisteredEffects() const { return (unsigned int)m_effects.size(); };
+
 };
 
 

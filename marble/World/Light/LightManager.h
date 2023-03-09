@@ -109,7 +109,6 @@ namespace World {
 						  m_lightsOn[i]
 						};
 
-						std::cout << l.getDistance() << std::endl;
 						m_lights.at(i) = l;
 
 						Renderer::setUniformPointLights(m_lights);

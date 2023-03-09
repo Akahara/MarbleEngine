@@ -11,8 +11,8 @@ uniform vec3 samples[64];
 
 // parameters (you'd probably want to use them as uniforms to more easily tweak the effect)
 uniform int kernelSize = 16;
-uniform float radius = 0.5;
-uniform float bias = 0.025;
+uniform float radius = 0.25;
+uniform float bias = 0.25;
 
 // tile noise texture over screen based on screen dimensions divided by noise size
 const vec2 noiseScale = vec2(16*70.0/4.0, 9*70.F/4.0); 
@@ -51,7 +51,7 @@ void main()
         float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
         occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;           
     }
-    occlusion = 1.0- (occlusion / kernelSize);
+    occlusion = 1.0 - (occlusion / kernelSize);
     
     FragColor = vec4(vec3(occlusion),1);
 }
