@@ -115,7 +115,6 @@ namespace visualEffects {
 			m_ssaoPass.getShader().unbind();
 		
 			// Create the ssao texture
-			Renderer::clear();
 			m_ssaoFBO.bind();
 			m_ssaoPass.doBlit();
 			m_ssaoFBO.unbind();

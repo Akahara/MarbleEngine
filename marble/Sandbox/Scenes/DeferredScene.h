@@ -70,7 +70,7 @@ public:
 		m_props.onImGuiRender();
 	}
 
-
+	CAMERA_IS_PLAYER(m_player);
 
 };
 

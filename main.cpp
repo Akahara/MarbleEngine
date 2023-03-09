@@ -55,9 +55,10 @@ int main()
     SceneManager::registerScene<POC2Scene>("POC 2");
     SceneManager::registerScene<POC3Scene>("POC 3");
     SceneManager::registerScene<POC4Scene>("POC 4");
+    SceneManager::registerScene<DeferredScene>("Deferred");
     
 
-    SceneManager::switchToScene(5);
+    SceneManager::switchToScene(16);
 
     //===========================================================//
 

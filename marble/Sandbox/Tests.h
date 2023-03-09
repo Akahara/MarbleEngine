@@ -16,3 +16,5 @@
 #include "Scenes/POC2.h"
 #include "Scenes/POC3.h"
 #include "Scenes/POC4.h"
+
+#include "Scenes/DeferredScene.h"
