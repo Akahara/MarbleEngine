@@ -1,4 +1,4 @@
-#version 430 core
+#version 460 core
 
 layout (local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 
@@ -12,18 +12,19 @@ layout(rgba32f, binding = 0) uniform image2D imgOutput;
 
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
+uniform sampler2D gDepth;
 uniform sampler2D texNoise;
 
 uniform vec3 samples[64];
 
 uniform int kernelSize = 64;
-uniform float radius = 0.25;
-uniform float bias = 0.25;
+uniform float radius = 0.5;
+uniform float bias = 0.00025;
 
-const vec2 noiseScale = vec2(16*70.0/4.0, 9*70.F/4.0); 
+const vec2 noiseScale = vec2(16*64.0/4.0, 9*64.F/4.0); 
 
-int SCR_WIDTH = 16*70;
-int SCR_HEIGHT = 9*70;
+int SCR_WIDTH = 16*64;
+int SCR_HEIGHT = 9*64;
 
 uniform mat4 projection;
 
@@ -32,6 +33,8 @@ uniform mat4 projection;
 // functions
 //
 // ----------------------------------------------------------------------------
+
+
 
 void main() {
     ivec2 texelCoord = ivec2(gl_GlobalInvocationID.xy);
@@ -64,15 +67,17 @@ void main() {
         offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
         
         // get sample depth
-        float sampleDepth = texture(gPosition, offset.xy).z; // get depth value of kernel sample
+        //float sampleDepth = texture(gPosition, offset.xy).z; // get depth value of kernel sample
+        float sampleDepth = texture(gDepth, offset.xy).r; // get depth value of kernel sample
+        float pixelDepth = texture(gDepth, TexCoords).r;
         
         // range check & accumulate
-        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
-        occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;           
+        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(pixelDepth - sampleDepth));
+        occlusion += (sampleDepth >= pixelDepth + bias ? 1.0 : 0.0) * rangeCheck;           
     }
     occlusion = 1.0 - (occlusion / kernelSize);
 
-	vec4 result = vec4(vec3(occlusion),1);
+	vec4 result = vec4(occlusion);
 
     imageStore(imgOutput, texelCoord, result);
 }

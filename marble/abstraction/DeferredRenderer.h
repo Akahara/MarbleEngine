@@ -198,6 +198,7 @@ private:
 			m_ssaoRenderer.computeSSAOTexture(
 				&m_gBuffer.textures.position,
 				&m_gBuffer.textures.normal,
+				&m_gBuffer.textures.depth,
 				camera
 			);
 			ssaoTexture->bind(16);// todo change this

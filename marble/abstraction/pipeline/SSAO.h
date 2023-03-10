@@ -23,9 +23,9 @@ namespace visualEffects {
 
 		unsigned int m_noiseTexture;
 
-		int m_kernelSize = 16;
-		float m_radius = 0.25f;
-		float m_bias = 0.25f;
+		int m_kernelSize = 64;
+		float m_radius = 0.5f;
+		float m_bias = 0.0025f;
 		
 
 		Renderer::BlitPass m_ssaoPass;
@@ -39,7 +39,7 @@ namespace visualEffects {
 
 		
 		Renderer::ComputeShader m_ssaoComputeShader{ "res/shaders/compute/ssao.comp", glm::vec2{8,4} };
-		Renderer::Texture m_imgOutput{ Window::getWinWidth(), Window::getWinHeight() };
+		Renderer::Texture m_imgOutput{ 16*32.f, 9*32.f};
 
 
 
@@ -110,6 +110,7 @@ namespace visualEffects {
 			m_ssaoComputeShader.setUniform1i("gPosition", 3);
 			m_ssaoComputeShader.setUniform1i("gNormal", 1);
 			m_ssaoComputeShader.setUniform1i("texNoise", 2);
+			m_ssaoComputeShader.setUniform1i("gDepth", 4);
 			m_ssaoComputeShader.setUniform3fv("samples", 64, (const float*)&ssaoKernel[0]);
 
 
@@ -122,18 +123,20 @@ namespace visualEffects {
 		Renderer::Texture* computeSSAOTexture(
 			Renderer::Texture* gPos,
 			Renderer::Texture* gNormal,
+			Renderer::Texture* gDepth,
 			Renderer::Camera& camera		
 		)
 		{
 
 			gPos->bind(3);
 			gNormal->bind(1);
+			gDepth->bind(4);
 			Renderer::Texture::bindFromId(m_noiseTexture, 2);
 			m_ssaoComputeShader.bindImage(m_imgOutput.getId());
 			m_ssaoComputeShader.use();
 			m_ssaoComputeShader.setUniformMat4f("projection", camera.getViewProjectionMatrix());
 
-			glDispatchCompute(ceil(Window::getWinWidth() / 8), ceil(Window::getWinHeight() / 4), 1);
+			glDispatchCompute(ceil(Window::getWinWidth()/(16)), ceil(Window::getWinHeight()/(8)), 1);
 			m_ssaoComputeShader.wait();
 
 			
@@ -152,12 +155,15 @@ namespace visualEffects {
 			*/
 
 			// Blur the ssao, now ssaoTexture is complete
+			/*
 			m_imgOutput.bind(0);
 			m_blurFBO.bind();
 			m_blurPass.doBlit();
 			m_blurFBO.unbind();
+			*/
 			
-			return &m_blurredTexture;
+			//return &m_blurredTexture;
+			return &m_imgOutput;
 						
 		}
 
@@ -173,10 +179,12 @@ namespace visualEffects {
 					ImGui::DragFloat("Bias", &m_bias, 0.005f))
 
 				{
-					m_ssaoPass.getShader().bind();
-					m_ssaoPass.getShader().setUniform1i("kernelSize", m_kernelSize);
-					m_ssaoPass.getShader().setUniform1f("radius", m_radius);
-					m_ssaoPass.getShader().setUniform1f("bias", m_bias);
+					m_ssaoComputeShader.use();
+					m_ssaoComputeShader.setUniform1i("kernelSize", m_kernelSize);
+					m_ssaoComputeShader.setUniform1f("radius", m_radius);
+					m_ssaoComputeShader.setUniform1f("bias", m_bias);
+
+
 
 				}
 			}
