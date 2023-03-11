@@ -43,8 +43,10 @@ void main()
 {
     
     vec3 diffuse = texture(u_gBufferTextures[0], o_uv).rgb;
+    float empty  = texture(u_gBufferTextures[0], o_uv).a;
     vec3 normal = texture(u_gBufferTextures[1], o_uv).rgb;
     vec3 fragPos = texture(u_gBufferTextures[2], o_uv).rgb;
+    float depth = texture(u_gBufferTextures[5], o_uv).r;
     float occlusion = texture(u_ssaoTexture, o_uv).r;
     
     vec3 lighting  = vec3(0.3 * diffuse * occlusion);
@@ -72,7 +74,7 @@ void main()
         lighting += lightDiffuse + specular;        
     }
 
-    color = vec4(lighting, 1);
+    color = vec4(lighting, empty);
 
     // Sun coloration
     color.rgb *= mix(vec3(0.09,0.09,0.09), color.rgb, max(.1, computeSunlight(normal)*1.25f));

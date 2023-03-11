@@ -36,6 +36,11 @@ public:
 
 	}
 
+	~DeferredScene() {
+		std::cout << "Left deferred" << std::endl;
+		Renderer::setRenderingState(Renderer::FORWARD);
+	}
+
 	void step(float delta) override
 	{
 		m_realtime += delta;
@@ -46,12 +51,12 @@ public:
 	{
 		Renderer::clear();
 		m_props.render(camera);
-		//m_sky.render(m_player.getCamera(), m_realtime, false);
 
 	}
 
 	void onRender() override
 	{
+		
 		m_deferredRenderer.render(
 			// renderFn
 			[&]() -> void
@@ -61,6 +66,9 @@ public:
 			// scene camera
 			m_player.getCamera()
 		);
+		
+		//renderFn(m_player.getCamera());
+		//m_sky.render(m_player.getCamera(), m_realtime, false);
 	}
 
 	void onImGuiRender() override

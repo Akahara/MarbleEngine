@@ -12,7 +12,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-static bool s_warning = false;
+bool s_warning = false;
 
 namespace Renderer {
 

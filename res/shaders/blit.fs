@@ -11,5 +11,4 @@ void main()
     vec2 uv = o_uv;
     color = texture(u_texture, uv);
 
-    color.a = 1;
 }

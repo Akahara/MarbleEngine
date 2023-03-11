@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../Shader.h"
 #include "../../ComputeShader.h"
 #include "../../UnifiedRenderer.h"
 
@@ -22,11 +21,6 @@ private:
     const unsigned int m_numberOfMips = 5;
 
     std::vector<BloomMip*>          m_mipChain;
-    Renderer::FrameBufferObject     m_fbo;
-
-    Renderer::BlitPass              m_blitDown; //draw in the texture
-    Renderer::BlitPass              m_blitUp; //draw in the texture
-
 
     Renderer::ComputeShader m_upComputeShader{ "res/shaders/compute/bloom_up.comp", glm::vec2{ceil(Window::getWinWidth() / (16)), ceil(Window::getWinHeight() / (8))} };
     Renderer::ComputeShader m_downComputeShader{ "res/shaders/compute/bloom_down.comp", glm::vec2{ceil(Window::getWinWidth() / (16)), ceil(Window::getWinHeight() / (8))} };
@@ -35,8 +29,6 @@ public:
     BloomRenderer() 
     {  
 
-        m_blitDown.setShader("res/shaders/bloom/downsampling.fs");
-        m_blitUp.setShader("res/shaders/bloom/upsampling.fs");
         for (unsigned int bloomPass = 0; bloomPass < m_numberOfMips; bloomPass++)
         {
             // Generate a mip with half the resolution of the previous mip
@@ -56,21 +48,20 @@ public:
 
     }
 
-    void RenderBloomTexture(const Renderer::Texture& texture, float filterRadius, bool write = false)
+    Renderer::Texture* RenderBloomTexture(const Renderer::Texture& texture, float filterRadius, bool write = false)
     {
-        m_fbo.bind();
-        RenderDownsamples(texture, write);
-        RenderUpsamples(filterRadius, write);
-        m_fbo.unbind();
+        RenderDownsamples(texture);
+        RenderUpsamples(filterRadius);
+        return &m_mipChain[0]->texture;
     }
 
-    Renderer::Texture* getFinalBloomTexture() const { return &m_mipChain[0]->texture; }
-
 private:
-    void RenderDownsamples(const Renderer::Texture& texture, bool write = false)
+
+    /**
+    * Fills the mip chain with downsampled textures of the given parameter.
+    */
+    void RenderDownsamples(const Renderer::Texture& texture)
     {
-        // This seems to work, giving downsampled mips
-        
 
         for (unsigned int bloomPass = 0; bloomPass < m_numberOfMips; bloomPass++)
         {
@@ -81,9 +72,11 @@ private:
             m_downComputeShader.bindImage(mip.texture.getId());
 
             if (bloomPass == 0) {
-                m_downComputeShader.setUniform1i("u_firstPass", 1);
-                texture.bind(0); // for first pass, we use the context texture as sampler
+                texture.bind(0);                                    // for first pass, we use the context texture as sampler
+                m_downComputeShader.setUniform1i("u_firstPass", 1); // allows for ectraction of hdr pixels
+
                 m_downComputeShader.setUniform2f("u_srcResolution", mip.resolution);
+                // execute the compute shader
                 glDispatchCompute(ceil(mip.resolution.x/8.F), ceil(mip.resolution.y/4.f), 1);
                 m_downComputeShader.wait();
                 m_downComputeShader.setUniform1i("u_firstPass", 0);
@@ -96,12 +89,15 @@ private:
             m_downComputeShader.wait();
             mip.texture.bind();
         }
-
-
     }
 
+    /**
+    * 
+    * Overwrites the textures of each mip to be a sum of the previous mip and the current one, giving a
+    * blurred sum of the texture in the previous mip resolution.
+    */
 
-    void RenderUpsamples(float filterRadius, bool write=false) 
+    void RenderUpsamples(float filterRadius) 
     {
 
 

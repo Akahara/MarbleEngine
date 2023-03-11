@@ -70,13 +70,15 @@ private:
 	Renderer::BlitPass last;
 
 	visualEffects::VFXPipeline m_vfx;
-	bool m_renderPipeline = true;
+	bool m_renderPipeline = false;
 
 
 	visualEffects::SSAO m_ssaoRenderer;
 	bool m_renderSSAO = false;
 	float whitepixel[4] = {1,1,1,1};
 	Renderer::Texture m_whitePixel = Renderer::Texture::createTextureFromData(whitepixel, 1, 1, 4);
+
+	World::Sky m_sky;
 
 public:
 
@@ -94,7 +96,7 @@ public:
 
 		m_deferredPass.getShader().bind();
 		m_deferredPass.getShader().setUniform1iv("u_gBufferTextures", 16, samplers);
-		m_deferredPass.getShader().setUniform1i("u_ssaoTexture", 16 );
+		m_deferredPass.getShader().setUniform1i("u_ssaoTexture", 4 );
 		m_deferredPass.getShader().unbind();
 
 		// Bloom setup
@@ -188,9 +190,10 @@ private:
 	}
 
 	/* Uses gBuffer data for light computing */
-	void combineAndApplyLights(Renderer::Camera& camera)
+	void combineAndApplyLights(Renderer::Camera& camera, bool renderSkybox = true)
 	{
 
+		
 		// SSAO stuff
 		if (m_renderSSAO) {
 
@@ -201,10 +204,10 @@ private:
 				&m_gBuffer.textures.depth,
 				camera
 			);
-			ssaoTexture->bind(16);// todo change this
+			ssaoTexture->bind(4);// todo change this
 		}
 		else {
-			m_whitePixel.bind(16);
+			m_whitePixel.bind(4);
 		}
 
 		// Bind all textures
@@ -222,8 +225,8 @@ private:
 		m_deferredPass.getShader().unbind();
 		m_lightEngine.uploadLightsToShader(m_deferredPass.getShader());
 
+
 		// Deferred pass, blit into target
-		
 		if (!m_renderPipeline) {
 			m_deferredPass.doBlit();
 		}
@@ -234,6 +237,17 @@ private:
 			m_final.unbind();
 			applyPostEffects(camera);
 		}
+
+		if (renderSkybox) {
+
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE_MINUS_DST_ALPHA, GL_DST_ALPHA);
+
+			m_sky.render(camera);
+			glDisable(GL_BLEND);
+		}
+
+
 
 	}
 

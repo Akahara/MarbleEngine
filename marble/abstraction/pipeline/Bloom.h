@@ -39,7 +39,6 @@ public:
 		m_fboBloom.setDepthTexture(m_depth);
 
 
-		// Setup the shader
 
 	}
 
@@ -47,9 +46,7 @@ public:
 	{
 		context.fbo.setTargetTexture(context.targetTexture);
 
-		m_renderer.RenderBloomTexture(context.originTexture, m_filterRadius, false);
-
-		Renderer::Texture* finalTexture = m_renderer.getFinalBloomTexture();
+		Renderer::Texture* finalTexture =  m_renderer.RenderBloomTexture(context.originTexture, m_filterRadius, false);
 
 		Renderer::FrameBufferObject::setViewportToTexture(context.targetTexture);
 

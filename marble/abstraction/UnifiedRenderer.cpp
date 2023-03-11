@@ -457,6 +457,7 @@ void init()
   s_state.activeStandardShader->setUniform1iv("u_Textures2D", 8, samplers);
   s_state.activeStandardShader->unbind();
   VertexArray::unbind();
+  glClearColor(0, 0, 0, 0);
 }
 
 void shutdown()
@@ -552,7 +553,11 @@ void renderCubemap(const Camera &camera, const Cubemap &cubemap)
   the shader should not set the screen position to 1 but rather to gl_Position.w
   */
 
-  glDepthFunc(GL_LEQUAL);
+    glDepthFunc(GL_LEQUAL);
+  if (s_state.renderingState == DEFERRED) {
+
+    glDepthFunc(GL_GREATER);
+  }
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
   glDepthFunc(GL_LESS);
 
