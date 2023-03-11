@@ -30,7 +30,7 @@ public:
 
   virtual float getHeight(int x, int y) const = 0;
   float getHeightLerp(float x, float y) const;
-  float operator()(float x, float y) { return getHeightLerp(x, y); }
+  float operator()(float x, float y) const { return getHeightLerp(x, y); }
 };
 
 /**

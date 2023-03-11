@@ -26,11 +26,11 @@ struct PerspectiveProjection {
 
 /* An othographic projection projects points "without considering how far they are from the camera", use this for depth maps and such */
 struct OrthographicProjection {
-  float left;          // in world space
-  float right;         // in world space
-  float bottom;        // in world space
-  float top;           // in world space
-  float zNear = .1f;   // in world space
+  float left   = 0;    // in world space
+  float right  = 0;    // in world space
+  float bottom = 0;    // in world space
+  float top    = 0;    // in world space
+  float zNear  = .1f;  // in world space
   float zFar = 1000.f; // in world space
 
   glm::mat4 computeProjectionMatrix() const;

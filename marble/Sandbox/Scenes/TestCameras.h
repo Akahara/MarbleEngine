@@ -11,7 +11,6 @@ private:
   std::vector<Player> m_players;
   int                 m_activePlayer;
   Renderer::Mesh      m_mesh1;
-  Renderer::Texture   m_texture1;
 public:
   TestCamerasScene()
     : m_skybox{
@@ -20,7 +19,6 @@ public:
       "res/skybox/skybox_top.bmp",   "res/skybox/skybox_bottom.bmp" },
     m_mesh1(Renderer::loadMeshFromFile("res/meshes/house.obj")),
     m_players{},
-    m_texture1("res/textures/rock.jpg"),
     m_activePlayer(0)
   {
     // player 1 (perspective)
@@ -41,6 +39,10 @@ public:
     }
     p3.getCamera().setProjection(p3proj);
     p3.updateCamera();
+
+    auto texture = std::make_shared<Renderer::Texture>("res/textures/rock.jpg");
+    for (size_t i = 0; i < m_mesh1.getMaterial()->textures.size(); i++)
+      m_mesh1.getMaterial()->textures[i] = texture;
   }
 
   Player &createPlayer(const glm::vec3 &position)
@@ -62,13 +64,14 @@ public:
   {
     Renderer::clear();
     Renderer::Camera &activeCamera = m_players[m_activePlayer].getCamera();
-    Renderer::renderCubemap(activeCamera, m_skybox);
-    m_texture1.bind();
-    Renderer::renderMesh(activeCamera, { 0, 0, 0 }, { 1.f, 1.f, 1.f }, m_mesh1);
-    for (size_t i = 0; i < m_players.size(); i++) {
-      if(i != m_activePlayer)
-        Renderer::renderDebugCameraOutline(activeCamera, m_players[i].getCamera());
+    Renderer::renderMesh(activeCamera, m_mesh1);
+    if (DebugWindow::renderAABB()) {
+      for (size_t i = 0; i < m_players.size(); i++) {
+        if(i != m_activePlayer)
+          Renderer::renderDebugCameraOutline(activeCamera, m_players[i].getCamera());
+      }
     }
+    Renderer::renderCubemap(activeCamera, m_skybox);
   }
 
   void onImGuiRender() override

@@ -15,7 +15,7 @@ namespace Noise {
 // These values are kinda magical and good looking
 struct PerlinNoiseSettings {
   float scale = 27.6f;          // the higher the scale, the flatter the terrain will apear to be
-  float terrainHeight = 20.f;
+  float terrainHeight = 10.f;
   int   octaves = 4;            // Number of times we add a new frequency to the heightmap
   float persistence = 0.3f;     // How impactfull an octave is relative to the previous one
   float initialFrequency = 1.f; // The impactfullness of the first octave
@@ -56,7 +56,7 @@ void outlineNoiseMap(ConcreteHeightMap *map, float outlineHeight, unsigned int o
 * 
 * FUTURE The erosion algorithm could (and should) be ran on the gpu
 */
-void erode(float *noiseMap, unsigned int mapSize, const ErosionSettings &settings);
+void erode(ConcreteHeightMap *heightmap, const ErosionSettings &settings);
 
 };
 

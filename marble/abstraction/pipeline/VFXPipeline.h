@@ -38,7 +38,7 @@ public:
 	}
 
 	template<typename T> 
-	void addContextParam(const T& param, const std::string& name) {
+	void addContextParam(const T& param, const std::string& name) { // FIX the VFX pipeline is still taking pointers to stack memory, make 'param' a pointer instead
 		m_context.m_params[name] =  (void*)(&param);
 	}
 		

@@ -157,7 +157,7 @@ static void initializeErosionBrush(int mapSize, int erosionRadius, std::vector<s
   }
 }
 
-static glm::vec3 computeHeightGradientOfCell(float *map, unsigned int mapSize, float posX, float posY)
+static glm::vec3 computeHeightGradientOfCell(const ConcreteHeightMap &map, float posX, float posY)
 {
   int coordX = (int)posX;
   int coordY = (int)posY;
@@ -168,10 +168,10 @@ static glm::vec3 computeHeightGradientOfCell(float *map, unsigned int mapSize, f
   // Get the gradient from the surroundings points
   // (0,0) is North west, (1,1) is south east
 
-  float heightNW = map[coordX + coordY * mapSize];
-  float heightNE = map[coordX + 1 + coordY * mapSize];
-  float heightSW = map[coordX + (coordY + 1) * mapSize];
-  float heightSE = map[coordX + 1 + (coordY + 1) * mapSize];
+  float heightNW = map.getHeight(coordX, coordY);
+  float heightNE = map.getHeight(coordX + 1, coordY);
+  float heightSW = map.getHeight(coordX, coordY + 1);
+  float heightSE = map.getHeight(coordX + 1, coordY + 1);
 
   // Compute the gradient (p.9)
 
@@ -185,8 +185,10 @@ static glm::vec3 computeHeightGradientOfCell(float *map, unsigned int mapSize, f
   return { gradientX, gradientY, height };
 }
 
-void erode(float *map, unsigned int mapSize, const ErosionSettings &settings)
+void erode(ConcreteHeightMap *heightmap, const ErosionSettings &settings)
 {
+  assert(heightmap->getMapWidth() == heightmap->getMapHeight()); // TODO non-square erosion
+  unsigned int mapSize = heightmap->getMapWidth();
   std::vector<std::vector<int>> erosionBrushIndices;
   std::vector<std::vector<float>> erosionBrushWeights;
   initializeErosionBrush(mapSize, settings.erosionRadius, erosionBrushIndices, erosionBrushWeights);
@@ -212,7 +214,7 @@ void erode(float *map, unsigned int mapSize, const ErosionSettings &settings)
 	  float cellOffsetX = posX - nodeX;
 	  float cellOffsetY = posY - nodeY;
 
-	  glm::vec3 heightAndGradient = computeHeightGradientOfCell(map, mapSize, posX, posY); // returns {g(X), g(Y), height}
+	  glm::vec3 heightAndGradient = computeHeightGradientOfCell(*heightmap, posX, posY); // returns {g(X), g(Y), height}
 	  // Update droplets pos and dir
 	  dirX = (dirX * settings.inertia - heightAndGradient.x * (1 - settings.inertia));
 	  dirY = (dirY * settings.inertia - heightAndGradient.y * (1 - settings.inertia));
@@ -234,7 +236,7 @@ void erode(float *map, unsigned int mapSize, const ErosionSettings &settings)
 	  }
 
 	  // find the droplets new height and compute deltaHeight
-	  float newHeight = computeHeightGradientOfCell(map, mapSize, posX, posY).z;
+	  float newHeight = computeHeightGradientOfCell(*heightmap, posX, posY).z;
 	  float deltaHeight = newHeight - heightAndGradient.z;
 
 	  // Calculate sediment capacity
@@ -246,10 +248,10 @@ void erode(float *map, unsigned int mapSize, const ErosionSettings &settings)
 		float amountToDeposit = (deltaHeight > 0) ? std::min(deltaHeight, sediment) : (sediment - sedimentCapacity) * settings.depositSpeed;
 		sediment -= amountToDeposit;
 
-		map[dropletID] += amountToDeposit * (1 - cellOffsetX) * (1 - cellOffsetY);
-		map[dropletID + 1] += amountToDeposit * cellOffsetX * (1 - cellOffsetY);
-		map[dropletID + mapSize] += amountToDeposit * (1 - cellOffsetX) * cellOffsetY;
-		map[dropletID + mapSize + 1] += amountToDeposit * cellOffsetX * cellOffsetY;
+		(*heightmap)[dropletID] += amountToDeposit * (1 - cellOffsetX) * (1 - cellOffsetY);
+		(*heightmap)[dropletID + 1] += amountToDeposit * cellOffsetX * (1 - cellOffsetY);
+		(*heightmap)[dropletID + mapSize] += amountToDeposit * (1 - cellOffsetX) * cellOffsetY;
+		(*heightmap)[dropletID + mapSize + 1] += amountToDeposit * cellOffsetX * cellOffsetY;
 	  } else {
 		// Erode a fraction of the droplets remaining capacity from the ground
 		// dont erode more than deltaHeight
@@ -259,8 +261,8 @@ void erode(float *map, unsigned int mapSize, const ErosionSettings &settings)
 		for (int brushPointIndex = 0; brushPointIndex < erosionBrushIndices[dropletID].size(); brushPointIndex++) {
 		  int nodeIndex = erosionBrushIndices[dropletID][brushPointIndex];
 		  float weighedErodeAmount = amountToErode * erosionBrushWeights[dropletID][brushPointIndex];
-		  float deltaSediment = (map[nodeIndex] < weighedErodeAmount) ? map[nodeIndex] : weighedErodeAmount;
-		  map[nodeIndex] -= deltaSediment;
+		  float deltaSediment = ((*heightmap)[nodeIndex] < weighedErodeAmount) ? (*heightmap)[nodeIndex] : weighedErodeAmount;
+		  (*heightmap)[nodeIndex] -= deltaSediment;
 		  sediment += deltaSediment;
 		}
 	  }

@@ -16,7 +16,11 @@
 
 //#include "marble/Sandbox/Tests.h"
 #include "marble/Sandbox/Scenes/TestShadows.h"
+#include "marble/Sandbox/Scenes/TestTerrain.h"
+#include "marble/Sandbox/Scenes/TestCameras.h"
+#include "marble/Sandbox/Scenes/TestComputeShader.h"
 #include "marble/Sandbox/Scenes/TestWater.h"
+#include "marble/Sandbox/Scenes/TestFB.h"
 #include "marble/Sandbox/Scenes/POC4.h"
 
 inline long long nanoTime()
@@ -44,13 +48,12 @@ int main()
     SceneManager::init();
 
     
-    //SceneManager::registerScene<TestTerrainScene>("Terrain");
+    SceneManager::registerScene<TestTerrainScene>("Terrain");
     //SceneManager::registerScene<TestSkyScene>("Sky");
-    //SceneManager::registerScene<TestFBScene>("Framebuffer");
-    //SceneManager::registerScene<TestShadersScene>("Shaders");
+    SceneManager::registerScene<TestFBScene>("Framebuffer");
     SceneManager::registerScene<TestShadowsScene>("Shadows");
-    //SceneManager::registerScene<TestCamerasScene>("Cameras");
-    //SceneManager::registerScene<TestComputeShader>("Compute Shader");
+    SceneManager::registerScene<TestCamerasScene>("Cameras");
+    SceneManager::registerScene<TestComputeShader>("Compute Shader");
     //SceneManager::registerScene<TestInstancedScene>("Instanced");
     //SceneManager::registerScene<TestBloomScene>("Bloom");
     //SceneManager::registerScene<TestAtlas>("Atlas");
@@ -61,7 +64,7 @@ int main()
     SceneManager::registerScene<POC4Scene>("POC 4");
     
 
-    SceneManager::switchToScene(3);
+    SceneManager::switchToScene(5);
 
     //===========================================================//
 

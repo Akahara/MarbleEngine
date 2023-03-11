@@ -2,13 +2,14 @@
 
 #include <glm/glm.hpp>
 
-#include "Terrain.h"
+#include "HeightMap.h"
+#include "../../abstraction/Mesh.h"
 #include "../../Utils/Mathf.h"
 
 namespace Renderer {
 
 template<Heightmap Heightmap>
-TerrainMesh::Chunk TerrainMesh::generateChunk(Heightmap &heightmap, glm::ivec2 chunkPosition)
+TerrainMesh::Chunk TerrainMesh::generateChunk(const Heightmap &heightmap, glm::ivec2 chunkPosition)
 {
   constexpr int vertexCount = (CHUNK_SIZE + 1) * (CHUNK_SIZE + 1);
   std::array<BaseVertex, vertexCount> vertices;
@@ -60,7 +61,7 @@ TerrainMesh::Chunk TerrainMesh::generateChunk(Heightmap &heightmap, glm::ivec2 c
 }
 
 template<Heightmap Heightmap>
-void TerrainMesh::rebuildMesh(Heightmap heightmap, TerrainRegion region)
+void TerrainMesh::rebuildMesh(const Heightmap &heightmap, TerrainRegion region)
 {
   // remove chunks that are no longer in the region
   m_chunks.erase(std::remove_if(m_chunks.begin(), m_chunks.end(), [region](const Chunk &chunk) {
