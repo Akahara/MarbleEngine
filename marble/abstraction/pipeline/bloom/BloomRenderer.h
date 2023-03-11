@@ -1,7 +1,9 @@
 #pragma once
 
 #include "../../Shader.h"
+#include "../../ComputeShader.h"
 #include "../../UnifiedRenderer.h"
+
 
 
 class BloomRenderer {
@@ -25,6 +27,10 @@ private:
     Renderer::BlitPass              m_blitDown; //draw in the texture
     Renderer::BlitPass              m_blitUp; //draw in the texture
 
+
+    Renderer::ComputeShader m_upComputeShader{ "res/shaders/compute/bloom_up.comp", glm::vec2{ceil(Window::getWinWidth() / (16)), ceil(Window::getWinHeight() / (8))} };
+    Renderer::ComputeShader m_downComputeShader{ "res/shaders/compute/bloom_down.comp", glm::vec2{ceil(Window::getWinWidth() / (16)), ceil(Window::getWinHeight() / (8))} };
+
 public:
     BloomRenderer() 
     {  
@@ -38,6 +44,16 @@ public:
             BloomMip* mip = new BloomMip{ glm::vec2(Window::getWinWidth() / coef, Window::getWinHeight() / coef) };
             m_mipChain.emplace_back(mip);
         }
+        
+        m_downComputeShader.use();
+        m_downComputeShader.setUniform1i("u_texture", 0);
+
+
+        m_upComputeShader.use();
+        m_upComputeShader.setUniform1i("u_texture", 1);
+        
+
+
     }
 
     void RenderBloomTexture(const Renderer::Texture& texture, float filterRadius, bool write = false)
@@ -55,7 +71,8 @@ private:
     {
         // This seems to work, giving downsampled mips
         // 
-        // Set the downsampling shader         
+        // Set the downsampling shader   
+        /*
         m_blitDown.getShader().bind();
         texture.bind();
         m_blitDown.getShader().setUniform2f("u_srcResolution", glm::vec2(Window::getWinWidth(), Window::getWinHeight()));
@@ -67,7 +84,7 @@ private:
 
             // Set fbo target to new mips texture 
 
-            Renderer::FrameBufferObject::setViewport((unsigned int)mip.resolution.x, (unsigned int)mip.resolution.y);//?
+            Renderer::FrameBufferObject::setViewport((unsigned int)mip.resolution.x, (unsigned int)mip.resolution.y);
             m_fbo.setTargetTexture(mip.texture);
 
             // blit
@@ -81,6 +98,13 @@ private:
                 texture.bind(0);
                 m_blitDown.doBlit();
                 m_fbo.unbind();
+
+                // -- temp
+
+
+
+
+
             } else {
 
                 m_blitDown.getShader().bind();
@@ -103,9 +127,40 @@ private:
             m_blitDown.getShader().bind();
             m_blitDown.getShader().setUniform2f("u_srcResolution", mip.resolution);
             m_blitDown.getShader().unbind();
+            
 
             mip.texture.bind();
         }
+            */
+
+        for (unsigned int bloomPass = 0; bloomPass < m_numberOfMips; bloomPass++)
+        {
+
+            BloomMip& mip = *m_mipChain[bloomPass];
+
+            m_downComputeShader.use();
+            m_downComputeShader.bindImage(mip.texture.getId());
+
+            if (bloomPass == 0) {
+                m_downComputeShader.setUniform1i("u_firstPass", 1);
+                texture.bind(0); // for first pass, we use the context texture as sampler
+                //m_downComputeShader.dispatch();
+                m_downComputeShader.setUniform2f("u_srcResolution", mip.resolution);
+                glDispatchCompute(ceil(mip.resolution.x/8.F), ceil(mip.resolution.y/4.f), 1);
+                m_downComputeShader.wait();
+                m_downComputeShader.setUniform1i("u_firstPass", 0);
+                continue;
+            }
+
+            m_mipChain.at(bloomPass - 1)->texture.bind(0); // get the previous mip texture
+            m_downComputeShader.setUniform1i("u_firstPass", 0);
+            m_downComputeShader.setUniform2f("u_srcResolution", mip.resolution);
+            glDispatchCompute(ceil(mip.resolution.x/8.F), ceil(mip.resolution.y/4), 1);
+            m_downComputeShader.wait();
+            mip.texture.bind();
+        }
+
+
     }
 
 

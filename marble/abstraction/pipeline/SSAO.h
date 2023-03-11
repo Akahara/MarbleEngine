@@ -16,33 +16,20 @@ namespace visualEffects {
 	{
 	private:
 
-		Renderer::FrameBufferObject m_ssaoFBO;
-		Renderer::Texture m_ssaoTexture{Window::getWinWidth(), Window::getWinHeight()};
-		Renderer::Texture m_blurredTexture{Window::getWinWidth(), Window::getWinHeight()};
-		
-
-		unsigned int m_noiseTexture;
 
 		int m_kernelSize = 64;
 		float m_radius = 0.5f;
 		float m_bias = 0.0025f;
-		
-
-		Renderer::BlitPass m_ssaoPass;
-
-		Renderer::BlitPass m_blurPass; // todo set shader
-		Renderer::FrameBufferObject m_blurFBO;
-
-
 
 		/////////////////////// Compute update
 
 		
-		Renderer::ComputeShader m_ssaoComputeShader{ "res/shaders/compute/ssao.comp", glm::vec2{8,4} };
+		Renderer::ComputeShader m_ssaoComputeShader{ "res/shaders/compute/ssao.comp", glm::vec2{ceil(Window::getWinWidth()/(16)), ceil(Window::getWinHeight()/(8))} };
+		Renderer::ComputeShader m_blurComputeShader{ "res/shaders/compute/blur.comp", glm::vec2{ceil(Window::getWinWidth()/(16)), ceil(Window::getWinHeight()/(8))} };
 		Renderer::Texture m_imgOutput{ 16*32.f, 9*32.f};
-
-
-
+		Renderer::Texture m_blurredImg{ 16*32.f, 9*32.f};
+		
+		unsigned int m_noiseTexture;
 
 	public:
 		SSAO() 
@@ -83,29 +70,7 @@ namespace visualEffects {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			
-
-
-			// Set-up the shader
-			m_ssaoPass.setShader("res/shaders/SSAO.fs");
-			m_ssaoPass.getShader().bind();
-			m_ssaoPass.getShader().setUniform1i("gPosition", 0);
-			m_ssaoPass.getShader().setUniform1i("gNormal", 1);
-			m_ssaoPass.getShader().setUniform1i("texNoise", 2);
-			m_ssaoPass.getShader().setUniform3fv("samples", 64, (const float*)&ssaoKernel[0]);
-			m_ssaoPass.getShader().unbind();
-			
-
-			// Set up the blur pass
-			m_blurPass.setShader("res/shaders/blur.fs");
-			m_blurPass.getShader().bind();
-			m_blurPass.getShader().setUniform1i("u_texture", 0);
-			m_blurPass.getShader().unbind();
-
-
-			// Setup the fbos
-			m_ssaoFBO.setTargetTexture(m_ssaoTexture);
-			m_blurFBO.setTargetTexture(m_blurredTexture);
-
+			// Setup the compute shaders
 			m_ssaoComputeShader.use();
 			m_ssaoComputeShader.setUniform1i("gPosition", 3);
 			m_ssaoComputeShader.setUniform1i("gNormal", 1);
@@ -113,6 +78,8 @@ namespace visualEffects {
 			m_ssaoComputeShader.setUniform1i("gDepth", 4);
 			m_ssaoComputeShader.setUniform3fv("samples", 64, (const float*)&ssaoKernel[0]);
 
+			m_blurComputeShader.use();
+			m_blurComputeShader.setUniform1i("u_texture", 5);
 
 
 
@@ -127,43 +94,28 @@ namespace visualEffects {
 			Renderer::Camera& camera		
 		)
 		{
-
-			gPos->bind(3);
+			// SSAO texture
 			gNormal->bind(1);
-			gDepth->bind(4);
 			Renderer::Texture::bindFromId(m_noiseTexture, 2);
+			gPos->bind(3);
+			gDepth->bind(4);
+
 			m_ssaoComputeShader.bindImage(m_imgOutput.getId());
 			m_ssaoComputeShader.use();
 			m_ssaoComputeShader.setUniformMat4f("projection", camera.getViewProjectionMatrix());
-
-			glDispatchCompute(ceil(Window::getWinWidth()/(16)), ceil(Window::getWinHeight()/(8)), 1);
+			m_ssaoComputeShader.dispatch();
 			m_ssaoComputeShader.wait();
-
 			
-			/*
-			gPos->bind(0);
-			gNormal->bind(1);
-			Renderer::Texture::bindFromId(m_noiseTexture, 2);
-			m_ssaoPass.getShader().bind();
-			m_ssaoPass.getShader().setUniformMat4f("projection", camera.getViewProjectionMatrix());
-			m_ssaoPass.getShader().unbind();
-		
-			// Create the ssao texture
-			m_ssaoFBO.bind();
-			m_ssaoPass.doBlit();
-			m_ssaoFBO.unbind();
-			*/
-
-			// Blur the ssao, now ssaoTexture is complete
-			/*
-			m_imgOutput.bind(0);
-			m_blurFBO.bind();
-			m_blurPass.doBlit();
-			m_blurFBO.unbind();
-			*/
 			
-			//return &m_blurredTexture;
-			return &m_imgOutput;
+			// Blur image
+			m_imgOutput.bind(5);
+			m_blurComputeShader.bindImage(m_blurredImg.getId());
+			m_blurComputeShader.use();
+			m_blurComputeShader.dispatch();
+			m_blurComputeShader.wait();
+			
+
+			return &m_blurredImg;
 						
 		}
 
@@ -172,7 +124,6 @@ namespace visualEffects {
 		{
 			if (ImGui::CollapsingHeader("SSAO")) {
 
-				ImGui::Image(m_ssaoTexture.getId(), { 16 * 20, 9 * 20 }, { 0,1 }, { 1,0 });
 				ImGui::Image(m_imgOutput.getId(), { 16 * 20, 9 * 20 }, { 0,1 }, { 1,0 });
 				if (ImGui::SliderInt("KernelSize", &m_kernelSize, 1, 64) ||
 					ImGui::SliderFloat("Radius", &m_radius, 0.F, 1.F) ||

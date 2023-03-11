@@ -14,6 +14,8 @@ private:
 	BloomRenderer               m_renderer;
 	Renderer::FrameBufferObject m_fboBloom;
 	Renderer::Texture           m_depth = Renderer::Texture::createDepthTexture(Window::getWinWidth(), Window::getWinHeight());
+
+
 	
 	float m_filterRadius = 0.005f;
 	float m_exposure = 3.2f;
@@ -35,6 +37,10 @@ public:
 		m_blitFinal.getShader().unbind();
 
 		m_fboBloom.setDepthTexture(m_depth);
+
+
+		// Setup the shader
+
 	}
 
 	virtual void applyEffect(PipelineContext& context) override final

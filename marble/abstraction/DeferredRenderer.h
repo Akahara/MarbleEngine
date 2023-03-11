@@ -70,7 +70,7 @@ private:
 	Renderer::BlitPass last;
 
 	visualEffects::VFXPipeline m_vfx;
-	bool m_renderPipeline = false;
+	bool m_renderPipeline = true;
 
 
 	visualEffects::SSAO m_ssaoRenderer;
