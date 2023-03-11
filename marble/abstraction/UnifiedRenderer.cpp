@@ -63,7 +63,7 @@ std::shared_ptr<Shader> loadShaderFromFiles(const fs::path &vertexPath, const fs
 
 std::shared_ptr<Model> createCubeModel()
 {
-  return loadModelFromFile("res/meshes/cube.obj");
+  return loadMeshFromFile("res/meshes/cube.obj").getModel(); // FIX have a single cube model loaded at all times
 }
 
 std::shared_ptr<Model> createPlaneModel(bool facingDown)
@@ -92,7 +92,7 @@ static void skipStreamText(std::istream &stream, const char *text)
   }
 }
 
-std::shared_ptr<Model> loadModelFromFile(const fs::path& objPath)
+Mesh loadMeshFromFile(const fs::path& objPath)
 {
     // TODO : read the MTL file, and try to find the correct filename for the materials
   std::ifstream modelFile{ objPath };
@@ -103,7 +103,7 @@ std::shared_ptr<Model> loadModelFromFile(const fs::path& objPath)
   std::vector<glm::vec3> normals;
   std::vector<glm::vec2> uvs;
   std::unordered_map<int, std::shared_ptr<Texture>> slotsTextures = {
-      {0, std::make_shared<Texture>("res/textures/no_texture.png") }
+      { 0, s_keepAliveResources->missingTextureTexture }
   };
 
   std::unordered_map<std::string, std::string> cacheMatFile;
@@ -253,9 +253,14 @@ std::shared_ptr<Model> loadModelFromFile(const fs::path& objPath)
 
   }
 
-  // FIX restore slotsTextures
+  auto material = std::make_shared<Material>();
+  auto model = std::make_shared<Model>(vertices, indices);
 
-  return std::make_shared<Model>(vertices, indices);
+  material->shader = getStandardMeshShader();
+  for (auto &[slot, texture] : slotsTextures)
+    material->textures[slot] = texture;
+
+  return Mesh(model, material);
 }
 
 const std::shared_ptr<Texture> &getMissingTexture()
@@ -444,7 +449,7 @@ void renderMeshTerrain(const Camera &camera, const TerrainMesh &mesh)
   s_debugData.meshCount++;
   Material &material = *mesh.getMaterial();
   Shader &shader = *material.shader;
-  Frustum frustum = Frustum::createFrustumFromPerspectiveCamera(camera);
+  Frustum frustum = Frustum::createFrustumFromCamera(camera);
   
   // bindings
   bindMaterial(material);

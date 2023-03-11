@@ -75,19 +75,30 @@ void Camera::lookAt(const glm::vec3 &target)
   m_yaw = glm::atan(-d.x, -d.z);
 }
 
-Frustum Frustum::createFrustumFromCamera(const Camera &cam, float aspect, float fovY, float zNear, float zFar)
+Frustum Frustum::createFrustumFromCamera(const Camera &cam)
 {
-  Frustum frustum;
-  const float halfVSide = zFar * tanf(fovY * .5f);
-  const float halfHSide = halfVSide * aspect;
-  const glm::vec3 frontMultFar = zFar * cam.getForward();
+  switch (cam.getProjectionType()) {
+  case CameraProjection::ORTHOGRAPHIC: return createFrustumFromOrthographicCamera(cam);
+  case CameraProjection::PERSPECTIVE:  return createFrustumFromPerspectiveCamera(cam);
+  default: assert(false); return {}; // unknown camera projection
+  }
+}
 
-  frustum.nearFace   = { cam.getPosition() + zNear * cam.getForward(), cam.getForward() };
-  frustum.farFace    = { cam.getPosition() + frontMultFar, -cam.getForward() };
-  frustum.rightFace  = { cam.getPosition(), glm::cross(cam.getUp(), frontMultFar + cam.getRight() * halfHSide) };
-  frustum.leftFace   = { cam.getPosition(), glm::cross(frontMultFar - cam.getRight() * halfHSide, cam.getUp()) };
-  frustum.topFace    = { cam.getPosition(), glm::cross(cam.getRight(), frontMultFar - cam.getUp() * halfVSide) };
-  frustum.bottomFace = { cam.getPosition(), glm::cross(frontMultFar + cam.getUp() * halfVSide, cam.getRight()) };
+Frustum Frustum::createFrustumFromOrthographicCamera(const Camera &cam)
+{
+  OrthographicProjection proj = cam.getProjection<OrthographicProjection>();
+  Frustum frustum;
+  glm::vec3 forward = cam.getForward();
+  glm::vec3 right = cam.getRight();
+  glm::vec3 up    = cam.getUp();
+  glm::vec3 pos   = cam.getPosition();
+
+  frustum.nearFace   = { pos + proj.zNear * forward, cam.getForward() };
+  frustum.farFace    = { pos + proj.zFar * forward, -cam.getForward() };
+  frustum.rightFace  = { pos + right * proj.right, right };
+  frustum.leftFace   = { pos - right * proj.left, -right };
+  frustum.topFace    = { pos + up * proj.top, up };
+  frustum.bottomFace = { pos - up * proj.bottom, -up };
 
   return frustum;
 }
@@ -95,7 +106,19 @@ Frustum Frustum::createFrustumFromCamera(const Camera &cam, float aspect, float 
 Frustum Frustum::createFrustumFromPerspectiveCamera(const Camera &cam)
 {
   PerspectiveProjection proj = cam.getProjection<PerspectiveProjection>();
-  return createFrustumFromCamera(cam, proj.aspect, proj.fovy, proj.zNear, proj.zFar);
+  Frustum frustum;
+  const float halfVSide = proj.zFar * tanf(proj.fovy * .5f);
+  const float halfHSide = halfVSide * proj.aspect;
+  const glm::vec3 frontMultFar = proj.zFar * cam.getForward();
+
+  frustum.nearFace = { cam.getPosition() + proj.zNear * cam.getForward(), cam.getForward() };
+  frustum.farFace = { cam.getPosition() + frontMultFar, -cam.getForward() };
+  frustum.rightFace = { cam.getPosition(), glm::cross(cam.getUp(), frontMultFar + cam.getRight() * halfHSide) };
+  frustum.leftFace = { cam.getPosition(), glm::cross(frontMultFar - cam.getRight() * halfHSide, cam.getUp()) };
+  frustum.topFace = { cam.getPosition(), glm::cross(cam.getRight(), frontMultFar - cam.getUp() * halfVSide) };
+  frustum.bottomFace = { cam.getPosition(), glm::cross(frontMultFar + cam.getUp() * halfVSide, cam.getRight()) };
+
+  return frustum;
 }
 
 bool Frustum::isOnFrustum(const AABB &boudingBox) const

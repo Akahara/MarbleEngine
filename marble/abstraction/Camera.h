@@ -102,10 +102,12 @@ public:
 
 struct Plan {
 
-    glm::vec3 normal = { 0.f, 1.f, 0.f };
-    float distanceToOrigin = 0.f;
+    glm::vec3 normal;
+    float distanceToOrigin;
 
-    Plan() {}
+    Plan() :
+      normal(), distanceToOrigin(0)
+    {}
 
     Plan(const glm::vec3& pl, const glm::vec3 norm) :
         normal(glm::normalize(norm)),
@@ -138,7 +140,8 @@ struct Frustum {
 
     bool isOnFrustum(const AABB &boudingBox) const;
     
-    static Frustum createFrustumFromCamera(const Camera &cam, float aspect, float fovY, float zNear, float zFar);
+    static Frustum createFrustumFromCamera(const Camera &cam);
+    static Frustum createFrustumFromOrthographicCamera(const Camera &cam);
     static Frustum createFrustumFromPerspectiveCamera(const Camera &cam);
 
     static bool isOnOrForwardPlan(const Plan &plan, const AABB &boundingBox);

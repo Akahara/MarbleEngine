@@ -44,10 +44,13 @@ public:
         terrainMaterial->shader = Renderer::getStandardMeshShader();
         terrainMaterial->textures[0] = std::make_shared<Renderer::Texture>("res/textures/rock.jpg");
         terrainMaterial->textures[1] = std::make_shared<Renderer::Texture>("res/textures/rock.jpg");
+        
+        Noise::PerlinNoiseSettings perlin{}; // use default values
+        Noise::ConcreteHeightMap terrainHeightmap = Noise::generateNoiseMap(100, 100, perlin);
         m_terrain.setMaterial(terrainMaterial);
-        m_terrain.rebuildMesh([](float x, float y) { return x + y*.5f; }, {0,0, 80,80});
+        m_terrain.rebuildMesh(terrainHeightmap, {0,0, 100,100});
 
-        m_water.addSource({40,12,40},{80,80});
+        m_water.addSource({50,10,50},{100,100});
     }
 
     void step(float delta) override

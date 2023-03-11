@@ -11,7 +11,7 @@ static IndexBufferObject generateChunkIBO()
   constexpr auto CHUNK_SIZE = TerrainMesh::CHUNK_SIZE;
   constexpr int indiceCount = CHUNK_SIZE * CHUNK_SIZE * 6;
   unsigned int *indices = new unsigned int[indiceCount];
-  //std::array<unsigned int, CHUNK_SIZE*CHUNK_SIZE*6> indices{}; // does not need to be initialized but the warning wouldn't go away
+
   size_t i = 0;
   for (int x = 0; x < CHUNK_SIZE; x++) {
     for (int y = 0; y < CHUNK_SIZE; y++) {

@@ -49,7 +49,8 @@ public:
     material->textures[m_depthTextureSlot] = m_depthTexture;
     materialInstanced->shader = m_shaders[1];
     materialInstanced->textures[m_depthTextureSlot] = m_depthTexture;
-    m_visibleMesh = Renderer::Mesh(Renderer::loadModelFromFile("res/meshes/floor.obj"), material);
+    m_visibleMesh = Renderer::loadMeshFromFile("res/meshes/floor.obj");
+    m_visibleMesh.setMaterial(material);
     m_visibleMesh.getTransform().position = { 3, 0, 0 };
     m_cubesInstancedMesh = Renderer::InstancedMesh(Renderer::createCubeModel(), materialInstanced, 0);
     for (auto &shader : m_shaders) {

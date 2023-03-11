@@ -47,7 +47,7 @@ static struct DebugData {
 std::shared_ptr<Shader> loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath);
 std::shared_ptr<Model> createCubeModel();
 std::shared_ptr<Model> createPlaneModel(bool facingDown=false);
-std::shared_ptr<Model> loadModelFromFile(const fs::path &objPath);
+Mesh loadMeshFromFile(const fs::path &objPath);
 const std::shared_ptr<Texture> &getMissingTexture();
 
 void clear();
