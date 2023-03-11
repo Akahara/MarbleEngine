@@ -19,7 +19,7 @@ uniform vec3 samples[64];
 
 uniform int kernelSize = 64;
 uniform float radius = 0.5;
-uniform float bias = 0.002;
+uniform float bias = -0.0005;
 
 const vec2 noiseScale = vec2(16*64.0/4.0, 9*64.F/4.0); 
 
@@ -73,7 +73,7 @@ void main() {
         
         // range check & accumulate
         float rangeCheck = smoothstep(0.0, 1.0, radius / abs(pixelDepth - sampleDepth));
-        occlusion += (sampleDepth >= pixelDepth + bias ? 1.0 : 0.0) * rangeCheck;           
+        occlusion += (sampleDepth <= pixelDepth + bias ? 1.0 : 0.0) * rangeCheck;           
     }
     occlusion = 1.0 - (occlusion / kernelSize);
 

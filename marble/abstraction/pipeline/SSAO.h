@@ -19,7 +19,7 @@ namespace visualEffects {
 
 		int m_kernelSize = 64;
 		float m_radius = 0.5f;
-		float m_bias = 0.0025f;
+		float m_bias = -0.0005f;
 
 		/////////////////////// Compute update
 
