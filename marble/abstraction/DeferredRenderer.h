@@ -225,41 +225,28 @@ private:
 		m_deferredPass.getShader().unbind();
 		m_lightEngine.uploadLightsToShader(m_deferredPass.getShader());
 
+		
 		auto deferredPass = [&]() {
 			m_deferredPass.doBlit();
-			m_sky.render(camera);
+			m_sky.render(camera, 0, false);
 		};
 
-		// Deferred pass, blit into target
-		if (!m_renderPipeline) {
+
+		(m_renderPipeline) ?
+			applyPostEffects(deferredPass, camera) :
 			deferredPass();
-		}
-		else {
-
-			m_final.bind();
-			deferredPass();
-			m_final.unbind();
-			applyPostEffects(camera);
-		}
-
-
-
-		
 
 
 
 	}
 
 	/* Blit to the screen */
-	// TODO : combine this with vfx pipeline
-	// todo : this works, but it can be better !!
-	void applyPostEffects(Renderer::Camera& camera) 
+	void applyPostEffects(std::function<void()> deferredFn, Renderer::Camera& camera)
 	{
 
 		m_vfx.setContextParam("camera", camera);
 		m_vfx.bind();
-		m_target.bind(0);
-		last.doBlit();
+		deferredFn();
 		m_vfx.unbind();
 		m_vfx.renderPipeline();
 
