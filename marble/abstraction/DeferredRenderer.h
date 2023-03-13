@@ -225,27 +225,26 @@ private:
 		m_deferredPass.getShader().unbind();
 		m_lightEngine.uploadLightsToShader(m_deferredPass.getShader());
 
+		auto deferredPass = [&]() {
+			m_deferredPass.doBlit();
+			m_sky.render(camera);
+		};
 
 		// Deferred pass, blit into target
 		if (!m_renderPipeline) {
-			m_deferredPass.doBlit();
+			deferredPass();
 		}
 		else {
 
 			m_final.bind();
-			m_deferredPass.doBlit();
+			deferredPass();
 			m_final.unbind();
 			applyPostEffects(camera);
 		}
 
-		if (renderSkybox) {
 
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_ONE_MINUS_DST_ALPHA, GL_DST_ALPHA);
 
-			m_sky.render(camera);
-			glDisable(GL_BLEND);
-		}
+		
 
 
 
