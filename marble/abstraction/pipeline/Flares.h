@@ -9,6 +9,9 @@
 #include "../Texture.h"
 #include "../UnifiedRenderer.h"
 
+// TODO move Flares implementation in a .cpp file
+// TODO figure out how glad got included here!!
+
 struct Flare {
 	Renderer::Texture texture;
 	glm::vec2 screenPos;
@@ -30,7 +33,7 @@ private:
 	Renderer::VertexBufferObject m_VBO;
 	Renderer::IndexBufferObject m_IBO;
 
-	Renderer::Shader m_shader = Renderer::loadShaderFromFiles(
+	std::shared_ptr<Renderer::Shader> m_shader = Renderer::loadShaderFromFiles(
 		"res/shaders/flare.vs",
 		"res/shaders/flare.fs");
 
@@ -60,7 +63,7 @@ public:
 		}
 
 
-		m_VBO = Renderer::VertexBufferObject(4 * NUMBER_OF_FLARES * sizeof(QuadVertex));
+		m_VBO = Renderer::VertexBufferObject(nullptr, 4 * NUMBER_OF_FLARES * sizeof(QuadVertex));
 		Renderer::VertexBufferLayout layout;
 		layout.push<float>(3);		// Position
 		layout.push<float>(2);		// TexCoords
@@ -72,9 +75,9 @@ public:
 
 
 		GLint samplers[12] = { 0,1,2,3,4,5,6,7,8,9,10,11 }; // TODO shader code
-		m_shader.bind();
-		m_shader.setUniform1iv("u_Textures", 12, samplers);
-		m_shader.unbind();
+		m_shader->bind();
+		m_shader->setUniform1iv("u_Textures", 12, samplers);
+		Renderer::Shader::unbind();
 
 		m_quadBuffer = new QuadVertex[NUMBER_OF_FLARES * 4];
 	}
@@ -86,8 +89,8 @@ public:
 
 	void renderFlares(const std::vector<Flare>& flares, float brightness)
 	{
-		m_shader.bind();
-		m_shader.setUniform1f("u_brightness", brightness);
+		m_shader->bind();
+		m_shader->setUniform1f("u_brightness", brightness);
 		m_quadBufferPtr = m_quadBuffer;
 
 		for (const auto& flare : flares) {
@@ -131,7 +134,7 @@ public:
 		GLsizeiptr size = (uint8_t*)m_quadBufferPtr - (uint8_t*)m_quadBuffer;
 
 		m_VBO.bind();
-		m_VAO.sendToGPU(size, m_quadBuffer);
+		m_VBO.updateData(m_quadBuffer, size);
 
 		m_VAO.bind();
 
@@ -145,9 +148,8 @@ public:
 
 		m_indexCount = 0;
 		m_textureSlotIndex = 1;
-		m_VAO.unbind();
-		m_shader.unbind();
-
+		Renderer::VertexArray::unbind();
+		Renderer::Shader::unbind();
 	}
 };
 

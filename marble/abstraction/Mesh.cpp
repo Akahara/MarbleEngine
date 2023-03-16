@@ -11,49 +11,51 @@
 
 namespace Renderer {
 
-Mesh::Mesh()
-  : m_VBO(),
-  m_IBO(),
-  m_VAO(),
-  m_verticesCount(0),
-  m_boudingBox()
+Model::Model(const std::vector<BaseVertex> &vertices, const std::vector<unsigned int> &indices)
+  : m_verticesCount((unsigned int)indices.size())
 {
-}
-
-Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices,
-    const std::unordered_map<int, std::shared_ptr<Texture>>& slotsTextures)
-  : 
-    m_VAO(),
-  m_verticesCount((unsigned int)indices.size()),
-  m_SlotTextures(slotsTextures)
-{
-
-  m_VBO = VertexBufferObject(vertices.data(), sizeof(Vertex) * vertices.size());
+  m_VBO = VertexBufferObject(vertices.data(), sizeof(BaseVertex) * vertices.size());
   m_IBO = IndexBufferObject(indices.data(), indices.size());
-  m_VAO.addBuffer(m_VBO, Vertex::getVertexBufferLayout(), m_IBO);
   VertexArray::unbind();
 
   glm::vec3 aabbMin{ std::numeric_limits<float>::max() };
   glm::vec3 aabbMax{ std::numeric_limits<float>::min() };
-  for (const Vertex &v : vertices) {
+  for (const BaseVertex &v : vertices) {
     aabbMin = glm::min(aabbMin, v.position);
     aabbMax = glm::max(aabbMax, v.position);
   }
   m_boudingBox = AABB::make_aabb(aabbMin, aabbMax);
 }
 
-Mesh::~Mesh()
+Model::Model(Model &&moved) noexcept
+  : m_VBO(std::move(moved.m_VBO)),
+    m_IBO(std::move(moved.m_IBO)),
+    m_verticesCount(moved.m_verticesCount),
+    m_boudingBox(moved.m_boudingBox)
 {
+  moved.m_verticesCount = 0;
+}
+
+Model &Model::operator=(Model &&moved) noexcept
+{
+  this->~Model();
+  new (this)Model(std::move(moved));
+  return *this;
+}
+
+Mesh::Mesh(const std::shared_ptr<Model> &model, const std::shared_ptr<Material> &material)
+  : m_model(model), m_material(material), m_transform(), m_VAO()
+{
+  m_VAO.addBuffer(model->getVBO(), BaseVertex::getVertexBufferLayout(), model->getIBO());
+  m_VAO.unbind();
 }
 
 Mesh::Mesh(Mesh &&moved) noexcept
-  : m_VAO(std::move(moved.m_VAO)),
-  m_VBO(std::move(moved.m_VBO)),
-  m_IBO(std::move(moved.m_IBO)),
-  m_verticesCount(moved.m_verticesCount),
-  m_boudingBox(moved.m_boudingBox)
+  : m_model(std::move(moved.m_model)),
+    m_material(std::move(moved.m_material)),
+    m_transform(moved.m_transform),
+    m_VAO(std::move(moved.m_VAO))
 {
-  moved.m_verticesCount = 0;
 }
 
 Mesh &Mesh::operator=(Mesh &&moved) noexcept
@@ -63,41 +65,53 @@ Mesh &Mesh::operator=(Mesh &&moved) noexcept
   return *this;
 }
 
-void Mesh::bindTextureToSlot(const std::shared_ptr<Texture>& texture, int slot) {
-
-
-    m_SlotTextures[slot] = texture;
-}
-
-
-void Mesh::draw() const
+AABB Model::getBoundingBoxInstance(glm::vec3 instancePosition, glm::vec3 instanceSize) const
 {
-  m_VAO.bind();
-  // bind all textures
-  for (const auto& [slot, texture_ptr] : m_SlotTextures)
-      texture_ptr->bind(slot);
-  glDrawElements(GL_TRIANGLES, m_verticesCount, GL_UNSIGNED_INT, nullptr);
-
-  VertexArray::unbind();
-}
-
-void Mesh::draw(int instanceCount) const
-{
-  m_VAO.bind();
-  // bind all textures
-  for (const auto &[slot, texture_ptr] : m_SlotTextures)
-      texture_ptr->bind(slot);
-  glDrawElementsInstanced(GL_TRIANGLES, m_verticesCount, GL_UNSIGNED_INT, nullptr, instanceCount);
-
-  VertexArray::unbind();
-}
-
-AABB Mesh::getBoundingBoxInstance(glm::vec3 instancePosition, glm::vec3 instanceSize) const
-{
-
   return AABB(instancePosition - (m_boudingBox.getSize() * instanceSize)/2.f, m_boudingBox.getSize() * instanceSize);
-  //return AABB(m_boudingBox.getOrigin() + instancePosition, m_boudingBox.getSize() * instanceSize);
 }
+
+InstancedMesh::InstancedMesh(const std::shared_ptr<Model> &model, const std::shared_ptr<Material> &material, size_t instanceCount, const BaseInstance *instances)
+  : m_model(model),
+    m_material(material),
+    m_instanceBuffer(instances, m_instanceSize * instanceCount),
+    m_VAO()
+{
+  m_VAO.addBuffer(model->getVBO(), BaseVertex::getVertexBufferLayout(), model->getIBO());
+  m_VAO.addInstanceBuffer(m_instanceBuffer, BaseInstance::getVertexBufferLayout(), BaseVertex::getVertexBufferLayout());
+  m_VAO.unbind();
+}
+
+InstancedMesh::InstancedMesh(InstancedMesh &&moved) noexcept
+  : m_model(std::move(moved.m_model)),
+    m_material(std::move(moved.m_material)),
+    m_VAO(std::move(moved.m_VAO)),
+    m_instanceBuffer(std::move(moved.m_instanceBuffer))
+{
+}
+
+InstancedMesh &InstancedMesh::operator=(InstancedMesh &&moved) noexcept
+{
+  this->~InstancedMesh();
+  new (this)InstancedMesh(std::move(moved));
+  return *this;
+}
+
+void InstancedMesh::updateInstances(const BaseInstance *data, size_t beginInstance, size_t endInstance)
+{
+  assert(endInstance * m_instanceSize <= m_instanceBuffer.getSize());
+  assert(beginInstance < endInstance);
+  m_instanceBuffer.bind();
+  m_instanceBuffer.updateData(data, (endInstance - beginInstance) * m_instanceSize, beginInstance * m_instanceSize);
+  m_instanceBuffer.unbind();
+}
+
+void InstancedMesh::replaceInstances(const BaseInstance *instances, size_t instanceCount)
+{
+  m_instanceBuffer.bind();
+  m_instanceBuffer.replaceData(instances, instanceCount * m_instanceSize);
+  m_instanceBuffer.unbind();
+}
+
 
 NormalsMesh::NormalsMesh()
   : m_VBO(),
@@ -107,15 +121,15 @@ NormalsMesh::NormalsMesh()
 {
 }
 
-NormalsMesh::NormalsMesh(const std::vector<Vertex> &vertices)
+NormalsMesh::NormalsMesh(const std::vector<BaseVertex> &vertices)
 {
-  std::vector<Vertex> newVertices;
+  std::vector<BaseVertex> newVertices;
   newVertices.resize(vertices.size() * 2);
   std::vector<unsigned int> newIndices;
   newIndices.resize(vertices.size() * 2);
 
   for (size_t i = 0; i < vertices.size(); i++) {
-    const Vertex &v = vertices[i];
+    const BaseVertex &v = vertices[i];
     newVertices[2*i]   = v;
     newVertices[2*i+1] = v;
     newVertices[2*i+1].position = v.position + v.normal;
@@ -123,9 +137,9 @@ NormalsMesh::NormalsMesh(const std::vector<Vertex> &vertices)
   for (size_t i = 0; i < newVertices.size(); i++)
     newIndices[i] = (unsigned int)i;
 
-  m_VBO = VertexBufferObject(newVertices.data(), sizeof(Vertex) * newVertices.size());
+  m_VBO = VertexBufferObject(newVertices.data(), sizeof(BaseVertex) * newVertices.size());
   m_IBO = IndexBufferObject(newIndices.data(), newIndices.size());
-  m_VAO.addBuffer(m_VBO, Vertex::getVertexBufferLayout(), m_IBO);
+  m_VAO.addBuffer(m_VBO, BaseVertex::getVertexBufferLayout(), m_IBO);
   m_verticesCount = (unsigned int)newVertices.size();
   VertexArray::unbind();
 }

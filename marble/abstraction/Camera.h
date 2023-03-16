@@ -26,11 +26,11 @@ struct PerspectiveProjection {
 
 /* An othographic projection projects points "without considering how far they are from the camera", use this for depth maps and such */
 struct OrthographicProjection {
-  float left;          // in world space
-  float right;         // in world space
-  float bottom;        // in world space
-  float top;           // in world space
-  float zNear = .1f;   // in world space
+  float left   = 0;    // in world space
+  float right  = 0;    // in world space
+  float bottom = 0;    // in world space
+  float top    = 0;    // in world space
+  float zNear  = .1f;  // in world space
   float zFar = 1000.f; // in world space
 
   glm::mat4 computeProjectionMatrix() const;
@@ -102,10 +102,12 @@ public:
 
 struct Plan {
 
-    glm::vec3 normal = { 0.f, 1.f, 0.f };
-    float distanceToOrigin = 0.f;
+    glm::vec3 normal;
+    float distanceToOrigin;
 
-    Plan() {}
+    Plan() :
+      normal(), distanceToOrigin(0)
+    {}
 
     Plan(const glm::vec3& pl, const glm::vec3 norm) :
         normal(glm::normalize(norm)),
@@ -138,7 +140,8 @@ struct Frustum {
 
     bool isOnFrustum(const AABB &boudingBox) const;
     
-    static Frustum createFrustumFromCamera(const Camera &cam, float aspect, float fovY, float zNear, float zFar);
+    static Frustum createFrustumFromCamera(const Camera &cam);
+    static Frustum createFrustumFromOrthographicCamera(const Camera &cam);
     static Frustum createFrustumFromPerspectiveCamera(const Camera &cam);
 
     static bool isOnOrForwardPlan(const Plan &plan, const AABB &boundingBox);

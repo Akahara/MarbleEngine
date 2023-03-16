@@ -8,54 +8,54 @@
 
 namespace Noise {
 
-float* generateNoiseMap(int mapWidth, int mapHeight, float scale, int octaves, float persistance, float initialFrequency, float lacunarity, int s) 
+ConcreteHeightMap generateNoiseMap(int mapWidth, int mapHeight, const PerlinNoiseSettings &terrainData)
 {
-	assert(scale > 0); // TODO the scale parameter does not make much sense if the noise values are inverse-lerped back to 0..1
-	assert(mapWidth > 0);
-	assert(mapHeight > 0);
-	float* noiseMap = new float[mapWidth * mapHeight]();
+  assert(terrainData.scale > 0); // TODO the scale parameter does not make much sense if the noise values are inverse-lerped back to 0..1
+  assert(mapWidth > 0);
+  assert(mapHeight > 0);
+  float *noiseMap = new float[mapWidth * mapHeight]();
 
-	const siv::PerlinNoise::seed_type seed = s;
-	const siv::PerlinNoise perlin{ seed };
+  const siv::PerlinNoise::seed_type seed = terrainData.seed;
+  const siv::PerlinNoise perlin{ seed };
 
-	float maxNoiseHeight = std::numeric_limits<float>::min();
-	float minNoiseHeight = std::numeric_limits<float>::max();
+  float maxNoiseHeight = std::numeric_limits<float>::min();
+  float minNoiseHeight = std::numeric_limits<float>::max();
 
-	float amplitude = 1;
-	float frequency = initialFrequency;
-	for (int o = 0; o < octaves; o++) {
-		for (int y = 0; y < mapHeight; y++) {
-			for (int x = 0; x < mapWidth; x++) {
-				float sampleX = x / scale * frequency;
-				float sampleY = y / scale * frequency;
-				double pValue = perlin.noise2D_01(sampleX, sampleY) * 2 - 1;
-
-				noiseMap[y * mapWidth + x] += (float)pValue * amplitude;
-			}
-		}
-		amplitude *= persistance; // persistance is [0;1]
-		frequency *= lacunarity;
-	}
-
+  float amplitude = 1;
+  float frequency = terrainData.initialFrequency;
+  for (int o = 0; o < terrainData.octaves; o++) {
 	for (int y = 0; y < mapHeight; y++) {
-		for (int x = 0; x < mapWidth; x++) {
-			float noiseHeight = noiseMap[y * mapWidth + x];
-			// Normalizing the values
-			if (noiseHeight > maxNoiseHeight) maxNoiseHeight = noiseHeight;
-			else if (noiseHeight < minNoiseHeight) minNoiseHeight = noiseHeight;
-		}
-	}
+	  for (int x = 0; x < mapWidth; x++) {
+		float sampleX = x / terrainData.scale * frequency;
+		float sampleY = y / terrainData.scale * frequency;
+		double pValue = perlin.noise2D_01(sampleX, sampleY) * 2 - 1;
 
-	for (int y = 0; y < mapHeight; y++) {
-		for (int x = 0; x < mapWidth; x++) {
-			noiseMap[y * mapWidth + x] = Mathf::inverseLerp(minNoiseHeight, maxNoiseHeight, noiseMap[y*mapWidth+x]);
-		}
+		noiseMap[y * mapWidth + x] += (float)pValue * amplitude;
+	  }
 	}
+	amplitude *= terrainData.persistence; // persistence is [0;1]
+	frequency *= terrainData.lacunarity;
+  }
 
-	return noiseMap;
+  for (int y = 0; y < mapHeight; y++) {
+	for (int x = 0; x < mapWidth; x++) {
+	  float noiseHeight = noiseMap[y * mapWidth + x];
+	  // Normalizing the values
+	  if (noiseHeight > maxNoiseHeight) maxNoiseHeight = noiseHeight;
+	  else if (noiseHeight < minNoiseHeight) minNoiseHeight = noiseHeight;
+	}
+  }
+
+  for (int y = 0; y < mapHeight; y++) {
+	for (int x = 0; x < mapWidth; x++) {
+	  noiseMap[y * mapWidth + x] = Mathf::inverseLerp(minNoiseHeight, maxNoiseHeight, noiseMap[y * mapWidth + x]) * terrainData.terrainHeight;
+	}
+  }
+
+  return ConcreteHeightMap(mapWidth, mapHeight, noiseMap);
 }
 
-float *loadNoiseMapFromFile(const char *path, unsigned int *o_width, unsigned int *o_height)
+ConcreteHeightMap loadNoiseMapFromFile(const char *path)
 {
   int mapWidth, mapHeight;
   unsigned char *buf = stbi_load(path, &mapWidth, &mapHeight, nullptr, 1);
@@ -76,32 +76,30 @@ float *loadNoiseMapFromFile(const char *path, unsigned int *o_width, unsigned in
   }
 
   stbi_image_free(buf);
-  *o_width = (unsigned int)mapWidth;
-  *o_height = (unsigned int)mapHeight;
-  return noiseMap;
+  return ConcreteHeightMap(mapWidth, mapHeight, noiseMap);
 }
 
-void rescaleNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHeight, float currentMin, float currentMax, float newMin, float newMax)
+void rescaleNoiseMap(ConcreteHeightMap *map, float currentMin, float currentMax, float newMin, float newMax)
 {
-  for (unsigned int x = 0; x < mapWidth; x++) {
-	for (unsigned int y = 0; y < mapHeight; y++) {
-	  noiseMap[x + y * mapWidth] = Mathf::mix(noiseMap[x + y * mapWidth], currentMin, currentMax, newMin, newMax);
+  for (unsigned int x = 0; x < map->getMapWidth(); x++) {
+	for (unsigned int y = 0; y < map->getMapHeight(); y++) {
+	  map->setHeightAt(x, y, Mathf::mix(map->getHeight(x, y), currentMin, currentMax, newMin, newMax));
 	}
   }
 }
 
-void outlineNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHeight, float outlineHeight, unsigned int outlineSize)
+void outlineNoiseMap(ConcreteHeightMap *map, float outlineHeight, unsigned int outlineSize)
 {
-  for (unsigned int x = 0; x < mapWidth; x++) {
+  for (unsigned int x = 0; x < map->getMapWidth(); x++) {
 	for (unsigned int y = 0; y < outlineSize; y++) {
-	  noiseMap[y * mapWidth + x] = outlineHeight;
-	  noiseMap[(mapHeight-y-1) * mapWidth + x] = outlineHeight;
+	  map->setHeightAt(x, y, outlineHeight);
+	  map->setHeightAt(x, map->getMapHeight() - y - 1, outlineHeight);
 	}
   }
-  for (unsigned int y = 0; y < mapHeight; y++) {
+  for (unsigned int y = 0; y < map->getMapHeight(); y++) {
 	for (unsigned int x = 0; x < outlineSize; x++) {
-	  noiseMap[y * mapWidth + x] = outlineHeight;
-	  noiseMap[y * mapWidth + (mapWidth-x-1)] = outlineHeight;
+	  map->setHeightAt(x, y, outlineHeight);
+	  map->setHeightAt(map->getMapWidth() - x - 1, y, outlineHeight);
 	}
   }
 }
@@ -159,7 +157,7 @@ static void initializeErosionBrush(int mapSize, int erosionRadius, std::vector<s
   }
 }
 
-static glm::vec3 computeHeightGradientOfCell(float *map, unsigned int mapSize, float posX, float posY)
+static glm::vec3 computeHeightGradientOfCell(const ConcreteHeightMap &map, float posX, float posY)
 {
   int coordX = (int)posX;
   int coordY = (int)posY;
@@ -170,10 +168,10 @@ static glm::vec3 computeHeightGradientOfCell(float *map, unsigned int mapSize, f
   // Get the gradient from the surroundings points
   // (0,0) is North west, (1,1) is south east
 
-  float heightNW = map[coordX + coordY * mapSize];
-  float heightNE = map[coordX + 1 + coordY * mapSize];
-  float heightSW = map[coordX + (coordY + 1) * mapSize];
-  float heightSE = map[coordX + 1 + (coordY + 1) * mapSize];
+  float heightNW = map.getHeight(coordX, coordY);
+  float heightNE = map.getHeight(coordX + 1, coordY);
+  float heightSW = map.getHeight(coordX, coordY + 1);
+  float heightSE = map.getHeight(coordX + 1, coordY + 1);
 
   // Compute the gradient (p.9)
 
@@ -187,8 +185,10 @@ static glm::vec3 computeHeightGradientOfCell(float *map, unsigned int mapSize, f
   return { gradientX, gradientY, height };
 }
 
-void erode(float *map, unsigned int mapSize, const ErosionSettings &settings)
+void erode(ConcreteHeightMap *heightmap, const ErosionSettings &settings)
 {
+  assert(heightmap->getMapWidth() == heightmap->getMapHeight()); // TODO non-square erosion
+  unsigned int mapSize = heightmap->getMapWidth();
   std::vector<std::vector<int>> erosionBrushIndices;
   std::vector<std::vector<float>> erosionBrushWeights;
   initializeErosionBrush(mapSize, settings.erosionRadius, erosionBrushIndices, erosionBrushWeights);
@@ -214,7 +214,7 @@ void erode(float *map, unsigned int mapSize, const ErosionSettings &settings)
 	  float cellOffsetX = posX - nodeX;
 	  float cellOffsetY = posY - nodeY;
 
-	  glm::vec3 heightAndGradient = computeHeightGradientOfCell(map, mapSize, posX, posY); // returns {g(X), g(Y), height}
+	  glm::vec3 heightAndGradient = computeHeightGradientOfCell(*heightmap, posX, posY); // returns {g(X), g(Y), height}
 	  // Update droplets pos and dir
 	  dirX = (dirX * settings.inertia - heightAndGradient.x * (1 - settings.inertia));
 	  dirY = (dirY * settings.inertia - heightAndGradient.y * (1 - settings.inertia));
@@ -236,7 +236,7 @@ void erode(float *map, unsigned int mapSize, const ErosionSettings &settings)
 	  }
 
 	  // find the droplets new height and compute deltaHeight
-	  float newHeight = computeHeightGradientOfCell(map, mapSize, posX, posY).z;
+	  float newHeight = computeHeightGradientOfCell(*heightmap, posX, posY).z;
 	  float deltaHeight = newHeight - heightAndGradient.z;
 
 	  // Calculate sediment capacity
@@ -248,10 +248,10 @@ void erode(float *map, unsigned int mapSize, const ErosionSettings &settings)
 		float amountToDeposit = (deltaHeight > 0) ? std::min(deltaHeight, sediment) : (sediment - sedimentCapacity) * settings.depositSpeed;
 		sediment -= amountToDeposit;
 
-		map[dropletID] += amountToDeposit * (1 - cellOffsetX) * (1 - cellOffsetY);
-		map[dropletID + 1] += amountToDeposit * cellOffsetX * (1 - cellOffsetY);
-		map[dropletID + mapSize] += amountToDeposit * (1 - cellOffsetX) * cellOffsetY;
-		map[dropletID + mapSize + 1] += amountToDeposit * cellOffsetX * cellOffsetY;
+		(*heightmap)[dropletID] += amountToDeposit * (1 - cellOffsetX) * (1 - cellOffsetY);
+		(*heightmap)[dropletID + 1] += amountToDeposit * cellOffsetX * (1 - cellOffsetY);
+		(*heightmap)[dropletID + mapSize] += amountToDeposit * (1 - cellOffsetX) * cellOffsetY;
+		(*heightmap)[dropletID + mapSize + 1] += amountToDeposit * cellOffsetX * cellOffsetY;
 	  } else {
 		// Erode a fraction of the droplets remaining capacity from the ground
 		// dont erode more than deltaHeight
@@ -261,8 +261,8 @@ void erode(float *map, unsigned int mapSize, const ErosionSettings &settings)
 		for (int brushPointIndex = 0; brushPointIndex < erosionBrushIndices[dropletID].size(); brushPointIndex++) {
 		  int nodeIndex = erosionBrushIndices[dropletID][brushPointIndex];
 		  float weighedErodeAmount = amountToErode * erosionBrushWeights[dropletID][brushPointIndex];
-		  float deltaSediment = (map[nodeIndex] < weighedErodeAmount) ? map[nodeIndex] : weighedErodeAmount;
-		  map[nodeIndex] -= deltaSediment;
+		  float deltaSediment = ((*heightmap)[nodeIndex] < weighedErodeAmount) ? (*heightmap)[nodeIndex] : weighedErodeAmount;
+		  (*heightmap)[nodeIndex] -= deltaSediment;
 		  sediment += deltaSediment;
 		}
 	  }

@@ -19,19 +19,20 @@ private:
   visualEffects::VFXPipeline  m_pipeline{ (int)Window::getWinWidth(), (int)Window::getWinHeight() };
 
   glm::vec3      m_sun{100,100,100};
-  Renderer::Mesh m_cube = Renderer::createCubeMesh();
+  Renderer::Mesh m_cube = Renderer::Mesh(Renderer::createCubeModel(), std::make_shared<Renderer::Material>());
 
 public:
   TestFBScene()
   {
     m_backingScene = new TestTerrainScene;
+
+    m_cube.getMaterial()->shader = Renderer::getStandardMeshShader();
     
     m_pipeline.registerEffect<visualEffects::LensMask>();
     m_pipeline.registerEffect<visualEffects::Bloom>();
     m_pipeline.registerEffect<visualEffects::Contrast>();
     m_pipeline.registerEffect<visualEffects::Saturation>();
     m_pipeline.registerEffect<visualEffects::Sharpness>();
-
     m_pipeline.registerEffect<visualEffects::GammaCorrection>();
 
     m_pipeline.sortPipeline();
@@ -58,7 +59,9 @@ public:
     m_pipeline.setContextParam<Renderer::Camera>("camera", m_backingScene->getCamera());
     m_pipeline.bind();
     m_backingScene->onRender();
-    Renderer::renderMesh(m_backingScene->getCamera(), m_sun, { 5,5,5 },m_cube);
+    m_cube.getTransform().position = m_sun;
+    m_cube.getTransform().scale = { 5,5,5 };
+    Renderer::renderMesh(m_backingScene->getCamera(), m_cube);
     m_pipeline.unbind();
       
     m_pipeline.renderPipeline();

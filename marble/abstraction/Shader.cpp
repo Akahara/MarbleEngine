@@ -131,74 +131,6 @@ namespace Renderer {
 	}
 
 
-	void ShaderManager::addShader(Shader *shader, const char *vertexPath, const char *fragmentPath, bool loadNow)
-	{
-	  m_managedShaders.push_back({ shader, vertexPath, fragmentPath });
-	  if(loadNow)
-	  	*shader = loadShaderFromFiles(vertexPath, fragmentPath);
-	  collectTestUniforms(shader, {});
-	}
-
-	bool ShaderManager::promptReloadAndUI()
-	{
-	  if (!ImGui::CollapsingHeader("Shaders"))
-		return false;
-	  bool needsUpdate = ImGui::Button("Reload shaders");
-	  if (needsUpdate)
-		reloadShaders();
-	  for (TestUniform &uniform : m_testUniforms)
-		uniform.renderImGui();
-	  return needsUpdate;
-	}
-
-	void ShaderManager::reloadShaders()
-	{
-	  std::vector<TestUniform> oldUniforms = std::move(m_testUniforms); // clear uniforms
-
-	  for (ManagedShader &m : m_managedShaders) {
-		*m.shader = loadShaderFromFiles(m.vertexPath, m.fragmentPath);
-		collectTestUniforms(m.shader, oldUniforms);
-	  }
-	}
-
-	static void restorePreviousValue(TestUniform &uniform, const std::vector<TestUniform> &previousUniforms)
-	{
-	  for (const TestUniform &u : previousUniforms) {
-		if (u.getName() == uniform.getName()) {
-		  switch (uniform.getSize()) {
-		  case 1: uniform.setValue<1>(u.getValue()); break;
-		  case 2: uniform.setValue<2>(u.getValue()); break;
-		  case 3: uniform.setValue<3>(u.getValue()); break;
-		  case 4: uniform.setValue<4>(u.getValue()); break;
-		  }
-		  break;
-		}
-	  }
-	}
-
-	void ShaderManager::collectTestUniforms(Shader *shader, const std::vector<TestUniform> &previousUniforms)
-	{
-	  // scan for "t_*" uniforms
-	  constexpr size_t bufSize = 32;
-	  char uniformName[bufSize];
-	  int uniformNameLength;
-	  int uniformSize; // size of an uniform array (1 if non-array type)
-	  GLenum uniformType;
-	  int uniformsCount;
-	  glGetProgramiv(shader->getId(), GL_ACTIVE_UNIFORMS, &uniformsCount);
-	  for (int i = 0; i < uniformsCount; i++) {
-		glGetActiveUniform(shader->getId(), (GLuint)i, bufSize, &uniformNameLength, &uniformSize, &uniformType, uniformName);
-		if (strstr(uniformName, "t_") == uniformName && uniformSize == 1) {
-		  switch (uniformType) {
-		  case GL_FLOAT:      restorePreviousValue(m_testUniforms.emplace_back(shader, uniformName, 1), previousUniforms); break;
-		  case GL_FLOAT_VEC2: restorePreviousValue(m_testUniforms.emplace_back(shader, uniformName, 2), previousUniforms); break;
-		  case GL_FLOAT_VEC3: restorePreviousValue(m_testUniforms.emplace_back(shader, uniformName, 3), previousUniforms); break;
-		  case GL_FLOAT_VEC4: restorePreviousValue(m_testUniforms.emplace_back(shader, uniformName, 4), previousUniforms); break;
-		  }
-		}
-	  }
-	}
-
 	void TestUniform::renderImGui()
 	{
 	  switch (m_size) {
@@ -219,13 +151,13 @@ namespace Renderer {
 	  }
 	}
 
-	Shader ShaderFactory::build() const
+	std::shared_ptr<Shader> ShaderFactory::build() const
 	{
 	  int shaderID = glCreateProgram();
 	  for(int partID : m_parts)
 		glAttachShader(shaderID, partID);
 	  glLinkProgram(shaderID);
-	  return Shader(shaderID);
+	  return std::shared_ptr<Shader>(new Shader(shaderID));
 	}
 
 	void ShaderFactory::addPart(const std::string &source, int glType)
@@ -284,7 +216,7 @@ namespace Renderer {
 
 	BlitPass::BlitPass(const fs::path &fragmentShaderPath)
 	{
-	  m_shader = loadShaderFromFiles("res/shaders/blit.vs", fragmentShaderPath);
+	  m_shader = std::move(*loadShaderFromFiles("res/shaders/blit.vs", fragmentShaderPath));
 	  m_keepAliveIBO = IndexBufferObject({ 0, 2, 1, 3, 2, 0 });
 	  m_vao.addBuffer(m_keepAliveVBO, VertexBufferLayout{}, m_keepAliveIBO);
 	  VertexArray::unbind();
@@ -292,17 +224,19 @@ namespace Renderer {
 
 	void BlitPass::setShader(const fs::path &fs)
 	{
-	  m_shader = loadShaderFromFiles("res/shaders/blit.vs", fs);
+	  m_shader = std::move(*loadShaderFromFiles("res/shaders/blit.vs", fs));
 	}
 
 	void BlitPass::doBlit()
 	{
 	  Renderer::clear();
+	  for (unsigned int slot = 0; slot < m_textures.size(); slot++)
+		if (m_textures[slot])
+		  m_textures[slot]->bind(slot);
 	  m_shader.bind();
 	  m_vao.bind();
 	  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 	  m_shader.unbind();
-	  Texture::unbind();
 	  VertexArray::unbind();
 	}
 };

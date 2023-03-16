@@ -1,22 +1,20 @@
 #pragma once
 
 #include "../Scene.h"
+
+#include <vector>
+
 #include "../../abstraction/Cubemap.h"
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../abstraction/Mesh.h"
 #include "../../World/Player.h"
 #include "../../World/TerrainGeneration/HeightMap.h"
 #include "../../World/TerrainGeneration/Noise.h"
-
-#include "../../World/Water/WaterSource.h"
+#include "../../World/TerrainGeneration/Terrain.h"
 #include "../../World/Water/WaterRenderer.h"
 #include "../../World/Water/Water.h"
-
-
 #include "../../Utils/AABB.h"
 #include "../Scenes/TestShadows.h"
-
-#include <vector>
 
 class TestWater : public Scene {
 private:
@@ -29,52 +27,37 @@ private:
 
     /* Terrain generation stuff */
     Renderer::Mesh       m_terrainMesh;
-    Terrain::Terrain     m_terrain;      // holds heightmap and chunksize
-    Noise::TerrainData   m_terrainData;  // < This holds default and nice configuration for the terrain
-    unsigned int         m_terrainWidthInChunks = 10, m_terrainHeightInChunks = 10;
-    int                  m_chunkSize = 16;
+    Renderer::TerrainMesh m_terrain;      // holds heightmap and chunksize
 
     /*  Water Stuff */    
     World::Water      m_water;
     World::Sky        m_sky;
     float             m_realTime = 0;
 
-    /* Rendering stuff */
-    Renderer::Frustum m_frustum;
-
-    Renderer::Texture m_rockTexture = Renderer::Texture("res/textures/rock.jpg");
-    Renderer::Texture m_grassTexture = Renderer::Texture("res/textures/rock.jpg");
-
-    //=====================================================================================================================//
-
 public:
     TestWater()
     {
-        m_rockTexture.bind(0);
-        m_grassTexture.bind(1);
-
         m_player.setPostion({ 100.f, 22.F , 100.f });
         m_player.updateCamera();
 
-        int samplers[8] = { 0,1,2,3,4,5,6,7 };
-        Renderer::getStandardMeshShader().bind();
-        Renderer::getStandardMeshShader().setUniform1iv("u_Textures2D", 8, samplers);
+        auto terrainMaterial = std::make_shared<Renderer::Material>();
+        terrainMaterial->shader = Renderer::getStandardMeshShader();
+        terrainMaterial->textures[0] = std::make_shared<Renderer::Texture>("res/textures/rock.jpg");
+        terrainMaterial->textures[1] = std::make_shared<Renderer::Texture>("res/textures/rock.jpg");
+        
+        Noise::PerlinNoiseSettings perlin{}; // use default values
+        Noise::ConcreteHeightMap terrainHeightmap = Noise::generateNoiseMap(100, 100, perlin);
+        m_terrain.setMaterial(terrainMaterial);
+        m_terrain.rebuildMesh(terrainHeightmap, {0,0, 100,100});
 
-        m_terrain = Terrain::generateTerrain(
-            m_terrainData,
-            m_terrainWidthInChunks,
-            m_terrainHeightInChunks,
-            m_chunkSize);
-
-        m_frustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(m_player.getCamera());
-        m_water.addSource(0);
+        m_water.addSource({50,10,50},{100,100});
     }
+
     void step(float delta) override
     {
         m_realTime += delta;
         m_player.step(delta);
         m_water.updateMoveFactor(delta);
-        m_frustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(m_player.getCamera());
     }
 
     void renderScene()
@@ -82,25 +65,14 @@ public:
         Renderer::Camera& camera = m_player.getCamera();
         Renderer::clear();
 
-        m_rockTexture.bind(0);
-        m_grassTexture.bind(1);
-
-        for (const auto& [position, chunk] : m_terrain.getChunks()) {
-            const AABB& chunkAABB = chunk.getMesh().getBoundingBox();
-
-            bool isVisible = m_frustum.isOnFrustum(chunkAABB);
-
-            if (isVisible) {
-                Renderer::renderMesh(camera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
-            }
-        }
+        Renderer::renderMeshTerrain(camera, m_terrain);
 
         m_sky.render(camera, m_realTime);
     }
 
     void onRender() override
     {
-        m_water.onRender([this]() -> void { renderScene(); }, getCamera() );
+        m_water.onRender([this]() { renderScene(); }, getCamera() );
     }
 
     void onImGuiRender() override

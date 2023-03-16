@@ -56,14 +56,15 @@ namespace Renderer::SkyRenderer {
 
 static struct KeepAliveResources {
   Mesh planeMesh;
-  Shader cloudsShader;
+  std::shared_ptr<Shader> cloudsShader;
 } *keepAliveResources;
 
 void init()
 {
   keepAliveResources = new KeepAliveResources;
-  keepAliveResources->planeMesh = Renderer::createPlaneMesh(true);
+  keepAliveResources->planeMesh = Mesh(Renderer::createPlaneModel(true), std::make_shared<Renderer::Material>());
   keepAliveResources->cloudsShader = Renderer::loadShaderFromFiles("res/shaders/clouds.vs", "res/shaders/clouds.fs");
+  keepAliveResources->planeMesh.getMaterial()->shader = keepAliveResources->cloudsShader;
 }
 
 void drawSkyClouds(const Camera &camera, float time)
@@ -74,14 +75,15 @@ void drawSkyClouds(const Camera &camera, float time)
   // beware! if vertices go too far outside the clip range after the vertex shader
   // transformation, some may flicker, making triangles break and the whole plane
   // falling appart
-  M = glm::translate(M, camera.getPosition() + glm::vec3{ 0, .3f, 0 });
-  M = glm::scale(M, { 5.f, 1.f, 5.f });
-  keepAliveResources->cloudsShader.bind();
-  keepAliveResources->cloudsShader.setUniformMat4f("u_M", M);
-  keepAliveResources->cloudsShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
-  keepAliveResources->cloudsShader.setUniform2f("u_worldOffset", { camera.getPosition().x, camera.getPosition().z });
-  keepAliveResources->cloudsShader.setUniform1f("u_time", time);
-  keepAliveResources->planeMesh.draw();
+  // // FIX sky renderer
+  //M = glm::translate(M, camera.getPosition() + glm::vec3{ 0, .3f, 0 });
+  //M = glm::scale(M, { 5.f, 1.f, 5.f });
+  //keepAliveResources->cloudsShader.bind();
+  //keepAliveResources->cloudsShader.setUniformMat4f("u_M", M);
+  //keepAliveResources->cloudsShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+  //keepAliveResources->cloudsShader.setUniform2f("u_worldOffset", { camera.getPosition().x, camera.getPosition().z });
+  //keepAliveResources->cloudsShader.setUniform1f("u_time", time);
+  //keepAliveResources->planeMesh.draw();
   glDepthFunc(GL_LESS);
   glDepthMask(true);
 }

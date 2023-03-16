@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-namespace Terrain {
+namespace Noise {
 
 /**
 * An heightmap is a "2D continuous grid", it maps every xy position to a height (z) value.
@@ -30,6 +30,7 @@ public:
 
   virtual float getHeight(int x, int y) const = 0;
   float getHeightLerp(float x, float y) const;
+  float operator()(float x, float y) const { return getHeightLerp(x, y); }
 };
 
 /**

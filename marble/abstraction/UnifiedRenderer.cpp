@@ -22,18 +22,17 @@
 namespace Renderer {
 
 static struct KeepAliveResources {
-  Shader             standardMeshShader;
-  Shader             standardLineShader;
-  Shader             standardLightsShader;
-  Shader             cubemapShader;
-  Shader             debugNormalsShader;
-  Shader             standardDepthPassShader;
+  std::shared_ptr<Shader> standardMeshShader;
+  std::shared_ptr<Shader> standardLineShader;
+  std::shared_ptr<Shader> standardLightsShader;
+  std::shared_ptr<Shader> cubemapShader;
+  std::shared_ptr<Shader> debugNormalsShader;
+  std::shared_ptr<Shader> standardDepthPassShader;
+  std::shared_ptr<Shader> debugFlatScreenShader;
+  std::shared_ptr<Shader> deferredGeometryPass; // This should be constructed and given later, but as of now, this will be fine (only 3 color attachments)
 
-  Shader             deferredGeometryPass; // This should be constructed and given later, but as of now, this will be fine (only 3 color attachments)
+  std::shared_ptr<Texture> missingTextureTexture;
 
-  Shader             debugFlatScreenShader;
-
-  Shader             debugCubeShader;
   Mesh               debugCubeMesh;
   VertexArray        cubemapVAO;
   VertexBufferObject cubemapVBO;
@@ -41,10 +40,10 @@ static struct KeepAliveResources {
   VertexArray        lineVAO;
   IndexBufferObject  lineIBO;
   VertexBufferObject emptyVBO; // used by the line vao
+  VertexArray        debugUIQuadVAO;
+  VertexBufferObject debugUIQuadVBO;
+  IndexBufferObject  debugUIQuadIBO;
 } *s_keepAliveResources = nullptr;
-
-
-
 
 static struct State {
   Shader *activeStandardShader;
@@ -53,28 +52,26 @@ static struct State {
 
 
 /* Choose between FORWARD, DEFERRED, FORWARD_PLUS */
-void setRenderingState(RenderingState state) {
-
-
+void setRenderingState(RenderingState state)
+{
     if (s_keepAliveResources == nullptr)
         throw std::runtime_error("Cannot fetch resources until the renderer is initialized");
 
     s_state.renderingState = state;
 
     switch (state) {
-        case DEFERRED:
-            s_state.activeStandardShader = &s_keepAliveResources->deferredGeometryPass;
-            break;
-        default:
-            s_state.activeStandardShader = &s_keepAliveResources->standardMeshShader;
+    case DEFERRED:
+        s_state.activeStandardShader = s_keepAliveResources->deferredGeometryPass.get();
+        break;
+    default:
+        s_state.activeStandardShader = s_keepAliveResources->standardMeshShader.get();
+        break;
     }
-
-
 }
 
 
 // Should be somewhere else, why would the renderer be the one to import shaders?
-Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath)
+std::shared_ptr<Shader> loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath)
 {
   std::ifstream vertexFile{ vertexPath };
   std::ifstream fragmentFile{ fragmentPath };
@@ -84,24 +81,20 @@ Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentP
   buffer.str("");
   buffer << fragmentFile.rdbuf();
   std::string fragmentCode = buffer.str();
-  return Shader{ vertexCode, fragmentCode };
+  return std::make_shared<Shader>(vertexCode, fragmentCode);
 }
 
-
-
-Mesh createCubeMesh()
+std::shared_ptr<Model> createCubeModel()
 {
-  return loadMeshFromFile("res/meshes/cube.obj");
+  return loadMeshFromFile("res/meshes/cube.obj").getModel(); // FIX have a single cube model loaded at all times
 }
 
-
-Mesh createSphereMesh(int resolution/*=10*/) {
-    
+std::shared_ptr<Model> createSphereModel(int resolution/*=10*/) {
 
     int sectorCount = resolution;
     int stackCount = resolution;
 
-    std::vector<Vertex> vertices;
+    std::vector<BaseVertex> vertices;
     std::vector<unsigned int> indices;
 
     float x, y, z, xy;                              // vertex position
@@ -144,7 +137,7 @@ Mesh createSphereMesh(int resolution/*=10*/) {
             glm::vec3 color = { 1,0,0 };
             glm::vec2 uv = { s,t };
 
-            vertices.push_back(Vertex{ position, uv,normal, color });
+            vertices.push_back(BaseVertex{ position, uv,normal, color });
 
         }
     }
@@ -176,20 +169,21 @@ Mesh createSphereMesh(int resolution/*=10*/) {
         }
     }
 
-    return Mesh{ vertices, indices };
+    return std::make_shared<Model>(vertices, indices);
 }
-Mesh createPlaneMesh(bool facingDown)
+
+std::shared_ptr<Model> createPlaneModel(bool facingDown)
 {
-  std::vector<Vertex> vertices{
+  std::vector<BaseVertex> vertices{
     // position             uv            normal (up)         // color
-    { { -.5f, 0.f, -.5f }, { 1.f, 1.f }, { 0, 1.f, 0 }, {0.0f, 0.0f, 1.0f}, },
-    { { -.5f, 0.f, +.5f }, { 1.f, 0.f }, { 0, 1.f, 0 }, {0.0f, 0.0f, 1.0f}, },
-    { { +.5f, 0.f, +.5f }, { 0.f, 0.f }, { 0, 1.f, 0 }, {0.0f, 0.0f, 1.0f}, },
-    { { +.5f, 0.f, -.5f }, { 0.f, 1.f }, { 0, 1.f, 0 }, {0.0f, 0.0f, 1.0f}, },
+    { { -.5f, 0.f, -.5f }, { 1.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+    { { -.5f, 0.f, +.5f }, { 1.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, 0.f, +.5f }, { 0.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+    { { +.5f, 0.f, -.5f }, { 0.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
   };
   using i = std::initializer_list<unsigned int>;
   std::vector<unsigned int> indices{ facingDown ? i{1,0,2, 3,2,0} : i{0,1,2, 2,3,0} };
-  return Mesh(vertices, indices);
+  return std::make_shared<Model>(vertices, indices);
 }
 
 static void skipStreamText(std::istream &stream, const char *text)
@@ -204,13 +198,9 @@ static void skipStreamText(std::istream &stream, const char *text)
   }
 }
 
-
-
-
 // Move this somewhere else
 Mesh loadMeshFromFile(const fs::path& objPath)
 {
-
     // TODO : read the MTL file, and try to find the correct filename for the materials
   std::ifstream modelFile{ objPath };
   constexpr size_t bufSize = 100;
@@ -220,7 +210,7 @@ Mesh loadMeshFromFile(const fs::path& objPath)
   std::vector<glm::vec3> normals;
   std::vector<glm::vec2> uvs;
   std::unordered_map<int, std::shared_ptr<Texture>> slotsTextures = {
-      {0, std::make_shared<Texture>("res/textures/no_texture.png") }
+      { 0, s_keepAliveResources->missingTextureTexture }
   };
 
   std::unordered_map<std::string, std::string> cacheMatFile;
@@ -235,11 +225,10 @@ Mesh loadMeshFromFile(const fs::path& objPath)
 
   uvs.emplace_back();
 
-
   std::vector<std::tuple<int, int, int>> cachedVertices;
   unsigned int previousCachedVertices = 0;
   std::vector<unsigned int> indices;
-  std::vector<Vertex> vertices;
+  std::vector<BaseVertex> vertices;
 
   if (!modelFile.good())
     throw std::runtime_error("Could not open model file");
@@ -282,7 +271,7 @@ Mesh loadMeshFromFile(const fs::path& objPath)
             std::tuple<int, int, int> cacheKey{ i1, i2, i3 };
             auto inCacheIndex = std::find(cachedVertices.begin(), cachedVertices.end(), cacheKey);
             if (inCacheIndex == cachedVertices.end()) {
-                vertices.emplace_back(Vertex{ positions[i1], uvs[i2], normals[i3], {1,0,0}, (float)currentTextureSlot });
+                vertices.emplace_back(BaseVertex{ positions[i1], uvs[i2], normals[i3], {1,0,0}, (float)currentTextureSlot });
                 indices.push_back(previousCachedVertices + (unsigned int)cachedVertices.size());
                 cachedVertices.push_back(cacheKey);
             } else {
@@ -323,7 +312,6 @@ Mesh loadMeshFromFile(const fs::path& objPath)
 
       /* Read the file and compute the hashmap accordingly */
       while (matfile.good()) {
-
           matfile.getline(buf, bufSize);
           if (buf[0] == '#')
               continue;
@@ -335,26 +323,15 @@ Mesh loadMeshFromFile(const fs::path& objPath)
           std::stringstream ss;
           ss.str(buf + space + 1);
           if (strstr(buf, "newmtl ") == buf) {
-              
               ss >> cachedMaterialName;
-          }
-          else if (strstr(buf, "map_Kd ") == buf) {
-
+          } else if (strstr(buf, "map_Kd ") == buf) {
               std::string textureFileName;
               ss >> textureFileName;
-
-         
               std::string file_path = "res/textures/" + textureFileName;
-
               //std::cout << "Material : " + cachedMaterialName + " uses texture : " + textureFileName << std::endl;
-              
               material_texturefilepath_map[cachedMaterialName] = file_path;
-
-
           }
-
       }
-
 
       // Loop through the materials found in the obj file, and produce ptr to textures for each material
       for (int i = 0; i < materials_slots.size(); i++) {
@@ -365,7 +342,6 @@ Mesh loadMeshFromFile(const fs::path& objPath)
 
           std::string texturePath;
           if (!material_texturefilepath_map.contains(material_name)) {
-
               std::cout << " === Warning : texture \" " << material_name << " \" has no texture in " + mtllib + " file !" << std::endl;
               computed = std::make_shared<Texture>("res/textures/no_texture.png");
               continue;
@@ -375,18 +351,28 @@ Mesh loadMeshFromFile(const fs::path& objPath)
           if ((stat(texturePath.c_str(), &buffer) != 0)) {
               std::cout << " === Warning : Texture \" " << texturePath << " \" was not found ! " << std::endl;
               computed = std::make_shared<Texture>("res/textures/no_texture.png");
-          }
-          else {
+          } else {
               computed = std::make_shared<Texture>(texturePath);
           }
-
 
           slotsTextures[i] = computed;
       }
 
   }
 
-  return Mesh(vertices, indices, slotsTextures);
+  auto material = std::make_shared<Material>();
+  auto model = std::make_shared<Model>(vertices, indices);
+
+  material->shader = getStandardMeshShader();
+  for (auto &[slot, texture] : slotsTextures)
+    material->textures[slot] = texture;
+
+  return Mesh(model, material);
+}
+
+const std::shared_ptr<Texture> &getMissingTexture()
+{
+  return s_keepAliveResources->missingTextureTexture;
 }
 
 void clear()
@@ -407,11 +393,13 @@ void init()
   // DEFERRED SHADER HERE
   s_keepAliveResources->deferredGeometryPass = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/gBuffer.fs");
   
+  s_keepAliveResources->missingTextureTexture = std::make_shared<Texture>("res/textures/no_texture.png");
+
   s_keepAliveResources->lineIBO = IndexBufferObject({ 0, 1 });
   s_keepAliveResources->lineVAO.addBuffer(s_keepAliveResources->emptyVBO, emptyLayout, s_keepAliveResources->lineIBO);
 
-  s_keepAliveResources->debugCubeMesh = createCubeMesh();
-  s_keepAliveResources->debugCubeShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_color.fs");
+  s_keepAliveResources->debugCubeMesh = Mesh(createCubeModel(), std::make_shared<Material>());
+  s_keepAliveResources->debugCubeMesh.getMaterial()->shader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_color.fs");
   s_keepAliveResources->debugNormalsShader = loadShaderFromFiles("res/shaders/standard.vs", "res/shaders/standard_color.fs");
   s_keepAliveResources->debugFlatScreenShader = loadShaderFromFiles("res/shaders/debugFlatScreen.vs", "res/shaders/debugFlatScreen.fs");
 
@@ -449,8 +437,15 @@ void init()
     s_keepAliveResources->cubemapVAO.addBuffer(s_keepAliveResources->cubemapVBO, layout, s_keepAliveResources->cubemapIBO);
   }
 
-  s_state.activeStandardShader = &s_keepAliveResources->standardMeshShader;
+  { // debugUIQuad setup
+    std::array<unsigned int, 6> indices{ 3,2,0, 1,0,2 };
+    s_keepAliveResources->debugUIQuadVBO = VertexBufferObject(nullptr, sizeof(BaseVertex) * 12);
+    s_keepAliveResources->debugUIQuadIBO = IndexBufferObject(indices.data(), indices.size());
+    s_keepAliveResources->debugUIQuadVAO.addBuffer(s_keepAliveResources->debugUIQuadVBO, BaseVertex::getVertexBufferLayout(), s_keepAliveResources->debugUIQuadIBO);
+  }
+
   s_state.renderingState = FORWARD;
+  s_state.activeStandardShader = s_keepAliveResources->standardMeshShader.get();
 
   int samplers[8] = { 0,1,2,3,4,5,6,7 };
   s_state.activeStandardShader->bind();
@@ -464,14 +459,14 @@ void shutdown()
   delete s_keepAliveResources;
 }
 
-Shader &rebuildStandardMeshShader(const ShaderFactory &builder)
+const std::shared_ptr<Shader> &rebuildStandardMeshShader(const ShaderFactory &builder)
 {
   if (s_keepAliveResources == nullptr)
     throw std::runtime_error("Cannot fetch resources until the renderer is initialized");
   return s_keepAliveResources->standardMeshShader = builder.build();
 }
 
-Shader &getStandardMeshShader()
+const std::shared_ptr<Shader> &getStandardMeshShader()
 {
   if (s_keepAliveResources == nullptr)
     throw std::runtime_error("Cannot fetch resources until the renderer is initialized");
@@ -482,39 +477,109 @@ void beginColorPass()
 {
   glEnable(GL_MULTISAMPLE);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  s_state.activeStandardShader = &s_keepAliveResources->standardMeshShader;
+  s_state.activeStandardShader = s_keepAliveResources->standardMeshShader.get();
 }
 
 void beginDepthPass()
 {
   glDisable(GL_MULTISAMPLE);
   glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);  // do not draw color during a depth pass
-  s_state.activeStandardShader = &s_keepAliveResources->standardDepthPassShader;
+  s_state.activeStandardShader = s_keepAliveResources->standardDepthPassShader.get();
 }
 
-void renderMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const Mesh &mesh, const Rotation& rotation/* = 0° on X_AXIS*/)
+static inline void bindMaterial(const Material &material)
+{
+  material.shader->bind();
+  for (unsigned int i = 0; i < material.textures.size(); i++)
+    if (material.textures[i])
+      material.textures[i]->bind(i);
+}
+
+static inline glm::mat4 transformToMMatrix(const Transform &transform)
+{
+  glm::mat4 M(1.f);
+  M = glm::translate(M, transform.position);
+  M = glm::scale(M, transform.scale);
+  M = M * glm::toMat4(transform.rotation);
+  return M;
+}
+
+void renderMesh(const Camera &camera, const Mesh &mesh)
+{
+  s_debugData.meshCount++; // TODO add s_debugData.drawCalls
+  s_debugData.vertexCount += mesh.getModel()->getVertexCount();
+
+  Material &material = *mesh.getMaterial();
+  Shader &shader = *material.shader;
+
+  // bindings
+  mesh.getVAO().bind();
+  bindMaterial(material);
+  // uniforms
+  shader.setUniform3f("u_cameraPos", camera.getPosition());
+  shader.setUniformMat4f("u_M", transformToMMatrix(mesh.getTransform()));
+  shader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+  // draw call
+  glDrawElements(GL_TRIANGLES, mesh.getModel()->getVertexCount(), GL_UNSIGNED_INT, nullptr);
+  // unbind
+  VertexArray::unbind();
+  Shader::unbind();
+}
+
+void renderMeshInstanced(const Camera &camera, const InstancedMesh &mesh)
+{
+  renderMeshInstanced(camera, mesh, mesh.getInstanceCount());
+}
+
+void renderMeshInstanced(const Camera &camera, const InstancedMesh &mesh, size_t instanceCount)
+{
+  assert(instanceCount <= mesh.getInstanceCount());
+  s_debugData.meshCount++;
+  s_debugData.vertexCount += mesh.getModel()->getVertexCount() * instanceCount;
+
+  Material &material = *mesh.getMaterial();
+  Shader &shader = *material.shader;
+
+  // bindings
+  mesh.getVAO().bind();
+  bindMaterial(material);
+  // uniforms
+  shader.setUniform3f("u_cameraPos", camera.getPosition());
+  shader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+  // draw call
+  glDrawElementsInstanced(GL_TRIANGLES, mesh.getModel()->getVertexCount(), GL_UNSIGNED_INT, nullptr, (GLsizei)instanceCount);
+  // unbind
+  VertexArray::unbind();
+  Shader::unbind();
+  
+}
+
+void renderMeshTerrain(const Camera &camera, const TerrainMesh &mesh)
 {
   s_debugData.meshCount++;
-  s_debugData.vertexCount += mesh.getVertexCount();
+  Material &material = *mesh.getMaterial();
+  Shader &shader = *material.shader;
+  Frustum frustum = Frustum::createFrustumFromCamera(camera);
+  
+  // bindings
+  bindMaterial(material);
+  // uniforms
+  shader.setUniform3f("u_cameraPos", camera.getPosition());
+  shader.setUniformMat4f("u_M", transformToMMatrix(mesh.getTransform()));
+  shader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
 
-  glm::mat4 M(1.f);
-  M = glm::translate(M, position);
-  M = glm::scale(M, size);
+  for (const TerrainMesh::Chunk &chunk : mesh.getChunks()) {
+    if (!frustum.isOnFrustum(chunk.worldBoundingBox))
+      continue;
+    // draw call
+    chunk.vao.bind();
+    glDrawElements(GL_TRIANGLES, (int)mesh.getIBO().getCount(), GL_UNSIGNED_INT, nullptr);
+    s_debugData.vertexCount += mesh.getIBO().getCount();
+  }
 
-  glm::vec3 axis{ 0.F, 0.F, 0.F };
-
-  axis.x = (rotation.axis & 1 << 0) != 0;
-  axis.y = (rotation.axis & 1 << 1) != 0;
-  axis.z = (rotation.axis & 1 << 2) != 0;
-
-  M = glm::rotate(M, glm::radians(rotation.theta), axis);
-
-  s_state.activeStandardShader->bind();
-  s_state.activeStandardShader->setUniform3f("u_cameraPos", camera.getPosition());
-  s_state.activeStandardShader->setUniformMat4f("u_M", M);
-  s_state.activeStandardShader->setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
-  mesh.draw();
-  s_keepAliveResources->standardMeshShader.unbind();
+  // unbind
+  VertexArray::unbind();
+  Shader::unbind();
 }
 
 void renderNormalsMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const NormalsMesh &normalsMesh, const glm::vec4 &color)
@@ -525,10 +590,10 @@ void renderNormalsMesh(const Camera &camera, const glm::vec3 &position, const gl
   glm::mat4 M(1.f);
   M = glm::translate(M, position);
   M = glm::scale(M, size);
-  s_keepAliveResources->debugNormalsShader.bind();
-  s_keepAliveResources->debugNormalsShader.setUniform4f("u_color", color);
-  s_keepAliveResources->debugNormalsShader.setUniformMat4f("u_M", M);
-  s_keepAliveResources->debugNormalsShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+  s_keepAliveResources->debugNormalsShader->bind();
+  s_keepAliveResources->debugNormalsShader->setUniform4f("u_color", color);
+  s_keepAliveResources->debugNormalsShader->setUniformMat4f("u_M", M);
+  s_keepAliveResources->debugNormalsShader->setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
   normalsMesh.draw();
 }
 
@@ -537,9 +602,9 @@ void renderNormalsMesh(const Camera &camera, const glm::vec3 &position, const gl
 void renderCubemap(const Camera &camera, const Cubemap &cubemap)
 {
   s_keepAliveResources->cubemapVAO.bind();
-  s_keepAliveResources->cubemapShader.bind();
-  s_keepAliveResources->cubemapShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
-  s_keepAliveResources->cubemapShader.setUniform3f("u_displacement", camera.getPosition());
+  s_keepAliveResources->cubemapShader->bind();
+  s_keepAliveResources->cubemapShader->setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+  s_keepAliveResources->cubemapShader->setUniform3f("u_displacement", camera.getPosition());
   cubemap.bind();
 
   /*
@@ -557,7 +622,7 @@ void renderCubemap(const Camera &camera, const Cubemap &cubemap)
   glDepthFunc(GL_LESS);
 
   VertexArray::unbind();
-  s_keepAliveResources->cubemapShader.unbind();
+  Shader::unbind();
 }
 
 void renderDebugLine(const Camera &camera, const glm::vec3 &from, const glm::vec3 &to, const glm::vec4 &color)
@@ -565,24 +630,20 @@ void renderDebugLine(const Camera &camera, const glm::vec3 &from, const glm::vec
   s_debugData.debugLines++;
   s_debugData.vertexCount += 2;
   s_keepAliveResources->lineVAO.bind();
-  s_keepAliveResources->standardLineShader.bind();
-  s_keepAliveResources->standardLineShader.setUniform3f("u_from", from);
-  s_keepAliveResources->standardLineShader.setUniform3f("u_to", to);
-  s_keepAliveResources->standardLineShader.setUniform4f("u_color", color);
-  s_keepAliveResources->standardLineShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
+  s_keepAliveResources->standardLineShader->bind();
+  s_keepAliveResources->standardLineShader->setUniform3f("u_from", from);
+  s_keepAliveResources->standardLineShader->setUniform3f("u_to", to);
+  s_keepAliveResources->standardLineShader->setUniform4f("u_color", color);
+  s_keepAliveResources->standardLineShader->setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
   glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, nullptr);
 }
 
 void renderDebugCube(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const glm::vec4 &color)
 {
-  glm::mat4 M(1.f);
-  M = glm::translate(M, position);
-  M = glm::scale(M, size);
-  s_keepAliveResources->debugCubeShader.bind();
-  s_keepAliveResources->debugCubeShader.setUniform4f("u_color", color);
-  s_keepAliveResources->debugCubeShader.setUniformMat4f("u_M", M);
-  s_keepAliveResources->debugCubeShader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
-  s_keepAliveResources->debugCubeMesh.draw();
+  s_keepAliveResources->debugCubeMesh.setTransform({ position, size });
+  s_keepAliveResources->debugCubeMesh.getMaterial()->shader->bind();
+  s_keepAliveResources->debugCubeMesh.getMaterial()->shader->setUniform4f("u_color", color);
+  renderMesh(camera, s_keepAliveResources->debugCubeMesh);
 }
 
 void renderDebugAxis(const Camera &camera)
@@ -694,32 +755,30 @@ void renderDebugCameraOutline(const Camera &viewCamera, const Camera &outlinedCa
 
 void renderDebugGUIQuadWithTexture(const Texture& texture, glm::vec2 positionOnScreen, glm::vec2 size)
 {
-    // TODO store a plane mesh in a static variable and rotate,translate&scale at each call
-    std::vector<Vertex> vertices{
-        // position                                                          uv            normal (up)    color
-        { { positionOnScreen.x,          positionOnScreen.y,          0.f }, { 1.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
-        { { positionOnScreen.x,          positionOnScreen.y + size.y, 0.f }, { 1.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
-        { { positionOnScreen.x + size.x, positionOnScreen.y + size.y, 0.f }, { 0.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
-        { { positionOnScreen.x + size.x, positionOnScreen.y,          0.f }, { 0.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
-    };
+  s_debugData.meshCount++;
+  s_debugData.vertexCount += 6;
 
-    std::vector<unsigned int> indices{
-      3, 2, 0, 1,0,2
-    };
+  std::array vertices{
+    //            position                                                           uv            normal (up)   color
+    BaseVertex{ { positionOnScreen.x,          positionOnScreen.y,          0.f }, { 1.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+    BaseVertex{ { positionOnScreen.x,          positionOnScreen.y + size.y, 0.f }, { 1.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+    BaseVertex{ { positionOnScreen.x + size.x, positionOnScreen.y + size.y, 0.f }, { 0.f, 0.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+    BaseVertex{ { positionOnScreen.x + size.x, positionOnScreen.y,          0.f }, { 0.f, 1.f }, { 0, 1.f, 0 }, {1.0f, 1.0f, 0.0f}, },
+  };
 
-    Mesh gui{ vertices, indices };
+  s_keepAliveResources->debugUIQuadVAO.bind();
+  s_keepAliveResources->debugUIQuadVBO.updateData(vertices.data(), sizeof(vertices));
 
-    s_keepAliveResources->debugFlatScreenShader.bind();
-    texture.bind(0);
-    s_keepAliveResources->debugFlatScreenShader.setUniform1i("u_texture", 0);
-    gui.draw();
+  texture.bind(0);
+  s_keepAliveResources->debugFlatScreenShader->bind();
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
 // This method should be somewhere else / WIP
 void setUniformPointLights(const std::vector<Light>& pointLights)
 {
-    s_keepAliveResources->standardMeshShader.bind();
-    s_keepAliveResources->standardMeshShader.setUniform1i("u_numberOfLights", (int)pointLights.size());
+    s_keepAliveResources->standardLightsShader->bind();
+    s_keepAliveResources->standardLightsShader->setUniform1i("u_numberOfLights", (int)pointLights.size());
 
     for (int i = 0; i < pointLights.size(); i++) {
         const Light& light = pointLights.at(i);
@@ -729,19 +788,16 @@ void setUniformPointLights(const std::vector<Light>& pointLights)
         ss << i;
         ss << "].";
         std::string lightInShader = ss.str();
-        s_keepAliveResources->standardMeshShader.setUniform1i(lightInShader + "on", light.isOn());
-
-        s_keepAliveResources->standardMeshShader.setUniform3f(lightInShader + "position", light.getPosition());
-
-        s_keepAliveResources->standardMeshShader.setUniform1f(lightInShader + "constant", light.getCoefs().constant);
-        s_keepAliveResources->standardMeshShader.setUniform1f(lightInShader + "linear", light.getCoefs().linear);
-        s_keepAliveResources->standardMeshShader.setUniform1f(lightInShader + "quadratic", light.getCoefs().quadratic);
-
-        s_keepAliveResources->standardMeshShader.setUniform3f(lightInShader + "ambient", light.getParams().ambiant);
-        s_keepAliveResources->standardMeshShader.setUniform3f(lightInShader + "diffuse", light.getParams().diffuse);
-        s_keepAliveResources->standardMeshShader.setUniform3f(lightInShader + "specular", light.getParams().specular);
+        s_keepAliveResources->standardLightsShader->setUniform1i(lightInShader + "on", light.isOn());
+        s_keepAliveResources->standardLightsShader->setUniform3f(lightInShader + "position", light.getPosition());
+        s_keepAliveResources->standardLightsShader->setUniform1f(lightInShader + "constant", light.getCoefs().constant);
+        s_keepAliveResources->standardLightsShader->setUniform1f(lightInShader + "linear", light.getCoefs().linear);
+        s_keepAliveResources->standardLightsShader->setUniform1f(lightInShader + "quadratic", light.getCoefs().quadratic);
+        s_keepAliveResources->standardLightsShader->setUniform3f(lightInShader + "ambient", light.getParams().ambiant);
+        s_keepAliveResources->standardLightsShader->setUniform3f(lightInShader + "diffuse", light.getParams().diffuse);
+        s_keepAliveResources->standardLightsShader->setUniform3f(lightInShader + "specular", light.getParams().specular);
     }
-    s_keepAliveResources->standardMeshShader.unbind();
+    Shader::unbind();
 }
 
 //=========================================================================================================================//
@@ -759,10 +815,8 @@ const DebugData& getRendererDebugData() {
   return s_debugData;
 }
 
-
 RenderingState getCurrentRenderingState() {
     return s_state.renderingState;
 }
 
-
-}
+} // !namespace Renderer

@@ -3,13 +3,9 @@
 #include "../Scene.h"
 #include "../../abstraction/Cubemap.h"
 #include "../../abstraction/UnifiedRenderer.h"
-#include "../../abstraction/Mesh.h"
 #include "../../World/Player.h"
-#include "../../World/TerrainGeneration/HeightMap.h"
 #include "../../World/TerrainGeneration/Terrain.h"
-#include "../../World/TerrainGeneration/Noise.h"
 #include "../../Utils/AABB.h"
-#include "../Scenes/TestShadows.h"
 
 #ifndef NDEBUG
 #define NDEBUG 0
@@ -29,19 +25,16 @@ private:
   bool              m_isRoguePlayerActive = false;
 
     /* Terrain generation stuff */
-  Terrain::Terrain       m_terrain;      // holds heightmap and chunksize
-  Noise::TerrainData     m_terrainData;  // < This holds default and nice configuration for the terrain
-  bool                   m_isErosionEnabled = NDEBUG; // disable erosion by default when running in debug mode (because it's way too slow)
-  Noise::ErosionSettings m_erosionSettings;
-  unsigned int           m_terrainSizeInChunks = 20;
-  int                    m_chunkSize = 10;
+  Renderer::TerrainMesh      m_terrain;      // holds heightmap and chunksize
+  Noise::PerlinNoiseSettings m_terrainData;  // < This holds default and nice configuration for the terrain
+  Noise::ConcreteHeightMap   m_heightmap;
+  bool                       m_isErosionEnabled = NDEBUG; // disable erosion by default when running in debug mode (because it's way too slow)
+  Noise::ErosionSettings     m_erosionSettings;
+  unsigned int               m_terrainSize = 20;
 
     /* Rendering stuff */
   Renderer::Frustum     m_frustum;
   
-  Renderer::Texture     m_rockTexture = Renderer::Texture( "res/textures/rock.jpg" );
-  Renderer::Texture     m_grassTexture = Renderer::Texture( "res/textures/grass6.jpg" );
-
   bool                  m_renderChunks = 0;
 
   Renderer::TestUniform m_fogDampingTestUniform;
@@ -63,64 +56,48 @@ public:
       "res/skybox/skybox_left.bmp",  "res/skybox/skybox_right.bmp",
       "res/skybox/skybox_top.bmp",   "res/skybox/skybox_bottom.bmp" }
   {
-    m_rockTexture.bind(0);
-    m_grassTexture.bind(1);
-
     m_player.setPostion({ 100.f, 22.F , 100.f });
     m_player.updateCamera();
     m_sun.position = { 100,100,100 };
 
     int samplers[8] = { 0,1,2,3,4,5,6,7 };
-    Renderer::getStandardMeshShader().bind();
-    Renderer::getStandardMeshShader().setUniform1iv("u_Textures2D", 8, samplers);
-    Renderer::getStandardMeshShader().setUniform1i("u_castShadows", 0);
+    Renderer::getStandardMeshShader()->bind();
+    Renderer::getStandardMeshShader()->setUniform1iv("u_Textures2D", 8, samplers);
+    Renderer::getStandardMeshShader()->setUniform1i("u_castShadows", 0);
+    Renderer::Shader::unbind();
+
+    auto terrainMaterial = std::make_shared<Renderer::Material>();
+    terrainMaterial->shader = Renderer::getStandardMeshShader();
+    terrainMaterial->textures[0] = std::make_shared<Renderer::Texture>("res/textures/rock.jpg");
+    terrainMaterial->textures[1] = std::make_shared<Renderer::Texture>("res/textures/grass6.jpg");
+    m_terrain.setMaterial(terrainMaterial);
 
     regenerateTerrain();
 
     m_frustum = Renderer::Frustum::createFrustumFromPerspectiveCamera(m_player.getCamera());
 
-    m_fogDampingTestUniform = Renderer::TestUniform(&Renderer::getStandardMeshShader(), "u_fogDamping", 3, .0001f);
-    //m_fogDampingTestUniform.setValue(.003f, .01f, .013f);
+    m_fogDampingTestUniform = Renderer::TestUniform(Renderer::getStandardMeshShader().get(), "u_fogDamping", 3, .0001f);
     m_fogDampingTestUniform.setValue(0, 0, .001f);
-    m_grassSteepnessTestUniform = Renderer::TestUniform(&Renderer::getStandardMeshShader(), "u_grassSteepness", 2, .01f);
+    m_grassSteepnessTestUniform = Renderer::TestUniform(Renderer::getStandardMeshShader().get(), "u_grassSteepness", 2, .01f);
     m_grassSteepnessTestUniform.setValue(.79f, 1.f);
-
   }
 
   void regenerateTerrain()
   {
-    //{ // simple terrain generation
-    //  m_terrain = Terrain::generateTerrain(
-    //    m_terrainData,
-    //    m_terrainWidthInChunks,
-    //    m_terrainHeightInChunks, 
-    //    m_chunkSize);
-    //}
+    m_terrain.clearMesh();
 
     //{ // terrain from saved texture
-    //  unsigned int noiseMapWidth, noiseMapHeight;
-    //  float *noiseMap = Noise::loadNoiseMapFromFile("res/heightmaps/eroded.png", &noiseMapWidth, &noiseMapHeight);
-    //  Noise::rescaleNoiseMap(noiseMap, noiseMapWidth, noiseMapHeight, 0, 1, 0, 100);
-    //  ConcreteHeightMap *heightMap = new ConcreteHeightMap(noiseMapWidth, noiseMapHeight, noiseMap);
-    //  m_terrain = Terrain::generateTerrain(heightMap, 1, 1, noiseMapWidth - 3);
+    //  m_heightmap = Noise::loadNoiseMapFromFile("res/heightmaps/eroded.png");
+    //  Noise::rescaleNoiseMap(&m_heightmap, 0, 1, 0, 100);
     //}
 
     { // simple terrain + erosion
-      unsigned int noiseMapSize = 3 + m_chunkSize * m_terrainSizeInChunks;
-      float *noiseMap = Noise::generateNoiseMap(noiseMapSize,
-                                                noiseMapSize,
-                                                m_terrainData.scale,
-                                                m_terrainData.octaves,
-                                                m_terrainData.persistence,
-                                                m_terrainData.initialFrequency,
-                                                m_terrainData.lacunarity,
-                                                m_terrainData.seed);
+      m_heightmap = Noise::generateNoiseMap(m_terrainSize, m_terrainSize, m_terrainData);
       if(m_isErosionEnabled)
-        Noise::erode(noiseMap, noiseMapSize, m_erosionSettings);
-      Noise::rescaleNoiseMap(noiseMap, noiseMapSize, noiseMapSize, 0, 1, 0, m_terrainData.terrainHeight);
-      Terrain::HeightMap *heightMap = new Terrain::ConcreteHeightMap(noiseMapSize, noiseMapSize, noiseMap);
-      m_terrain = Terrain::generateTerrain(heightMap, m_terrainSizeInChunks, m_terrainSizeInChunks, m_chunkSize);
+        Noise::erode(&m_heightmap, m_erosionSettings);
     }
+
+    m_terrain.rebuildMesh(m_heightmap, { 0,0, (float)m_terrainSize,(float)m_terrainSize });
   }
 
   void step(float delta) override
@@ -129,7 +106,7 @@ public:
       (m_isRoguePlayerActive ? m_roguePlayer : m_player).step(delta);
       if (!m_playerIsFlying) {
           glm::vec3 pos = m_player.getPosition();
-          pos.y = m_terrain.getHeightMap().getHeightLerp(pos.x, pos.z) + 1.f;
+          pos.y = m_heightmap(pos.x, pos.z) + 1.f;
           m_player.setPostion(pos);
           m_player.updateCamera();
       }
@@ -144,33 +121,29 @@ public:
     Renderer::clear();
     Renderer::renderCubemap(renderCamera, m_skybox);
 
-    m_rockTexture.bind(0);
-    m_grassTexture.bind(1);
-
-    for (const auto &[position, chunk] : m_terrain.getChunks()) {
-      const AABB &chunkAABB = chunk.getMesh().getBoundingBox();
-      bool isVisible = m_frustum.isOnFrustum(chunkAABB);
-
-      if (DebugWindow::renderAABB() && (isVisible || m_isRoguePlayerActive))
-        renderAABBDebugOutline(renderCamera, chunkAABB, isVisible ? glm::vec4{ 1,1,0,1 } : glm::vec4{ 1,0,0,1 });
-
-      if (isVisible) {
-        Renderer::renderMesh(renderCamera, glm::vec3{ 0 }, glm::vec3{ 1 }, chunk.getMesh());
+    if (DebugWindow::renderAABB()) {
+      for (const auto &chunk : m_terrain.getChunks()) {
+        const AABB &chunkAABB = chunk.worldBoundingBox;
+        bool isVisible = m_frustum.isOnFrustum(chunkAABB);
+        if (isVisible || m_isRoguePlayerActive)
+          renderAABBDebugOutline(renderCamera, chunkAABB, isVisible ? glm::vec4{ 1,1,0,1 } : glm::vec4{ 1,0,0,1 });
       }
     }
+
+    Renderer::renderMeshTerrain(renderCamera, m_terrain);
 
     if (m_isRoguePlayerActive) {
       Renderer::renderDebugCameraOutline(renderCamera, m_player.getCamera());
     }
 
-    Renderer::getStandardMeshShader().bind();
-    Renderer::getStandardMeshShader().setUniform3f("u_SunPos", m_sun.position.x, m_sun.position.y, m_sun.position.z);
-    Renderer::getStandardMeshShader().setUniform1f("u_Strength", m_sun.strength);
-    Renderer::getStandardMeshShader().setUniform1i("u_RenderChunks", m_renderChunks ? 1 : 0);
-    Renderer::getStandardMeshShader().unbind();
+    Renderer::getStandardMeshShader()->bind();
+    Renderer::getStandardMeshShader()->setUniform3f("u_SunPos", m_sun.position.x, m_sun.position.y, m_sun.position.z);
+    Renderer::getStandardMeshShader()->setUniform1f("u_Strength", m_sun.strength);
+    Renderer::getStandardMeshShader()->setUniform1i("u_RenderChunks", m_renderChunks ? 1 : 0);
+    Renderer::Shader::unbind();
   }
 
-  static bool ImGuiTerrainDataSliders(Noise::TerrainData &data)
+  static bool ImGuiTerrainDataSliders(Noise::PerlinNoiseSettings &data)
   {
     if (ImGui::Button("Reset")) {
       data = {};
@@ -179,6 +152,7 @@ public:
     return
       ImGui::SliderFloat("Scale", &data.scale, 0, 50) +
       ImGui::SliderInt("Number of octaves", &data.octaves, 0, 10) +
+      ImGui::SliderFloat("Frequency", &data.initialFrequency, .001f, 10) +
       ImGui::SliderFloat("Persistence", &data.persistence, 0, 1) +
       ImGui::SliderFloat("Lacunarity", &data.lacunarity, 0, 50) +
       ImGui::SliderInt("Seed", &data.seed, 0, 5) +
@@ -210,8 +184,7 @@ public:
     if (ImGui::CollapsingHeader("Terrain Settings")) {
       int regenerate = 0;
 
-      regenerate += ImGui::SliderInt("Size (in chunks)", (int *)&m_terrainSizeInChunks, 1, 100);
-      regenerate += ImGui::SliderInt("Chunk size", &m_chunkSize, 1, 128);
+      regenerate += ImGui::SliderInt("Size (chunk aligned)", (int *)&m_terrainSize, 1, 1000);
       regenerate += ImGui::Checkbox("Erosion", &m_isErosionEnabled);
       if (!m_isErosionEnabled) ImGui::BeginDisabled();
       regenerate += ImGuiErosionSettingsSliders(m_erosionSettings);

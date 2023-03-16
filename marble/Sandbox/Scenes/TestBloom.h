@@ -14,18 +14,11 @@
 class TestBloomScene : public Scene {
 private:
     Player             m_player;
-    Renderer::Mesh     m_cubeMesh = Renderer::createCubeMesh();
-    Renderer::FrameBufferObject m_fbo;
-    Renderer::Texture  m_target{ Window::getWinWidth(), Window::getWinHeight() };
-    Renderer::Texture  m_depth = Renderer::Texture::createDepthTexture(Window::getWinWidth(), Window::getWinHeight());
-
+    Renderer::Mesh     m_cubeMesh{ Renderer::createCubeModel(), std::make_shared<Renderer::Material>() };
     World::Sky         m_sky;
 
-    visualEffects::VFXPipeline  m_pipeline{ Window::getWinWidth(), Window::getWinHeight() };
-
-    World::LightRenderer m_lRenderer;
-
-    BloomRenderer      m_bloomRenderer;
+    visualEffects::VFXPipeline m_pipeline{ Window::getWinWidth(), Window::getWinHeight() };
+    World::LightRenderer       m_lRenderer;
 
     float m_exposure = 1.0f;
     float m_strenght = 0.05f;
@@ -36,9 +29,6 @@ private:
 public:
     TestBloomScene()
     {
-        m_fbo.setTargetTexture(m_target);
-        m_fbo.setDepthTexture(m_depth);
-
         //===============//
         m_pipeline.registerEffect<visualEffects::Saturation>();
         m_pipeline.registerEffect<visualEffects::GammaCorrection>();
@@ -52,6 +42,9 @@ public:
 
         m_pipeline.registerEffect<visualEffects::Bloom>();
         m_pipeline.sortPipeline();
+
+        m_cubeMesh.getMaterial()->shader = Renderer::getStandardMeshShader();
+        m_cubeMesh.getTransform().scale = { 3,3,3 };
     }
 
     ~TestBloomScene()
@@ -74,15 +67,15 @@ public:
         Renderer::clear();
         Renderer::Texture::unbind(0);
 
-        Renderer::renderMesh(camera, {0,0,0}, glm::vec3(3), m_cubeMesh);
-        Renderer::renderMesh(camera, {10,0,0}, glm::vec3(3), m_cubeMesh);
-        Renderer::renderMesh(camera, {0,10,0}, glm::vec3(3), m_cubeMesh);
-        Renderer::renderMesh(camera, {0,0,10}, glm::vec3(3), m_cubeMesh);
+        // in a real scene an InstancedMesh would be used
+        m_cubeMesh.getTransform().position = { 0,0,0  }; Renderer::renderMesh(camera, m_cubeMesh);
+        m_cubeMesh.getTransform().position = { 10,0,0 }; Renderer::renderMesh(camera, m_cubeMesh);
+        m_cubeMesh.getTransform().position = { 0,10,0 }; Renderer::renderMesh(camera, m_cubeMesh);
+        m_cubeMesh.getTransform().position = { 0,0,10 }; Renderer::renderMesh(camera, m_cubeMesh);
 
         m_sky.render(camera, m_realtime);
 
         m_pipeline.unbind();
-
         m_pipeline.renderPipeline();
     }
 
@@ -90,8 +83,6 @@ public:
     {
         m_pipeline.onImGuiRender();
         m_lRenderer.onImguiRender();
-       
-        
     }
 
     CAMERA_IS_PLAYER(m_player);

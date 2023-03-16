@@ -4,25 +4,18 @@
 #include <vector>
 #include <stddef.h>
 
+#include "HeightMap.h"
+
 /**
 * Noise can be generated manually or by using a function in this namespace.
 * They can then be used to generate heightmaps.
 */
 namespace Noise {
 
-/* Standard perlin noise */
-float *generateNoiseMap(int mapWidth, int mapHeight, float scale, int octaves, float persistance, float initialFrequency, float lacunarity, int seed);
-/* Load a heightmap from a black and white file, white values produce heights of 1 and black values heights of 0 */
-float *loadNoiseMapFromFile(const char *path, unsigned int *o_width, unsigned int *o_height);
-/* Rescales a noisemap by applying a linear function to each of its values */
-void rescaleNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHeight, float currentMin, float currentMax, float newMin, float newMax);
-/* Outline a noisemap by seting its edge values to the specified height, this can be used to produce walls or steep edges */
-void outlineNoiseMap(float *noiseMap, unsigned int mapWidth, unsigned int mapHeight, float outlineHeight, unsigned int outlineSize);
-
 // These values are kinda magical and good looking
-struct TerrainData {
+struct PerlinNoiseSettings {
   float scale = 27.6f;          // the higher the scale, the flatter the terrain will apear to be
-  float terrainHeight = 20.f;
+  float terrainHeight = 10.f;
   int   octaves = 4;            // Number of times we add a new frequency to the heightmap
   float persistence = 0.3f;     // How impactfull an octave is relative to the previous one
   float initialFrequency = 1.f; // The impactfullness of the first octave
@@ -45,6 +38,15 @@ struct ErosionSettings {
   size_t dropletCount = 100'000;
 };
 
+/* Standard perlin noise */
+ConcreteHeightMap generateNoiseMap(int mapWidth, int mapHeight, const PerlinNoiseSettings &terrainData);
+/* Load a heightmap from a black and white file, white values produce heights of 1 and black values heights of 0 */
+ConcreteHeightMap loadNoiseMapFromFile(const char *path);
+/* Rescales a noisemap by applying a linear function to each of its values */
+void rescaleNoiseMap(ConcreteHeightMap *map, float currentMin, float currentMax, float newMin, float newMax);
+/* Outline a noisemap by seting its edge values to the specified height, this can be used to produce walls or steep edges */
+void outlineNoiseMap(ConcreteHeightMap *map, float outlineHeight, unsigned int outlineSize);
+
 /**
 * Applies a standard erosion algorithm to an existing *square* noise map.
 * 
@@ -54,7 +56,7 @@ struct ErosionSettings {
 * 
 * FUTURE The erosion algorithm could (and should) be ran on the gpu
 */
-void erode(float *noiseMap, unsigned int mapSize, const ErosionSettings &settings);
+void erode(ConcreteHeightMap *heightmap, const ErosionSettings &settings);
 
 };
 

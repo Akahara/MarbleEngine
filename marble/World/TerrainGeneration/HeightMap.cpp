@@ -4,7 +4,7 @@
 #include "Terrain.h"
 #include <cstring>
 
-namespace Terrain {
+namespace Noise {
 
 HeightMap::HeightMap(unsigned int width, unsigned int height)
   : m_width(width), m_height(height)
@@ -106,8 +106,7 @@ void ConcreteHeightMap::setHeights(unsigned int width, unsigned int height, floa
 float ConcreteHeightMap::getHeight(int x, int y) const
 {
   assert(m_heightValues != nullptr);
-  assert(isInBounds(x, y));
-  return m_heightValues[x + y * m_width];
+  return isInBounds(x, y) ? m_heightValues[x + y * m_width] : 0;
 }
 
 } // !namespace Terrain

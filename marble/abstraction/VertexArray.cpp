@@ -83,8 +83,4 @@ void VertexArray::addInstanceBuffer(const VertexBufferObject &ivb, const VertexB
   unbind();
 }
 
-void VertexArray::sendToGPU(size_t size, const void* data) {
-  glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
-}
-
 }

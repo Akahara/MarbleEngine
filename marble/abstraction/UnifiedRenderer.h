@@ -15,7 +15,7 @@
 * The Renderer is the primary interface with OpenGL. A final user should not have
 * to call any gl function and instead shall use Renderer functions.
 * 
-* In this namespace are functions that load data (shaders & meshes), initialization
+* In this namespace are functions that load data (shaders & models), initialization
 * and finalization methods, debug drawing methods (bounding boxes, cameras...) and
 * normal rendering methods (meshes...).
 * 
@@ -39,9 +39,9 @@ namespace Renderer {
 namespace fs = std::filesystem;
 
 static struct DebugData {
-  int vertexCount; // Does not handle instanced rendering
-  int meshCount;
-  int debugLines;
+  size_t vertexCount;
+  size_t meshCount;
+  size_t debugLines;
 } s_debugData;
 
 
@@ -56,12 +56,12 @@ enum RenderingState {
 RenderingState getCurrentRenderingState();
 void setRenderingState(RenderingState state);
 
-Shader loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath);
-Mesh createCubeMesh();
-Mesh createSphereMesh(int resolution = 10);
-
-Mesh createPlaneMesh(bool facingDown=false);
+std::shared_ptr<Shader> loadShaderFromFiles(const fs::path &vertexPath, const fs::path &fragmentPath);
+std::shared_ptr<Model> createCubeModel();
+std::shared_ptr<Model> createPlaneModel(bool facingDown=false);
+std::shared_ptr<Model> createSphereModel(int resolution=10);
 Mesh loadMeshFromFile(const fs::path &objPath);
+const std::shared_ptr<Texture> &getMissingTexture();
 
 void clear();
 
@@ -70,35 +70,18 @@ void shutdown();
 void clearDebugData();
 const DebugData& getRendererDebugData();
 
-Shader &rebuildStandardMeshShader(const ShaderFactory &builder);
-Shader &getStandardMeshShader();
-/* Disables color drawing and switches the standard mesh shader to an empty one */
+const std::shared_ptr<Shader> &rebuildStandardMeshShader(const ShaderFactory &builder);
+const std::shared_ptr<Shader> &getStandardMeshShader();
+/* Disables color drawing and switches the standard Model shader to an empty one */
 void beginColorPass();
-/* Enables color drawing and restores the standard mesh shader */
+/* Enables color drawing and restores the standard Model shader */
 void beginDepthPass();
 
-
-// Change this for quaternions
-enum ROTATION_AXIS {
-    X_AXIS = 1,
-    Y_AXIS = 2,
-    Z_AXIS = 4,
-    XY_AXIS = X_AXIS | Y_AXIS,
-    XZ_AXIS = X_AXIS | Z_AXIS,
-    YZ_AXIS = Y_AXIS | Z_AXIS,
-    XYZ_AXIS = X_AXIS |Y_AXIS | Z_AXIS
-};
-
-struct Rotation {
-    unsigned char axis;
-    float theta;
-
-    Rotation(unsigned char a, float t) : axis(a), theta(t) {}
-};
-
-/* For rotation, give a initialization of a struct like that = {axis, degrees}, where axis is the enum Renderer::ROTATION_AXIS (0=x, 1=y, 2=z), use bitwise or built enum*/
-void renderMesh(const Camera& camera, const glm::vec3& position, const glm::vec3& size, const Mesh& mesh, const Rotation& rotation = { X_AXIS, 0.F });
-void renderNormalsMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const NormalsMesh &normalsMesh, const glm::vec4 &color={ 1,0,0,1 });
+void renderMesh(const Camera &camera, const Mesh &mesh);
+void renderMeshInstanced(const Camera &camera, const InstancedMesh &mesh);
+void renderMeshInstanced(const Camera &camera, const InstancedMesh &mesh, size_t instanceCount);
+void renderMeshTerrain(const Camera &camera, const TerrainMesh &mesh);
+void renderNormalsMesh(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size, const NormalsMesh &normalsModel, const glm::vec4 &color={ 1,0,0,1 });
 void renderCubemap(const Camera &camera, const Cubemap &cubemap);
 void renderDebugLine(const Camera &camera, const glm::vec3 &from, const glm::vec3 &to, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});
 void renderDebugCube(const Camera &camera, const glm::vec3 &position, const glm::vec3 &size={1.f, 1.f, 1.f}, const glm::vec4 &color={1.f, 1.f, 1.f, 1.f});

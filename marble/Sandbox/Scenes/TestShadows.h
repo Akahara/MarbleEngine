@@ -18,9 +18,9 @@
 class TestShadowsScene : public Scene {
 private:
   Player             m_player;
-  Renderer::Mesh     m_mesh1;
-  Renderer::Mesh     m_cubeMesh;
-  Renderer::Shader   m_shader;
+  Renderer::Mesh     m_visibleMesh;
+  Renderer::InstancedMesh m_cubesInstancedMesh;
+  std::shared_ptr<Renderer::Shader> m_shaders[2];
   World::Sky         m_sky;
 
   SunCameraHelper    m_sunCameraHelper;
@@ -28,29 +28,40 @@ private:
   std::vector<AABB>  m_cubes;
 
   Renderer::FrameBufferObject m_depthFBO;
-  Renderer::Texture           m_depthTexture;
-  static constexpr int        m_depthTextureSlot = 1; // cannot use slot0 because the mesh overrides it with the "missing texture"
+  std::shared_ptr<Renderer::Texture> m_depthTexture;
+  static constexpr int        m_depthTextureSlot = 0;
 
   Renderer::BlitPass m_depthTestBlitPass;
   bool               m_dbgDrawDepthBuffer = false;
   bool               m_animateSun = false;
   float              m_realTime = 0;
+  bool               m_drawDebugLines = true;
 public:
   TestShadowsScene() : 
-    m_mesh1(Renderer::loadMeshFromFile("res/meshes/floor.obj")),
-    m_cubeMesh(Renderer::createCubeMesh()),
-    m_shader(Renderer::loadShaderFromFiles("res/shaders/shadows.vs", "res/shaders/shadows.fs")),
-    m_depthTestBlitPass{ "res/shaders/shadows_testblitdepth.fs" }
+    m_depthTestBlitPass{ "res/shaders/shadows_testblitdepth.fs" },
+    m_depthTexture(std::make_shared<Renderer::Texture>(std::move(Renderer::Texture::createDepthTexture(1600 * 16 / 9, 1600))))
   {
-    m_shader.bind();
-    m_shader.setUniform1i("u_shadowMap", m_depthTextureSlot);
-
+    m_shaders[0] = Renderer::loadShaderFromFiles("res/shaders/shadows.vs", "res/shaders/shadows.fs");
+    m_shaders[1] = Renderer::loadShaderFromFiles("res/shaders/shadows_instanced.vs", "res/shaders/shadows.fs");
+    auto material = std::make_shared<Renderer::Material>();
+    auto materialInstanced = std::make_shared<Renderer::Material>();
+    material->shader = m_shaders[0];
+    material->textures[m_depthTextureSlot] = m_depthTexture;
+    materialInstanced->shader = m_shaders[1];
+    materialInstanced->textures[m_depthTextureSlot] = m_depthTexture;
+    m_visibleMesh = Renderer::loadMeshFromFile("res/meshes/floor.obj");
+    m_visibleMesh.setMaterial(material);
+    m_visibleMesh.getTransform().position = { 3, 0, 0 };
+    m_cubesInstancedMesh = Renderer::InstancedMesh(Renderer::createCubeModel(), materialInstanced, 0);
+    for (auto &shader : m_shaders) {
+      shader->bind();
+      shader->setUniform1i("u_shadowMap", m_depthTextureSlot);
+    }
+    m_depthFBO.setDepthTexture(*m_depthTexture);
     m_sunCameraHelper.setSunDirection(glm::normalize(glm::vec3{ .5f, .1f, 0.f }));
+    m_depthTestBlitPass.attachInputTexture(m_depthTexture, 0);
+
     updateSunCamera();
-
-    m_depthTexture = Renderer::Texture::createDepthTexture(1600 * 16 / 9, 1600);
-    m_depthFBO.setDepthTexture(m_depthTexture);
-
     generateCubes();
   }
 
@@ -69,7 +80,7 @@ public:
 
   void renderScene(const Renderer::Camera &camera, bool depthPass)
   {
-    if (!depthPass) {
+    if (!depthPass && m_drawDebugLines) {
       renderDebugCameraOutline(camera, m_sunCameraHelper.getCamera());
       renderAABBDebugOutline(camera, m_visibleAABB);
 
@@ -77,24 +88,8 @@ public:
         renderAABBDebugOutline(camera, box, m_sunCameraHelper.isBoxVisibleBySun(box) ? glm::vec4{1,0,0,1} : glm::vec4{100.f,1,0,1});
     }
 
-    m_depthTexture.bind(m_depthTextureSlot);
-
-    // do not use Renderer::renderMesh because the standard mesh shader would be used
-    m_shader.bind();
-    m_shader.setUniformMat4f("u_M", glm::translate(glm::mat4(1.f), { 3, 0, 0 }));
-    m_shader.setUniformMat4f("u_VP", camera.getViewProjectionMatrix());
-    m_mesh1.draw();
-
-    for (const AABB &box : m_cubes) {
-      if (depthPass && !m_sunCameraHelper.isBoxVisibleBySun(box))
-        continue; // this skip might actually be slower than to draw the box anyways, isBoxVisibleBySun is not cheap
-      glm::vec3 p = box.getOrigin() + box.getSize() * .5f;
-      glm::mat4 M = glm::mat4(1.f);
-      M = glm::translate(M, p);
-      M = glm::scale(M, box.getSize());
-      m_shader.setUniformMat4f("u_M", M);
-      m_cubeMesh.draw();
-    }
+    Renderer::renderMesh(camera, m_visibleMesh);
+    Renderer::renderMeshInstanced(camera, m_cubesInstancedMesh);
   }
 
   void updateSunCamera()
@@ -111,16 +106,18 @@ public:
     m_depthTestBlitPass.getShader().bind();
     m_depthTestBlitPass.getShader().setUniform1f("u_zNear", zNear);
     m_depthTestBlitPass.getShader().setUniform1f("u_zFar", zFar);
-    m_shader.bind();
-    m_shader.setUniformMat4x3f("u_shadowMapProj", m_sunCameraHelper.getWorldToShadowMapProjectionMatrix());
-    m_shader.setUniform2f("u_shadowMapOrthoZRange", zNear, zFar);
-    m_shader.unbind();
+    for (auto &shader : m_shaders) {
+      shader->bind();
+      shader->setUniformMat4x3f("u_shadowMapProj", m_sunCameraHelper.getWorldToShadowMapProjectionMatrix());
+      shader->setUniform2f("u_shadowMapOrthoZRange", zNear, zFar);
+      shader->unbind();
+    }
   }
 
   void onRender() override
   {
     m_depthFBO.bind();
-    m_depthFBO.setViewportToTexture(m_depthTexture);
+    m_depthFBO.setViewportToTexture(*m_depthTexture);
     Renderer::clear();
     Renderer::beginDepthPass();
     renderScene(m_sunCameraHelper.getCamera(), true);
@@ -128,14 +125,13 @@ public:
     Renderer::FrameBufferObject::unbind();
     Renderer::FrameBufferObject::setViewportToWindow();
 
-    Renderer::clear();
     if (m_dbgDrawDepthBuffer) {
-      m_depthTexture.bind(0);
       m_depthTestBlitPass.doBlit();
     } else {
+      Renderer::clear();
       renderScene(m_player.getCamera(), false);
+      m_sky.render(m_player.getCamera(), m_realTime);
     }
-    m_sky.render(getCamera(), m_realTime);
   }
 
   void onImGuiRender() override
@@ -144,6 +140,7 @@ public:
       if (m_sunCameraHelper.renderImGuiControls())
         updateSunCamera();
 
+      ImGui::Checkbox("draw debug lines", &m_drawDebugLines);
       ImGui::Checkbox("draw depth", &m_dbgDrawDepthBuffer);
       ImGui::Checkbox("animate sun", &m_animateSun);
 
@@ -163,6 +160,13 @@ public:
       glm::vec3 s = { glm::linearRand(.5f, 1.5f), glm::linearRand(.5f, 1.5f), glm::linearRand(.5f, 1.5f) };
       m_cubes.push_back(AABB(p, s));
     }
+
+    Renderer::BaseInstance *cubeInstances = new Renderer::BaseInstance[m_cubes.size()];
+    size_t visibleCubeCount = 0;
+    for (const AABB &box : m_cubes)
+      cubeInstances[visibleCubeCount++] = { box.getOrigin() + box.getSize() * .5f, box.getSize() };
+    m_cubesInstancedMesh.replaceInstances(cubeInstances, m_cubes.size());
+    delete[] cubeInstances;
   }
 
   CAMERA_IS_PLAYER(m_player);
