@@ -38,4 +38,10 @@ TerrainMesh::TerrainMesh(const std::shared_ptr<Material> &material)
 {
 }
 
+bool TerrainMesh::hasChunk(glm::ivec2 chunkPosition)
+{
+  return std::find_if(m_chunks.begin(), m_chunks.end(),
+                      [chunkPosition](auto &chunk) { return chunk.position == chunkPosition; }) != m_chunks.end();
+}
+
 } // !namespace World

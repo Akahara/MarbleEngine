@@ -152,12 +152,10 @@ namespace World {
  */
 class TerrainGrassGenerator : public GrassGenerator {
 private:
-  //const Terrain::Terrain *m_terrain;
-  struct { float getHeight(float x, float y) { return 0; } } *m_terrain; // FIX restore Grass generation from terrain (heightmap)
+  const Noise::HeightMap *m_heightmap;
 public:
-  //TerrainGrassGenerator(const Terrain::Terrain *terrain)
-  //  : m_terrain(terrain) { }
-  TerrainGrassGenerator() {}
+  TerrainGrassGenerator(const Noise::HeightMap *heightmap)
+    : m_heightmap(heightmap) { }
 
   void regenerateChunk(const glm::ivec2 &chunkPosition, unsigned int chunkSize, size_t instanceCount, GrassInstance *grassBuffer) override;
 };

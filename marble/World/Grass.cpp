@@ -135,7 +135,7 @@ void TerrainGrassGenerator::regenerateChunk(const glm::ivec2 &chunkPosition, uns
     float r = b + chunkPosition.x * .252f + chunkPosition.y * .62f;
     float bladeX = (chunkPosition.x + Mathf::rand(r)) * chunkSize;
     float bladeZ = (chunkPosition.y + Mathf::rand(-r + 2.4f)) * chunkSize;
-    float bladeY = m_terrain->getHeight(bladeX, bladeZ);
+    float bladeY = (*m_heightmap)(bladeX, bladeZ);
     float bladeHeight = 1.f + Mathf::fract(r * 634.532f) * .5f;
     GrassInstance &blade = grassBuffer[b];
     blade.position = { bladeX, bladeY, bladeZ, bladeHeight };
@@ -397,8 +397,8 @@ void GrassRenderer::renderSingleLOD(const Renderer::Camera &camera, const Render
   m_grassShader.setUniformMat2f("u_R", facingCameraRotationMatrix);
   m_grassShader.setUniform1f("u_time", time);
 
-  m_vao.bind();
   m_grassModels.bindBuffer(lod, m_vao);
+  m_vao.bind();
   int verticesCount = (int)m_grassModels.getIndexBuffer(lod).getCount();
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_bigBuffer);
   glBufferSubData(GL_DRAW_INDIRECT_BUFFER, offsetof(BigBuffer, drawCommand) + offsetof(Renderer::IndirectDrawCommand, count), sizeof(int), &verticesCount);

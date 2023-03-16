@@ -1,91 +1,52 @@
 #include "PropsManager.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include "../../abstraction/UnifiedRenderer.h"
 #include "../../vendor/imgui/imgui.h"
 #include "../../Utils/Debug.h"
-#include <glad/glad.h>
 
 namespace World {
 
+void PropsManager::feed(const std::shared_ptr<Renderer::Mesh>& mesh)
+{
+  m_props.emplace_back(mesh);
+}
 
+void PropsManager::render(const Renderer::Camera& camera)
+{
+  Renderer::Frustum frustum = Renderer::Frustum::createFrustumFromCamera(camera);
 
-void PropsManager::computeToBeRendered(const Renderer::Frustum& viewFrustum) {
-
-	for (const auto& prop : m_props) {
-
-		if (viewFrustum.isOnFrustum(prop.mesh->getModel()->getBoundingBoxInstance(prop.position, prop.size))) 
-		{
-			m_toRender.push(prop);
-		}
-
-
+  for(const std::shared_ptr<Renderer::Mesh> &prop : m_props) {
+	AABB boundingBox = prop->getBoundingBox();
+	if (frustum.isOnFrustum(boundingBox)) {
+	  Renderer::renderMesh(camera, *prop);
 	}
-
-}
-
-void PropsManager::feed(const std::shared_ptr<Renderer::Mesh>&  mesh, const glm::vec3& position, const glm::vec3& size) {
-
-	m_props.emplace_back(Prop{ mesh, position, size });
-
-}
-
-void PropsManager::feed(Prop prop) {
-
-	m_props.emplace_back(prop);
-
-}
-
-
-
-void PropsManager::render(const Renderer::Camera& camera) {
-
-	computeToBeRendered(Renderer::Frustum::createFrustumFromPerspectiveCamera(camera));
-
-	while (!m_toRender.empty()) {
-
-		const Prop& p = m_toRender.front();
-
-		//Renderer::renderMesh(camera, p.position, p.size, *p.mesh);
-		Renderer::renderMesh(camera, *p.mesh); // FIX props (now Mesh have transforms)
-
-
-		if (DebugWindow::renderAABB()) {
-			Renderer::renderAABBDebugOutline(camera, p.mesh->getModel()->getBoundingBoxInstance(p.position, p.size));
-		}
-
-		m_toRender.pop();
+	if (DebugWindow::renderAABB()) {
+	  Renderer::renderAABBDebugOutline(camera, boundingBox);
 	}
-
+  }
 }
 
-void PropsManager::onImGuiRender()  {
-
-	if (ImGui::Begin("Scene props")) {
-
-
+void PropsManager::onImGuiRender()
+{
+  if (ImGui::Begin("Scene props")) {
 	for (unsigned int i = 0; i < m_props.size(); i ++) {
-
-		Prop& p = m_props[i];
-		std::stringstream ss;
-		ss << "Prop #" << i << " : " << p.name;
-		if (ImGui::CollapsingHeader(ss.str().c_str())) {
-
-			ImGui::DragFloat3("Position##" + i, &p.position.x, 1.F);
-			if (ImGui::DragFloat("Size##" + i, &p.size.x, 0.25F)) {
-				p.size = glm::vec3(p.size.x);
-			}
-
-		}
-
+	  Renderer::Mesh& p = *m_props[i];
+	  ImGui::PushID(i);
+	  if (ImGui::CollapsingHeader(("Prop " + std::to_string(i)).c_str())) {
+		ImGui::DragFloat3("Position", glm::value_ptr(p.getTransform().position), 1.F);
+		ImGui::DragFloat3("Size", glm::value_ptr(p.getTransform().scale), 0.25F);
+	  }
+	  ImGui::PopID();
 	}
-	}
-	ImGui::End();
-
-
+  }
+  ImGui::End();
 }
 
-void PropsManager::clear() {
-	m_props.clear();
+void PropsManager::clear()
+{
+  m_props.clear();
 }
 
-}
+} // !namespace World
